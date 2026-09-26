@@ -176,6 +176,8 @@ def init_db():
                 region_id INTEGER NOT NULL,
                 name TEXT NOT NULL,
                 has_districts INTEGER NOT NULL DEFAULT 0,
+                lat REAL,
+                lon REAL,
                 FOREIGN KEY (region_id) REFERENCES sa_regions (id)
             )
             """
@@ -849,9 +851,13 @@ def seed_saudi_geo_if_empty(regions_path, cities_path, districts_path):
             [(r["id"], r["name"]) for r in regions],
         )
         conn.executemany(
-            "INSERT INTO sa_cities (id, region_id, name, has_districts) VALUES (?, ?, ?, ?)",
+            "INSERT INTO sa_cities (id, region_id, name, has_districts, lat, lon) VALUES (?, ?, ?, ?, ?, ?)",
             [
-                (c["id"], c["region_id"], c["name"], 1 if c["id"] in cities_with_districts else 0)
+                (
+                    c["id"], c["region_id"], c["name"],
+                    1 if c["id"] in cities_with_districts else 0,
+                    c.get("lat"), c.get("lon"),
+                )
                 for c in cities
             ],
         )
@@ -942,6 +948,32 @@ def nearest_sa_districts(district_id: int, exclude_ids: list[int], limit: int = 
     # بدون الحاجة لحساب هافرساين الدقيق على مسافات صغيرة زي هذي).
     def dist(d):
         return (d["lat"] - origin["lat"]) ** 2 + (d["lon"] - origin["lon"]) ** 2
+
+    candidates.sort(key=dist)
+    return candidates[:limit]
+
+
+def nearest_sa_cities(city_id: int, exclude_ids: list[int], limit: int = 3):
+    """يرجّع أقرب N مدينة (من نفس القائمة الرسمية) بغض النظر عن المنطقة الإدارية —
+    مدينة قريبة بمنطقة مجاورة أهم من مدينة بعيدة بنفس المنطقة. يُستخدم فقط لما تنتهي
+    كل خيارات الأحياء المجاورة بنفس المدينة الأصلية بلا نتائج."""
+    origin = get_sa_city_by_id(city_id)
+    if not origin or origin["lat"] is None:
+        return []
+
+    with get_conn() as conn:
+        placeholders = ",".join("?" for _ in exclude_ids) if exclude_ids else None
+        query = "SELECT * FROM sa_cities WHERE lat IS NOT NULL"
+        params = []
+        if placeholders:
+            query += f" AND id NOT IN ({placeholders})"
+            params.extend(exclude_ids)
+        rows = conn.execute(query, params).fetchall()
+
+    candidates = [dict(r) for r in rows]
+
+    def dist(c):
+        return (c["lat"] - origin["lat"]) ** 2 + (c["lon"] - origin["lon"]) ** 2
 
     candidates.sort(key=dist)
     return candidates[:limit]

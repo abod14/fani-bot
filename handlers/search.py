@@ -29,6 +29,7 @@ SKIP_NEIGHBORHOOD_CB = "srch_skip_nb"
 BACK_TO_REGIONS_CB = "srch_back_regions"
 MORE_RESULTS_CB = "srch_more"
 NEARBY_DISTRICT_CB_PREFIX = "srch_nearby:"
+NEARBY_CITY_CB_PREFIX = "srch_nearby_city:"
 END_SEARCH_CB = "srch_end_search"
 NEARBY_SUGGESTIONS_COUNT = 3
 
@@ -233,6 +234,7 @@ async def choose_search_city(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
     context.user_data["city_id"] = city_id
     context.user_data["city"] = city["name"]
+    context.user_data.setdefault("tried_city_ids", []).append(city_id)
     await query.edit_message_text(
         f"المدينة: {city['name']}\n\nاختر الحي (أو تخطى للبحث بكل المدينة):",
         reply_markup=_district_keyboard(city_id, page=0),
@@ -352,34 +354,50 @@ async def _show_results_page(message, context: ContextTypes.DEFAULT_TYPE, is_edi
 
 
 async def _offer_nearby_or_end(message, context: ContextTypes.DEFAULT_TYPE):
+    """سلسلة اقتراحات لما تنتهي نتائج البحث الحالي: أولًا أحياء مجاورة بنفس المدينة،
+    ولو خلصت كل الأحياء المجاورة بلا فائدة، ننتقل لاقتراح أقرب مدينة/مركز ثاني."""
     ud = context.user_data
     district_id = ud.get("district_id")
 
-    if not district_id:
-        # بحث بكل المدينة أصلًا (تخطي الحي) — ما فيه معنى لاقتراح "حي مجاور"
-        context.user_data.clear()
-        return ConversationHandler.END
+    if district_id:
+        tried_districts = ud.get("tried_district_ids", [district_id])
+        nearby_districts = await asyncio.to_thread(
+            db.nearest_sa_districts, district_id, tried_districts, NEARBY_SUGGESTIONS_COUNT
+        )
+        if nearby_districts:
+            buttons = [
+                [InlineKeyboardButton(f"🏘️ {d['name']}", callback_data=f"{NEARBY_DISTRICT_CB_PREFIX}{d['id']}")]
+                for d in nearby_districts
+            ]
+            buttons.append([InlineKeyboardButton("❌ إنهاء البحث", callback_data=END_SEARCH_CB)])
+            await message.reply_text(
+                "استوفينا كل الفنيين بحيك. تحب نبحث لك بحي مجاور؟",
+                reply_markup=InlineKeyboardMarkup(buttons),
+            )
+            return SEARCH_RESULTS
 
-    tried = ud.get("tried_district_ids", [district_id])
-    nearby = await asyncio.to_thread(
-        db.nearest_sa_districts, district_id, tried, NEARBY_SUGGESTIONS_COUNT
-    )
+    # ما فيه أحياء مجاورة ثانية بنفس المدينة (أو أصلًا بحث بكل المدينة) — نجرّب أقرب مدينة/مركز
+    city_id = ud.get("city_id")
+    if city_id:
+        tried_cities = ud.get("tried_city_ids", [city_id])
+        nearby_cities = await asyncio.to_thread(
+            db.nearest_sa_cities, city_id, tried_cities, NEARBY_SUGGESTIONS_COUNT
+        )
+        if nearby_cities:
+            buttons = [
+                [InlineKeyboardButton(f"🏙️ {c['name']}", callback_data=f"{NEARBY_CITY_CB_PREFIX}{c['id']}")]
+                for c in nearby_cities
+            ]
+            buttons.append([InlineKeyboardButton("❌ إنهاء البحث", callback_data=END_SEARCH_CB)])
+            await message.reply_text(
+                "ما فيه فنيين أكثر قريبين منك. تحب نبحث لك بأقرب مدينة أو مركز؟",
+                reply_markup=InlineKeyboardMarkup(buttons),
+            )
+            return SEARCH_RESULTS
 
-    if not nearby:
-        await message.reply_text("ما فيه أحياء مجاورة ثانية نقترحها — جرّب مدينة أو حي آخر عبر /search.")
-        context.user_data.clear()
-        return ConversationHandler.END
-
-    buttons = [
-        [InlineKeyboardButton(f"🏘️ {d['name']}", callback_data=f"{NEARBY_DISTRICT_CB_PREFIX}{d['id']}")]
-        for d in nearby
-    ]
-    buttons.append([InlineKeyboardButton("❌ إنهاء البحث", callback_data=END_SEARCH_CB)])
-    await message.reply_text(
-        "استوفينا كل الفنيين بحيك. تحب نبحث لك بحي مجاور؟",
-        reply_markup=InlineKeyboardMarkup(buttons),
-    )
-    return SEARCH_RESULTS
+    await message.reply_text("ما فيه مدن أو مراكز أقرب ثانية نقترحها — جرّب /search من جديد بمنطقة مختلفة.")
+    context.user_data.clear()
+    return ConversationHandler.END
 
 
 async def choose_nearby_district(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -395,6 +413,26 @@ async def choose_nearby_district(update: Update, context: ContextTypes.DEFAULT_T
     ud["neighborhood"] = district["name"]
     ud["district_id"] = district_id
     ud.setdefault("tried_district_ids", []).append(district_id)
+    return await _run_search(query.message, context, is_edit=True, customer_telegram_id=update.effective_user.id)
+
+
+async def choose_nearby_city(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    city_id = int(query.data.split(":", 1)[1])
+    city = await asyncio.to_thread(db.get_sa_city_by_id, city_id)
+    if not city:
+        await query.edit_message_text("خيار غير معروف، حاول مرة أخرى.")
+        return SEARCH_RESULTS
+
+    ud = context.user_data
+    ud["city_id"] = city_id
+    ud["city"] = city["name"]
+    # مدينة/مركز جديد كليًا — نبحث بكل المدينة (بدون تقييد بحي معيّن) ونصفّر تتبّع الأحياء
+    ud["neighborhood"] = None
+    ud["district_id"] = None
+    ud["tried_district_ids"] = []
+    ud.setdefault("tried_city_ids", []).append(city_id)
     return await _run_search(query.message, context, is_edit=True, customer_telegram_id=update.effective_user.id)
 
 
@@ -469,6 +507,7 @@ def build_search_conversation() -> ConversationHandler:
             SEARCH_RESULTS: [
                 CallbackQueryHandler(show_more_results, pattern=f"^{MORE_RESULTS_CB}$"),
                 CallbackQueryHandler(choose_nearby_district, pattern=f"^{NEARBY_DISTRICT_CB_PREFIX}"),
+                CallbackQueryHandler(choose_nearby_city, pattern=f"^{NEARBY_CITY_CB_PREFIX}"),
                 CallbackQueryHandler(end_search_results, pattern=f"^{END_SEARCH_CB}$"),
             ],
         },
