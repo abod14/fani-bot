@@ -11,9 +11,12 @@ from telegram.ext import (
     CommandHandler,
     ContextTypes,
     ConversationHandler,
+    MessageHandler,
+    filters,
 )
 
 import db
+import intent_matcher
 import professions_repo as professions
 
 (
@@ -148,8 +151,56 @@ async def search_entry(update: Update, context: ContextTypes.DEFAULT_TYPE):
     target = update.message or update.callback_query.message
     if update.callback_query:
         await update.callback_query.answer()
-    await target.reply_text("اختر مجال الخدمة المطلوبة:", reply_markup=_domain_keyboard())
+    await target.reply_text(
+        "اكتب مشكلتك بكلماتك (مثال: «اريد اصلح غسالتي») وسنقترح المهنة المناسبة،\n"
+        "أو اختر مجال الخدمة مباشرة من القائمة:",
+        reply_markup=_domain_keyboard(),
+    )
     return SEARCH_DOMAIN
+
+
+async def smart_profession_from_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """تحليل مجاني محلي (بدون أي API) لوصف العميل الحر لمشكلته، واقتراح المهنة
+    المناسبة مباشرة بدل ما يمر بخطوتي المجال ثم المهنة يدويًا."""
+    text = update.message.text.strip()
+    matched_ids = intent_matcher.match_professions(text, limit=3)
+
+    if not matched_ids:
+        await update.message.reply_text(
+            "لم أستطع التعرف على مشكلتك تلقائيًا 🤔 اختر مجال الخدمة من القائمة:",
+            reply_markup=_domain_keyboard(),
+        )
+        return SEARCH_DOMAIN
+
+    if len(matched_ids) == 1:
+        domain, profession = professions.get_profession(matched_ids[0])
+        if profession:
+            context.user_data["profession_id"] = matched_ids[0]
+            context.user_data["profession_name"] = profession["name"]
+            await update.message.reply_text(
+                f"يبدو أنك تحتاج: {profession['name']} ✅\n\nاختر منطقتك:",
+                reply_markup=_region_keyboard(),
+            )
+            return SEARCH_REGION
+
+    buttons, row = [], []
+    for pid in matched_ids:
+        _, profession = professions.get_profession(pid)
+        if not profession:
+            continue
+        row.append(InlineKeyboardButton(profession["name"], callback_data=f"srch_prof:{pid}"))
+        if len(row) == 2:
+            buttons.append(row)
+            row = []
+    if row:
+        buttons.append(row)
+    buttons.append([InlineKeyboardButton("⬅️ رجوع لاختيار المجال", callback_data="srch_back_domain")])
+
+    await update.message.reply_text(
+        "يبدو أنك تحتاج إحدى هذه المهن، اختر الأنسب:",
+        reply_markup=InlineKeyboardMarkup(buttons),
+    )
+    return SEARCH_PROFESSION
 
 
 async def choose_search_domain(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -489,7 +540,10 @@ def build_search_conversation() -> ConversationHandler:
             CallbackQueryHandler(search_entry, pattern="^start_search$"),
         ],
         states={
-            SEARCH_DOMAIN: [CallbackQueryHandler(choose_search_domain, pattern="^srch_dom:")],
+            SEARCH_DOMAIN: [
+                CallbackQueryHandler(choose_search_domain, pattern="^srch_dom:"),
+                MessageHandler(filters.TEXT & ~filters.COMMAND, smart_profession_from_text),
+            ],
             SEARCH_PROFESSION: [
                 CallbackQueryHandler(choose_search_profession, pattern="^srch_prof:"),
                 CallbackQueryHandler(back_to_search_domain, pattern="^srch_back_domain$"),
