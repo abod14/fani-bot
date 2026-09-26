@@ -168,6 +168,26 @@ def init_db():
             """
         )
 
+        # دعم تعدد اللغات: اسم المجال/المهنة بالإنجليزي والأردو (العربي دائمًا بعمود name
+        # الأصلي). أعمدة جديدة على جداول قديمة — نضيفها فقط لو ناقصة.
+        for table in ("domains", "professions"):
+            cols = {row["name"] for row in conn.execute(f"PRAGMA table_info({table})").fetchall()}
+            if "name_en" not in cols:
+                conn.execute(f"ALTER TABLE {table} ADD COLUMN name_en TEXT")
+            if "name_ur" not in cols:
+                conn.execute(f"ALTER TABLE {table} ADD COLUMN name_ur TEXT")
+
+        # تفضيل لغة كل مستخدم (عميل أو فني) — مستقل عن التسجيل كفني، ينطبق على أي
+        # شخص يتفاعل مع البوت. العربي هو الافتراضي لمن لم يختر بعد.
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS user_languages (
+                telegram_user_id INTEGER PRIMARY KEY,
+                language TEXT NOT NULL DEFAULT 'ar'
+            )
+            """
+        )
+
         # ─────────────────────────── مناطق/مدن/أحياء المملكة (بيانات رسمية جاهزة) ───────────────────────────
         # عشان نستبدل كتابة المدينة/الحي كنص حر (يسبب أخطاء إملاء وتشتت) باختيار من قائمة
         # رسمية حقيقية، ونحل مشكلة "300 سباك بجدة" بعرض أحياء فعلية للفلترة بدل نص حر.
@@ -535,6 +555,51 @@ def seed_professions_from_json_if_empty(json_path):
         return True
 
 
+def apply_name_translations(domain_translations: dict, profession_translations: dict):
+    """يحدّث name_en/name_ur لكل مجال/مهنة من قواميس ثابتة بالكود (translations_data.py).
+    آمن يتكرر تشغيله (idempotent) — نفّذه كل تشغيل بعد البذر عشان أي إضافة ترجمة جديدة
+    بالكود تنعكس فورًا بدون ما نحتاج نمسح قاعدة البيانات."""
+    with get_conn() as conn:
+        for domain_id, tr in domain_translations.items():
+            conn.execute(
+                "UPDATE domains SET name_en = ?, name_ur = ? WHERE id = ?",
+                (tr.get("en"), tr.get("ur"), domain_id),
+            )
+        for profession_id, tr in profession_translations.items():
+            conn.execute(
+                "UPDATE professions SET name_en = ?, name_ur = ? WHERE id = ?",
+                (tr.get("en"), tr.get("ur"), profession_id),
+            )
+
+
+def get_user_language(telegram_user_id: int) -> str:
+    """يرجّع لغة المستخدم المحفوظة، أو 'ar' افتراضيًا لمن لم يختر بعد."""
+    with get_conn() as conn:
+        row = conn.execute(
+            "SELECT language FROM user_languages WHERE telegram_user_id = ?", (telegram_user_id,)
+        ).fetchone()
+        return row["language"] if row else "ar"
+
+
+def has_chosen_language(telegram_user_id: int) -> bool:
+    with get_conn() as conn:
+        row = conn.execute(
+            "SELECT 1 FROM user_languages WHERE telegram_user_id = ?", (telegram_user_id,)
+        ).fetchone()
+        return row is not None
+
+
+def set_user_language(telegram_user_id: int, language: str):
+    with get_conn() as conn:
+        conn.execute(
+            """
+            INSERT INTO user_languages (telegram_user_id, language) VALUES (?, ?)
+            ON CONFLICT (telegram_user_id) DO UPDATE SET language = excluded.language
+            """,
+            (telegram_user_id, language),
+        )
+
+
 # ─────────────────────────── إدارة المهن (CRUD للوحة التحكم) ───────────────────────────
 
 def list_domains():
@@ -818,6 +883,7 @@ def delete_all_user_data(telegram_user_id: int):
         conn.execute("DELETE FROM professionals WHERE telegram_user_id = ?", (telegram_user_id,))
         conn.execute("DELETE FROM search_log WHERE customer_telegram_id = ?", (telegram_user_id,))
         conn.execute("DELETE FROM contact_clicks WHERE customer_telegram_id = ?", (telegram_user_id,))
+        conn.execute("DELETE FROM user_languages WHERE telegram_user_id = ?", (telegram_user_id,))
 
 
 def admin_list_payments(

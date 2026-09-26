@@ -2,6 +2,10 @@
 # بأزرار) → الحي (أزرار من أحياء حقيقية لنفس المدينة، مع تخطي اختياري)، ثم نتائج
 # مُرتّبة بنظام تناوب عادل، صفحات من 5، وزر "تواصل عبر واتساب" يسجّل الضغطة ويستهلك
 # من الفرص المجانية لكل فني قبل ما يحتاج اشتراك.
+#
+# دعم تعدد اللغات: نجيب لغة العميل المحفوظة مرة واحدة عند الدخول ونخزّنها بـ
+# context.user_data["lang"]، وكل النصوص/الأزرار تُعرض بهذي اللغة عبر i18n.t(...).
+# أسماء المدن/الأحياء تبقى عربية دائمًا (بيانات رسمية).
 
 import asyncio
 
@@ -16,6 +20,7 @@ from telegram.ext import (
 )
 
 import db
+import i18n
 import intent_matcher
 import professions_repo as professions
 
@@ -37,6 +42,10 @@ END_SEARCH_CB = "srch_end_search"
 NEARBY_SUGGESTIONS_COUNT = 3
 
 GEO_PAGE_SIZE = 8
+
+
+def _lang(context: ContextTypes.DEFAULT_TYPE) -> str:
+    return context.user_data.get("lang", "ar")
 
 
 def _region_keyboard() -> InlineKeyboardMarkup:
@@ -67,9 +76,9 @@ def _paginated_keyboard(items: list[dict], page: int, item_cb_prefix: str, page_
 
     nav_row = []
     if page > 0:
-        nav_row.append(InlineKeyboardButton("◀️ السابق", callback_data=f"{page_cb_prefix}{page - 1}"))
+        nav_row.append(InlineKeyboardButton("◀️", callback_data=f"{page_cb_prefix}{page - 1}"))
     if start + GEO_PAGE_SIZE < total:
-        nav_row.append(InlineKeyboardButton("التالي ▶️", callback_data=f"{page_cb_prefix}{page + 1}"))
+        nav_row.append(InlineKeyboardButton("▶️", callback_data=f"{page_cb_prefix}{page + 1}"))
     if nav_row:
         buttons.append(nav_row)
 
@@ -79,27 +88,27 @@ def _paginated_keyboard(items: list[dict], page: int, item_cb_prefix: str, page_
     return InlineKeyboardMarkup(buttons)
 
 
-def _city_keyboard(region_id: int, page: int) -> InlineKeyboardMarkup:
+def _city_keyboard(region_id: int, page: int, lang: str) -> InlineKeyboardMarkup:
     cities = db.list_sa_major_cities_by_region(region_id)
     return _paginated_keyboard(
         cities, page, "srch_city:", "srch_city_page:",
-        extra_rows=[[InlineKeyboardButton("⬅️ رجوع للمناطق", callback_data=BACK_TO_REGIONS_CB)]],
+        extra_rows=[[InlineKeyboardButton(i18n.t("back_to_regions_btn", lang), callback_data=BACK_TO_REGIONS_CB)]],
     )
 
 
-def _district_keyboard(city_id: int, page: int) -> InlineKeyboardMarkup:
+def _district_keyboard(city_id: int, page: int, lang: str) -> InlineKeyboardMarkup:
     districts = db.list_sa_districts_by_city(city_id)
     return _paginated_keyboard(
         districts, page, "srch_dist:", "srch_dist_page:",
-        extra_rows=[[InlineKeyboardButton("تخطي (كل أحياء المدينة)", callback_data=SKIP_NEIGHBORHOOD_CB)]],
+        extra_rows=[[InlineKeyboardButton(i18n.t("srch_skip_district_btn", lang), callback_data=SKIP_NEIGHBORHOOD_CB)]],
     )
 
 
 # ─────────────────────────── لوحات الأزرار ───────────────────────────
 
-def _domain_keyboard() -> InlineKeyboardMarkup:
+def _domain_keyboard(lang: str) -> InlineKeyboardMarkup:
     buttons, row = [], []
-    for d in professions.get_domains():
+    for d in professions.get_domains(lang):
         row.append(InlineKeyboardButton(d["name"], callback_data=f"srch_dom:{d['id']}"))
         if len(row) == 2:
             buttons.append(row)
@@ -109,21 +118,21 @@ def _domain_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(buttons)
 
 
-def _profession_keyboard(domain_id: str) -> InlineKeyboardMarkup:
+def _profession_keyboard(domain_id: str, lang: str) -> InlineKeyboardMarkup:
     buttons, row = [], []
-    for p in professions.get_professions_by_domain(domain_id):
+    for p in professions.get_professions_by_domain(domain_id, lang):
         row.append(InlineKeyboardButton(p["name"], callback_data=f"srch_prof:{p['id']}"))
         if len(row) == 2:
             buttons.append(row)
             row = []
     if row:
         buttons.append(row)
-    buttons.append([InlineKeyboardButton("⬅️ رجوع لاختيار المجال", callback_data="srch_back_domain")])
+    buttons.append([InlineKeyboardButton(i18n.t("back_to_domain_btn", lang), callback_data="srch_back_domain")])
     return InlineKeyboardMarkup(buttons)
 
 
-def _contact_button(p: dict) -> InlineKeyboardMarkup:
-    label = "📱 تواصل عبر واتساب" if p.get("has_whatsapp", 1) else "📞 عرض رقم التواصل"
+def _contact_button(p: dict, lang: str) -> InlineKeyboardMarkup:
+    label = i18n.t("srch_contact_wa_btn", lang) if p.get("has_whatsapp", 1) else i18n.t("srch_contact_show_btn", lang)
     return InlineKeyboardMarkup(
         [[InlineKeyboardButton(label, callback_data=f"srch_wa:{p['id']}")]]
     )
@@ -141,7 +150,7 @@ def _professional_card_text(p: dict) -> str:
         f"📍 {location}",
     ]
     if p["telegram_contact_number"]:
-        lines.append(f"✈️ تلغرام: {p['telegram_contact_number']}")
+        lines.append(f"✈️ {p['telegram_contact_number']}")
     return "\n".join(lines)
 
 
@@ -149,13 +158,14 @@ def _professional_card_text(p: dict) -> str:
 
 async def search_entry(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data.clear()
+    lang = await asyncio.to_thread(db.get_user_language, update.effective_user.id)
+    context.user_data["lang"] = lang
     target = update.message or update.callback_query.message
     if update.callback_query:
         await update.callback_query.answer()
     await target.reply_text(
-        "اكتب مشكلتك بكلماتك (مثال: «اريد اصلح غسالتي») وسنقترح المهنة المناسبة،\n"
-        "أو اختر مجال الخدمة مباشرة من القائمة:",
-        reply_markup=_domain_keyboard(),
+        i18n.t("srch_entry", lang),
+        reply_markup=_domain_keyboard(lang),
     )
     return SEARCH_DOMAIN
 
@@ -163,30 +173,31 @@ async def search_entry(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def smart_profession_from_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """تحليل مجاني محلي (بدون أي API) لوصف العميل الحر لمشكلته، واقتراح المهنة
     المناسبة مباشرة بدل ما يمر بخطوتي المجال ثم المهنة يدويًا."""
+    lang = _lang(context)
     text = update.message.text.strip()
     matched_ids = intent_matcher.match_professions(text, limit=3)
 
     if not matched_ids:
         await update.message.reply_text(
-            "لم أستطع التعرف على مشكلتك تلقائيًا 🤔 اختر مجال الخدمة من القائمة:",
-            reply_markup=_domain_keyboard(),
+            i18n.t("srch_no_match", lang),
+            reply_markup=_domain_keyboard(lang),
         )
         return SEARCH_DOMAIN
 
     if len(matched_ids) == 1:
-        domain, profession = professions.get_profession(matched_ids[0])
+        domain, profession = professions.get_profession(matched_ids[0], lang)
         if profession:
             context.user_data["profession_id"] = matched_ids[0]
             context.user_data["profession_name"] = profession["name"]
             await update.message.reply_text(
-                f"يبدو أنك تحتاج: {profession['name']} ✅\n\nاختر منطقتك:",
+                i18n.t("srch_smart_match_one", lang, profession=profession["name"]),
                 reply_markup=_region_keyboard(),
             )
             return SEARCH_REGION
 
     buttons, row = [], []
     for pid in matched_ids:
-        _, profession = professions.get_profession(pid)
+        _, profession = professions.get_profession(pid, lang)
         if not profession:
             continue
         row.append(InlineKeyboardButton(profession["name"], callback_data=f"srch_prof:{pid}"))
@@ -195,118 +206,129 @@ async def smart_profession_from_text(update: Update, context: ContextTypes.DEFAU
             row = []
     if row:
         buttons.append(row)
-    buttons.append([InlineKeyboardButton("⬅️ رجوع لاختيار المجال", callback_data="srch_back_domain")])
+    buttons.append([InlineKeyboardButton(i18n.t("back_to_domain_btn", lang), callback_data="srch_back_domain")])
 
     await update.message.reply_text(
-        "يبدو أنك تحتاج إحدى هذه المهن، اختر الأنسب:",
+        i18n.t("srch_smart_match_many", lang),
         reply_markup=InlineKeyboardMarkup(buttons),
     )
     return SEARCH_PROFESSION
 
 
 async def choose_search_domain(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    lang = _lang(context)
     query = update.callback_query
     await query.answer()
     domain_id = query.data.split(":", 1)[1]
-    domain = professions.get_domain(domain_id)
+    domain = professions.get_domain(domain_id, lang)
     if not domain:
-        await query.edit_message_text("خيار غير معروف، اختر من القائمة:", reply_markup=_domain_keyboard())
+        await query.edit_message_text(i18n.t("unknown_option", lang), reply_markup=_domain_keyboard(lang))
         return SEARCH_DOMAIN
 
-    await query.edit_message_text(f"مجال: {domain['name']}\n\nاختر المهنة:", reply_markup=_profession_keyboard(domain_id))
+    await query.edit_message_text(
+        i18n.t("reg_domain_selected", lang, domain=domain["name"]),
+        reply_markup=_profession_keyboard(domain_id, lang),
+    )
     return SEARCH_PROFESSION
 
 
 async def back_to_search_domain(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    lang = _lang(context)
     query = update.callback_query
     await query.answer()
-    await query.edit_message_text("اختر مجال الخدمة المطلوبة:", reply_markup=_domain_keyboard())
+    await query.edit_message_text(i18n.t("domains_available", lang), reply_markup=_domain_keyboard(lang))
     return SEARCH_DOMAIN
 
 
 async def choose_search_profession(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    lang = _lang(context)
     query = update.callback_query
     await query.answer()
     profession_id = query.data.split(":", 1)[1]
-    domain, profession = professions.get_profession(profession_id)
+    domain, profession = professions.get_profession(profession_id, lang)
     if not profession:
-        await query.edit_message_text("خيار غير معروف، حاول مرة أخرى.")
+        await query.edit_message_text(i18n.t("unknown_option", lang))
         return SEARCH_PROFESSION
 
     context.user_data["profession_id"] = profession_id
     context.user_data["profession_name"] = profession["name"]
 
-    await query.edit_message_text(f"مهنة: {profession['name']}\n\nاختر منطقتك:", reply_markup=_region_keyboard())
+    await query.edit_message_text(i18n.t("reg_ask_region", lang), reply_markup=_region_keyboard())
     return SEARCH_REGION
 
 
 # ─────────────────────────── الخطوة 2: المنطقة → المدينة → الحي ───────────────────────────
 
 async def choose_search_region(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    lang = _lang(context)
     query = update.callback_query
     await query.answer()
     region_id = int(query.data.split(":", 1)[1])
     region = db.get_sa_region_by_id(region_id)
     if not region:
-        await query.edit_message_text("خيار غير معروف، اختر من القائمة:", reply_markup=_region_keyboard())
+        await query.edit_message_text(i18n.t("unknown_option", lang), reply_markup=_region_keyboard())
         return SEARCH_REGION
 
     context.user_data["region_id"] = region_id
     await query.edit_message_text(
-        f"المنطقة: {region['name']}\n\nاختر المدينة:",
-        reply_markup=_city_keyboard(region_id, page=0),
+        i18n.t("reg_region_selected", lang, region=region["name"]),
+        reply_markup=_city_keyboard(region_id, page=0, lang=lang),
     )
     return SEARCH_CITY
 
 
 async def back_to_search_regions(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    lang = _lang(context)
     query = update.callback_query
     await query.answer()
-    await query.edit_message_text("اختر منطقتك:", reply_markup=_region_keyboard())
+    await query.edit_message_text(i18n.t("reg_ask_region", lang), reply_markup=_region_keyboard())
     return SEARCH_REGION
 
 
 async def search_city_page_nav(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    lang = _lang(context)
     query = update.callback_query
     await query.answer()
     page = int(query.data.split(":", 1)[1])
     region_id = context.user_data["region_id"]
-    await query.edit_message_reply_markup(reply_markup=_city_keyboard(region_id, page))
+    await query.edit_message_reply_markup(reply_markup=_city_keyboard(region_id, page, lang))
     return SEARCH_CITY
 
 
 async def choose_search_city(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    lang = _lang(context)
     query = update.callback_query
     await query.answer()
     city_id = int(query.data.split(":", 1)[1])
     city = db.get_sa_city_by_id(city_id)
     if not city:
-        await query.edit_message_text("خيار غير معروف، حاول مرة أخرى.")
+        await query.edit_message_text(i18n.t("unknown_option", lang))
         return SEARCH_CITY
 
     context.user_data["city_id"] = city_id
     context.user_data["city"] = city["name"]
     context.user_data.setdefault("tried_city_ids", []).append(city_id)
     await query.edit_message_text(
-        f"المدينة: {city['name']}\n\nاختر الحي (أو تخطى للبحث بكل المدينة):",
-        reply_markup=_district_keyboard(city_id, page=0),
+        i18n.t("srch_city_step", lang, city=city["name"]),
+        reply_markup=_district_keyboard(city_id, page=0, lang=lang),
     )
     return SEARCH_NEIGHBORHOOD
 
 
 async def city_text_search(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """اكتمال تلقائي: يكتب العميل جزء من اسم مدينته بدل تصفح الصفحات."""
+    lang = _lang(context)
     region_id = context.user_data.get("region_id")
     if not region_id:
-        await update.message.reply_text("اختر منطقتك أولًا:", reply_markup=_region_keyboard())
+        await update.message.reply_text(i18n.t("reg_ask_region", lang), reply_markup=_region_keyboard())
         return SEARCH_REGION
 
     query_text = update.message.text.strip()
     matches = db.search_sa_major_cities(region_id, query_text)
     if not matches:
         await update.message.reply_text(
-            "ما لقينا مدينة بهذا الاسم. جرّب اسمًا آخر أو اختر من القائمة:",
-            reply_markup=_city_keyboard(region_id, page=0),
+            i18n.t("reg_city_not_found", lang),
+            reply_markup=_city_keyboard(region_id, page=0, lang=lang),
         )
         return SEARCH_CITY
 
@@ -318,25 +340,26 @@ async def city_text_search(update: Update, context: ContextTypes.DEFAULT_TYPE):
             row = []
     if row:
         buttons.append(row)
-    buttons.append([InlineKeyboardButton("⬅️ رجوع للمناطق", callback_data=BACK_TO_REGIONS_CB)])
+    buttons.append([InlineKeyboardButton(i18n.t("back_to_regions_btn", lang), callback_data=BACK_TO_REGIONS_CB)])
 
-    await update.message.reply_text("النتائج المطابقة:", reply_markup=InlineKeyboardMarkup(buttons))
+    await update.message.reply_text(i18n.t("matched_results", lang), reply_markup=InlineKeyboardMarkup(buttons))
     return SEARCH_CITY
 
 
 async def district_text_search(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """اكتمال تلقائي: يكتب العميل جزء من اسم الحي بدل تصفح الصفحات."""
+    lang = _lang(context)
     city_id = context.user_data.get("city_id")
     if not city_id:
-        await update.message.reply_text("اختر مدينتك أولًا.")
+        await update.message.reply_text(i18n.t("unknown_option", lang))
         return SEARCH_CITY
 
     query_text = update.message.text.strip()
     matches = db.search_sa_districts(city_id, query_text)
     if not matches:
         await update.message.reply_text(
-            "ما لقينا حيًا بهذا الاسم. جرّب اسمًا آخر أو اختر من القائمة:",
-            reply_markup=_district_keyboard(city_id, page=0),
+            i18n.t("reg_district_not_found", lang),
+            reply_markup=_district_keyboard(city_id, page=0, lang=lang),
         )
         return SEARCH_NEIGHBORHOOD
 
@@ -348,29 +371,31 @@ async def district_text_search(update: Update, context: ContextTypes.DEFAULT_TYP
             row = []
     if row:
         buttons.append(row)
-    buttons.append([InlineKeyboardButton("تخطي (كل أحياء المدينة)", callback_data=SKIP_NEIGHBORHOOD_CB)])
+    buttons.append([InlineKeyboardButton(i18n.t("srch_skip_district_btn", lang), callback_data=SKIP_NEIGHBORHOOD_CB)])
 
-    await update.message.reply_text("النتائج المطابقة:", reply_markup=InlineKeyboardMarkup(buttons))
+    await update.message.reply_text(i18n.t("matched_results", lang), reply_markup=InlineKeyboardMarkup(buttons))
     return SEARCH_NEIGHBORHOOD
 
 
 async def search_district_page_nav(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    lang = _lang(context)
     query = update.callback_query
     await query.answer()
     page = int(query.data.split(":", 1)[1])
     city_id = context.user_data["city_id"]
-    await query.edit_message_reply_markup(reply_markup=_district_keyboard(city_id, page))
+    await query.edit_message_reply_markup(reply_markup=_district_keyboard(city_id, page, lang))
     return SEARCH_NEIGHBORHOOD
 
 
 async def choose_search_district(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    lang = _lang(context)
     query = update.callback_query
     await query.answer()
     district_id = int(query.data.split(":", 1)[1])
     districts = db.list_sa_districts_by_city(context.user_data["city_id"])
     district = next((d for d in districts if d["id"] == district_id), None)
     if not district:
-        await query.edit_message_text("خيار غير معروف، حاول مرة أخرى.")
+        await query.edit_message_text(i18n.t("unknown_option", lang))
         return SEARCH_NEIGHBORHOOD
 
     context.user_data["neighborhood"] = district["name"]
@@ -416,16 +441,17 @@ async def _run_search(message, context: ContextTypes.DEFAULT_TYPE, is_edit: bool
 
 
 async def _show_results_page(message, context: ContextTypes.DEFAULT_TYPE, is_edit: bool):
+    lang = _lang(context)
     ud = context.user_data
     result_ids = ud["result_ids"]
     total = len(result_ids)
     shown_count = ud.get("shown_count", 0)
 
     if shown_count == 0 and total == 0:
-        text = (
-            f"لا يوجد حاليًا فنيين ({ud['profession_name']}) متاحين بمدينة «{ud['city']}»"
-            + (f" — حي {ud['neighborhood']}" if ud.get("neighborhood") else "")
-            + "."
+        district_suffix = f" — {ud['neighborhood']}" if ud.get("neighborhood") else ""
+        text = i18n.t(
+            "srch_no_results", lang,
+            profession=ud["profession_name"], city=ud["city"], district_suffix=district_suffix,
         )
         if is_edit:
             await message.edit_text(text)
@@ -434,7 +460,7 @@ async def _show_results_page(message, context: ContextTypes.DEFAULT_TYPE, is_edi
         return await _offer_nearby_or_end(message, context)
 
     if shown_count == 0:
-        header = f"وجدنا {total} فني/فنيين ({ud['profession_name']}) بمدينة «{ud['city']}»:"
+        header = i18n.t("srch_results_header", lang, count=total, profession=ud["profession_name"], city=ud["city"])
         if is_edit:
             await message.edit_text(header)
         else:
@@ -444,7 +470,7 @@ async def _show_results_page(message, context: ContextTypes.DEFAULT_TYPE, is_edi
     results = await asyncio.to_thread(db.get_professionals_by_ids, page_ids)
 
     for p in results:
-        await message.reply_text(_professional_card_text(p), reply_markup=_contact_button(p))
+        await message.reply_text(_professional_card_text(p), reply_markup=_contact_button(p, lang))
 
     # نحدّث "آخر ظهور" فقط لمن ظهرت بطاقته فعليًا — أساس عدالة التناوب.
     # نسويها هنا (بعد إرسال هذه الصفحة) لأن القائمة نفسها (result_ids) ثابتة بالذاكرة
@@ -456,9 +482,11 @@ async def _show_results_page(message, context: ContextTypes.DEFAULT_TYPE, is_edi
 
     if new_shown_count < total:
         more_keyboard = InlineKeyboardMarkup(
-            [[InlineKeyboardButton(f"عرض المزيد ⬇️ ({total - new_shown_count} متبقي)", callback_data=MORE_RESULTS_CB)]]
+            [[InlineKeyboardButton(
+                i18n.t("srch_more_btn", lang, remaining=total - new_shown_count), callback_data=MORE_RESULTS_CB
+            )]]
         )
-        await message.reply_text("للمزيد من الفنيين:", reply_markup=more_keyboard)
+        await message.reply_text(i18n.t("srch_more_prompt", lang), reply_markup=more_keyboard)
         return SEARCH_RESULTS
 
     # استوفينا كل الفنيين المسجّلين بنفس الحي (مهما كان عددهم) — الآن فقط نقترح حي مجاور،
@@ -469,6 +497,7 @@ async def _show_results_page(message, context: ContextTypes.DEFAULT_TYPE, is_edi
 async def _offer_nearby_or_end(message, context: ContextTypes.DEFAULT_TYPE):
     """سلسلة اقتراحات لما تنتهي نتائج البحث الحالي: أولًا أحياء مجاورة بنفس المدينة،
     ولو خلصت كل الأحياء المجاورة بلا فائدة، ننتقل لاقتراح أقرب مدينة/مركز ثاني."""
+    lang = _lang(context)
     ud = context.user_data
     district_id = ud.get("district_id")
 
@@ -482,9 +511,9 @@ async def _offer_nearby_or_end(message, context: ContextTypes.DEFAULT_TYPE):
                 [InlineKeyboardButton(f"🏘️ {d['name']}", callback_data=f"{NEARBY_DISTRICT_CB_PREFIX}{d['id']}")]
                 for d in nearby_districts
             ]
-            buttons.append([InlineKeyboardButton("❌ إنهاء البحث", callback_data=END_SEARCH_CB)])
+            buttons.append([InlineKeyboardButton(i18n.t("srch_end_search_btn", lang), callback_data=END_SEARCH_CB)])
             await message.reply_text(
-                "استوفينا كل الفنيين بحيك. تحب نبحث لك بحي مجاور؟",
+                i18n.t("srch_offer_nearby_district", lang),
                 reply_markup=InlineKeyboardMarkup(buttons),
             )
             return SEARCH_RESULTS
@@ -501,25 +530,26 @@ async def _offer_nearby_or_end(message, context: ContextTypes.DEFAULT_TYPE):
                 [InlineKeyboardButton(f"🏙️ {c['name']}", callback_data=f"{NEARBY_CITY_CB_PREFIX}{c['id']}")]
                 for c in nearby_cities
             ]
-            buttons.append([InlineKeyboardButton("❌ إنهاء البحث", callback_data=END_SEARCH_CB)])
+            buttons.append([InlineKeyboardButton(i18n.t("srch_end_search_btn", lang), callback_data=END_SEARCH_CB)])
             await message.reply_text(
-                "ما فيه فنيين أكثر قريبين منك. تحب نبحث لك بأقرب مدينة أو مركز؟",
+                i18n.t("srch_offer_nearby_city", lang),
                 reply_markup=InlineKeyboardMarkup(buttons),
             )
             return SEARCH_RESULTS
 
-    await message.reply_text("ما فيه مدن أو مراكز أقرب ثانية نقترحها — جرّب /search من جديد بمنطقة مختلفة.")
+    await message.reply_text(i18n.t("srch_no_more_suggestions", lang))
     context.user_data.clear()
     return ConversationHandler.END
 
 
 async def choose_nearby_district(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    lang = _lang(context)
     query = update.callback_query
     await query.answer()
     district_id = int(query.data.split(":", 1)[1])
     district = await asyncio.to_thread(db.get_sa_district_by_id, district_id)
     if not district:
-        await query.edit_message_text("خيار غير معروف، حاول مرة أخرى.")
+        await query.edit_message_text(i18n.t("unknown_option", lang))
         return SEARCH_RESULTS
 
     ud = context.user_data
@@ -530,12 +560,13 @@ async def choose_nearby_district(update: Update, context: ContextTypes.DEFAULT_T
 
 
 async def choose_nearby_city(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    lang = _lang(context)
     query = update.callback_query
     await query.answer()
     city_id = int(query.data.split(":", 1)[1])
     city = await asyncio.to_thread(db.get_sa_city_by_id, city_id)
     if not city:
-        await query.edit_message_text("خيار غير معروف، حاول مرة أخرى.")
+        await query.edit_message_text(i18n.t("unknown_option", lang))
         return SEARCH_RESULTS
 
     ud = context.user_data
@@ -550,9 +581,10 @@ async def choose_nearby_city(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
 
 async def end_search_results(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    lang = _lang(context)
     query = update.callback_query
     await query.answer()
-    await query.edit_message_text("تمام، تم إنهاء البحث. أرسل /search في أي وقت للبحث من جديد.")
+    await query.edit_message_text(i18n.t("srch_ended", lang))
     context.user_data.clear()
     return ConversationHandler.END
 
@@ -566,10 +598,11 @@ async def show_more_results(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def whatsapp_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     professional_id = int(query.data.split(":", 1)[1])
+    lang = await asyncio.to_thread(db.get_user_language, update.effective_user.id)
 
     p = await asyncio.to_thread(db.get_professional_by_id, professional_id)
     if not p:
-        await query.answer("عذرًا، هذا الفني لم يعد متاحًا.", show_alert=True)
+        await query.answer(i18n.t("srch_professional_gone", lang), show_alert=True)
         return
 
     await asyncio.to_thread(db.log_contact_click, professional_id, update.effective_user.id)
@@ -577,29 +610,27 @@ async def whatsapp_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if p.get("has_whatsapp", 1):
         open_wa_keyboard = InlineKeyboardMarkup(
-            [[InlineKeyboardButton("💬 فتح واتساب الآن", url=_wa_link(p["whatsapp_number"]))]]
+            [[InlineKeyboardButton(i18n.t("srch_open_wa_btn", lang), url=_wa_link(p["whatsapp_number"]))]]
         )
         await query.message.reply_text(
-            f"رقم واتساب {p['full_name']}: {p['whatsapp_number']}",
+            i18n.t("srch_wa_number_text", lang, name=p["full_name"], number=p["whatsapp_number"]),
             reply_markup=open_wa_keyboard,
         )
     else:
         # هذا الرقم بدون واتساب — نعرض خيارات التواصل المتاحة فعليًا: اتصال مباشر،
         # وتلغرام لو متوفر (رقم الواتساب هنا هو رقم اتصال عادي فقط).
-        lines = [
-            f"{p['full_name']} — هذا الرقم بدون واتساب:",
-            f"📞 للاتصال المباشر: {p['whatsapp_number']}",
-        ]
+        lines = [i18n.t("srch_no_wa_text", lang, name=p["full_name"], number=p["whatsapp_number"])]
         if p.get("telegram_contact_number"):
-            lines.append(f"✈️ أو تواصل معه عبر تلغرام: {p['telegram_contact_number']}")
+            lines.append(i18n.t("srch_telegram_alt", lang, number=p["telegram_contact_number"]))
         await query.message.reply_text("\n".join(lines))
 
 
 # ─────────────────────────── إلغاء ───────────────────────────
 
 async def cancel_search(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    lang = _lang(context)
     context.user_data.clear()
-    await update.message.reply_text("تم إلغاء البحث. أرسل /search في أي وقت للبدء من جديد.")
+    await update.message.reply_text(i18n.t("srch_cancelled", lang))
     return ConversationHandler.END
 
 

@@ -7,45 +7,56 @@
 #
 # نفس هذا المصدر يُستخدم من /register و /search، وشكل القيم المرجعة متوافق مع الشكل
 # القديم (id/name/services) حتى ما نحتاج نعدّل الهاندلرز.
+#
+# دعم تعدد اللغات: كل الدوال تقبل lang اختياري ('ar' الافتراضي)، وترجّع الاسم
+# بالإنجليزي/الأردو لو موجود، وإلا ترجع الاسم العربي كاحتياط (ما نعرض حقل فاضي أبدًا).
 
 import json
 
 import db
 
 
-def _profession_dict(row: dict) -> dict:
+def _localized_name(row: dict, lang: str) -> str:
+    if lang == "en":
+        return row.get("name_en") or row["name"]
+    if lang == "ur":
+        return row.get("name_ur") or row["name"]
+    return row["name"]
+
+
+def _profession_dict(row: dict, lang: str = "ar") -> dict:
     """يحوّل صف قاعدة البيانات لنفس الشكل القديم (id, name, services, ...)."""
     return {
         "id": row["id"],
-        "name": row["name"],
+        "name": _localized_name(row, lang),
         "isco_code": row.get("isco_code"),
         "status": row.get("status"),
         "services": json.loads(row["services_json"]) if row.get("services_json") else [],
     }
 
 
-def _domain_dict(row: dict) -> dict:
-    return {"id": row["id"], "name": row["name"]}
+def _domain_dict(row: dict, lang: str = "ar") -> dict:
+    return {"id": row["id"], "name": _localized_name(row, lang)}
 
 
-def get_domains():
-    return [_domain_dict(d) for d in db.list_domains()]
+def get_domains(lang: str = "ar"):
+    return [_domain_dict(d, lang) for d in db.list_domains()]
 
 
-def get_domain(domain_id: str):
+def get_domain(domain_id: str, lang: str = "ar"):
     row = db.get_domain_by_id(domain_id)
-    return _domain_dict(row) if row else None
+    return _domain_dict(row, lang) if row else None
 
 
-def get_professions_by_domain(domain_id: str):
-    return [_profession_dict(p) for p in db.list_professions_by_domain(domain_id)]
+def get_professions_by_domain(domain_id: str, lang: str = "ar"):
+    return [_profession_dict(p, lang) for p in db.list_professions_by_domain(domain_id)]
 
 
-def get_profession(profession_id: str):
+def get_profession(profession_id: str, lang: str = "ar"):
     """يرجّع (domain, profession) أو (None, None)."""
     row = db.get_profession_by_id(profession_id)
     if not row:
         return None, None
     domain_row = db.get_domain_by_id(row["domain_id"])
-    domain = _domain_dict(domain_row) if domain_row else None
-    return domain, _profession_dict(row)
+    domain = _domain_dict(domain_row, lang) if domain_row else None
+    return domain, _profession_dict(row, lang)
