@@ -293,6 +293,66 @@ async def choose_search_city(update: Update, context: ContextTypes.DEFAULT_TYPE)
     return SEARCH_NEIGHBORHOOD
 
 
+async def city_text_search(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """اكتمال تلقائي: يكتب العميل جزء من اسم مدينته بدل تصفح الصفحات."""
+    region_id = context.user_data.get("region_id")
+    if not region_id:
+        await update.message.reply_text("اختر منطقتك أولًا:", reply_markup=_region_keyboard())
+        return SEARCH_REGION
+
+    query_text = update.message.text.strip()
+    matches = db.search_sa_major_cities(region_id, query_text)
+    if not matches:
+        await update.message.reply_text(
+            "ما لقينا مدينة بهذا الاسم. جرّب اسمًا آخر أو اختر من القائمة:",
+            reply_markup=_city_keyboard(region_id, page=0),
+        )
+        return SEARCH_CITY
+
+    buttons, row = [], []
+    for c in matches:
+        row.append(InlineKeyboardButton(c["name"], callback_data=f"srch_city:{c['id']}"))
+        if len(row) == 2:
+            buttons.append(row)
+            row = []
+    if row:
+        buttons.append(row)
+    buttons.append([InlineKeyboardButton("⬅️ رجوع للمناطق", callback_data=BACK_TO_REGIONS_CB)])
+
+    await update.message.reply_text("النتائج المطابقة:", reply_markup=InlineKeyboardMarkup(buttons))
+    return SEARCH_CITY
+
+
+async def district_text_search(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """اكتمال تلقائي: يكتب العميل جزء من اسم الحي بدل تصفح الصفحات."""
+    city_id = context.user_data.get("city_id")
+    if not city_id:
+        await update.message.reply_text("اختر مدينتك أولًا.")
+        return SEARCH_CITY
+
+    query_text = update.message.text.strip()
+    matches = db.search_sa_districts(city_id, query_text)
+    if not matches:
+        await update.message.reply_text(
+            "ما لقينا حيًا بهذا الاسم. جرّب اسمًا آخر أو اختر من القائمة:",
+            reply_markup=_district_keyboard(city_id, page=0),
+        )
+        return SEARCH_NEIGHBORHOOD
+
+    buttons, row = [], []
+    for d in matches:
+        row.append(InlineKeyboardButton(d["name"], callback_data=f"srch_dist:{d['id']}"))
+        if len(row) == 2:
+            buttons.append(row)
+            row = []
+    if row:
+        buttons.append(row)
+    buttons.append([InlineKeyboardButton("تخطي (كل أحياء المدينة)", callback_data=SKIP_NEIGHBORHOOD_CB)])
+
+    await update.message.reply_text("النتائج المطابقة:", reply_markup=InlineKeyboardMarkup(buttons))
+    return SEARCH_NEIGHBORHOOD
+
+
 async def search_district_page_nav(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
@@ -553,11 +613,13 @@ def build_search_conversation() -> ConversationHandler:
                 CallbackQueryHandler(choose_search_city, pattern="^srch_city:"),
                 CallbackQueryHandler(search_city_page_nav, pattern="^srch_city_page:"),
                 CallbackQueryHandler(back_to_search_regions, pattern=f"^{BACK_TO_REGIONS_CB}$"),
+                MessageHandler(filters.TEXT & ~filters.COMMAND, city_text_search),
             ],
             SEARCH_NEIGHBORHOOD: [
                 CallbackQueryHandler(choose_search_district, pattern="^srch_dist:"),
                 CallbackQueryHandler(search_district_page_nav, pattern="^srch_dist_page:"),
                 CallbackQueryHandler(skip_neighborhood, pattern=f"^{SKIP_NEIGHBORHOOD_CB}$"),
+                MessageHandler(filters.TEXT & ~filters.COMMAND, district_text_search),
             ],
             SEARCH_RESULTS: [
                 CallbackQueryHandler(show_more_results, pattern=f"^{MORE_RESULTS_CB}$"),

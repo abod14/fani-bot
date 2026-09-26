@@ -999,6 +999,37 @@ def search_sa_cities(region_id: int, query: str, limit: int = 8):
         return [dict(r) for r in rows]
 
 
+def search_sa_major_cities(region_id: int, query: str, limit: int = 8):
+    """بحث نصي (اكتمال تلقائي) عن مدينة كبرى فقط (عندها أحياء حقيقية) داخل منطقة
+    معيّنة — نفس تقييد لوحة الأزرار بالضبط: بدون مراكز صغيرة ولا قرى."""
+    with get_conn() as conn:
+        rows = conn.execute(
+            """
+            SELECT * FROM sa_cities
+            WHERE region_id = ? AND has_districts = 1 AND name LIKE ?
+            ORDER BY name
+            LIMIT ?
+            """,
+            (region_id, f"%{query.strip()}%", limit),
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+
+def search_sa_districts(city_id: int, query: str, limit: int = 8):
+    """بحث نصي (اكتمال تلقائي) عن حي داخل مدينة معيّنة."""
+    with get_conn() as conn:
+        rows = conn.execute(
+            """
+            SELECT * FROM sa_districts
+            WHERE city_id = ? AND name LIKE ?
+            ORDER BY name
+            LIMIT ?
+            """,
+            (city_id, f"%{query.strip()}%", limit),
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+
 def get_sa_city_by_id(city_id: int):
     with get_conn() as conn:
         row = conn.execute("SELECT * FROM sa_cities WHERE id = ?", (city_id,)).fetchone()

@@ -259,6 +259,36 @@ async def back_to_regions(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return REGION
 
 
+async def city_text_search(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """اكتمال تلقائي: يكتب الفني جزء من اسم مدينته بدل تصفح الصفحات."""
+    region_id = context.user_data.get("region_id")
+    if not region_id:
+        await update.message.reply_text("اختر منطقتك أولًا:", reply_markup=_region_keyboard())
+        return REGION
+
+    query_text = update.message.text.strip()
+    matches = db.search_sa_major_cities(region_id, query_text)
+    if not matches:
+        await update.message.reply_text(
+            "ما لقينا مدينة بهذا الاسم. جرّب اسمًا آخر أو اختر من القائمة:",
+            reply_markup=_city_keyboard(region_id, page=0),
+        )
+        return CITY
+
+    buttons, row = [], []
+    for c in matches:
+        row.append(InlineKeyboardButton(c["name"], callback_data=f"reg_city:{c['id']}"))
+        if len(row) == 2:
+            buttons.append(row)
+            row = []
+    if row:
+        buttons.append(row)
+    buttons.append([InlineKeyboardButton("⬅️ رجوع للمناطق", callback_data=BACK_TO_REGIONS_CB)])
+
+    await update.message.reply_text("النتائج المطابقة:", reply_markup=InlineKeyboardMarkup(buttons))
+    return CITY
+
+
 async def city_page_nav(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
@@ -298,6 +328,44 @@ async def district_page_nav(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data["district_page"] = page
     selected = set(context.user_data.get("selected_district_ids", []))
     await query.edit_message_reply_markup(reply_markup=_district_keyboard(city_id, page, selected))
+    return NEIGHBORHOOD
+
+
+async def district_text_search(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """اكتمال تلقائي: يكتب الفني جزء من اسم الحي بدل تصفح الصفحات، مع المحافظة
+    على أي أحياء اختارها سابقًا (اختيار متعدد)."""
+    city_id = context.user_data.get("city_id")
+    if not city_id:
+        await update.message.reply_text("اختر مدينتك أولًا.")
+        return CITY
+
+    selected = set(context.user_data.get("selected_district_ids", []))
+    query_text = update.message.text.strip()
+    matches = db.search_sa_districts(city_id, query_text)
+    if not matches:
+        await update.message.reply_text(
+            "ما لقينا حيًا بهذا الاسم. جرّب اسمًا آخر أو اختر من القائمة:",
+            reply_markup=_district_keyboard(city_id, page=context.user_data.get("district_page", 0), selected_ids=selected),
+        )
+        return NEIGHBORHOOD
+
+    buttons, row = [], []
+    for d in matches:
+        mark = "✅ " if d["id"] in selected else "▫️ "
+        row.append(InlineKeyboardButton(mark + d["name"], callback_data=f"{DISTRICT_TOGGLE_CB_PREFIX}{d['id']}"))
+        if len(row) == 2:
+            buttons.append(row)
+            row = []
+    if row:
+        buttons.append(row)
+    if selected:
+        buttons.append(
+            [InlineKeyboardButton(
+                f"تأكيد الاختيار ✅ ({len(selected)}/{MAX_DISTRICTS})", callback_data=DISTRICTS_DONE_CB
+            )]
+        )
+
+    await update.message.reply_text("النتائج المطابقة:", reply_markup=InlineKeyboardMarkup(buttons))
     return NEIGHBORHOOD
 
 
@@ -543,11 +611,13 @@ def build_register_conversation() -> ConversationHandler:
                 CallbackQueryHandler(choose_city, pattern="^reg_city:"),
                 CallbackQueryHandler(city_page_nav, pattern="^reg_city_page:"),
                 CallbackQueryHandler(back_to_regions, pattern=f"^{BACK_TO_REGIONS_CB}$"),
+                MessageHandler(filters.TEXT & ~filters.COMMAND, city_text_search),
             ],
             NEIGHBORHOOD: [
                 CallbackQueryHandler(districts_done, pattern=f"^{DISTRICTS_DONE_CB}$"),
                 CallbackQueryHandler(toggle_district, pattern=f"^{DISTRICT_TOGGLE_CB_PREFIX}"),
                 CallbackQueryHandler(district_page_nav, pattern="^reg_dist_page:"),
+                MessageHandler(filters.TEXT & ~filters.COMMAND, district_text_search),
             ],
             WHATSAPP: [MessageHandler(filters.TEXT & ~filters.COMMAND, got_whatsapp)],
             TELEGRAM_CONTACT: [
