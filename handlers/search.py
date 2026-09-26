@@ -28,6 +28,9 @@ import professions_repo as professions
 SKIP_NEIGHBORHOOD_CB = "srch_skip_nb"
 BACK_TO_REGIONS_CB = "srch_back_regions"
 MORE_RESULTS_CB = "srch_more"
+NEARBY_DISTRICT_CB_PREFIX = "srch_nearby:"
+END_SEARCH_CB = "srch_end_search"
+NEARBY_SUGGESTIONS_COUNT = 3
 
 GEO_PAGE_SIZE = 8
 
@@ -257,6 +260,8 @@ async def choose_search_district(update: Update, context: ContextTypes.DEFAULT_T
         return SEARCH_NEIGHBORHOOD
 
     context.user_data["neighborhood"] = district["name"]
+    context.user_data["district_id"] = district_id
+    context.user_data["tried_district_ids"] = [district_id]
     return await _run_search(query.message, context, is_edit=True, customer_telegram_id=update.effective_user.id)
 
 
@@ -264,6 +269,7 @@ async def skip_neighborhood(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
     context.user_data["neighborhood"] = None
+    context.user_data["district_id"] = None  # بحث بكل المدينة أصلًا، فلا داعي لاقتراح أحياء مجاورة
     return await _run_search(query.message, context, is_edit=True, customer_telegram_id=update.effective_user.id)
 
 
@@ -304,14 +310,13 @@ async def _show_results_page(message, context: ContextTypes.DEFAULT_TYPE, is_edi
         text = (
             f"لا يوجد حاليًا فنيين ({ud['profession_name']}) متاحين بمدينة «{ud['city']}»"
             + (f" — حي {ud['neighborhood']}" if ud.get("neighborhood") else "")
-            + ".\nجرّب مدينة أو حي آخر عبر /search."
+            + "."
         )
         if is_edit:
             await message.edit_text(text)
         else:
             await message.reply_text(text)
-        context.user_data.clear()
-        return ConversationHandler.END
+        return await _offer_nearby_or_end(message, context)
 
     if shown_count == 0:
         header = f"وجدنا {total} فني/فنيين ({ud['profession_name']}) بمدينة «{ud['city']}»:"
@@ -341,6 +346,62 @@ async def _show_results_page(message, context: ContextTypes.DEFAULT_TYPE, is_edi
         await message.reply_text("للمزيد من الفنيين:", reply_markup=more_keyboard)
         return SEARCH_RESULTS
 
+    # استوفينا كل الفنيين المسجّلين بنفس الحي (مهما كان عددهم) — الآن فقط نقترح حي مجاور،
+    # ولا نعرضه أبدًا قبل هذي اللحظة (طلب صريح: العدد ما يهم، لازم يستوفي حيه أولًا).
+    return await _offer_nearby_or_end(message, context)
+
+
+async def _offer_nearby_or_end(message, context: ContextTypes.DEFAULT_TYPE):
+    ud = context.user_data
+    district_id = ud.get("district_id")
+
+    if not district_id:
+        # بحث بكل المدينة أصلًا (تخطي الحي) — ما فيه معنى لاقتراح "حي مجاور"
+        context.user_data.clear()
+        return ConversationHandler.END
+
+    tried = ud.get("tried_district_ids", [district_id])
+    nearby = await asyncio.to_thread(
+        db.nearest_sa_districts, district_id, tried, NEARBY_SUGGESTIONS_COUNT
+    )
+
+    if not nearby:
+        await message.reply_text("ما فيه أحياء مجاورة ثانية نقترحها — جرّب مدينة أو حي آخر عبر /search.")
+        context.user_data.clear()
+        return ConversationHandler.END
+
+    buttons = [
+        [InlineKeyboardButton(f"🏘️ {d['name']}", callback_data=f"{NEARBY_DISTRICT_CB_PREFIX}{d['id']}")]
+        for d in nearby
+    ]
+    buttons.append([InlineKeyboardButton("❌ إنهاء البحث", callback_data=END_SEARCH_CB)])
+    await message.reply_text(
+        "استوفينا كل الفنيين بحيك. تحب نبحث لك بحي مجاور؟",
+        reply_markup=InlineKeyboardMarkup(buttons),
+    )
+    return SEARCH_RESULTS
+
+
+async def choose_nearby_district(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    district_id = int(query.data.split(":", 1)[1])
+    district = await asyncio.to_thread(db.get_sa_district_by_id, district_id)
+    if not district:
+        await query.edit_message_text("خيار غير معروف، حاول مرة أخرى.")
+        return SEARCH_RESULTS
+
+    ud = context.user_data
+    ud["neighborhood"] = district["name"]
+    ud["district_id"] = district_id
+    ud.setdefault("tried_district_ids", []).append(district_id)
+    return await _run_search(query.message, context, is_edit=True, customer_telegram_id=update.effective_user.id)
+
+
+async def end_search_results(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    await query.edit_message_text("تمام، تم إنهاء البحث. أرسل /search في أي وقت للبحث من جديد.")
     context.user_data.clear()
     return ConversationHandler.END
 
@@ -407,6 +468,8 @@ def build_search_conversation() -> ConversationHandler:
             ],
             SEARCH_RESULTS: [
                 CallbackQueryHandler(show_more_results, pattern=f"^{MORE_RESULTS_CB}$"),
+                CallbackQueryHandler(choose_nearby_district, pattern=f"^{NEARBY_DISTRICT_CB_PREFIX}"),
+                CallbackQueryHandler(end_search_results, pattern=f"^{END_SEARCH_CB}$"),
             ],
         },
         fallbacks=[CommandHandler("cancel", cancel_search)],

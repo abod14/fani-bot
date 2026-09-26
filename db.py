@@ -187,6 +187,8 @@ def init_db():
                 id INTEGER PRIMARY KEY,
                 city_id INTEGER NOT NULL,
                 name TEXT NOT NULL,
+                lat REAL,
+                lon REAL,
                 FOREIGN KEY (city_id) REFERENCES sa_cities (id)
             )
             """
@@ -854,8 +856,8 @@ def seed_saudi_geo_if_empty(regions_path, cities_path, districts_path):
             ],
         )
         conn.executemany(
-            "INSERT INTO sa_districts (id, city_id, name) VALUES (?, ?, ?)",
-            [(d["id"], d["city_id"], d["name"]) for d in districts],
+            "INSERT INTO sa_districts (id, city_id, name, lat, lon) VALUES (?, ?, ?, ?, ?)",
+            [(d["id"], d["city_id"], d["name"], d.get("lat"), d.get("lon")) for d in districts],
         )
         return True
 
@@ -910,3 +912,36 @@ def list_sa_districts_by_city(city_id: int):
             "SELECT * FROM sa_districts WHERE city_id = ? ORDER BY name", (city_id,)
         ).fetchall()
         return [dict(r) for r in rows]
+
+
+def get_sa_district_by_id(district_id: int):
+    with get_conn() as conn:
+        row = conn.execute("SELECT * FROM sa_districts WHERE id = ?", (district_id,)).fetchone()
+        return dict(row) if row else None
+
+
+def nearest_sa_districts(district_id: int, exclude_ids: list[int], limit: int = 3):
+    """يرجّع أقرب N حي لنفس حي الأصل (بنفس المدينة)، مرتّبة بالمسافة الفعلية (إحداثيات
+    مركز كل حي)، باستثناء الأحياء اللي جُرّبت مسبقًا بنفس جلسة البحث. يُستخدم فقط بعد
+    ما تنتهي نتائج الحي الأصلي بالكامل (مهما كان عددها) — لا نعرض حي مجاور قبل ذلك."""
+    origin = get_sa_district_by_id(district_id)
+    if not origin or origin["lat"] is None:
+        return []
+
+    with get_conn() as conn:
+        placeholders = ",".join("?" for _ in exclude_ids) if exclude_ids else None
+        query = "SELECT * FROM sa_districts WHERE city_id = ? AND lat IS NOT NULL"
+        params = [origin["city_id"]]
+        if placeholders:
+            query += f" AND id NOT IN ({placeholders})"
+            params.extend(exclude_ids)
+        rows = conn.execute(query, params).fetchall()
+
+    candidates = [dict(r) for r in rows]
+    # مسافة إقليدية تقريبية على الإحداثيات (كافية لترتيب "الأقرب" داخل نفس المدينة،
+    # بدون الحاجة لحساب هافرساين الدقيق على مسافات صغيرة زي هذي).
+    def dist(d):
+        return (d["lat"] - origin["lat"]) ** 2 + (d["lon"] - origin["lon"]) ** 2
+
+    candidates.sort(key=dist)
+    return candidates[:limit]
