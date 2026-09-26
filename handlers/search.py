@@ -1,6 +1,7 @@
-# تدفق /search (الشكل الجديد) — الترتيب: المهنة (مجال ثم مهنة) → المدينة → الحي (اختياري)
-# ثم نتائج مُرتّبة بنظام تناوب عادل، صفحات من 5، وزر "تواصل عبر واتساب" يسجّل الضغطة
-# ويستهلك من الفرص المجانية الثلاث لكل فني قبل ما يحتاج اشتراك.
+# تدفق /search — الترتيب: المهنة (مجال ثم مهنة) → المنطقة → المدينة (من قائمة رسمية
+# بأزرار) → الحي (أزرار من أحياء حقيقية لنفس المدينة، مع تخطي اختياري)، ثم نتائج
+# مُرتّبة بنظام تناوب عادل، صفحات من 5، وزر "تواصل عبر واتساب" يسجّل الضغطة ويستهلك
+# من الفرص المجانية لكل فني قبل ما يحتاج اشتراك.
 
 import asyncio
 
@@ -10,17 +11,81 @@ from telegram.ext import (
     CommandHandler,
     ContextTypes,
     ConversationHandler,
-    MessageHandler,
-    filters,
 )
 
 import db
 import professions_repo as professions
 
-SEARCH_DOMAIN, SEARCH_PROFESSION, SEARCH_CITY, SEARCH_NEIGHBORHOOD, SEARCH_RESULTS = range(200, 205)
+(
+    SEARCH_DOMAIN,
+    SEARCH_PROFESSION,
+    SEARCH_REGION,
+    SEARCH_CITY,
+    SEARCH_NEIGHBORHOOD,
+    SEARCH_RESULTS,
+) = range(200, 206)
 
 SKIP_NEIGHBORHOOD_CB = "srch_skip_nb"
+BACK_TO_REGIONS_CB = "srch_back_regions"
 MORE_RESULTS_CB = "srch_more"
+
+GEO_PAGE_SIZE = 8
+
+
+def _region_keyboard() -> InlineKeyboardMarkup:
+    buttons, row = [], []
+    for r in db.list_sa_regions():
+        row.append(InlineKeyboardButton(r["name"], callback_data=f"srch_region:{r['id']}"))
+        if len(row) == 2:
+            buttons.append(row)
+            row = []
+    if row:
+        buttons.append(row)
+    return InlineKeyboardMarkup(buttons)
+
+
+def _paginated_keyboard(items: list[dict], page: int, item_cb_prefix: str, page_cb_prefix: str, extra_rows: list = None):
+    total = len(items)
+    start = page * GEO_PAGE_SIZE
+    page_items = items[start:start + GEO_PAGE_SIZE]
+
+    buttons, row = [], []
+    for it in page_items:
+        row.append(InlineKeyboardButton(it["name"], callback_data=f"{item_cb_prefix}{it['id']}"))
+        if len(row) == 2:
+            buttons.append(row)
+            row = []
+    if row:
+        buttons.append(row)
+
+    nav_row = []
+    if page > 0:
+        nav_row.append(InlineKeyboardButton("◀️ السابق", callback_data=f"{page_cb_prefix}{page - 1}"))
+    if start + GEO_PAGE_SIZE < total:
+        nav_row.append(InlineKeyboardButton("التالي ▶️", callback_data=f"{page_cb_prefix}{page + 1}"))
+    if nav_row:
+        buttons.append(nav_row)
+
+    for extra in (extra_rows or []):
+        buttons.append(extra)
+
+    return InlineKeyboardMarkup(buttons)
+
+
+def _city_keyboard(region_id: int, page: int) -> InlineKeyboardMarkup:
+    cities = db.list_sa_major_cities_by_region(region_id)
+    return _paginated_keyboard(
+        cities, page, "srch_city:", "srch_city_page:",
+        extra_rows=[[InlineKeyboardButton("⬅️ رجوع للمناطق", callback_data=BACK_TO_REGIONS_CB)]],
+    )
+
+
+def _district_keyboard(city_id: int, page: int) -> InlineKeyboardMarkup:
+    districts = db.list_sa_districts_by_city(city_id)
+    return _paginated_keyboard(
+        districts, page, "srch_dist:", "srch_dist_page:",
+        extra_rows=[[InlineKeyboardButton("تخطي (كل أحياء المدينة)", callback_data=SKIP_NEIGHBORHOOD_CB)]],
+    )
 
 
 # ─────────────────────────── لوحات الأزرار ───────────────────────────
@@ -115,34 +180,84 @@ async def choose_search_profession(update: Update, context: ContextTypes.DEFAULT
     context.user_data["profession_id"] = profession_id
     context.user_data["profession_name"] = profession["name"]
 
-    await query.edit_message_text(f"مهنة: {profession['name']}\n\nما هي مدينتك؟ أرسل اسمها:")
+    await query.edit_message_text(f"مهنة: {profession['name']}\n\nاختر منطقتك:", reply_markup=_region_keyboard())
+    return SEARCH_REGION
+
+
+# ─────────────────────────── الخطوة 2: المنطقة → المدينة → الحي ───────────────────────────
+
+async def choose_search_region(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    region_id = int(query.data.split(":", 1)[1])
+    region = db.get_sa_region_by_id(region_id)
+    if not region:
+        await query.edit_message_text("خيار غير معروف، اختر من القائمة:", reply_markup=_region_keyboard())
+        return SEARCH_REGION
+
+    context.user_data["region_id"] = region_id
+    await query.edit_message_text(
+        f"المنطقة: {region['name']}\n\nاختر المدينة:",
+        reply_markup=_city_keyboard(region_id, page=0),
+    )
     return SEARCH_CITY
 
 
-# ─────────────────────────── الخطوة 2: المدينة ───────────────────────────
+async def back_to_search_regions(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    await query.edit_message_text("اختر منطقتك:", reply_markup=_region_keyboard())
+    return SEARCH_REGION
 
-async def got_search_city(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    city = update.message.text.strip()
-    if len(city) < 2:
-        await update.message.reply_text("اسم المدينة غير واضح، أرسله مرة أخرى:")
+
+async def search_city_page_nav(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    page = int(query.data.split(":", 1)[1])
+    region_id = context.user_data["region_id"]
+    await query.edit_message_reply_markup(reply_markup=_city_keyboard(region_id, page))
+    return SEARCH_CITY
+
+
+async def choose_search_city(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    city_id = int(query.data.split(":", 1)[1])
+    city = db.get_sa_city_by_id(city_id)
+    if not city:
+        await query.edit_message_text("خيار غير معروف، حاول مرة أخرى.")
         return SEARCH_CITY
 
-    context.user_data["city"] = city
-    keyboard = InlineKeyboardMarkup(
-        [[InlineKeyboardButton("تخطي (كل أحياء المدينة)", callback_data=SKIP_NEIGHBORHOOD_CB)]]
-    )
-    await update.message.reply_text(
-        "ما هو الحي؟ (اختياري — تقدر تتخطى وتبحث بكل أحياء المدينة)",
-        reply_markup=keyboard,
+    context.user_data["city_id"] = city_id
+    context.user_data["city"] = city["name"]
+    await query.edit_message_text(
+        f"المدينة: {city['name']}\n\nاختر الحي (أو تخطى للبحث بكل المدينة):",
+        reply_markup=_district_keyboard(city_id, page=0),
     )
     return SEARCH_NEIGHBORHOOD
 
 
-# ─────────────────────────── الخطوة 3: الحي ───────────────────────────
+async def search_district_page_nav(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    page = int(query.data.split(":", 1)[1])
+    city_id = context.user_data["city_id"]
+    await query.edit_message_reply_markup(reply_markup=_district_keyboard(city_id, page))
+    return SEARCH_NEIGHBORHOOD
 
-async def got_neighborhood_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    context.user_data["neighborhood"] = update.message.text.strip()
-    return await _run_search(update.message, context, is_edit=False, customer_telegram_id=update.effective_user.id)
+
+async def choose_search_district(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    district_id = int(query.data.split(":", 1)[1])
+    districts = db.list_sa_districts_by_city(context.user_data["city_id"])
+    district = next((d for d in districts if d["id"] == district_id), None)
+    if not district:
+        await query.edit_message_text("خيار غير معروف، حاول مرة أخرى.")
+        return SEARCH_NEIGHBORHOOD
+
+    context.user_data["neighborhood"] = district["name"]
+    return await _run_search(query.message, context, is_edit=True, customer_telegram_id=update.effective_user.id)
 
 
 async def skip_neighborhood(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -279,10 +394,16 @@ def build_search_conversation() -> ConversationHandler:
                 CallbackQueryHandler(choose_search_profession, pattern="^srch_prof:"),
                 CallbackQueryHandler(back_to_search_domain, pattern="^srch_back_domain$"),
             ],
-            SEARCH_CITY: [MessageHandler(filters.TEXT & ~filters.COMMAND, got_search_city)],
+            SEARCH_REGION: [CallbackQueryHandler(choose_search_region, pattern="^srch_region:")],
+            SEARCH_CITY: [
+                CallbackQueryHandler(choose_search_city, pattern="^srch_city:"),
+                CallbackQueryHandler(search_city_page_nav, pattern="^srch_city_page:"),
+                CallbackQueryHandler(back_to_search_regions, pattern=f"^{BACK_TO_REGIONS_CB}$"),
+            ],
             SEARCH_NEIGHBORHOOD: [
+                CallbackQueryHandler(choose_search_district, pattern="^srch_dist:"),
+                CallbackQueryHandler(search_district_page_nav, pattern="^srch_dist_page:"),
                 CallbackQueryHandler(skip_neighborhood, pattern=f"^{SKIP_NEIGHBORHOOD_CB}$"),
-                MessageHandler(filters.TEXT & ~filters.COMMAND, got_neighborhood_text),
             ],
             SEARCH_RESULTS: [
                 CallbackQueryHandler(show_more_results, pattern=f"^{MORE_RESULTS_CB}$"),

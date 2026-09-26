@@ -27,6 +27,7 @@ import professions_repo as professions
 
 (
     NAME,
+    REGION,
     CITY,
     NEIGHBORHOOD,
     WHATSAPP,
@@ -35,14 +36,77 @@ import professions_repo as professions
     PROFESSION,
     SERVICES,
     CONFIRM,
-) = range(9)
+) = range(10)
 
 SKIP_NEIGHBORHOOD_CB = "reg_skip_neighborhood"
+BACK_TO_REGIONS_CB = "reg_back_regions"
 SERVICES_DONE_CB = "reg_services_done"
 CONFIRM_YES_CB = "reg_confirm_yes"
 CONFIRM_EDIT_CB = "reg_confirm_edit"
 
 WHATSAPP_RE = re.compile(r"^\+?[0-9]{8,15}$")
+
+# عدد المدن/الأحياء بكل صفحة أزرار (4 صفوف × عمودين)
+GEO_PAGE_SIZE = 8
+
+
+# ─────────────────────────── أزرار المنطقة/المدينة/الحي ───────────────────────────
+
+def _region_keyboard() -> InlineKeyboardMarkup:
+    buttons, row = [], []
+    for r in db.list_sa_regions():
+        row.append(InlineKeyboardButton(r["name"], callback_data=f"reg_region:{r['id']}"))
+        if len(row) == 2:
+            buttons.append(row)
+            row = []
+    if row:
+        buttons.append(row)
+    return InlineKeyboardMarkup(buttons)
+
+
+def _paginated_keyboard(items: list[dict], page: int, item_cb_prefix: str, page_cb_prefix: str, extra_rows: list = None):
+    """يبني لوحة أزرار مقسّمة صفحات (عمودين) من قائمة عناصر فيها id/name، مع أزرار تنقّل."""
+    total = len(items)
+    start = page * GEO_PAGE_SIZE
+    page_items = items[start:start + GEO_PAGE_SIZE]
+
+    buttons, row = [], []
+    for it in page_items:
+        row.append(InlineKeyboardButton(it["name"], callback_data=f"{item_cb_prefix}{it['id']}"))
+        if len(row) == 2:
+            buttons.append(row)
+            row = []
+    if row:
+        buttons.append(row)
+
+    nav_row = []
+    if page > 0:
+        nav_row.append(InlineKeyboardButton("◀️ السابق", callback_data=f"{page_cb_prefix}{page - 1}"))
+    if start + GEO_PAGE_SIZE < total:
+        nav_row.append(InlineKeyboardButton("التالي ▶️", callback_data=f"{page_cb_prefix}{page + 1}"))
+    if nav_row:
+        buttons.append(nav_row)
+
+    for extra in (extra_rows or []):
+        buttons.append(extra)
+
+    return InlineKeyboardMarkup(buttons)
+
+
+def _city_keyboard(region_id: int, page: int) -> InlineKeyboardMarkup:
+    cities = db.list_sa_major_cities_by_region(region_id)
+    return _paginated_keyboard(
+        cities, page, "reg_city:", "reg_city_page:",
+        extra_rows=[[InlineKeyboardButton("⬅️ رجوع للمناطق", callback_data=BACK_TO_REGIONS_CB)]],
+    )
+
+
+def _district_keyboard(city_id: int, page: int) -> InlineKeyboardMarkup:
+    districts = db.list_sa_districts_by_city(city_id)
+    return _paginated_keyboard(
+        districts, page, "reg_dist:", "reg_dist_page:",
+        extra_rows=[[InlineKeyboardButton("تخطي (بدون تحديد حي)", callback_data=SKIP_NEIGHBORHOOD_CB)]],
+    )
 
 
 # ─────────────────────────── أدوات مساعدة ───────────────────────────
@@ -133,31 +197,84 @@ async def got_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("الاسم قصير جدًا، أرسل اسمك الكامل من فضلك:")
         return NAME
     context.user_data["full_name"] = name
-    await update.message.reply_text("ما هي مدينتك؟")
+    await update.message.reply_text("اختر منطقتك:", reply_markup=_region_keyboard())
+    return REGION
+
+
+# ─────────────────────────── الخطوة 2: المنطقة → المدينة → الحي ───────────────────────────
+
+async def choose_region(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    region_id = int(query.data.split(":", 1)[1])
+    region = db.get_sa_region_by_id(region_id)
+    if not region:
+        await query.edit_message_text("خيار غير معروف، اختر من القائمة:", reply_markup=_region_keyboard())
+        return REGION
+
+    context.user_data["region_id"] = region_id
+    await query.edit_message_text(
+        f"المنطقة: {region['name']}\n\nاختر مدينتك:",
+        reply_markup=_city_keyboard(region_id, page=0),
+    )
     return CITY
 
 
-# ─────────────────────────── الخطوة 2: المدينة والحي ───────────────────────────
+async def back_to_regions(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    await query.edit_message_text("اختر منطقتك:", reply_markup=_region_keyboard())
+    return REGION
 
-async def got_city(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    city = update.message.text.strip()
-    if len(city) < 2:
-        await update.message.reply_text("اسم المدينة غير واضح، أرسله مرة أخرى:")
+
+async def city_page_nav(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    page = int(query.data.split(":", 1)[1])
+    region_id = context.user_data["region_id"]
+    await query.edit_message_reply_markup(reply_markup=_city_keyboard(region_id, page))
+    return CITY
+
+
+async def choose_city(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    city_id = int(query.data.split(":", 1)[1])
+    city = db.get_sa_city_by_id(city_id)
+    if not city:
+        await query.edit_message_text("خيار غير معروف، حاول مرة أخرى.")
         return CITY
-    context.user_data["city"] = city
-    keyboard = InlineKeyboardMarkup(
-        [[InlineKeyboardButton("تخطي (لا يوجد حي محدد)", callback_data=SKIP_NEIGHBORHOOD_CB)]]
-    )
-    await update.message.reply_text(
-        "ما هو حيّك؟ (اختياري — تقدر تتخطى هذه الخطوة)",
-        reply_markup=keyboard,
+
+    context.user_data["city_id"] = city_id
+    context.user_data["city"] = city["name"]
+    await query.edit_message_text(
+        f"المدينة: {city['name']}\n\nاختر حيّك:",
+        reply_markup=_district_keyboard(city_id, page=0),
     )
     return NEIGHBORHOOD
 
 
-async def got_neighborhood_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    context.user_data["neighborhood"] = update.message.text.strip()
-    return await _ask_whatsapp(update.message, context)
+async def district_page_nav(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    page = int(query.data.split(":", 1)[1])
+    city_id = context.user_data["city_id"]
+    await query.edit_message_reply_markup(reply_markup=_district_keyboard(city_id, page))
+    return NEIGHBORHOOD
+
+
+async def choose_district(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    district_id = int(query.data.split(":", 1)[1])
+    districts = db.list_sa_districts_by_city(context.user_data["city_id"])
+    district = next((d for d in districts if d["id"] == district_id), None)
+    if not district:
+        await query.edit_message_text("خيار غير معروف، حاول مرة أخرى.")
+        return NEIGHBORHOOD
+
+    context.user_data["neighborhood"] = district["name"]
+    return await _ask_whatsapp(query.message, context)
 
 
 async def skip_neighborhood(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -362,10 +479,16 @@ def build_register_conversation() -> ConversationHandler:
         ],
         states={
             NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, got_name)],
-            CITY: [MessageHandler(filters.TEXT & ~filters.COMMAND, got_city)],
+            REGION: [CallbackQueryHandler(choose_region, pattern="^reg_region:")],
+            CITY: [
+                CallbackQueryHandler(choose_city, pattern="^reg_city:"),
+                CallbackQueryHandler(city_page_nav, pattern="^reg_city_page:"),
+                CallbackQueryHandler(back_to_regions, pattern=f"^{BACK_TO_REGIONS_CB}$"),
+            ],
             NEIGHBORHOOD: [
+                CallbackQueryHandler(choose_district, pattern="^reg_dist:"),
+                CallbackQueryHandler(district_page_nav, pattern="^reg_dist_page:"),
                 CallbackQueryHandler(skip_neighborhood, pattern=f"^{SKIP_NEIGHBORHOOD_CB}$"),
-                MessageHandler(filters.TEXT & ~filters.COMMAND, got_neighborhood_text),
             ],
             WHATSAPP: [MessageHandler(filters.TEXT & ~filters.COMMAND, got_whatsapp)],
             TELEGRAM_CONTACT: [

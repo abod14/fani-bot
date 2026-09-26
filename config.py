@@ -16,6 +16,10 @@ ADMIN_TELEGRAM_ID = os.environ.get("ADMIN_TELEGRAM_ID", "")
 PROFESSIONS_JSON_PATH = BASE_DIR / "data" / "professions.json"
 DB_PATH = BASE_DIR / "fani_bot.db"
 
+SAUDI_REGIONS_JSON_PATH = BASE_DIR / "data" / "saudi_geo" / "regions.json"
+SAUDI_CITIES_JSON_PATH = BASE_DIR / "data" / "saudi_geo" / "cities.json"
+SAUDI_DISTRICTS_JSON_PATH = BASE_DIR / "data" / "saudi_geo" / "districts.json"
+
 if not BOT_TOKEN:
     raise RuntimeError(
         "BOT_TOKEN غير موجود. أنشئ ملف .env (انسخ من .env.example) وضع فيه توكن البوت."

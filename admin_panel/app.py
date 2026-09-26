@@ -33,6 +33,9 @@ PAGE_SIZE = 20
 
 db.init_db()
 db.seed_professions_from_json_if_empty(config.PROFESSIONS_JSON_PATH)
+db.seed_saudi_geo_if_empty(
+    config.SAUDI_REGIONS_JSON_PATH, config.SAUDI_CITIES_JSON_PATH, config.SAUDI_DISTRICTS_JSON_PATH
+)
 
 
 # ─────────────────────────── تسجيل الدخول ───────────────────────────

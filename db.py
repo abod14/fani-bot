@@ -158,6 +158,41 @@ def init_db():
             """
         )
 
+        # ─────────────────────────── مناطق/مدن/أحياء المملكة (بيانات رسمية جاهزة) ───────────────────────────
+        # عشان نستبدل كتابة المدينة/الحي كنص حر (يسبب أخطاء إملاء وتشتت) باختيار من قائمة
+        # رسمية حقيقية، ونحل مشكلة "300 سباك بجدة" بعرض أحياء فعلية للفلترة بدل نص حر.
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS sa_regions (
+                id INTEGER PRIMARY KEY,
+                name TEXT NOT NULL
+            )
+            """
+        )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS sa_cities (
+                id INTEGER PRIMARY KEY,
+                region_id INTEGER NOT NULL,
+                name TEXT NOT NULL,
+                has_districts INTEGER NOT NULL DEFAULT 0,
+                FOREIGN KEY (region_id) REFERENCES sa_regions (id)
+            )
+            """
+        )
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_sa_cities_region ON sa_cities (region_id)")
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS sa_districts (
+                id INTEGER PRIMARY KEY,
+                city_id INTEGER NOT NULL,
+                name TEXT NOT NULL,
+                FOREIGN KEY (city_id) REFERENCES sa_cities (id)
+            )
+            """
+        )
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_sa_districts_city ON sa_districts (city_id)")
+
 
 def _now_iso():
     return datetime.now(timezone.utc).isoformat()
@@ -784,3 +819,94 @@ def get_admin_stats() -> dict:
             "top_professions": [dict(r) for r in top_professions],
             "top_cities": [dict(r) for r in top_cities],
         }
+
+
+# ─────────────────────────── مناطق/مدن/أحياء المملكة (بيانات رسمية) ───────────────────────────
+
+def seed_saudi_geo_if_empty(regions_path, cities_path, districts_path):
+    """يبذر جداول sa_regions/sa_cities/sa_districts مرة واحدة من ملفات JSON رسمية
+    (منطقة → مدينة → حي). لو الجدول فيه بيانات مسبقًا ما نعيد البذر."""
+    import json as _json
+
+    with get_conn() as conn:
+        count = conn.execute("SELECT COUNT(*) FROM sa_regions").fetchone()[0]
+        if count > 0:
+            return False
+
+        with open(regions_path, encoding="utf-8") as f:
+            regions = _json.load(f)
+        with open(cities_path, encoding="utf-8") as f:
+            cities = _json.load(f)
+        with open(districts_path, encoding="utf-8") as f:
+            districts = _json.load(f)
+
+        cities_with_districts = {d["city_id"] for d in districts}
+
+        conn.executemany(
+            "INSERT INTO sa_regions (id, name) VALUES (?, ?)",
+            [(r["id"], r["name"]) for r in regions],
+        )
+        conn.executemany(
+            "INSERT INTO sa_cities (id, region_id, name, has_districts) VALUES (?, ?, ?, ?)",
+            [
+                (c["id"], c["region_id"], c["name"], 1 if c["id"] in cities_with_districts else 0)
+                for c in cities
+            ],
+        )
+        conn.executemany(
+            "INSERT INTO sa_districts (id, city_id, name) VALUES (?, ?, ?)",
+            [(d["id"], d["city_id"], d["name"]) for d in districts],
+        )
+        return True
+
+
+def list_sa_regions():
+    with get_conn() as conn:
+        rows = conn.execute("SELECT * FROM sa_regions ORDER BY name").fetchall()
+        return [dict(r) for r in rows]
+
+
+def get_sa_region_by_id(region_id: int):
+    with get_conn() as conn:
+        row = conn.execute("SELECT * FROM sa_regions WHERE id = ?", (region_id,)).fetchone()
+        return dict(row) if row else None
+
+
+def list_sa_major_cities_by_region(region_id: int):
+    """المدن «الكبرى» بمنطقة معيّنة (اللي عندها بيانات أحياء فعلية) — تُعرض كأزرار أولًا."""
+    with get_conn() as conn:
+        rows = conn.execute(
+            "SELECT * FROM sa_cities WHERE region_id = ? AND has_districts = 1 ORDER BY name",
+            (region_id,),
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+
+def search_sa_cities(region_id: int, query: str, limit: int = 8):
+    """بحث نصي (تطابق جزئي) عن مدينة/قرية داخل منطقة معيّنة — يشمل كل المدن حتى الصغيرة،
+    مرتّب بحيث المدن الكبرى (عندها أحياء) تطلع أول."""
+    with get_conn() as conn:
+        rows = conn.execute(
+            """
+            SELECT * FROM sa_cities
+            WHERE region_id = ? AND name LIKE ?
+            ORDER BY has_districts DESC, name
+            LIMIT ?
+            """,
+            (region_id, f"%{query.strip()}%", limit),
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+
+def get_sa_city_by_id(city_id: int):
+    with get_conn() as conn:
+        row = conn.execute("SELECT * FROM sa_cities WHERE id = ?", (city_id,)).fetchone()
+        return dict(row) if row else None
+
+
+def list_sa_districts_by_city(city_id: int):
+    with get_conn() as conn:
+        rows = conn.execute(
+            "SELECT * FROM sa_districts WHERE city_id = ? ORDER BY name", (city_id,)
+        ).fetchall()
+        return [dict(r) for r in rows]

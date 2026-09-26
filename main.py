@@ -6,7 +6,13 @@ import logging
 from telegram.ext import ApplicationBuilder, CommandHandler
 
 import db
-from config import BOT_TOKEN, PROFESSIONS_JSON_PATH
+from config import (
+    BOT_TOKEN,
+    PROFESSIONS_JSON_PATH,
+    SAUDI_CITIES_JSON_PATH,
+    SAUDI_DISTRICTS_JSON_PATH,
+    SAUDI_REGIONS_JSON_PATH,
+)
 from handlers.admin import build_admin_handler
 from handlers.register import build_register_conversation
 from handlers.search import build_search_conversation, build_whatsapp_click_handler
@@ -35,6 +41,7 @@ async def help_command(update, context):
 def main():
     db.init_db()
     db.seed_professions_from_json_if_empty(PROFESSIONS_JSON_PATH)
+    db.seed_saudi_geo_if_empty(SAUDI_REGIONS_JSON_PATH, SAUDI_CITIES_JSON_PATH, SAUDI_DISTRICTS_JSON_PATH)
 
     app = ApplicationBuilder().token(BOT_TOKEN).build()
 
