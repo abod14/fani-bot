@@ -290,6 +290,7 @@ async def _run_search(message, context: ContextTypes.DEFAULT_TYPE, is_edit: bool
     ud = context.user_data
     result_ids = await asyncio.to_thread(
         db.search_active_professional_ids, ud["profession_id"], ud["city"], ud.get("neighborhood"),
+        ud.get("district_id"),
     )
     ud["result_ids"] = result_ids
     ud["shown_count"] = 0

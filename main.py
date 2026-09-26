@@ -14,6 +14,7 @@ from config import (
     SAUDI_REGIONS_JSON_PATH,
 )
 from handlers.admin import build_admin_handler
+from handlers.privacy import build_privacy_handlers
 from handlers.register import build_register_conversation
 from handlers.search import build_search_conversation, build_whatsapp_click_handler
 from handlers.start import start_command
@@ -33,6 +34,7 @@ async def help_command(update, context):
         "/register — التسجيل كفني\n"
         "/search — البحث عن فني\n"
         "/subscribe — تفعيل/تجديد الاشتراك (للفنيين)\n"
+        "/delete_account — حذف بياناتك نهائيًا من البوت\n"
         "/cancel — إلغاء أي عملية جارية\n"
         "/help — عرض هذه الرسالة"
     )
@@ -53,6 +55,8 @@ def main():
     app.add_handler(build_whatsapp_click_handler())
     app.add_handler(build_admin_handler())
     for handler in build_subscription_handlers():
+        app.add_handler(handler)
+    for handler in build_privacy_handlers():
         app.add_handler(handler)
 
     logger.info("بوت «فني» يعمل الآن (polling)...")

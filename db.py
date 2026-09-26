@@ -197,6 +197,24 @@ def init_db():
         )
         conn.execute("CREATE INDEX IF NOT EXISTS idx_sa_districts_city ON sa_districts (city_id)")
 
+        # ربط الفني بأحيائه (من حي واحد إلى خمسة أحياء كحد أقصى — قرار نهائي) بدل عمود
+        # neighborhood النصي الوحيد. عمود professionals.neighborhood ما زال موجود للعرض
+        # (نص مجمّع لأسماء الأحياء المختارة) وللتوافق مع أي بحث نصي قديم.
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS professional_districts (
+                professional_id INTEGER NOT NULL,
+                district_id INTEGER NOT NULL,
+                PRIMARY KEY (professional_id, district_id),
+                FOREIGN KEY (professional_id) REFERENCES professionals (id),
+                FOREIGN KEY (district_id) REFERENCES sa_districts (id)
+            )
+            """
+        )
+        conn.execute(
+            "CREATE INDEX IF NOT EXISTS idx_prof_districts_district ON professional_districts (district_id)"
+        )
+
 
 def _now_iso():
     return datetime.now(timezone.utc).isoformat()
@@ -239,7 +257,28 @@ def create_registration(data: dict) -> int:
                 _now_iso(),
             ),
         )
-        return cur.lastrowid
+        professional_id = cur.lastrowid
+        district_ids = data.get("district_ids") or []
+        if district_ids:
+            conn.executemany(
+                "INSERT INTO professional_districts (professional_id, district_id) VALUES (?, ?)",
+                [(professional_id, did) for did in district_ids],
+            )
+        return professional_id
+
+
+def get_districts_for_professional(professional_id: int):
+    with get_conn() as conn:
+        rows = conn.execute(
+            """
+            SELECT sa_districts.* FROM professional_districts
+            JOIN sa_districts ON sa_districts.id = professional_districts.district_id
+            WHERE professional_districts.professional_id = ?
+            ORDER BY sa_districts.name
+            """,
+            (professional_id,),
+        ).fetchall()
+        return [dict(r) for r in rows]
 
 
 def get_professional_by_id(row_id: int):
@@ -258,7 +297,9 @@ def set_status(row_id: int, status: str):
         )
 
 
-def search_active_professional_ids(profession_id: str, city: str, neighborhood: str | None):
+def search_active_professional_ids(
+    profession_id: str, city: str, neighborhood: str | None, district_id: int | None = None
+):
     """
     بحث العميل: مهنة (تطابق تام) + مدينة (تطابق تقريبي) + حي (اختياري، تطابق تقريبي).
     الترتيب: تناوب عادل — الأقل ظهورًا (times_shown الأصغر) يظهر أولاً، وعند التساوي
@@ -282,7 +323,18 @@ def search_active_professional_ids(profession_id: str, city: str, neighborhood: 
         ]
         params = [STATUS_ACTIVE, profession_id, f"%{city.strip()}%", free_limit]
 
-        if neighborhood:
+        if district_id:
+            # المطابقة الدقيقة: الفني عنده هذا الحي ضمن أحيائه المسجّلة (1 إلى 5 أحياء).
+            # + توافق مع فنيين قدامى قبل ميزة تعدد الأحياء (ما عندهم صفوف بجدول الربط
+            # إطلاقًا) عبر مطابقة نصية على عمود neighborhood القديم كحل احتياطي لهم فقط.
+            where.append(
+                "(id IN (SELECT professional_id FROM professional_districts WHERE district_id = ?) "
+                "OR (id NOT IN (SELECT professional_id FROM professional_districts) AND neighborhood LIKE ?))"
+            )
+            params.append(district_id)
+            params.append(f"%{(neighborhood or '').strip()}%")
+        elif neighborhood:
+            # توافق مع بيانات/بحث قديم بالنص الحر (بدون district_id محدد)
             where.append("neighborhood LIKE ?")
             params.append(f"%{neighborhood.strip()}%")
 
@@ -711,7 +763,48 @@ def admin_delete_professional(professional_id: int):
     with get_conn() as conn:
         conn.execute("DELETE FROM contact_clicks WHERE professional_id = ?", (professional_id,))
         conn.execute("DELETE FROM subscription_payments WHERE professional_id = ?", (professional_id,))
+        conn.execute("DELETE FROM professional_districts WHERE professional_id = ?", (professional_id,))
         conn.execute("DELETE FROM professionals WHERE id = ?", (professional_id,))
+
+
+def has_any_user_data(telegram_user_id: int) -> bool:
+    """يفحص هل عند هذا المستخدم أي بيانات مخزّنة (كفني و/أو كعميل باحث) — تُستخدم قبل عرض
+    تأكيد حذف الحساب، حتى ما نعرض الخيار لمن ما عنده شي أصلًا."""
+    with get_conn() as conn:
+        prof = conn.execute(
+            "SELECT 1 FROM professionals WHERE telegram_user_id = ? LIMIT 1", (telegram_user_id,)
+        ).fetchone()
+        if prof:
+            return True
+        search = conn.execute(
+            "SELECT 1 FROM search_log WHERE customer_telegram_id = ? LIMIT 1", (telegram_user_id,)
+        ).fetchone()
+        if search:
+            return True
+        contact = conn.execute(
+            "SELECT 1 FROM contact_clicks WHERE customer_telegram_id = ? LIMIT 1", (telegram_user_id,)
+        ).fetchone()
+        return bool(contact)
+
+
+def delete_all_user_data(telegram_user_id: int):
+    """حذف نهائي وشامل لكل بيانات هذا المستخدم من قاعدة البيانات (حق الحذف/الخصوصية):
+    - كل سجلات تسجيله كفني (لو سجّل أكثر من مرة) + سجلات التواصل والدفعات المرتبطة بها.
+    - كل سجلات بحثه وضغطاته على واتساب بصفته عميل (customer_telegram_id).
+    إجراء لا رجعة فيه."""
+    with get_conn() as conn:
+        prof_ids = [
+            r["id"] for r in conn.execute(
+                "SELECT id FROM professionals WHERE telegram_user_id = ?", (telegram_user_id,)
+            ).fetchall()
+        ]
+        for pid in prof_ids:
+            conn.execute("DELETE FROM contact_clicks WHERE professional_id = ?", (pid,))
+            conn.execute("DELETE FROM subscription_payments WHERE professional_id = ?", (pid,))
+            conn.execute("DELETE FROM professional_districts WHERE professional_id = ?", (pid,))
+        conn.execute("DELETE FROM professionals WHERE telegram_user_id = ?", (telegram_user_id,))
+        conn.execute("DELETE FROM search_log WHERE customer_telegram_id = ?", (telegram_user_id,))
+        conn.execute("DELETE FROM contact_clicks WHERE customer_telegram_id = ?", (telegram_user_id,))
 
 
 def admin_list_payments(

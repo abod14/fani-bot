@@ -38,11 +38,15 @@ import professions_repo as professions
     CONFIRM,
 ) = range(10)
 
-SKIP_NEIGHBORHOOD_CB = "reg_skip_neighborhood"
 BACK_TO_REGIONS_CB = "reg_back_regions"
+DISTRICT_TOGGLE_CB_PREFIX = "reg_dist_toggle:"
+DISTRICTS_DONE_CB = "reg_dist_done"
 SERVICES_DONE_CB = "reg_services_done"
 CONFIRM_YES_CB = "reg_confirm_yes"
 CONFIRM_EDIT_CB = "reg_confirm_edit"
+
+MIN_DISTRICTS = 1
+MAX_DISTRICTS = 5  # قرار نهائي: الفني يختار حي واحد على الأقل وخمسة أحياء كحد أقصى
 
 WHATSAPP_RE = re.compile(r"^\+?[0-9]{8,15}$")
 
@@ -101,12 +105,39 @@ def _city_keyboard(region_id: int, page: int) -> InlineKeyboardMarkup:
     )
 
 
-def _district_keyboard(city_id: int, page: int) -> InlineKeyboardMarkup:
+def _district_keyboard(city_id: int, page: int, selected_ids: set[int]) -> InlineKeyboardMarkup:
+    """لوحة اختيار متعدد للأحياء (من 1 إلى 5 كحد أقصى)، مع صفحات وعلامة ✅ للمختار."""
     districts = db.list_sa_districts_by_city(city_id)
-    return _paginated_keyboard(
-        districts, page, "reg_dist:", "reg_dist_page:",
-        extra_rows=[[InlineKeyboardButton("تخطي (بدون تحديد حي)", callback_data=SKIP_NEIGHBORHOOD_CB)]],
-    )
+    total = len(districts)
+    start = page * GEO_PAGE_SIZE
+    page_items = districts[start:start + GEO_PAGE_SIZE]
+
+    buttons, row = [], []
+    for d in page_items:
+        mark = "✅ " if d["id"] in selected_ids else "▫️ "
+        row.append(InlineKeyboardButton(mark + d["name"], callback_data=f"{DISTRICT_TOGGLE_CB_PREFIX}{d['id']}"))
+        if len(row) == 2:
+            buttons.append(row)
+            row = []
+    if row:
+        buttons.append(row)
+
+    nav_row = []
+    if page > 0:
+        nav_row.append(InlineKeyboardButton("◀️ السابق", callback_data=f"reg_dist_page:{page - 1}"))
+    if start + GEO_PAGE_SIZE < total:
+        nav_row.append(InlineKeyboardButton("التالي ▶️", callback_data=f"reg_dist_page:{page + 1}"))
+    if nav_row:
+        buttons.append(nav_row)
+
+    if selected_ids:
+        buttons.append(
+            [InlineKeyboardButton(
+                f"تأكيد الاختيار ✅ ({len(selected_ids)}/{MAX_DISTRICTS})", callback_data=DISTRICTS_DONE_CB
+            )]
+        )
+
+    return InlineKeyboardMarkup(buttons)
 
 
 # ─────────────────────────── أدوات مساعدة ───────────────────────────
@@ -154,11 +185,12 @@ def _services_keyboard(services: list[str], selected: set[str]) -> InlineKeyboar
 def _summary_text(ud: dict) -> str:
     services = ud.get("services") or []
     services_text = "، ".join(services) if services else "لا يوجد"
+    neighborhoods_text = ud.get("neighborhood") or "لم يُحدد"
     return (
         "مراجعة بيانات التسجيل:\n\n"
         f"الاسم: {ud['full_name']}\n"
         f"المدينة: {ud['city']}\n"
-        f"الحي: {ud.get('neighborhood') or 'لم يُحدد'}\n"
+        f"الأحياء: {neighborhoods_text}\n"
         f"رقم الواتساب: {ud['whatsapp_number']}\n"
         f"حساب التلغرام: {ud.get('telegram_contact_number') or 'غير متاح'}\n"
         f"المهنة: {ud['profession_name']}\n"
@@ -247,9 +279,13 @@ async def choose_city(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     context.user_data["city_id"] = city_id
     context.user_data["city"] = city["name"]
+    context.user_data["district_page"] = 0
+    context.user_data["selected_district_ids"] = []
     await query.edit_message_text(
-        f"المدينة: {city['name']}\n\nاختر حيّك:",
-        reply_markup=_district_keyboard(city_id, page=0),
+        f"المدينة: {city['name']}\n\n"
+        f"اختر أحياءك (حي واحد على الأقل، وحتى {MAX_DISTRICTS} أحياء كحد أقصى)، "
+        "ثم اضغط «تأكيد الاختيار»:",
+        reply_markup=_district_keyboard(city_id, page=0, selected_ids=set()),
     )
     return NEIGHBORHOOD
 
@@ -259,28 +295,50 @@ async def district_page_nav(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await query.answer()
     page = int(query.data.split(":", 1)[1])
     city_id = context.user_data["city_id"]
-    await query.edit_message_reply_markup(reply_markup=_district_keyboard(city_id, page))
+    context.user_data["district_page"] = page
+    selected = set(context.user_data.get("selected_district_ids", []))
+    await query.edit_message_reply_markup(reply_markup=_district_keyboard(city_id, page, selected))
     return NEIGHBORHOOD
 
 
-async def choose_district(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def toggle_district(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
-    await query.answer()
     district_id = int(query.data.split(":", 1)[1])
-    districts = db.list_sa_districts_by_city(context.user_data["city_id"])
-    district = next((d for d in districts if d["id"] == district_id), None)
-    if not district:
-        await query.edit_message_text("خيار غير معروف، حاول مرة أخرى.")
+    selected = list(context.user_data.get("selected_district_ids", []))
+
+    if district_id in selected:
+        selected.remove(district_id)
+    elif len(selected) >= MAX_DISTRICTS:
+        await query.answer(f"لا يمكن اختيار أكثر من {MAX_DISTRICTS} أحياء.", show_alert=True)
         return NEIGHBORHOOD
+    else:
+        selected.append(district_id)
 
-    context.user_data["neighborhood"] = district["name"]
-    return await _ask_whatsapp(query.message, context)
-
-
-async def skip_neighborhood(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
+    context.user_data["selected_district_ids"] = selected
     await query.answer()
-    context.user_data["neighborhood"] = None
+
+    city_id = context.user_data["city_id"]
+    page = context.user_data.get("district_page", 0)
+    await query.edit_message_reply_markup(
+        reply_markup=_district_keyboard(city_id, page, set(selected))
+    )
+    return NEIGHBORHOOD
+
+
+async def districts_done(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    selected_ids = context.user_data.get("selected_district_ids", [])
+    if len(selected_ids) < MIN_DISTRICTS:
+        await query.answer("اختر حيًا واحدًا على الأقل قبل المتابعة.", show_alert=True)
+        return NEIGHBORHOOD
+    await query.answer()
+
+    districts = db.list_sa_districts_by_city(context.user_data["city_id"])
+    by_id = {d["id"]: d for d in districts}
+    chosen = [by_id[did] for did in selected_ids if did in by_id]
+
+    context.user_data["district_ids"] = [d["id"] for d in chosen]
+    context.user_data["neighborhood"] = "، ".join(d["name"] for d in chosen)
     return await _ask_whatsapp(query.message, context)
 
 
@@ -434,6 +492,7 @@ async def confirm_yes(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "full_name": ud["full_name"],
             "city": ud["city"],
             "neighborhood": ud.get("neighborhood"),
+            "district_ids": ud.get("district_ids", []),
             "whatsapp_number": ud["whatsapp_number"],
             "telegram_contact_number": ud.get("telegram_contact_number"),
             "domain_name": ud["domain_name"],
@@ -486,9 +545,9 @@ def build_register_conversation() -> ConversationHandler:
                 CallbackQueryHandler(back_to_regions, pattern=f"^{BACK_TO_REGIONS_CB}$"),
             ],
             NEIGHBORHOOD: [
-                CallbackQueryHandler(choose_district, pattern="^reg_dist:"),
+                CallbackQueryHandler(districts_done, pattern=f"^{DISTRICTS_DONE_CB}$"),
+                CallbackQueryHandler(toggle_district, pattern=f"^{DISTRICT_TOGGLE_CB_PREFIX}"),
                 CallbackQueryHandler(district_page_nav, pattern="^reg_dist_page:"),
-                CallbackQueryHandler(skip_neighborhood, pattern=f"^{SKIP_NEIGHBORHOOD_CB}$"),
             ],
             WHATSAPP: [MessageHandler(filters.TEXT & ~filters.COMMAND, got_whatsapp)],
             TELEGRAM_CONTACT: [
