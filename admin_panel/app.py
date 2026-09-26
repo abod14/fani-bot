@@ -169,6 +169,7 @@ def professional_edit(professional_id):
         neighborhood=request.form.get("neighborhood") or "",
         whatsapp_number=request.form.get("whatsapp_number") or None,
         telegram_contact_number=request.form.get("telegram_contact_number") or "",
+        has_whatsapp=request.form.get("has_whatsapp") == "1",
     )
     flash("تم حفظ بيانات الفني.", "success")
     return redirect(url_for("professional_detail", professional_id=professional_id))

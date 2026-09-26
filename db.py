@@ -70,6 +70,16 @@ def init_db():
             )
             """
         )
+
+        # ترحيل: بعض الفنيين رقمهم للاتصال فقط بدون واتساب مفعّل عليه. عمود جديد
+        # على جدول قديم — نضيفه فقط لو ناقص (قاعدة بيانات منشورة مسبقًا)، بقيمة
+        # افتراضية True حفاظًا على سلوك كل التسجيلات السابقة (كانت تفترض واتساب دائمًا).
+        existing_columns = {row["name"] for row in conn.execute("PRAGMA table_info(professionals)").fetchall()}
+        if "has_whatsapp" not in existing_columns:
+            conn.execute(
+                "ALTER TABLE professionals ADD COLUMN has_whatsapp INTEGER NOT NULL DEFAULT 1"
+            )
+
         # فهرس يسرّع بحث العميل: مهنة + مدينة + حي على الفنيين النشطين، مرتّب بالتناوب
         conn.execute(
             """
@@ -237,10 +247,10 @@ def create_registration(data: dict) -> int:
             """
             INSERT INTO professionals (
                 telegram_user_id, full_name, city, neighborhood,
-                whatsapp_number, telegram_contact_number,
+                whatsapp_number, has_whatsapp, telegram_contact_number,
                 domain_name, profession_id, profession_name,
                 services_json, status, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 data["telegram_user_id"],
@@ -248,6 +258,7 @@ def create_registration(data: dict) -> int:
                 data["city"],
                 data.get("neighborhood"),
                 data["whatsapp_number"],
+                1 if data.get("has_whatsapp", True) else 0,
                 data.get("telegram_contact_number"),
                 data["domain_name"],
                 data["profession_id"],
@@ -719,6 +730,7 @@ def admin_update_professional(
     neighborhood: str | None = None,
     whatsapp_number: str | None = None,
     telegram_contact_number: str | None = None,
+    has_whatsapp: bool | None = None,
 ):
     """تعديل يدوي لبيانات تواصل/مكان فني من اللوحة. أي حقل None يُترك بدون تغيير."""
     fields = {
@@ -727,6 +739,7 @@ def admin_update_professional(
         "neighborhood": neighborhood,
         "whatsapp_number": whatsapp_number,
         "telegram_contact_number": telegram_contact_number,
+        "has_whatsapp": None if has_whatsapp is None else (1 if has_whatsapp else 0),
     }
     updates = {k: v for k, v in fields.items() if v is not None}
     if not updates:

@@ -31,8 +31,11 @@
       <input type="text" name="neighborhood" value="{{ p.neighborhood or '' }}">
     </div>
     <div class="field">
-      <label>رقم واتساب</label>
+      <label>رقم واتساب/اتصال</label>
       <input type="text" name="whatsapp_number" value="{{ p.whatsapp_number }}" required>
+    </div>
+    <div class="field">
+      <label><input type="checkbox" name="has_whatsapp" value="1" {% if p.has_whatsapp %}checked{% endif %}> هذا الرقم مفعّل عليه واتساب</label>
     </div>
     <div class="field">
       <label>رقم تلغرام للتواصل</label>

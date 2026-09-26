@@ -122,9 +122,10 @@ def _profession_keyboard(domain_id: str) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(buttons)
 
 
-def _whatsapp_button(professional_id: int) -> InlineKeyboardMarkup:
+def _contact_button(p: dict) -> InlineKeyboardMarkup:
+    label = "📱 تواصل عبر واتساب" if p.get("has_whatsapp", 1) else "📞 عرض رقم التواصل"
     return InlineKeyboardMarkup(
-        [[InlineKeyboardButton("📱 تواصل عبر واتساب", callback_data=f"srch_wa:{professional_id}")]]
+        [[InlineKeyboardButton(label, callback_data=f"srch_wa:{p['id']}")]]
     )
 
 
@@ -443,7 +444,7 @@ async def _show_results_page(message, context: ContextTypes.DEFAULT_TYPE, is_edi
     results = await asyncio.to_thread(db.get_professionals_by_ids, page_ids)
 
     for p in results:
-        await message.reply_text(_professional_card_text(p), reply_markup=_whatsapp_button(p["id"]))
+        await message.reply_text(_professional_card_text(p), reply_markup=_contact_button(p))
 
     # نحدّث "آخر ظهور" فقط لمن ظهرت بطاقته فعليًا — أساس عدالة التناوب.
     # نسويها هنا (بعد إرسال هذه الصفحة) لأن القائمة نفسها (result_ids) ثابتة بالذاكرة
@@ -574,13 +575,24 @@ async def whatsapp_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await asyncio.to_thread(db.log_contact_click, professional_id, update.effective_user.id)
     await query.answer()
 
-    open_wa_keyboard = InlineKeyboardMarkup(
-        [[InlineKeyboardButton("💬 فتح واتساب الآن", url=_wa_link(p["whatsapp_number"]))]]
-    )
-    await query.message.reply_text(
-        f"رقم واتساب {p['full_name']}: {p['whatsapp_number']}",
-        reply_markup=open_wa_keyboard,
-    )
+    if p.get("has_whatsapp", 1):
+        open_wa_keyboard = InlineKeyboardMarkup(
+            [[InlineKeyboardButton("💬 فتح واتساب الآن", url=_wa_link(p["whatsapp_number"]))]]
+        )
+        await query.message.reply_text(
+            f"رقم واتساب {p['full_name']}: {p['whatsapp_number']}",
+            reply_markup=open_wa_keyboard,
+        )
+    else:
+        # هذا الرقم بدون واتساب — نعرض خيارات التواصل المتاحة فعليًا: اتصال مباشر،
+        # وتلغرام لو متوفر (رقم الواتساب هنا هو رقم اتصال عادي فقط).
+        lines = [
+            f"{p['full_name']} — هذا الرقم بدون واتساب:",
+            f"📞 للاتصال المباشر: {p['whatsapp_number']}",
+        ]
+        if p.get("telegram_contact_number"):
+            lines.append(f"✈️ أو تواصل معه عبر تلغرام: {p['telegram_contact_number']}")
+        await query.message.reply_text("\n".join(lines))
 
 
 # ─────────────────────────── إلغاء ───────────────────────────

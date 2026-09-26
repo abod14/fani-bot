@@ -31,16 +31,19 @@ import professions_repo as professions
     CITY,
     NEIGHBORHOOD,
     WHATSAPP,
+    WHATSAPP_CONFIRM,
     TELEGRAM_CONTACT,
     DOMAIN,
     PROFESSION,
     SERVICES,
     CONFIRM,
-) = range(10)
+) = range(11)
 
 BACK_TO_REGIONS_CB = "reg_back_regions"
 DISTRICT_TOGGLE_CB_PREFIX = "reg_dist_toggle:"
 DISTRICTS_DONE_CB = "reg_dist_done"
+HAS_WHATSAPP_YES_CB = "reg_has_wa_yes"
+HAS_WHATSAPP_NO_CB = "reg_has_wa_no"
 SERVICES_DONE_CB = "reg_services_done"
 CONFIRM_YES_CB = "reg_confirm_yes"
 CONFIRM_EDIT_CB = "reg_confirm_edit"
@@ -186,12 +189,13 @@ def _summary_text(ud: dict) -> str:
     services = ud.get("services") or []
     services_text = "، ".join(services) if services else "لا يوجد"
     neighborhoods_text = ud.get("neighborhood") or "لم يُحدد"
+    contact_label = "واتساب ✅" if ud.get("has_whatsapp", True) else "اتصال فقط (بدون واتساب) 📞"
     return (
         "مراجعة بيانات التسجيل:\n\n"
         f"الاسم: {ud['full_name']}\n"
         f"المدينة: {ud['city']}\n"
         f"الأحياء: {neighborhoods_text}\n"
-        f"رقم الواتساب: {ud['whatsapp_number']}\n"
+        f"رقم التواصل: {ud['whatsapp_number']} ({contact_label})\n"
         f"حساب التلغرام: {ud.get('telegram_contact_number') or 'غير متاح'}\n"
         f"المهنة: {ud['profession_name']}\n"
         f"الخدمات: {services_text}"
@@ -428,11 +432,37 @@ async def got_whatsapp(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return WHATSAPP
     context.user_data["whatsapp_number"] = number
 
+    keyboard = InlineKeyboardMarkup(
+        [
+            [
+                InlineKeyboardButton("نعم، مفعّل عليه واتساب ✅", callback_data=HAS_WHATSAPP_YES_CB),
+                InlineKeyboardButton("لا، للاتصال فقط 📞", callback_data=HAS_WHATSAPP_NO_CB),
+            ]
+        ]
+    )
+    await update.message.reply_text(
+        "هل هذا الرقم مفعّل عليه واتساب؟ (بعض العملاء يفضّلون التواصل بواتساب مباشرة)",
+        reply_markup=keyboard,
+    )
+    return WHATSAPP_CONFIRM
+
+
+async def confirm_has_whatsapp(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    has_wa = query.data == HAS_WHATSAPP_YES_CB
+    context.user_data["has_whatsapp"] = has_wa
+    label = "واتساب مفعّل ✅" if has_wa else "رقم اتصال فقط (بدون واتساب) 📞"
+    await query.edit_message_text(f"تمام، سجّلنا رقمك كـ: {label}")
+    return await _ask_telegram_contact(query.message, context)
+
+
+async def _ask_telegram_contact(message, context: ContextTypes.DEFAULT_TYPE):
     contact_button = KeyboardButton("📱 مشاركة رقم التلغرام", request_contact=True)
     keyboard = ReplyKeyboardMarkup(
         [[contact_button]], resize_keyboard=True, one_time_keyboard=True
     )
-    await update.message.reply_text(
+    await message.reply_text(
         "الآن شارك رقم حسابك بتلغرام بالضغط على الزر بالأسفل:",
         reply_markup=keyboard,
     )
@@ -562,6 +592,7 @@ async def confirm_yes(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "neighborhood": ud.get("neighborhood"),
             "district_ids": ud.get("district_ids", []),
             "whatsapp_number": ud["whatsapp_number"],
+            "has_whatsapp": ud.get("has_whatsapp", True),
             "telegram_contact_number": ud.get("telegram_contact_number"),
             "domain_name": ud["domain_name"],
             "profession_id": ud["profession_id"],
@@ -620,6 +651,9 @@ def build_register_conversation() -> ConversationHandler:
                 MessageHandler(filters.TEXT & ~filters.COMMAND, district_text_search),
             ],
             WHATSAPP: [MessageHandler(filters.TEXT & ~filters.COMMAND, got_whatsapp)],
+            WHATSAPP_CONFIRM: [
+                CallbackQueryHandler(confirm_has_whatsapp, pattern=f"^{HAS_WHATSAPP_YES_CB}$|^{HAS_WHATSAPP_NO_CB}$"),
+            ],
             TELEGRAM_CONTACT: [
                 MessageHandler(filters.CONTACT | (filters.TEXT & ~filters.COMMAND), got_telegram_contact)
             ],
