@@ -1,0 +1,391 @@
+# تدفق /register الكامل — 7 خطوات، باستخدام ConversationHandler.
+# نجمع البيانات بـ context.user_data خطوة بخطوة، ونحفظها بقاعدة البيانات فقط
+# بعد تأكيد الفني النهائي (خطوة 6/7).
+
+import asyncio
+import re
+
+from telegram import (
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    KeyboardButton,
+    ReplyKeyboardMarkup,
+    ReplyKeyboardRemove,
+    Update,
+)
+from telegram.ext import (
+    CallbackQueryHandler,
+    CommandHandler,
+    ContextTypes,
+    ConversationHandler,
+    MessageHandler,
+    filters,
+)
+
+import db
+import professions_repo as professions
+
+(
+    NAME,
+    CITY,
+    NEIGHBORHOOD,
+    WHATSAPP,
+    TELEGRAM_CONTACT,
+    DOMAIN,
+    PROFESSION,
+    SERVICES,
+    CONFIRM,
+) = range(9)
+
+SKIP_NEIGHBORHOOD_CB = "reg_skip_neighborhood"
+SERVICES_DONE_CB = "reg_services_done"
+CONFIRM_YES_CB = "reg_confirm_yes"
+CONFIRM_EDIT_CB = "reg_confirm_edit"
+
+WHATSAPP_RE = re.compile(r"^\+?[0-9]{8,15}$")
+
+
+# ─────────────────────────── أدوات مساعدة ───────────────────────────
+
+def _domain_keyboard() -> InlineKeyboardMarkup:
+    buttons = []
+    row = []
+    for d in professions.get_domains():
+        row.append(InlineKeyboardButton(d["name"], callback_data=f"reg_dom:{d['id']}"))
+        if len(row) == 2:
+            buttons.append(row)
+            row = []
+    if row:
+        buttons.append(row)
+    return InlineKeyboardMarkup(buttons)
+
+
+def _profession_keyboard(domain_id: str) -> InlineKeyboardMarkup:
+    buttons = []
+    row = []
+    for p in professions.get_professions_by_domain(domain_id):
+        row.append(InlineKeyboardButton(p["name"], callback_data=f"reg_prof:{p['id']}"))
+        if len(row) == 2:
+            buttons.append(row)
+            row = []
+    if row:
+        buttons.append(row)
+    buttons.append(
+        [InlineKeyboardButton("⬅️ رجوع لاختيار المجال", callback_data="reg_back_domain")]
+    )
+    return InlineKeyboardMarkup(buttons)
+
+
+def _services_keyboard(services: list[str], selected: set[str]) -> InlineKeyboardMarkup:
+    buttons = []
+    for s in services:
+        mark = "✅ " if s in selected else "▫️ "
+        buttons.append([InlineKeyboardButton(mark + s, callback_data=f"reg_svc:{s}")])
+    buttons.append(
+        [InlineKeyboardButton("تأكيد الاختيار ✅", callback_data=SERVICES_DONE_CB)]
+    )
+    return InlineKeyboardMarkup(buttons)
+
+
+def _summary_text(ud: dict) -> str:
+    services = ud.get("services") or []
+    services_text = "، ".join(services) if services else "لا يوجد"
+    return (
+        "مراجعة بيانات التسجيل:\n\n"
+        f"الاسم: {ud['full_name']}\n"
+        f"المدينة: {ud['city']}\n"
+        f"الحي: {ud.get('neighborhood') or 'لم يُحدد'}\n"
+        f"رقم الواتساب: {ud['whatsapp_number']}\n"
+        f"حساب التلغرام: {ud.get('telegram_contact_number') or 'غير متاح'}\n"
+        f"المهنة: {ud['profession_name']}\n"
+        f"الخدمات: {services_text}"
+    )
+
+
+def _confirm_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        [
+            [
+                InlineKeyboardButton("✅ تأكيد التسجيل", callback_data=CONFIRM_YES_CB),
+                InlineKeyboardButton("✏️ تعديل البيانات", callback_data=CONFIRM_EDIT_CB),
+            ]
+        ]
+    )
+
+
+# ─────────────────────────── الخطوة 1: الاسم ───────────────────────────
+
+async def register_entry(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data.clear()
+    target = update.message or update.callback_query.message
+    if update.callback_query:
+        await update.callback_query.answer()
+    await target.reply_text(
+        "لنبدأ تسجيلك كفني 📝\n\nأرسل اسمك الكامل:",
+        reply_markup=ReplyKeyboardRemove(),
+    )
+    return NAME
+
+
+async def got_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    name = update.message.text.strip()
+    if len(name) < 3:
+        await update.message.reply_text("الاسم قصير جدًا، أرسل اسمك الكامل من فضلك:")
+        return NAME
+    context.user_data["full_name"] = name
+    await update.message.reply_text("ما هي مدينتك؟")
+    return CITY
+
+
+# ─────────────────────────── الخطوة 2: المدينة والحي ───────────────────────────
+
+async def got_city(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    city = update.message.text.strip()
+    if len(city) < 2:
+        await update.message.reply_text("اسم المدينة غير واضح، أرسله مرة أخرى:")
+        return CITY
+    context.user_data["city"] = city
+    keyboard = InlineKeyboardMarkup(
+        [[InlineKeyboardButton("تخطي (لا يوجد حي محدد)", callback_data=SKIP_NEIGHBORHOOD_CB)]]
+    )
+    await update.message.reply_text(
+        "ما هو حيّك؟ (اختياري — تقدر تتخطى هذه الخطوة)",
+        reply_markup=keyboard,
+    )
+    return NEIGHBORHOOD
+
+
+async def got_neighborhood_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data["neighborhood"] = update.message.text.strip()
+    return await _ask_whatsapp(update.message, context)
+
+
+async def skip_neighborhood(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    context.user_data["neighborhood"] = None
+    return await _ask_whatsapp(query.message, context)
+
+
+async def _ask_whatsapp(message, context: ContextTypes.DEFAULT_TYPE):
+    await message.reply_text(
+        "أرسل رقم الواتساب الخاص بك (مع رمز الدولة)، مثال:\n+966501234567"
+    )
+    return WHATSAPP
+
+
+# ─────────────────────────── الخطوة 3: أرقام التواصل ───────────────────────────
+
+async def got_whatsapp(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    number = update.message.text.strip().replace(" ", "")
+    if not WHATSAPP_RE.match(number):
+        await update.message.reply_text(
+            "رقم غير صحيح. أرسل الرقم مع رمز الدولة، مثال:\n+966501234567"
+        )
+        return WHATSAPP
+    context.user_data["whatsapp_number"] = number
+
+    contact_button = KeyboardButton("📱 مشاركة رقم التلغرام", request_contact=True)
+    keyboard = ReplyKeyboardMarkup(
+        [[contact_button]], resize_keyboard=True, one_time_keyboard=True
+    )
+    await update.message.reply_text(
+        "الآن شارك رقم حسابك بتلغرام بالضغط على الزر بالأسفل:",
+        reply_markup=keyboard,
+    )
+    return TELEGRAM_CONTACT
+
+
+async def got_telegram_contact(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    contact = update.message.contact
+    if contact is None or contact.user_id != update.effective_user.id:
+        await update.message.reply_text(
+            "الرجاء الضغط على زر مشاركة رقم التلغرام بالأسفل (وليس كتابة الرقم يدويًا):"
+        )
+        return TELEGRAM_CONTACT
+
+    context.user_data["telegram_contact_number"] = contact.phone_number
+    await update.message.reply_text(
+        "تمام ✅ اختر مجال عملك:",
+        reply_markup=ReplyKeyboardRemove(),
+    )
+    await update.message.reply_text("المجالات المتاحة:", reply_markup=_domain_keyboard())
+    return DOMAIN
+
+
+# ─────────────────────────── الخطوة 3 (بديل): المجال والمهنة ───────────────────────────
+
+async def choose_domain(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    domain_id = query.data.split(":", 1)[1]
+    domain = professions.get_domain(domain_id)
+    if not domain:
+        await query.edit_message_text("خيار غير معروف، اختر من القائمة:", reply_markup=_domain_keyboard())
+        return DOMAIN
+
+    context.user_data["domain_id"] = domain_id
+    context.user_data["domain_name"] = domain["name"]
+    await query.edit_message_text(
+        f"مجال: {domain['name']}\n\nاختر مهنتك:",
+        reply_markup=_profession_keyboard(domain_id),
+    )
+    return PROFESSION
+
+
+async def back_to_domain(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    await query.edit_message_text("المجالات المتاحة:", reply_markup=_domain_keyboard())
+    return DOMAIN
+
+
+async def choose_profession(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    profession_id = query.data.split(":", 1)[1]
+    domain, profession = professions.get_profession(profession_id)
+    if not profession:
+        await query.edit_message_text("خيار غير معروف، حاول مرة أخرى.")
+        return PROFESSION
+
+    context.user_data["profession_id"] = profession_id
+    context.user_data["profession_name"] = profession["name"]
+    context.user_data["available_services"] = profession["services"]
+    context.user_data["services"] = []
+
+    if profession["services"]:
+        await query.edit_message_text(
+            f"مهنة: {profession['name']}\n\nاختر الخدمات التي تقدّمها (يمكن اختيار أكثر من خدمة):",
+            reply_markup=_services_keyboard(profession["services"], set()),
+        )
+        return SERVICES
+
+    # لا توجد خدمات فرعية — نروح مباشرة لشاشة المراجعة
+    await query.edit_message_text(_summary_text(context.user_data), reply_markup=_confirm_keyboard())
+    return CONFIRM
+
+
+# ─────────────────────────── الخطوة 5: الخدمات الفرعية ───────────────────────────
+
+async def toggle_service(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    service = query.data.split(":", 1)[1]
+    selected = set(context.user_data.get("services", []))
+    if service in selected:
+        selected.discard(service)
+    else:
+        selected.add(service)
+    context.user_data["services"] = list(selected)
+    await query.answer()
+
+    available = context.user_data.get("available_services", [])
+    await query.edit_message_reply_markup(
+        reply_markup=_services_keyboard(available, selected)
+    )
+    return SERVICES
+
+
+async def services_done(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    await query.edit_message_text(_summary_text(context.user_data), reply_markup=_confirm_keyboard())
+    return CONFIRM
+
+
+# ─────────────────────────── الخطوة 6-7: المراجعة والتأكيد ───────────────────────────
+
+async def confirm_edit(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    # أبسط تنفيذ (زي ما ورد بالتصميم الأصلي): نعيد البدء من الخطوة 1
+    query = update.callback_query
+    await query.answer()
+    context.user_data.clear()
+    await query.edit_message_text("تمام، نبدأ التسجيل من جديد.")
+    await query.message.reply_text("أرسل اسمك الكامل:")
+    return NAME
+
+
+async def confirm_yes(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+
+    ud = context.user_data
+    row_id = await asyncio.to_thread(
+        db.create_registration,
+        {
+            "telegram_user_id": update.effective_user.id,
+            "full_name": ud["full_name"],
+            "city": ud["city"],
+            "neighborhood": ud.get("neighborhood"),
+            "whatsapp_number": ud["whatsapp_number"],
+            "telegram_contact_number": ud.get("telegram_contact_number"),
+            "domain_name": ud["domain_name"],
+            "profession_id": ud["profession_id"],
+            "profession_name": ud["profession_name"],
+            "services": ud.get("services", []),
+        },
+    )
+
+    await query.edit_message_text(
+        "✅ تم استلام طلب تسجيلك بنجاح\n\n"
+        f"الاسم: {ud['full_name']}\n"
+        f"المدينة: {ud['city']}\n"
+        f"المهنة: {ud['profession_name']}\n\n"
+        "طلبك الآن قيد المراجعة، وسيتم إعلامك فور الموافقة عليه."
+    )
+
+    # إشعار الأدمن — نستورد هنا لتفادي استيراد دائري بين register.py و admin.py
+    from handlers.admin import notify_admin_new_registration
+
+    await notify_admin_new_registration(context, row_id)
+
+    context.user_data.clear()
+    return ConversationHandler.END
+
+
+async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data.clear()
+    await update.message.reply_text(
+        "تم إلغاء التسجيل. أرسل /register في أي وقت للبدء من جديد.",
+        reply_markup=ReplyKeyboardRemove(),
+    )
+    return ConversationHandler.END
+
+
+# ─────────────────────────── تجميع الـ ConversationHandler ───────────────────────────
+
+def build_register_conversation() -> ConversationHandler:
+    return ConversationHandler(
+        entry_points=[
+            CommandHandler("register", register_entry),
+            CallbackQueryHandler(register_entry, pattern="^start_register$"),
+        ],
+        states={
+            NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, got_name)],
+            CITY: [MessageHandler(filters.TEXT & ~filters.COMMAND, got_city)],
+            NEIGHBORHOOD: [
+                CallbackQueryHandler(skip_neighborhood, pattern=f"^{SKIP_NEIGHBORHOOD_CB}$"),
+                MessageHandler(filters.TEXT & ~filters.COMMAND, got_neighborhood_text),
+            ],
+            WHATSAPP: [MessageHandler(filters.TEXT & ~filters.COMMAND, got_whatsapp)],
+            TELEGRAM_CONTACT: [
+                MessageHandler(filters.CONTACT | (filters.TEXT & ~filters.COMMAND), got_telegram_contact)
+            ],
+            DOMAIN: [CallbackQueryHandler(choose_domain, pattern="^reg_dom:")],
+            PROFESSION: [
+                CallbackQueryHandler(choose_profession, pattern="^reg_prof:"),
+                CallbackQueryHandler(back_to_domain, pattern="^reg_back_domain$"),
+            ],
+            SERVICES: [
+                CallbackQueryHandler(services_done, pattern=f"^{SERVICES_DONE_CB}$"),
+                CallbackQueryHandler(toggle_service, pattern="^reg_svc:"),
+            ],
+            CONFIRM: [
+                CallbackQueryHandler(confirm_yes, pattern=f"^{CONFIRM_YES_CB}$"),
+                CallbackQueryHandler(confirm_edit, pattern=f"^{CONFIRM_EDIT_CB}$"),
+            ],
+        },
+        fallbacks=[CommandHandler("cancel", cancel)],
+        name="register_conversation",
+        persistent=False,
+    )

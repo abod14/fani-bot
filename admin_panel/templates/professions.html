@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}المهن — لوحة تحكم «فني»{% endblock %}
+{% block content %}
+<h1>إدارة المجالات والمهن</h1>
+<p class="muted">أي إضافة أو تعديل هنا يظهر فورًا للفنيين والعملاء بالبوت (بدون إعادة تشغيل).</p>
+
+<div class="card">
+  <h2>إضافة مجال جديد</h2>
+  <form method="post" action="{{ url_for('domain_add') }}">
+    <div class="field">
+      <label>اسم المجال</label>
+      <input type="text" name="name" required placeholder="مثال: أعمال الكهرباء">
+    </div>
+    <br>
+    <button type="submit">إضافة المجال</button>
+  </form>
+</div>
+
+{% for domain in domains %}
+<div class="domain-block">
+  <div class="domain-head">
+    <form method="post" action="{{ url_for('domain_rename', domain_id=domain.id) }}" class="inline-form" style="display:flex; gap:6px;">
+      <input type="text" name="name" value="{{ domain.name }}">
+      <button type="submit" class="secondary">حفظ الاسم</button>
+    </form>
+    <form method="post" action="{{ url_for('domain_delete', domain_id=domain.id) }}" class="inline-form"
+          onsubmit="return confirm('حذف مجال «{{ domain.name }}»؟ لازم يكون بدون مهن بداخله.');">
+      <button type="submit" class="danger">حذف المجال</button>
+    </form>
+  </div>
+
+  {% for prof in domain.professions %}
+  <div class="prof-row">
+    <div>
+      <strong>{{ prof.name }}</strong>
+      {% if prof.isco_code %}<span class="muted">— ISCO {{ prof.isco_code }}</span>{% endif %}
+      {% if prof.services %}<div class="muted">الخدمات: {{ prof.services|join('، ') }}</div>{% endif %}
+    </div>
+    <div>
+      <a class="btn secondary" href="{{ url_for('profession_edit_page', profession_id=prof.id) }}">تعديل</a>
+      <form method="post" action="{{ url_for('profession_delete', profession_id=prof.id) }}" class="inline-form"
+            onsubmit="return confirm('حذف مهنة «{{ prof.name }}»؟');">
+        <button type="submit" class="danger">حذف</button>
+      </form>
+    </div>
+  </div>
+  {% else %}
+  <p class="muted">لا يوجد مهن بهذا المجال بعد.</p>
+  {% endfor %}
+
+  <form method="post" action="{{ url_for('profession_add', domain_id=domain.id) }}" style="margin-top:12px">
+    <div class="filters">
+      <div class="field">
+        <label>مهنة جديدة</label>
+        <input type="text" name="name" required placeholder="اسم المهنة">
+      </div>
+      <div class="field">
+        <label>كود ISCO (اختياري)</label>
+        <input type="text" name="isco_code" placeholder="مثال: 7137">
+      </div>
+      <div class="field">
+        <label>الخدمات (مفصولة بفاصلة، اختياري)</label>
+        <input type="text" name="services" placeholder="تركيب، صيانة، تمديد">
+      </div>
+      <div class="field">
+        <button type="submit">إضافة مهنة</button>
+      </div>
+    </div>
+  </form>
+</div>
+{% endfor %}
+{% endblock %}

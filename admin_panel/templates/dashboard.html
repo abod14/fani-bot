@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}الرئيسية — لوحة تحكم «فني»{% endblock %}
+{% block content %}
+<h1>نظرة عامة</h1>
+
+<div class="stats-grid">
+  <div class="stat-box">
+    <div class="num">{{ stats.total_professionals }}</div>
+    <div class="label">إجمالي الفنيين</div>
+  </div>
+  <div class="stat-box">
+    <div class="num">{{ stats.status_counts.get('pending', 0) }}</div>
+    <div class="label">قيد المراجعة</div>
+  </div>
+  <div class="stat-box">
+    <div class="num">{{ stats.status_counts.get('active', 0) }}</div>
+    <div class="label">نشطون</div>
+  </div>
+  <div class="stat-box">
+    <div class="num">{{ stats.status_counts.get('rejected', 0) }}</div>
+    <div class="label">مرفوضون</div>
+  </div>
+  <div class="stat-box">
+    <div class="num">{{ stats.subscribed_count }}</div>
+    <div class="label">مشتركون حاليًا</div>
+  </div>
+  <div class="stat-box">
+    <div class="num">{{ stats.total_contact_clicks }}</div>
+    <div class="label">ضغطات تواصل واتساب</div>
+  </div>
+  <div class="stat-box">
+    <div class="num">{{ stats.total_searches }}</div>
+    <div class="label">عمليات بحث</div>
+  </div>
+  <div class="stat-box">
+    <div class="num">{{ "%.0f"|format(stats.revenue_sar) }} ﷼</div>
+    <div class="label">إيرادات Tap (مدفوعة)</div>
+  </div>
+  <div class="stat-box">
+    <div class="num">{{ stats.stars_paid_count }}</div>
+    <div class="label">اشتراكات مدفوعة عبر Stars</div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>أكثر المهن طلبًا (من سجل البحث)</h2>
+  {% if stats.top_professions %}
+  <table>
+    <thead><tr><th>المهنة</th><th>عدد مرات البحث</th></tr></thead>
+    <tbody>
+      {% for row in stats.top_professions %}
+      <tr><td>{{ row.profession_name }}</td><td>{{ row.c }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">لا يوجد بيانات بحث بعد.</p>
+  {% endif %}
+</div>
+
+<div class="card">
+  <h2>أكثر المدن طلبًا</h2>
+  {% if stats.top_cities %}
+  <table>
+    <thead><tr><th>المدينة</th><th>عدد مرات البحث</th></tr></thead>
+    <tbody>
+      {% for row in stats.top_cities %}
+      <tr><td>{{ row.city }}</td><td>{{ row.c }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">لا يوجد بيانات بحث بعد.</p>
+  {% endif %}
+</div>
+{% endblock %}

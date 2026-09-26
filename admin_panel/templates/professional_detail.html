@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}{{ p.full_name }} — لوحة تحكم «فني»{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('professionals_list') }}">« رجوع لقائمة الفنيين</a></p>
+<h1>{{ p.full_name }} <span class="badge {{ p.status }}">{{ status_labels.get(p.status, p.status) }}</span></h1>
+
+<div class="card">
+  <h2>الحالة</h2>
+  <p class="muted">المهنة: {{ p.profession_name }} ({{ p.domain_name }})</p>
+  <form method="post" action="{{ url_for('professional_set_status', professional_id=p.id) }}">
+    <input type="hidden" name="next" value="{{ url_for('professional_detail', professional_id=p.id) }}">
+    <button type="submit" name="status" value="active" class="success">تفعيل / قبول</button>
+    <button type="submit" name="status" value="rejected" class="danger">رفض</button>
+    <button type="submit" name="status" value="pending" class="secondary">إرجاع لقيد المراجعة</button>
+  </form>
+</div>
+
+<div class="card">
+  <h2>بيانات التواصل والمكان</h2>
+  <form method="post" action="{{ url_for('professional_edit', professional_id=p.id) }}">
+    <div class="field">
+      <label>الاسم الكامل</label>
+      <input type="text" name="full_name" value="{{ p.full_name }}" required>
+    </div>
+    <div class="field">
+      <label>المدينة</label>
+      <input type="text" name="city" value="{{ p.city }}" required>
+    </div>
+    <div class="field">
+      <label>الحي</label>
+      <input type="text" name="neighborhood" value="{{ p.neighborhood or '' }}">
+    </div>
+    <div class="field">
+      <label>رقم واتساب</label>
+      <input type="text" name="whatsapp_number" value="{{ p.whatsapp_number }}" required>
+    </div>
+    <div class="field">
+      <label>رقم تلغرام للتواصل</label>
+      <input type="text" name="telegram_contact_number" value="{{ p.telegram_contact_number or '' }}">
+    </div>
+    <br>
+    <button type="submit">حفظ التعديلات</button>
+  </form>
+</div>
+
+<div class="card">
+  <h2>الاشتراك</h2>
+  <p>
+    {% if p.is_subscribed %}
+      <span class="badge sub-yes">مشترك</span>
+      — ينتهي: {{ p.subscription_expires_at or 'غير محدد' }}
+    {% else %}
+      <span class="badge sub-no">غير مشترك</span>
+    {% endif %}
+  </p>
+  <p class="muted">استخدم {{ p.free_contacts_used }} من الفرص المجانية.</p>
+
+  <form method="post" action="{{ url_for('professional_subscription', professional_id=p.id) }}">
+    <div class="field">
+      <label>تاريخ انتهاء الاشتراك (يدويًا، اختياري)</label>
+      <input type="datetime-local" name="expires_at">
+    </div>
+    <br>
+    <button type="submit" name="action" value="activate" class="success">تفعيل الاشتراك يدويًا</button>
+    <button type="submit" name="action" value="deactivate" class="danger">إلغاء الاشتراك</button>
+  </form>
+
+  <form method="post" action="{{ url_for('professional_reset_free', professional_id=p.id) }}" style="margin-top:10px">
+    <button type="submit" class="secondary">تصفير عداد الفرص المجانية</button>
+  </form>
+</div>
+
+<div class="card">
+  <h2>منطقة خطرة</h2>
+  <form method="post" action="{{ url_for('professional_delete', professional_id=p.id) }}"
+        onsubmit="return confirm('متأكد من حذف هذا الفني نهائيًا؟ هذا الإجراء لا يمكن التراجع عنه.');">
+    <button type="submit" class="danger">حذف الفني نهائيًا</button>
+  </form>
+</div>
+{% endblock %}

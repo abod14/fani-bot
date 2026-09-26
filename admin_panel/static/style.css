@@ -1,0 +1,267 @@
+/* لوحة تحكم بوت «فني» — تصميم بسيط ونظيف، من اليمين لليسار */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Tahoma", "Segoe UI", Arial, sans-serif;
+  background: #f4f6f8;
+  color: #1f2937;
+  direction: rtl;
+}
+
+a {
+  color: #1d4ed8;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+.topbar {
+  background: #111827;
+  color: #fff;
+  padding: 14px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.topbar .brand {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.topbar nav a {
+  color: #d1d5db;
+  margin-inline-start: 18px;
+  font-size: 14px;
+}
+.topbar nav a.active,
+.topbar nav a:hover {
+  color: #fff;
+}
+
+.topbar .logout {
+  color: #fca5a5;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 24px auto;
+  padding: 0 16px;
+}
+
+h1 {
+  font-size: 22px;
+  margin-bottom: 18px;
+}
+h2 {
+  font-size: 17px;
+  margin: 0 0 12px;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 18px;
+  margin-bottom: 18px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.stat-box {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 16px;
+  text-align: center;
+}
+.stat-box .num {
+  font-size: 26px;
+  font-weight: bold;
+  color: #111827;
+}
+.stat-box .label {
+  font-size: 13px;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+th, td {
+  padding: 9px 10px;
+  border-bottom: 1px solid #eef0f2;
+  text-align: right;
+  vertical-align: middle;
+}
+th {
+  background: #f9fafb;
+  font-weight: 600;
+  color: #374151;
+}
+tr:hover td {
+  background: #fafbfc;
+}
+
+.badge {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.badge.pending { background: #fef3c7; color: #92400e; }
+.badge.active { background: #d1fae5; color: #065f46; }
+.badge.rejected { background: #fee2e2; color: #991b1b; }
+.badge.sub-yes { background: #dbeafe; color: #1e40af; }
+.badge.sub-no { background: #f3f4f6; color: #6b7280; }
+.badge.paid { background: #d1fae5; color: #065f46; }
+.badge.pending-pay { background: #fef3c7; color: #92400e; }
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+  align-items: end;
+}
+.filters .field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.filters label {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+input[type=text], input[type=password], input[type=number], input[type=datetime-local], select, textarea {
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+button, .btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  background: #1d4ed8;
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  display: inline-block;
+}
+button:hover, .btn:hover {
+  background: #1e40af;
+  text-decoration: none;
+}
+button.secondary, .btn.secondary {
+  background: #6b7280;
+}
+button.secondary:hover, .btn.secondary:hover {
+  background: #4b5563;
+}
+button.danger, .btn.danger {
+  background: #dc2626;
+}
+button.danger:hover, .btn.danger:hover {
+  background: #b91c1c;
+}
+button.success {
+  background: #059669;
+}
+button.success:hover {
+  background: #047857;
+}
+
+.inline-form {
+  display: inline-block;
+  margin-inline-end: 4px;
+}
+
+.flash {
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+.flash.success { background: #d1fae5; color: #065f46; }
+.flash.error { background: #fee2e2; color: #991b1b; }
+
+.pagination {
+  margin-top: 14px;
+  display: flex;
+  gap: 8px;
+}
+
+.login-wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.login-box {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 32px;
+  width: 320px;
+}
+.login-box h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+.login-box .field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.login-box button {
+  width: 100%;
+  padding: 10px;
+}
+
+.muted {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.domain-block {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 14px;
+}
+.domain-block .domain-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.prof-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+.prof-row:last-child {
+  border-bottom: none;
+}

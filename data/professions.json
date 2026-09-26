@@ -1,0 +1,813 @@
+{
+  "domains": [
+    {
+      "id": "d1",
+      "name": "البناء والتشييد",
+      "professions": [
+        {
+          "id": "p1",
+          "name": "بنّاء عام",
+          "subcategory": "هيكل المبنى",
+          "isco_code": "7111",
+          "official_name_en": "House Builders",
+          "status": "مؤكد",
+          "services": []
+        },
+        {
+          "id": "p2",
+          "name": "بنّاء طوب/بلوك",
+          "subcategory": "هيكل المبنى",
+          "isco_code": "7112",
+          "official_name_en": "Bricklayers and Related Workers",
+          "status": "مؤكد",
+          "services": []
+        },
+        {
+          "id": "p3",
+          "name": "نحّات حجر",
+          "subcategory": "هيكل المبنى",
+          "isco_code": "7113",
+          "official_name_en": "Stonemasons, Stone Cutters, Splitters and Carvers",
+          "status": "مؤكد",
+          "services": []
+        },
+        {
+          "id": "p4",
+          "name": "عامل خرسانة وتشطيب",
+          "subcategory": "هيكل المبنى",
+          "isco_code": "7114",
+          "official_name_en": "Concrete Placers, Concrete Finishers and Related Workers",
+          "status": "مؤكد",
+          "services": []
+        },
+        {
+          "id": "p5",
+          "name": "نجار مباني",
+          "subcategory": "هيكل المبنى",
+          "isco_code": "7115",
+          "official_name_en": "Carpenters and Joiners",
+          "status": "مؤكد",
+          "services": [
+            "تفصيل وتركيب الأبواب",
+            "إصلاح الأبواب",
+            "أعمال الديكور الخشبي",
+            "تفصيل وتركيب الخزائن",
+            "تفصيل الأثاث الخشبي"
+          ]
+        },
+        {
+          "id": "p6",
+          "name": "عمال هيكل مباني آخرون",
+          "subcategory": "هيكل المبنى",
+          "isco_code": "7119",
+          "official_name_en": "Building Frame and Related Trades Workers n.e.c.",
+          "status": "مؤكد",
+          "services": []
+        },
+        {
+          "id": "p7",
+          "name": "فني أسطح وعزل أسطح",
+          "subcategory": "التشطيبات",
+          "isco_code": "7121",
+          "official_name_en": "Roofers",
+          "status": "مؤكد",
+          "services": []
+        },
+        {
+          "id": "p8",
+          "name": "مبلّط",
+          "subcategory": "التشطيبات",
+          "isco_code": "7122",
+          "official_name_en": "Floor Layers and Tile Setters",
+          "status": "مؤكد",
+          "services": [
+            "تركيب البلاط",
+            "تركيب السيراميك",
+            "تركيب البورسلان",
+            "إصلاح واستبدال البلاط",
+            "تركيب بلاط الأرضيات والجدران"
+          ]
+        },
+        {
+          "id": "p9",
+          "name": "جصّاص/فني جبس",
+          "subcategory": "التشطيبات",
+          "isco_code": "7123",
+          "official_name_en": "Plasterers",
+          "status": "مؤكد",
+          "services": []
+        },
+        {
+          "id": "p10",
+          "name": "فني عزل",
+          "subcategory": "التشطيبات",
+          "isco_code": "7124",
+          "official_name_en": "Insulation Workers",
+          "status": "مؤكد",
+          "services": []
+        },
+        {
+          "id": "p11",
+          "name": "فني زجاج",
+          "subcategory": "التشطيبات",
+          "isco_code": "7125",
+          "official_name_en": "Glaziers",
+          "status": "مؤكد",
+          "services": [
+            "تركيب الزجاج",
+            "استبدال الزجاج",
+            "تفصيل الزجاج",
+            "تركيب واجهات زجاجية",
+            "تركيب المرايا"
+          ]
+        },
+        {
+          "id": "p12",
+          "name": "سباك",
+          "subcategory": "السباكة",
+          "isco_code": "7126",
+          "official_name_en": "Plumbers and Pipe Fitters",
+          "status": "مؤكد",
+          "services": [
+            "إصلاح تسربات المياه",
+            "تمديد وإصلاح المواسير",
+            "تركيب الأدوات الصحية",
+            "تركيب الخلاطات",
+            "تركيب وصيانة مضخات المياه",
+            "تسليك المجاري"
+          ]
+        },
+        {
+          "id": "p13",
+          "name": "فني تكييف وتبريد",
+          "subcategory": "التكييف والتبريد",
+          "isco_code": "7127",
+          "official_name_en": "Air Conditioning and Refrigeration Mechanics",
+          "status": "يحتاج تحقق",
+          "services": [
+            "صيانة مكيفات",
+            "إصلاح أعطال المكيفات",
+            "تركيب مكيفات",
+            "فك وتركيب المكيفات",
+            "شحن فريون",
+            "تمديد مواسير التكييف"
+          ]
+        },
+        {
+          "id": "p14",
+          "name": "دهان",
+          "subcategory": "الدهانات",
+          "isco_code": "7131",
+          "official_name_en": "Painters and Related Workers",
+          "status": "مؤكد",
+          "services": [
+            "دهان داخلي",
+            "دهان خارجي",
+            "دهانات الديكور",
+            "معالجة وتجهيز الجدران",
+            "إعادة دهان الأسطح"
+          ]
+        },
+        {
+          "id": "p15",
+          "name": "فني ورنيش ودهانات خاصة",
+          "subcategory": "الدهانات",
+          "isco_code": "7132",
+          "official_name_en": "Varnishers and Related Painters",
+          "status": "يحتاج تحقق",
+          "services": []
+        },
+        {
+          "id": "p16",
+          "name": "فني تنظيف واجهات ومبانٍ",
+          "subcategory": "التنظيف الإنشائي",
+          "isco_code": "7133",
+          "official_name_en": "Building Structure Cleaners",
+          "status": "يحتاج تحقق",
+          "services": []
+        },
+        {
+          "id": "p55",
+          "name": "عامل بناء",
+          "subcategory": "عمالة بناء عامة",
+          "isco_code": "9313",
+          "official_name_en": "Building Construction Labourers",
+          "status": "يحتاج تحقق",
+          "services": []
+        },
+        {
+          "id": "p56",
+          "name": "فني رخام",
+          "subcategory": "الرخام",
+          "isco_code": "7113",
+          "official_name_en": "Stonemasons, Stone Cutters, Splitters and Carvers",
+          "status": "مؤكد",
+          "services": [
+            "تركيب الرخام",
+            "قص وتفصيل الرخام",
+            "جلي وتلميع الرخام",
+            "إصلاح الرخام",
+            "تركيب أسطح المطابخ",
+            "تركيب الدرج الرخامي"
+          ]
+        },
+        {
+          "id": "p65",
+          "name": "فني جبس بورد وأسقف مستعارة",
+          "subcategory": "التشطيبات",
+          "isco_code": "7123 (أقرب فئة)",
+          "official_name_en": "Plasterers (أقرب فئة)",
+          "status": "يحتاج تحقق",
+          "services": [
+            "تركيب أسقف مستعارة (أرمسترونق وغيرها)",
+            "تركيب فواصل جبسية",
+            "ديكورات جبسية",
+            "تركيب إضاءة مخفية بالجبس"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "d2",
+      "name": "الكهرباء والإلكترونيات",
+      "professions": [
+        {
+          "id": "p17",
+          "name": "كهربائي منازل",
+          "subcategory": "كهرباء مباني",
+          "isco_code": "7411",
+          "official_name_en": "Building and Related Electricians",
+          "status": "مؤكد",
+          "services": [
+            "تأسيس وتمديد الكهرباء",
+            "إصلاح الأعطال الكهربائية",
+            "تركيب الأفياش والمفاتيح",
+            "تركيب الإنارة",
+            "تركيب اللوحات والقواطع",
+            "تركيب وإصلاح أجهزة المنزل الكهربائية"
+          ]
+        },
+        {
+          "id": "p18",
+          "name": "فني ميكانيكا كهربائية",
+          "subcategory": "معدات كهربائية",
+          "isco_code": "7412",
+          "official_name_en": "Electrical Mechanics and Fitters",
+          "status": "يحتاج تحقق",
+          "services": []
+        },
+        {
+          "id": "p19",
+          "name": "فني خطوط كهرباء",
+          "subcategory": "خطوط كهرباء",
+          "isco_code": "7413",
+          "official_name_en": "Electrical Line Installers and Repairers",
+          "status": "مؤكد",
+          "services": []
+        },
+        {
+          "id": "p20",
+          "name": "فني إلكترونيات",
+          "subcategory": "الإلكترونيات",
+          "isco_code": "7421",
+          "official_name_en": "Electronics Mechanics and Servicers",
+          "status": "يحتاج تحقق",
+          "services": []
+        },
+        {
+          "id": "p21",
+          "name": "فني تمديد شبكات واتصالات",
+          "subcategory": "الاتصالات والشبكات",
+          "isco_code": "7422",
+          "official_name_en": "Information and Communications Technology Installers and Servicers",
+          "status": "يحتاج تحقق",
+          "services": []
+        },
+        {
+          "id": "p57",
+          "name": "فني تنقية مياه",
+          "subcategory": "تنقية المياه",
+          "isco_code": "7233",
+          "official_name_en": "Agricultural and Industrial Machinery Mechanics (أقرب فئة)",
+          "status": "يحتاج تحقق",
+          "services": [
+            "تركيب فلاتر المياه",
+            "صيانة فلاتر المياه",
+            "تغيير الفلاتر",
+            "إصلاح أجهزة تنقية المياه",
+            "تركيب أنظمة تنقية المياه"
+          ]
+        },
+        {
+          "id": "p58",
+          "name": "فني أجهزة منزلية",
+          "subcategory": "أجهزة منزلية",
+          "isco_code": "7412",
+          "official_name_en": "Electrical Mechanics and Fitters",
+          "status": "يحتاج تحقق",
+          "services": [
+            "غسالات صحون",
+            "غسالات أوتوماتيك",
+            "غسالات عادية",
+            "ثلاجات",
+            "أفران",
+            "نشافات",
+            "مكانس كهربائية",
+            "مكيفات متنقلة",
+            "أجهزة منزلية أخرى"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "d3",
+      "name": "المعادن والميكانيكا",
+      "professions": [
+        {
+          "id": "p22",
+          "name": "بناء هناجر",
+          "subcategory": "هياكل معدنية",
+          "isco_code": "7214",
+          "official_name_en": "Structural-Metal Preparers and Erectors",
+          "status": "يحتاج تحقق",
+          "services": []
+        },
+        {
+          "id": "p23",
+          "name": "حداد",
+          "subcategory": "الحدادة",
+          "isco_code": "7221",
+          "official_name_en": "Blacksmiths, Hammersmiths and Forging Press Workers",
+          "status": "مؤكد",
+          "services": [
+            "الأبواب الحديدية",
+            "النوافذ والحواجز",
+            "المظلات",
+            "السلالم الحديدية",
+            "أعمال الحديد المختلفة"
+          ]
+        },
+        {
+          "id": "p24",
+          "name": "ميكانيكي سيارات",
+          "subcategory": "صيانة السيارات",
+          "isco_code": "7231",
+          "official_name_en": "Motor Vehicle Mechanics and Repairers",
+          "status": "يحتاج تحقق",
+          "services": [
+            "تشخيص الأعطال الكهربائية",
+            "إصلاح كهرباء السيارة",
+            "البطاريات",
+            "الدينمو",
+            "السلف",
+            "الإضاءة",
+            "أنظمة التشغيل (كهرباء سيارات)"
+          ]
+        },
+        {
+          "id": "p25",
+          "name": "فني صيانة معدات صناعية وزراعية",
+          "subcategory": "صيانة معدات ثقيلة",
+          "isco_code": "7233",
+          "official_name_en": "Agricultural and Industrial Machinery Mechanics and Repairers",
+          "status": "يحتاج تحقق",
+          "services": []
+        },
+        {
+          "id": "p59",
+          "name": "فني ألمنيوم",
+          "subcategory": "الألمنيوم",
+          "isco_code": "7214",
+          "official_name_en": "Structural-Metal Preparers and Erectors",
+          "status": "يحتاج تحقق",
+          "services": [
+            "تفصيل وتركيب الأبواب",
+            "تفصيل وتركيب النوافذ",
+            "إصلاح الألمنيوم",
+            "تركيب المطابخ",
+            "أعمال الألمنيوم المختلفة"
+          ]
+        },
+        {
+          "id": "p60",
+          "name": "سمكري سيارات",
+          "subcategory": "سمكرة سيارات",
+          "isco_code": "7213",
+          "official_name_en": "Sheet-Metal Workers (أقرب فئة)",
+          "status": "يحتاج تحقق",
+          "services": []
+        }
+      ]
+    },
+    {
+      "id": "d4",
+      "name": "النجارة والأثاث",
+      "professions": [
+        {
+          "id": "p26",
+          "name": "نجار أثاث",
+          "subcategory": "أثاث خشبي",
+          "isco_code": "7522",
+          "official_name_en": "Cabinet-makers and Related Workers",
+          "status": "يحتاج تحقق",
+          "services": []
+        },
+        {
+          "id": "p27",
+          "name": "منجّد/فني تنجيد",
+          "subcategory": "تنجيد",
+          "isco_code": "7534",
+          "official_name_en": "Upholsterers and Related Workers",
+          "status": "يحتاج تحقق",
+          "services": []
+        },
+        {
+          "id": "p28",
+          "name": "خياط/فني تفصيل ملابس",
+          "subcategory": "خياطة وتفصيل",
+          "isco_code": "7531",
+          "official_name_en": "Tailors, Dressmakers, Furriers and Hatters",
+          "status": "يحتاج تحقق",
+          "services": []
+        },
+        {
+          "id": "p29",
+          "name": "إسكافي/صانع أحذية",
+          "subcategory": "أحذية وجلديات",
+          "isco_code": "7536",
+          "official_name_en": "Shoemakers and Related Workers",
+          "status": "يحتاج تحقق",
+          "services": []
+        }
+      ]
+    },
+    {
+      "id": "d5",
+      "name": "الحرف والطباعة",
+      "professions": [
+        {
+          "id": "p30",
+          "name": "فني طباعة",
+          "subcategory": "طباعة إعلانية",
+          "isco_code": "7321",
+          "official_name_en": "Pre-press Technicians",
+          "status": "يحتاج تحقق",
+          "services": []
+        },
+        {
+          "id": "p61",
+          "name": "فني أقفال ومفاتيح",
+          "subcategory": "الأقفال",
+          "isco_code": "7222",
+          "official_name_en": "Tool-Makers and Related Workers (أقرب فئة)",
+          "status": "يحتاج تحقق",
+          "services": [
+            "فتح الأقفال",
+            "إصلاح الأقفال",
+            "تركيب الأقفال",
+            "تغيير الأقفال",
+            "نسخ وبرمجة المفاتيح"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "d6",
+      "name": "الصحة والجمال",
+      "professions": [
+        {
+          "id": "p31",
+          "name": "حلاق/مصفف شعر",
+          "subcategory": "شعر",
+          "isco_code": "5141",
+          "official_name_en": "Hairdressers",
+          "status": "مؤكد",
+          "services": []
+        },
+        {
+          "id": "p32",
+          "name": "كوافيرة",
+          "subcategory": "شعر (نسائي)",
+          "isco_code": "5141",
+          "official_name_en": "Hairdressers",
+          "status": "مؤكد",
+          "services": [
+            "تصفيف شعر",
+            "تسريحات مناسبات وعرايس",
+            "صبغة وعناية بالشعر (خدمة منزلية أو صالون)"
+          ]
+        },
+        {
+          "id": "p33",
+          "name": "مدرب لياقة شخصي",
+          "subcategory": "لياقة",
+          "isco_code": "3423",
+          "official_name_en": "Fitness and Recreation Instructors and Program Leaders",
+          "status": "يحتاج تحقق",
+          "services": []
+        }
+      ]
+    },
+    {
+      "id": "d7",
+      "name": "الأمن والحراسة",
+      "professions": [
+        {
+          "id": "p34",
+          "name": "حارس أمن",
+          "subcategory": "حراسة خاصة",
+          "isco_code": "5414",
+          "official_name_en": "Security Guards",
+          "status": "يحتاج تحقق",
+          "services": []
+        }
+      ]
+    },
+    {
+      "id": "d8",
+      "name": "الأعمال والاستشارات",
+      "professions": [
+        {
+          "id": "p35",
+          "name": "محاسب",
+          "subcategory": "محاسبة ومالية",
+          "isco_code": "2411",
+          "official_name_en": "Accountants",
+          "status": "يحتاج تحقق",
+          "services": []
+        },
+        {
+          "id": "p36",
+          "name": "محامي",
+          "subcategory": "قانون",
+          "isco_code": "2611",
+          "official_name_en": "Lawyers",
+          "status": "يحتاج تحقق",
+          "services": []
+        },
+        {
+          "id": "p41",
+          "name": "وسيط عقاري",
+          "subcategory": "عقارات",
+          "isco_code": "3334",
+          "official_name_en": "Real Estate Agents and Property Managers",
+          "status": "يحتاج تحقق",
+          "services": []
+        },
+        {
+          "id": "p44",
+          "name": "مهندس معماري",
+          "subcategory": "هندسة معمارية",
+          "isco_code": "2161",
+          "official_name_en": "Building Architects",
+          "status": "يحتاج تحقق",
+          "services": []
+        },
+        {
+          "id": "p45",
+          "name": "مهندس مدني",
+          "subcategory": "هندسة مدنية",
+          "isco_code": "2142",
+          "official_name_en": "Civil Engineers",
+          "status": "يحتاج تحقق",
+          "services": []
+        },
+        {
+          "id": "p46",
+          "name": "مصمم داخلي/منتجات",
+          "subcategory": "تصميم داخلي",
+          "isco_code": "2163",
+          "official_name_en": "Product and Garment Designers",
+          "status": "يحتاج تحقق",
+          "services": []
+        }
+      ]
+    },
+    {
+      "id": "d9",
+      "name": "التقنية والحاسب",
+      "professions": [
+        {
+          "id": "p37",
+          "name": "مطوّر برمجيات",
+          "subcategory": "برمجة",
+          "isco_code": "2512",
+          "official_name_en": "Software Developers",
+          "status": "يحتاج تحقق",
+          "services": []
+        },
+        {
+          "id": "p38",
+          "name": "مصمم مواقع",
+          "subcategory": "تصميم مواقع",
+          "isco_code": "2513",
+          "official_name_en": "Web and Multimedia Developers",
+          "status": "يحتاج تحقق",
+          "services": []
+        },
+        {
+          "id": "p39",
+          "name": "فني دعم تقني",
+          "subcategory": "دعم فني",
+          "isco_code": "3512",
+          "official_name_en": "Information and Communications Technology User Support Technicians",
+          "status": "يحتاج تحقق",
+          "services": []
+        }
+      ]
+    },
+    {
+      "id": "d10",
+      "name": "الحيوانات الأليفة",
+      "professions": [
+        {
+          "id": "p40",
+          "name": "طبيب بيطري",
+          "subcategory": "بيطرة",
+          "isco_code": "2250",
+          "official_name_en": "Veterinarians",
+          "status": "يحتاج تحقق",
+          "services": []
+        }
+      ]
+    },
+    {
+      "id": "d11",
+      "name": "الفعاليات والمناسبات",
+      "professions": [
+        {
+          "id": "p42",
+          "name": "مصوّر فوتوغرافي",
+          "subcategory": "تصوير",
+          "isco_code": "3431",
+          "official_name_en": "Photographers",
+          "status": "يحتاج تحقق",
+          "services": []
+        },
+        {
+          "id": "p43",
+          "name": "منظم فعاليات/مناسبات",
+          "subcategory": "تنظيم فعاليات",
+          "isco_code": "3339",
+          "official_name_en": "Business Services Agents n.e.c.",
+          "status": "يحتاج تحقق",
+          "services": []
+        }
+      ]
+    },
+    {
+      "id": "d12",
+      "name": "التعليم والتدريب",
+      "professions": [
+        {
+          "id": "p47",
+          "name": "مدرّس لغات خاص",
+          "subcategory": "دروس خصوصية",
+          "isco_code": "2354",
+          "official_name_en": "Other Language Teachers",
+          "status": "يحتاج تحقق",
+          "services": []
+        },
+        {
+          "id": "p48",
+          "name": "مدرّس خصوصي (مواد عامة)",
+          "subcategory": "دروس خصوصية عامة",
+          "isco_code": "2359",
+          "official_name_en": "Teaching Professionals n.e.c.",
+          "status": "يحتاج تحقق",
+          "services": []
+        }
+      ]
+    },
+    {
+      "id": "d13",
+      "name": "النقل والتوصيل",
+      "professions": [
+        {
+          "id": "p49",
+          "name": "سائق سيارة/فان",
+          "subcategory": "قيادة سيارة أجرة",
+          "isco_code": "8322",
+          "official_name_en": "Car, Taxi and Van Drivers",
+          "status": "يحتاج تحقق",
+          "services": []
+        },
+        {
+          "id": "p50",
+          "name": "سائق شاحنة",
+          "subcategory": "نقل بضائع",
+          "isco_code": "8324",
+          "official_name_en": "Heavy Truck and Lorry Drivers",
+          "status": "يحتاج تحقق",
+          "services": []
+        },
+        {
+          "id": "p51",
+          "name": "سائق توصيل بدراجة نارية",
+          "subcategory": "توصيل بدراجة/موتوسيكل",
+          "isco_code": "8322",
+          "official_name_en": "Motorcycle/Delivery Drivers",
+          "status": "يحتاج تحقق",
+          "services": []
+        },
+        {
+          "id": "p64",
+          "name": "نقل أثاث",
+          "subcategory": "نقل الأثاث",
+          "isco_code": "9333",
+          "official_name_en": "Freight Handlers (أقرب فئة)",
+          "status": "يحتاج تحقق",
+          "services": [
+            "نقل الأثاث",
+            "فك وتركيب الأثاث",
+            "نقل الأجهزة المنزلية",
+            "تغليف الأثاث",
+            "رفع الأثاث"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "d14",
+      "name": "التنظيف",
+      "professions": [
+        {
+          "id": "p52",
+          "name": "عامل/عاملة نظافة منازل",
+          "subcategory": "تنظيف منازل",
+          "isco_code": "9111",
+          "official_name_en": "Domestic Cleaners and Helpers",
+          "status": "يحتاج تحقق",
+          "services": []
+        }
+      ]
+    },
+    {
+      "id": "d15",
+      "name": "حدائق ومسطحات",
+      "professions": [
+        {
+          "id": "p53",
+          "name": "عامل حدائق",
+          "subcategory": "عمالة حدائق",
+          "isco_code": "9214",
+          "official_name_en": "Garden and Horticultural Labourers",
+          "status": "يحتاج تحقق",
+          "services": []
+        }
+      ]
+    },
+    {
+      "id": "d16",
+      "name": "الأغذية والتموين",
+      "professions": [
+        {
+          "id": "p54",
+          "name": "مساعد مطبخ",
+          "subcategory": "مساعد مطبخ",
+          "isco_code": "9412",
+          "official_name_en": "Kitchen Helpers",
+          "status": "يحتاج تحقق",
+          "services": []
+        }
+      ]
+    },
+    {
+      "id": "d17",
+      "name": "خدمات متخصصة (لا يوجد رمز دولي دقيق)",
+      "professions": [
+        {
+          "id": "p62",
+          "name": "فني مسابح",
+          "subcategory": "صيانة المسابح",
+          "isco_code": "-",
+          "official_name_en": "-",
+          "status": "لا يوجد رمز دولي مطابق",
+          "services": [
+            "صيانة المسابح",
+            "تنظيف وصيانة أنظمة المسابح",
+            "صيانة المضخات",
+            "صيانة الفلاتر",
+            "إصلاح تسربات المسابح"
+          ]
+        },
+        {
+          "id": "p63",
+          "name": "فني مكافحة آفات",
+          "subcategory": "مكافحة الآفات",
+          "isco_code": "-",
+          "official_name_en": "-",
+          "status": "لا يوجد رمز دولي مطابق",
+          "services": [
+            "مكافحة الحشرات",
+            "مكافحة القوارض",
+            "مكافحة النمل",
+            "مكافحة الصراصير",
+            "مكافحة البق",
+            "مكافحة الحشرات الطائرة"
+          ]
+        }
+      ]
+    }
+  ]
+}

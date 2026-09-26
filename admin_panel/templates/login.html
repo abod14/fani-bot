@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}تسجيل الدخول — لوحة تحكم «فني»{% endblock %}
+{% block content %}
+<div class="login-wrap">
+  <div class="login-box">
+    <h1>لوحة تحكم «فني»</h1>
+    <form method="post">
+      <div class="field">
+        <label>اسم المستخدم</label>
+        <input type="text" name="username" required autofocus>
+      </div>
+      <div class="field">
+        <label>كلمة المرور</label>
+        <input type="password" name="password" required>
+      </div>
+      <button type="submit">دخول</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

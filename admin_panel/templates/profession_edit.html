@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}تعديل مهنة — لوحة تحكم «فني»{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('professions_page') }}">« رجوع لإدارة المهن</a></p>
+<h1>تعديل مهنة: {{ profession.name }}</h1>
+
+<div class="card">
+  <form method="post">
+    <div class="field">
+      <label>اسم المهنة</label>
+      <input type="text" name="name" value="{{ profession.name }}" required>
+    </div>
+    <br>
+    <div class="field">
+      <label>كود ISCO (اختياري)</label>
+      <input type="text" name="isco_code" value="{{ profession.isco_code or '' }}">
+    </div>
+    <br>
+    <div class="field">
+      <label>الخدمات (مفصولة بفاصلة)</label>
+      <input type="text" name="services" value="{{ profession.services|join('، ') }}">
+    </div>
+    <br>
+    <button type="submit">حفظ التعديلات</button>
+  </form>
+</div>
+{% endblock %}

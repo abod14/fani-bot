@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}الفنيون — لوحة تحكم «فني»{% endblock %}
+{% block content %}
+<h1>الفنيون ({{ total_count }})</h1>
+
+<form method="get" class="filters card">
+  <div class="field">
+    <label>الحالة</label>
+    <select name="status">
+      <option value="">الكل</option>
+      <option value="pending" {{ 'selected' if filters.status == 'pending' }}>قيد المراجعة</option>
+      <option value="active" {{ 'selected' if filters.status == 'active' }}>نشط</option>
+      <option value="rejected" {{ 'selected' if filters.status == 'rejected' }}>مرفوض</option>
+    </select>
+  </div>
+  <div class="field">
+    <label>المدينة</label>
+    <input type="text" name="city" list="cities-list" value="{{ filters.city or '' }}" placeholder="كل المدن">
+    <datalist id="cities-list">
+      {% for c in cities %}<option value="{{ c }}">{% endfor %}
+    </datalist>
+  </div>
+  <div class="field">
+    <label>المهنة</label>
+    <select name="profession_id">
+      <option value="">كل المهن</option>
+      {% for domain in profession_options %}
+      <optgroup label="{{ domain.name }}">
+        {% for p in domain.professions %}
+        <option value="{{ p.id }}" {{ 'selected' if filters.profession_id == p.id }}>{{ p.name }}</option>
+        {% endfor %}
+      </optgroup>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="field">
+    <label>الاشتراك</label>
+    <select name="subscribed">
+      <option value="">الكل</option>
+      <option value="yes" {{ 'selected' if filters.subscribed == 'yes' }}>مشترك</option>
+      <option value="no" {{ 'selected' if filters.subscribed == 'no' }}>غير مشترك</option>
+    </select>
+  </div>
+  <div class="field">
+    <label>بحث (اسم/رقم)</label>
+    <input type="text" name="q" value="{{ filters.q or '' }}" placeholder="اسم أو رقم واتساب">
+  </div>
+  <div class="field">
+    <button type="submit">تصفية</button>
+  </div>
+  <div class="field">
+    <a class="btn secondary" href="{{ url_for('professionals_list') }}">إعادة تعيين</a>
+  </div>
+</form>
+
+<div class="card">
+{% if professionals %}
+<table>
+  <thead>
+    <tr>
+      <th>الاسم</th>
+      <th>المدينة / الحي</th>
+      <th>المهنة</th>
+      <th>الحالة</th>
+      <th>الاشتراك</th>
+      <th>فرص مستخدمة</th>
+      <th>تاريخ التسجيل</th>
+      <th>إجراءات</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for p in professionals %}
+    <tr>
+      <td><a href="{{ url_for('professional_detail', professional_id=p.id) }}">{{ p.full_name }}</a></td>
+      <td>{{ p.city }}{% if p.neighborhood %} / {{ p.neighborhood }}{% endif %}</td>
+      <td>{{ p.profession_name }}</td>
+      <td><span class="badge {{ p.status }}">{{ status_labels.get(p.status, p.status) }}</span></td>
+      <td>
+        {% if p.is_subscribed %}
+          <span class="badge sub-yes">مشترك</span>
+        {% else %}
+          <span class="badge sub-no">غير مشترك</span>
+        {% endif %}
+      </td>
+      <td>{{ p.free_contacts_used }}</td>
+      <td>{{ p.created_at[:10] if p.created_at else '' }}</td>
+      <td>
+        {% if p.status == 'pending' %}
+        <form class="inline-form" method="post" action="{{ url_for('professional_set_status', professional_id=p.id) }}">
+          <input type="hidden" name="status" value="active">
+          <input type="hidden" name="next" value="{{ request.full_path }}">
+          <button type="submit" class="success">قبول</button>
+        </form>
+        <form class="inline-form" method="post" action="{{ url_for('professional_set_status', professional_id=p.id) }}">
+          <input type="hidden" name="status" value="rejected">
+          <input type="hidden" name="next" value="{{ request.full_path }}">
+          <button type="submit" class="danger">رفض</button>
+        </form>
+        {% else %}
+        <a class="btn secondary" href="{{ url_for('professional_detail', professional_id=p.id) }}">تفاصيل</a>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div class="pagination">
+  {% if page > 1 %}
+  <a class="btn secondary" href="{{ url_for('professionals_list', page=page-1, **filters_qs) }}">« السابق</a>
+  {% endif %}
+  <span class="muted">صفحة {{ page }} من {{ total_pages }}</span>
+  {% if page < total_pages %}
+  <a class="btn secondary" href="{{ url_for('professionals_list', page=page+1, **filters_qs) }}">التالي »</a>
+  {% endif %}
+</div>
+
+{% else %}
+<p class="muted">لا يوجد فنيون مطابقون لهذه الفلاتر.</p>
+{% endif %}
+</div>
+{% endblock %}

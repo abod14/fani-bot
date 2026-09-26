@@ -1,0 +1,54 @@
+# متغيرات الإعداد — تُقرأ من متغيرات البيئة (Environment Variables)
+# لا تكتب التوكن أو رقم الأدمن هنا مباشرة؛ ضعهم في ملف .env (راجع .env.example)
+
+import os
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+load_dotenv()
+
+BASE_DIR = Path(__file__).parent
+
+BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
+ADMIN_TELEGRAM_ID = os.environ.get("ADMIN_TELEGRAM_ID", "")
+
+PROFESSIONS_JSON_PATH = BASE_DIR / "data" / "professions.json"
+DB_PATH = BASE_DIR / "fani_bot.db"
+
+if not BOT_TOKEN:
+    raise RuntimeError(
+        "BOT_TOKEN غير موجود. أنشئ ملف .env (انسخ من .env.example) وضع فيه توكن البوت."
+    )
+
+if not ADMIN_TELEGRAM_ID:
+    raise RuntimeError(
+        "ADMIN_TELEGRAM_ID غير موجود. أنشئ ملف .env وضع فيه رقم حسابك بتلغرام "
+        "(احصل عليه من بوت @userinfobot)."
+    )
+
+ADMIN_TELEGRAM_ID = int(ADMIN_TELEGRAM_ID)
+
+# ───────────────────────── إعدادات الاشتراك (خطوة 7) ─────────────────────────
+
+# مفتاح Tap السري (Secret Key) — من لوحة تحكم Tap (تجريبي أو حقيقي).
+# لو تركته فاضي، زر الاشتراك عبر Tap يعطي رسالة "غير مفعّل حاليًا" بدل ما يفشل بخطأ.
+TAP_SECRET_KEY = os.environ.get("TAP_SECRET_KEY", "")
+
+# رابط صفحتك اللي يرجع لها العميل بعد الدفع بـ Tap (مجرد صفحة تأكيد، التفعيل الفعلي
+# يصير لما الفني يضغط زر "تحققت من الدفع" بالبوت نفسه — ما نحتاج سيرفر webhook منفصل).
+TAP_REDIRECT_URL = os.environ.get("TAP_REDIRECT_URL", "https://tap.company")
+
+# سعر الاشتراك الشهري بالريال السعودي (لـ Tap) وبنجوم تلغرام (لـ Stars).
+# عدّل هذي الأرقام بملف .env حسب السعر اللي تقرره.
+SUBSCRIPTION_PRICE_SAR = float(os.environ.get("SUBSCRIPTION_PRICE_SAR", "30"))
+SUBSCRIPTION_PRICE_STARS = int(os.environ.get("SUBSCRIPTION_PRICE_STARS", "150"))
+SUBSCRIPTION_DAYS = int(os.environ.get("SUBSCRIPTION_DAYS", "30"))
+
+# ───────────────────────── لوحة تحكم الأدمن (صفحة ويب، خطوة 8) ─────────────────────────
+# تعمل كسيرفر Flask منفصل (python admin_panel/app.py)، لكن تقرأ/تكتب نفس ملف قاعدة
+# البيانات (fani_bot.db) اللي يستخدمه البوت مباشرة — بدون أي تزامن إضافي، لأن SQLite
+# يدعم قراءة/كتابة من أكثر من عملية على نفس الملف.
+ADMIN_PANEL_USERNAME = os.environ.get("ADMIN_PANEL_USERNAME", "admin")
+ADMIN_PANEL_PASSWORD = os.environ.get("ADMIN_PANEL_PASSWORD", "")
+ADMIN_PANEL_SECRET_KEY = os.environ.get("ADMIN_PANEL_SECRET_KEY", "")

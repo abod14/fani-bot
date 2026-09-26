@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}الاشتراكات والمدفوعات — لوحة تحكم «فني»{% endblock %}
+{% block content %}
+<h1>الاشتراكات والمدفوعات ({{ total_count }})</h1>
+
+<form method="get" class="filters card">
+  <div class="field">
+    <label>الحالة</label>
+    <select name="status">
+      <option value="">الكل</option>
+      <option value="pending" {{ 'selected' if filters.status == 'pending' }}>معلّقة</option>
+      <option value="paid" {{ 'selected' if filters.status == 'paid' }}>مدفوعة</option>
+    </select>
+  </div>
+  <div class="field">
+    <label>طريقة الدفع</label>
+    <select name="method">
+      <option value="">الكل</option>
+      <option value="tap" {{ 'selected' if filters.method == 'tap' }}>Tap</option>
+      <option value="stars" {{ 'selected' if filters.method == 'stars' }}>Telegram Stars</option>
+    </select>
+  </div>
+  <div class="field">
+    <button type="submit">تصفية</button>
+  </div>
+  <div class="field">
+    <a class="btn secondary" href="{{ url_for('payments_list') }}">إعادة تعيين</a>
+  </div>
+</form>
+
+<div class="card">
+{% if payments %}
+<table>
+  <thead>
+    <tr>
+      <th>الفني</th>
+      <th>المهنة</th>
+      <th>الطريقة</th>
+      <th>المبلغ</th>
+      <th>الحالة</th>
+      <th>رقم العملية الخارجي</th>
+      <th>تاريخ الإنشاء</th>
+      <th>تاريخ الدفع</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for pay in payments %}
+    <tr>
+      <td><a href="{{ url_for('professional_detail', professional_id=pay.professional_id) }}">{{ pay.full_name }}</a></td>
+      <td>{{ pay.profession_name }}</td>
+      <td>{{ 'Tap' if pay.method == 'tap' else 'Telegram Stars' }}</td>
+      <td>{{ pay.amount }}</td>
+      <td>
+        {% if pay.status == 'paid' %}
+          <span class="badge paid">مدفوعة</span>
+        {% else %}
+          <span class="badge pending-pay">معلّقة</span>
+        {% endif %}
+      </td>
+      <td>{{ pay.external_id or '—' }}</td>
+      <td>{{ pay.created_at[:16] if pay.created_at else '' }}</td>
+      <td>{{ pay.paid_at[:16] if pay.paid_at else '—' }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div class="pagination">
+  {% if page > 1 %}
+  <a class="btn secondary" href="{{ url_for('payments_list', page=page-1, **filters_qs) }}">« السابق</a>
+  {% endif %}
+  <span class="muted">صفحة {{ page }} من {{ total_pages }}</span>
+  {% if page < total_pages %}
+  <a class="btn secondary" href="{{ url_for('payments_list', page=page+1, **filters_qs) }}">التالي »</a>
+  {% endif %}
+</div>
+{% else %}
+<p class="muted">لا يوجد دفعات مطابقة.</p>
+{% endif %}
+</div>
+{% endblock %}
