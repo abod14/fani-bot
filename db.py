@@ -31,6 +31,21 @@ FREE_CONTACTS_LIMIT = 3
 RESULTS_PAGE_SIZE = 5
 
 
+def _bulk_insert(conn, table, columns, rows, chunk_size=100):
+    """إدخال عدة صفوف بأقل عدد ممكن من الاتصالات (مهم جدًا مع قاعدة بيانات
+    شبكية مثل Turso، حيث كل استعلام منفصل يكلّف رحلة شبكة كاملة — إدخال
+    آلاف الصفوف واحدًا تلو الآخر ممكن ياخذ دقائق طويلة أو يتجمّد ظاهريًا)."""
+    if not rows:
+        return
+    col_list = ", ".join(columns)
+    row_placeholder = "(" + ", ".join(["?"] * len(columns)) + ")"
+    for i in range(0, len(rows), chunk_size):
+        chunk = rows[i : i + chunk_size]
+        values_sql = ", ".join([row_placeholder] * len(chunk))
+        flat_params = [v for row in chunk for v in row]
+        conn.execute(f"INSERT INTO {table} ({col_list}) VALUES {values_sql}", flat_params)
+
+
 class _LibsqlRow:
     """صف نتيجة يدعم القراءة بالاسم (row["col"]) والموضع (row[0]) معًا،
     لأن libsql (Turso) يرجّع صفوف كـ tuple عادي ولا يدعم sqlite3.Row مباشرة."""
@@ -622,24 +637,23 @@ def seed_professions_from_json_if_empty(json_path):
         with open(json_path, encoding="utf-8") as f:
             data = _json.load(f)
 
+        domain_rows = []
+        profession_rows = []
         for d_order, domain in enumerate(data["domains"]):
-            conn.execute(
-                "INSERT INTO domains (id, name, sort_order) VALUES (?, ?, ?)",
-                (domain["id"], domain["name"], d_order),
-            )
+            domain_rows.append((domain["id"], domain["name"], d_order))
             for p_order, prof in enumerate(domain["professions"]):
-                conn.execute(
-                    """
-                    INSERT INTO professions
-                        (id, domain_id, name, isco_code, status, services_json, sort_order)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)
-                    """,
-                    (
-                        prof["id"], domain["id"], prof["name"], prof.get("isco_code"),
-                        prof.get("status"), _json.dumps(prof.get("services", []), ensure_ascii=False),
-                        p_order,
-                    ),
-                )
+                profession_rows.append((
+                    prof["id"], domain["id"], prof["name"], prof.get("isco_code"),
+                    prof.get("status"), _json.dumps(prof.get("services", []), ensure_ascii=False),
+                    p_order,
+                ))
+
+        _bulk_insert(conn, "domains", ["id", "name", "sort_order"], domain_rows)
+        _bulk_insert(
+            conn, "professions",
+            ["id", "domain_id", "name", "isco_code", "status", "services_json", "sort_order"],
+            profession_rows,
+        )
         return True
 
 
@@ -1106,12 +1120,12 @@ def seed_saudi_geo_if_empty(regions_path, cities_path, districts_path):
 
         cities_with_districts = {d["city_id"] for d in districts}
 
-        conn.executemany(
-            "INSERT INTO sa_regions (id, name) VALUES (?, ?)",
+        _bulk_insert(
+            conn, "sa_regions", ["id", "name"],
             [(r["id"], r["name"]) for r in regions],
         )
-        conn.executemany(
-            "INSERT INTO sa_cities (id, region_id, name, has_districts, lat, lon) VALUES (?, ?, ?, ?, ?, ?)",
+        _bulk_insert(
+            conn, "sa_cities", ["id", "region_id", "name", "has_districts", "lat", "lon"],
             [
                 (
                     c["id"], c["region_id"], c["name"],
@@ -1121,8 +1135,8 @@ def seed_saudi_geo_if_empty(regions_path, cities_path, districts_path):
                 for c in cities
             ],
         )
-        conn.executemany(
-            "INSERT INTO sa_districts (id, city_id, name, lat, lon) VALUES (?, ?, ?, ?, ?)",
+        _bulk_insert(
+            conn, "sa_districts", ["id", "city_id", "name", "lat", "lon"],
             [(d["id"], d["city_id"], d["name"], d.get("lat"), d.get("lon")) for d in districts],
         )
         return True
