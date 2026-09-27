@@ -1,12 +1,18 @@
-# طبقة قاعدة البيانات — SQLite بسيطة، ملف واحد، بدون أي إعداد خارجي.
-# كل الدوال هنا متزامنة (sync) عمدًا؛ نناديها من الهاندلرز غير المتزامنة عبر asyncio.to_thread.
+# طبقة قاعدة البيانات — SQLite بسيطة (أو Turso/libSQL عند توفر متغيرات البيئة
+# TURSO_DATABASE_URL و TURSO_AUTH_TOKEN، عشان تكون البيانات دائمة على استضافات
+# ما تدعم تخزين دائم مثل Render المجاني). كل الدوال هنا متزامنة (sync) عمدًا؛
+# نناديها من الهاندلرز غير المتزامنة عبر asyncio.to_thread.
 
 import json
+import os
 import sqlite3
 from contextlib import contextmanager
 from datetime import datetime, timezone
 
 from config import DB_PATH
+
+TURSO_DATABASE_URL = os.environ.get("TURSO_DATABASE_URL", "")
+TURSO_AUTH_TOKEN = os.environ.get("TURSO_AUTH_TOKEN", "")
 
 STATUS_PENDING = "pending"
 STATUS_ACTIVE = "active"
@@ -27,9 +33,23 @@ RESULTS_PAGE_SIZE = 5
 
 @contextmanager
 def get_conn():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA foreign_keys = ON")
+    if TURSO_DATABASE_URL:
+        # قاعدة بيانات خارجية دائمة (Turso/libSQL) — متوافقة تقريبًا 1:1 مع sqlite3.
+        import libsql
+
+        conn = libsql.connect(database=TURSO_DATABASE_URL, auth_token=TURSO_AUTH_TOKEN)
+    else:
+        conn = sqlite3.connect(DB_PATH)
+
+    try:
+        conn.row_factory = sqlite3.Row
+    except Exception:
+        pass
+    try:
+        conn.execute("PRAGMA foreign_keys = ON")
+    except Exception:
+        pass
+
     try:
         yield conn
         conn.commit()

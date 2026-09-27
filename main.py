@@ -1,7 +1,10 @@
 # نقطة تشغيل بوت «فني».
-# تشغيل: python main.py  (بعد تجهيز .env — راجع README.md)
+# تشغيل محلي (Polling): python main.py  (بعد تجهيز .env — راجع README.md)
+# تشغيل على استضافة مثل Render (Webhook): يتفعّل تلقائيًا لو كان متغير البيئة
+# RENDER_EXTERNAL_URL موجود (Render يضبطه تلقائيًا) — لا حاجة لأي إعداد يدوي إضافي.
 
 import logging
+import os
 
 from telegram.ext import ApplicationBuilder, CommandHandler
 
@@ -55,8 +58,21 @@ def main():
     for handler in build_language_handlers():
         app.add_handler(handler)
 
-    logger.info("بوت «فني» يعمل الآن (polling)...")
-    app.run_polling(allowed_updates=["message", "callback_query"])
+    external_url = os.environ.get("RENDER_EXTERNAL_URL", "")
+    if external_url:
+        port = int(os.environ.get("PORT", "10000"))
+        webhook_path = BOT_TOKEN  # مسار سري (نفس التوكن) بدل مسار عام يخمنه أي أحد
+        logger.info("بوت «فني» يعمل الآن (webhook) على المنفذ %s...", port)
+        app.run_webhook(
+            listen="0.0.0.0",
+            port=port,
+            url_path=webhook_path,
+            webhook_url=f"{external_url}/{webhook_path}",
+            allowed_updates=["message", "callback_query"],
+        )
+    else:
+        logger.info("بوت «فني» يعمل الآن (polling)...")
+        app.run_polling(allowed_updates=["message", "callback_query"])
 
 
 if __name__ == "__main__":
