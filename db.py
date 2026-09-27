@@ -31,20 +31,88 @@ FREE_CONTACTS_LIMIT = 3
 RESULTS_PAGE_SIZE = 5
 
 
+class _LibsqlRow:
+    """صف نتيجة يدعم القراءة بالاسم (row["col"]) والموضع (row[0]) معًا،
+    لأن libsql (Turso) يرجّع صفوف كـ tuple عادي ولا يدعم sqlite3.Row مباشرة."""
+
+    __slots__ = ("_map", "_values")
+
+    def __init__(self, description, values):
+        self._values = tuple(values)
+        self._map = {d[0]: v for d, v in zip(description or (), values)}
+
+    def __getitem__(self, key):
+        if isinstance(key, str):
+            return self._map[key]
+        return self._values[key]
+
+    def get(self, key, default=None):
+        return self._map.get(key, default)
+
+    def keys(self):
+        return self._map.keys()
+
+    def __contains__(self, key):
+        return key in self._map
+
+    def __iter__(self):
+        return iter(self._values)
+
+    def __len__(self):
+        return len(self._values)
+
+    def __repr__(self):
+        return f"_LibsqlRow({self._map!r})"
+
+
+class _LibsqlCursorWrapper:
+    def __init__(self, cursor):
+        self._cursor = cursor
+
+    def _wrap(self, row):
+        if row is None:
+            return None
+        return _LibsqlRow(self._cursor.description, row)
+
+    def fetchone(self):
+        return self._wrap(self._cursor.fetchone())
+
+    def fetchall(self):
+        return [self._wrap(r) for r in self._cursor.fetchall()]
+
+    def __getattr__(self, name):
+        return getattr(self._cursor, name)
+
+
+class _LibsqlConnWrapper:
+    """يجعل اتصال libsql يتصرف مثل sqlite3.Connection (execute يرجّع صفوف
+    بأسماء أعمدة)، بدون الحاجة لتعديل أي دالة أخرى بهذا الملف."""
+
+    def __init__(self, conn):
+        self._conn = conn
+
+    def execute(self, sql, params=()):
+        return _LibsqlCursorWrapper(self._conn.execute(sql, params))
+
+    def cursor(self):
+        return _LibsqlCursorWrapper(self._conn.cursor())
+
+    def __getattr__(self, name):
+        return getattr(self._conn, name)
+
+
 @contextmanager
 def get_conn():
     if TURSO_DATABASE_URL:
         # قاعدة بيانات خارجية دائمة (Turso/libSQL) — متوافقة تقريبًا 1:1 مع sqlite3.
         import libsql
 
-        conn = libsql.connect(database=TURSO_DATABASE_URL, auth_token=TURSO_AUTH_TOKEN)
+        raw_conn = libsql.connect(database=TURSO_DATABASE_URL, auth_token=TURSO_AUTH_TOKEN)
+        conn = _LibsqlConnWrapper(raw_conn)
     else:
         conn = sqlite3.connect(DB_PATH)
-
-    try:
         conn.row_factory = sqlite3.Row
-    except Exception:
-        pass
+
     try:
         conn.execute("PRAGMA foreign_keys = ON")
     except Exception:
