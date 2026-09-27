@@ -3,6 +3,7 @@
 # تشغيل على استضافة مثل Render (Webhook): يتفعّل تلقائيًا لو كان متغير البيئة
 # RENDER_EXTERNAL_URL موجود (Render يضبطه تلقائيًا) — لا حاجة لأي إعداد يدوي إضافي.
 
+import asyncio
 import logging
 import os
 
@@ -37,6 +38,14 @@ async def help_command(update, context):
 
 
 def main():
+    # بايثون 3.12+ ما عاد يسوي event loop تلقائي بالخيط الرئيسي (Main Thread) —
+    # وهذا يكسر run_webhook/run_polling الداخليين بمكتبة python-telegram-bot.
+    # نجهّز واحد يدويًا هنا لضمان التوافق مهما كان إصدار بايثون على الاستضافة.
+    try:
+        asyncio.get_event_loop()
+    except RuntimeError:
+        asyncio.set_event_loop(asyncio.new_event_loop())
+
     db.init_db()
     db.seed_professions_from_json_if_empty(PROFESSIONS_JSON_PATH)
     db.seed_saudi_geo_if_empty(SAUDI_REGIONS_JSON_PATH, SAUDI_CITIES_JSON_PATH, SAUDI_DISTRICTS_JSON_PATH)
