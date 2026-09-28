@@ -353,4 +353,10 @@ def profession_delete(profession_id):
 
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=5050, debug=False)
+    import os as _os
+
+    # الافتراضي 127.0.0.1 (محلي فقط، للتطوير) — على السيرفر نضبط ADMIN_PANEL_HOST=0.0.0.0
+    # عبر متغير بيئة (systemd Environment=) حتى يكون الرابط قابل للفتح من المتصفح مباشرة.
+    host = _os.environ.get("ADMIN_PANEL_HOST", "127.0.0.1")
+    port = int(_os.environ.get("ADMIN_PANEL_PORT", "5050"))
+    app.run(host=host, port=port, debug=False)
