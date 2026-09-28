@@ -313,17 +313,20 @@ TEXTS: dict[str, dict[str, str]] = {
         "ar": (
             "⏰ خلصت مهلة هذي المحادثة لأنك تأخرت بالرد (بعد فترة من عدم النشاط "
             "نمسح الخطوات القديمة تلقائيًا).\n\n"
-            "ما فيه مشكلة — بس ابدأ من جديد بإرسال {command}"
+            "ما فيه مشكلة — بس ابدأ من جديد بإرسال {command}\n"
+            "أو اضغط /start للرجوع للقائمة الرئيسية"
         ),
         "en": (
             "⏰ This conversation expired because you took too long to respond "
             "(we automatically clear old steps after a period of inactivity).\n\n"
-            "No problem — just start again by sending {command}"
+            "No problem — just start again by sending {command}\n"
+            "Or press /start to go back to the main menu"
         ),
         "ur": (
             "⏰ جواب دینے میں تاخیر کی وجہ سے یہ گفتگو ختم ہو گئی (غیر فعالیت کی ایک "
             "مدت کے بعد ہم پرانے مراحل خودکار طور پر صاف کر دیتے ہیں)۔\n\n"
-            "کوئی مسئلہ نہیں — بس {command} بھیج کر دوبارہ شروع کریں"
+            "کوئی مسئلہ نہیں — بس {command} بھیج کر دوبارہ شروع کریں\n"
+            "یا مرکزی مینو پر واپس جانے کے لیے /start دبائیں"
         ),
     },
     "srch_district_choice_prompt": {
