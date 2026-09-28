@@ -21,7 +21,11 @@ from config import (
 from handlers.admin import build_admin_handler
 from handlers.privacy import build_privacy_handlers
 from handlers.register import build_register_conversation
-from handlers.search import build_search_conversation, build_whatsapp_click_handler
+from handlers.search import (
+    build_search_conversation,
+    build_telegram_click_handler,
+    build_whatsapp_click_handler,
+)
 from handlers.start import build_language_handlers, start_command
 from handlers.subscription import build_subscription_handlers
 from translations_data import DOMAIN_TRANSLATIONS, PROFESSION_TRANSLATIONS
@@ -62,6 +66,7 @@ def main():
     app.add_handler(build_register_conversation())
     app.add_handler(build_search_conversation())
     app.add_handler(build_whatsapp_click_handler())
+    app.add_handler(build_telegram_click_handler())
     app.add_handler(build_admin_handler())
     for handler in build_subscription_handlers():
         app.add_handler(handler)

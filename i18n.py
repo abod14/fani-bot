@@ -399,6 +399,21 @@ TEXTS: dict[str, dict[str, str]] = {
         "en": "✈️ Or contact them via Telegram: {number}",
         "ur": "✈️ یا ٹیلیگرام پر رابطہ کریں: {number}",
     },
+    "srch_contact_tg_btn": {
+        "ar": "✈️ تواصل عبر تلغرام",
+        "en": "✈️ Contact via Telegram",
+        "ur": "✈️ ٹیلیگرام پر رابطہ کریں",
+    },
+    "srch_open_tg_btn": {
+        "ar": "✈️ فتح تلغرام الآن",
+        "en": "✈️ Open Telegram now",
+        "ur": "✈️ ابھی ٹیلیگرام کھولیں",
+    },
+    "srch_tg_number_text": {
+        "ar": "رقم {name} على تلغرام: {number}\nلو الرابط ما فتح المحادثة مباشرة، احفظ الرقم في جهات الاتصال وابحث عنه داخل تلغرام.",
+        "en": "{name}'s Telegram number: {number}\nIf the link doesn't open the chat directly, save the number in your contacts and search for it inside Telegram.",
+        "ur": "{name} کا ٹیلیگرام نمبر: {number}\nاگر لنک براہ راست چیٹ نہ کھولے تو نمبر کو اپنے رابطوں میں محفوظ کریں اور ٹیلیگرام میں تلاش کریں۔",
+    },
     "srch_professional_gone": {
         "ar": "عذرًا، هذا الفني لم يعد متاحًا.",
         "en": "Sorry, this professional is no longer available.",

@@ -132,10 +132,18 @@ def _profession_keyboard(domain_id: str, lang: str) -> InlineKeyboardMarkup:
 
 
 def _contact_button(p: dict, lang: str) -> InlineKeyboardMarkup:
-    label = i18n.t("srch_contact_wa_btn", lang) if p.get("has_whatsapp", 1) else i18n.t("srch_contact_show_btn", lang)
-    return InlineKeyboardMarkup(
-        [[InlineKeyboardButton(label, callback_data=f"srch_wa:{p['id']}")]]
-    )
+    """أزرار التواصل مع الفني — واتساب وتلغرام يظهران متقابلين بجانب بعض بصف واحد
+    (كل زر بعلامة تطبيقه) لما يكون الرقمان متوفرين، حتى يختار العميل القناة
+    التي تناسبه مباشرة من نتائج البحث."""
+    row = []
+    if p.get("has_whatsapp", 1):
+        row.append(InlineKeyboardButton(i18n.t("srch_contact_wa_btn", lang), callback_data=f"srch_wa:{p['id']}"))
+    if p.get("telegram_contact_number"):
+        row.append(InlineKeyboardButton(i18n.t("srch_contact_tg_btn", lang), callback_data=f"srch_tg:{p['id']}"))
+    if not row:
+        # لا واتساب ولا رقم تلغرام مسجّل — نعرض الرقم للاتصال المباشر فقط
+        row.append(InlineKeyboardButton(i18n.t("srch_contact_show_btn", lang), callback_data=f"srch_wa:{p['id']}"))
+    return InlineKeyboardMarkup([row])
 
 
 def _wa_link(number: str, text: str | None = None) -> str:
@@ -164,6 +172,22 @@ def _wa_link(number: str, text: str | None = None) -> str:
     return link
 
 
+def _tg_link(number: str) -> str:
+    """نفس منطق تطبيع الرقم المستخدم بواتساب، لكن لبناء رابط تلغرام (t.me/+الرقم).
+    يفتح هذا الرابط محادثة مباشرة لو كان الرقم مسجّلًا بتلغرام وخصوصية الفني
+    تسمح بذلك (الإعداد الافتراضي "الجميع")؛ غير ذلك يفتح صفحة بحث عن الرقم."""
+    import re as _re
+
+    digits = _re.sub(r"\D", "", number)
+    if digits.startswith("00"):
+        digits = digits[2:]
+    if digits.startswith("0") and not digits.startswith("966"):
+        digits = "966" + digits[1:]
+    elif not digits.startswith("966") and len(digits) == 9 and digits.startswith("5"):
+        digits = "966" + digits
+    return f"https://t.me/+{digits}"
+
+
 def _professional_card_text(p: dict) -> str:
     """نص بطاقة الفني كما يشاهدها العميل عند البحث — يشمل مهنته وتخصصاته حتى يفهم
     العميل نطاق خدماته من أول نظرة. نفس هذي الدالة تُستخدم كمعاينة للفني نفسه فور
@@ -180,8 +204,6 @@ def _professional_card_text(p: dict) -> str:
     if services:
         lines.append("📋 " + "، ".join(services))
     lines.append(f"📍 {location}")
-    if p.get("telegram_contact_number"):
-        lines.append(f"✈️ {p['telegram_contact_number']}")
     return "\n".join(lines)
 
 
@@ -689,12 +711,34 @@ async def whatsapp_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
             reply_markup=open_wa_keyboard,
         )
     else:
-        # هذا الرقم بدون واتساب — نعرض خيارات التواصل المتاحة فعليًا: اتصال مباشر،
-        # وتلغرام لو متوفر (رقم الواتساب هنا هو رقم اتصال عادي فقط).
-        lines = [i18n.t("srch_no_wa_text", lang, name=p["full_name"], number=p["whatsapp_number"])]
-        if p.get("telegram_contact_number"):
-            lines.append(i18n.t("srch_telegram_alt", lang, number=p["telegram_contact_number"]))
-        await query.message.reply_text("\n".join(lines))
+        # هذا الرقم بدون واتساب — نعرض رقم الاتصال المباشر فقط. تلغرام له زر
+        # مستقل بنفس البطاقة (srch_tg) لو الفني مسجّل رقمه في تلغرام.
+        await query.message.reply_text(
+            i18n.t("srch_no_wa_text", lang, name=p["full_name"], number=p["whatsapp_number"])
+        )
+
+
+async def telegram_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    professional_id = int(query.data.split(":", 1)[1])
+    lang = await asyncio.to_thread(db.get_user_language, update.effective_user.id)
+
+    p = await asyncio.to_thread(db.get_professional_by_id, professional_id)
+    if not p or not p.get("telegram_contact_number"):
+        await query.answer(i18n.t("srch_professional_gone", lang), show_alert=True)
+        return
+
+    await asyncio.to_thread(db.log_contact_click, professional_id, update.effective_user.id)
+    await query.answer()
+
+    number = p["telegram_contact_number"]
+    open_tg_keyboard = InlineKeyboardMarkup(
+        [[InlineKeyboardButton(i18n.t("srch_open_tg_btn", lang), url=_tg_link(number))]]
+    )
+    await query.message.reply_text(
+        i18n.t("srch_tg_number_text", lang, name=p["full_name"], number=number),
+        reply_markup=open_tg_keyboard,
+    )
 
 
 # ─────────────────────────── إلغاء ───────────────────────────
@@ -768,3 +812,8 @@ def build_search_conversation() -> ConversationHandler:
 # حتى بعد ما تنتهي المحادثة (النتائج تبقى ظاهرة برسائل سابقة).
 def build_whatsapp_click_handler() -> CallbackQueryHandler:
     return CallbackQueryHandler(whatsapp_click, pattern="^srch_wa:[0-9]+$")
+
+
+# نفس الفكرة لزر "تواصل تلغرام" المستقل بجانب زر واتساب.
+def build_telegram_click_handler() -> CallbackQueryHandler:
+    return CallbackQueryHandler(telegram_click, pattern="^srch_tg:[0-9]+$")
