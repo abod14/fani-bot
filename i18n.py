@@ -304,6 +304,31 @@ TEXTS: dict[str, dict[str, str]] = {
         "en": "◀️ Back to professions list",
         "ur": "◀️ پیشوں کی فہرست پر واپس",
     },
+    "srch_district_choice_prompt": {
+        "ar": "كيف تحب تحدد حيّك؟",
+        "en": "How would you like to specify your district?",
+        "ur": "آپ اپنا علاقہ کیسے متعین کرنا چاہیں گے؟",
+    },
+    "srch_share_location_btn": {
+        "ar": "📍 شارك موقعي الحالي",
+        "en": "📍 Share my current location",
+        "ur": "📍 میری موجودہ لوکیشن شیئر کریں",
+    },
+    "srch_manual_district_btn": {
+        "ar": "🏘️ اختيار الحي يدويًا",
+        "en": "🏘️ Choose district manually",
+        "ur": "🏘️ دستی طور پر علاقہ منتخب کریں",
+    },
+    "srch_location_matched": {
+        "ar": "📍 حددنا حيّك الأقرب: {district}\nنبحث لك الآن عن أقرب الفنيين...",
+        "en": "📍 We matched your nearest district: {district}\nSearching for the nearest professionals now...",
+        "ur": "📍 ہم نے آپ کا قریب ترین علاقہ متعین کر لیا: {district}\nاب قریب ترین کاریگر تلاش کیے جا رہے ہیں...",
+    },
+    "srch_location_no_match": {
+        "ar": "ما قدرنا نحدد حيّك من الموقع المُرسل (بيانات الأحياء غير مكتملة لهذي المدينة حاليًا). اختر حيّك يدويًا:",
+        "en": "We couldn't match a district from the location you shared (district data isn't complete for this city yet). Choose your district manually:",
+        "ur": "ہم آپ کی بھیجی گئی لوکیشن سے علاقہ متعین نہیں کر سکے (اس شہر کے لیے علاقوں کا ڈیٹا ابھی مکمل نہیں)۔ اپنا علاقہ دستی طور پر منتخب کریں:",
+    },
     "srch_smart_match_many": {
         "ar": "يبدو أنك تحتاج إحدى هذه المهن، اختر الأنسب:",
         "en": "You might need one of these professions, choose the best fit:",

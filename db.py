@@ -1453,6 +1453,26 @@ def nearest_sa_districts(district_id: int, exclude_ids: list[int], limit: int = 
     return candidates[:limit]
 
 
+def find_nearest_sa_district_by_coords(city_id: int, lat: float, lon: float):
+    """يرجّع أقرب حي (بنفس المدينة) لإحداثيات موقع شاركه العميل فعليًا (GPS)، بدل
+    ما يختاره يدويًا من القائمة. نفس منطق المسافة الإقليدية التقريبية المستخدمة
+    بـ nearest_sa_districts (كافية لمسافات صغيرة داخل مدينة وحدة)."""
+    with get_conn() as conn:
+        rows = conn.execute(
+            "SELECT * FROM sa_districts WHERE city_id = ? AND lat IS NOT NULL", (city_id,)
+        ).fetchall()
+
+    candidates = [dict(r) for r in rows]
+    if not candidates:
+        return None
+
+    def dist(d):
+        return (d["lat"] - lat) ** 2 + (d["lon"] - lon) ** 2
+
+    candidates.sort(key=dist)
+    return candidates[0]
+
+
 def nearest_sa_cities(city_id: int, exclude_ids: list[int], limit: int = 3):
     """يرجّع أقرب N مدينة (من نفس القائمة الرسمية) بغض النظر عن المنطقة الإدارية —
     مدينة قريبة بمنطقة مجاورة أهم من مدينة بعيدة بنفس المنطقة. يُستخدم فقط لما تنتهي

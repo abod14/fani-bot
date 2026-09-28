@@ -14,7 +14,14 @@
 
 import asyncio
 
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram import (
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    KeyboardButton,
+    ReplyKeyboardMarkup,
+    ReplyKeyboardRemove,
+    Update,
+)
 from telegram.ext import (
     CallbackQueryHandler,
     CommandHandler,
@@ -108,6 +115,20 @@ def _district_keyboard(city_id: int, page: int, lang: str) -> InlineKeyboardMark
     return _paginated_keyboard(
         districts, page, "srch_dist:", "srch_dist_page:",
         extra_rows=[[InlineKeyboardButton(i18n.t("srch_skip_district_btn", lang), callback_data=SKIP_NEIGHBORHOOD_CB)]],
+    )
+
+
+def _district_choice_reply_keyboard(lang: str) -> ReplyKeyboardMarkup:
+    """لوحة مفاتيح حقيقية (Reply Keyboard) لا أزرار شفافة — هذا الشكل الوحيد
+    بتلغرام اللي يقدر يطلب موقع العميل الفعلي (GPS) عبر request_location.
+    الخيار الثاني نص عادي يفتح قائمة الأحياء المعتادة بالأزرار الشفافة."""
+    return ReplyKeyboardMarkup(
+        [
+            [KeyboardButton(i18n.t("srch_share_location_btn", lang), request_location=True)],
+            [KeyboardButton(i18n.t("srch_manual_district_btn", lang))],
+        ],
+        resize_keyboard=True,
+        one_time_keyboard=True,
     )
 
 
@@ -366,11 +387,70 @@ async def choose_search_city(update: Update, context: ContextTypes.DEFAULT_TYPE)
     context.user_data["city_id"] = city_id
     context.user_data["city"] = city["name"]
     context.user_data.setdefault("tried_city_ids", []).append(city_id)
-    await query.edit_message_text(
-        i18n.t("srch_city_step", lang, city=city["name"]),
+    await query.edit_message_text(i18n.t("srch_city_step", lang, city=city["name"]))
+    # لوحة تحديد الحي (يدوي أو مشاركة موقع) لازم تُرسل برسالة جديدة — تلغرام ما
+    # يسمح بإرفاق Reply Keyboard على تعديل رسالة قديمة (edit_message_text/
+    # edit_message_reply_markup تدعم Inline فقط).
+    await query.message.reply_text(
+        i18n.t("srch_district_choice_prompt", lang),
+        reply_markup=_district_choice_reply_keyboard(lang),
+    )
+    return SEARCH_NEIGHBORHOOD
+
+
+async def choose_manual_district(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    lang = _lang(context)
+    city_id = context.user_data["city_id"]
+    await update.message.reply_text(
+        i18n.t("srch_city_step", lang, city=context.user_data["city"]),
+        reply_markup=ReplyKeyboardRemove(),
+    )
+    await update.message.reply_text(
+        i18n.t("srch_city_step", lang, city=context.user_data["city"]),
         reply_markup=_district_keyboard(city_id, page=0, lang=lang),
     )
     return SEARCH_NEIGHBORHOOD
+
+
+async def receive_customer_location(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """العميل شارك موقعه الفعلي (GPS) بدل اختيار الحي يدويًا — نحدد أقرب حي
+    مسجّل بقاعدة البيانات لنفس المدينة، ونكمل البحث فورًا بيه."""
+    lang = _lang(context)
+    city_id = context.user_data.get("city_id")
+    location = update.message.location
+    nearest = await asyncio.to_thread(
+        db.find_nearest_sa_district_by_coords, city_id, location.latitude, location.longitude
+    )
+
+    if not nearest:
+        await update.message.reply_text(
+            i18n.t("srch_location_no_match", lang), reply_markup=ReplyKeyboardRemove()
+        )
+        await update.message.reply_text(
+            i18n.t("srch_city_step", lang, city=context.user_data.get("city", "")),
+            reply_markup=_district_keyboard(city_id, page=0, lang=lang),
+        )
+        return SEARCH_NEIGHBORHOOD
+
+    context.user_data["neighborhood"] = nearest["name"]
+    context.user_data["district_id"] = nearest["id"]
+    context.user_data["tried_district_ids"] = [nearest["id"]]
+
+    await update.message.reply_text(
+        i18n.t("srch_location_matched", lang, district=nearest["name"]),
+        reply_markup=ReplyKeyboardRemove(),
+    )
+    return await _run_search(update.message, context, is_edit=False, customer_telegram_id=update.effective_user.id)
+
+
+async def neighborhood_text_router(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """يفرّق بين ضغطة زر "اختيار الحي يدويًا" (نص ثابت من لوحة المفاتيح المخصّصة)
+    وبين كتابة حرة لاسم حي (اكتمال تلقائي كالمعتاد)."""
+    lang = _lang(context)
+    text = update.message.text.strip()
+    if text == i18n.t("srch_manual_district_btn", lang):
+        return await choose_manual_district(update, context)
+    return await district_text_search(update, context)
 
 
 async def city_text_search(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -787,10 +867,11 @@ def build_search_conversation() -> ConversationHandler:
                 MessageHandler(filters.TEXT & ~filters.COMMAND, city_text_search),
             ],
             SEARCH_NEIGHBORHOOD: [
+                MessageHandler(filters.LOCATION, receive_customer_location),
                 CallbackQueryHandler(choose_search_district, pattern="^srch_dist:"),
                 CallbackQueryHandler(search_district_page_nav, pattern="^srch_dist_page:"),
                 CallbackQueryHandler(skip_neighborhood, pattern=f"^{SKIP_NEIGHBORHOOD_CB}$"),
-                MessageHandler(filters.TEXT & ~filters.COMMAND, district_text_search),
+                MessageHandler(filters.TEXT & ~filters.COMMAND, neighborhood_text_router),
             ],
             SEARCH_RESULTS: [
                 CallbackQueryHandler(show_more_results, pattern=f"^{MORE_RESULTS_CB}$"),
