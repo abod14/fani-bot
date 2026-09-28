@@ -26,7 +26,7 @@ STATUS_LABELS_AR = {
 
 # عدد الفرص (ضغطات تواصل واتساب) المجانية لكل فني قبل ما يحتاج اشتراك.
 # لاحقًا (خطوة الاشتراك) نتحقق: إذا free_contacts_used >= هذا الرقم ولا يوجد اشتراك فعّال → يُستبعد من نتائج البحث.
-FREE_CONTACTS_LIMIT = 3
+FREE_CONTACTS_LIMIT = 7
 
 RESULTS_PAGE_SIZE = 5
 
