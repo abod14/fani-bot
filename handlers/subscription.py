@@ -3,6 +3,8 @@
 # Stars: فاتورة Telegram الرسمية (send_invoice بعملة XTR).
 
 import asyncio
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 
 from telegram import (
     InlineKeyboardButton,
@@ -20,6 +22,7 @@ from telegram.ext import (
 )
 
 import db
+import i18n
 import tap_client
 from config import SUBSCRIPTION_DAYS, SUBSCRIPTION_PRICE_SAR, SUBSCRIPTION_PRICE_STARS
 
@@ -29,6 +32,21 @@ CB_SUBSCRIBE_STARS = "sub_stars"
 CB_TAP_VERIFY_PREFIX = "sub_tap_verify:"
 
 STARS_PAYLOAD_PREFIX = "sub_stars:"
+
+RIYADH_TZ = ZoneInfo("Asia/Riyadh")
+
+# كل كم ثانية تُفحص الاشتراكات المنتهية (كل ساعة كافي — ما نحتاج دقة أعلى من هذا).
+EXPIRY_CHECK_INTERVAL_SECONDS = 3600
+
+
+def _format_local_date(iso_str: str) -> str:
+    """يحوّل تاريخ ISO (UTC) المخزّن بقاعدة البيانات إلى تاريخ بتوقيت السعودية،
+    بصيغة مبسّطة يفهمها الفني مباشرة (يوم-شهر-سنة) بدل ISO المعقّد."""
+    dt = datetime.fromisoformat(iso_str)
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    local = dt.astimezone(RIYADH_TZ)
+    return local.strftime("%Y-%m-%d")
 
 
 def _require_registered_professional(update_effective_user_id: int):
@@ -175,11 +193,16 @@ async def verify_tap_payment(update: Update, context: ContextTypes.DEFAULT_TYPE)
         await asyncio.to_thread(db.mark_payment_paid, payment["id"])
 
     _, _, days = await asyncio.to_thread(_current_prices)
-    await asyncio.to_thread(db.activate_subscription, professional["id"], days)
+    expires_iso = await asyncio.to_thread(db.activate_subscription, professional["id"], days)
     await query.answer()
+    lang = await asyncio.to_thread(db.get_user_language, professional["telegram_user_id"])
     await query.edit_message_text(
-        f"✅ تم تفعيل اشتراكك لمدة {days} يوم. راح تظهر بنتائج البحث بدون حدود "
-        "الفرص المجانية طول فترة الاشتراك."
+        i18n.t(
+            "sub_activated_card", lang,
+            days=days,
+            start_date=_format_local_date(datetime.now(timezone.utc).isoformat()),
+            expiry_date=_format_local_date(expires_iso),
+        )
     )
 
 
@@ -238,12 +261,46 @@ async def stars_successful_payment(update: Update, context: ContextTypes.DEFAULT
         db.update_payment_external_id, payment_id, payment.telegram_payment_charge_id
     )
     _, _, days = await asyncio.to_thread(_current_prices)
-    await asyncio.to_thread(db.activate_subscription, professional_id, days)
+    expires_iso = await asyncio.to_thread(db.activate_subscription, professional_id, days)
 
+    lang = await asyncio.to_thread(db.get_user_language, update.effective_user.id)
     await update.message.reply_text(
-        f"✅ تم الدفع وتفعيل اشتراكك لمدة {days} يوم. راح تظهر بنتائج البحث "
-        "بدون حدود الفرص المجانية طول فترة الاشتراك."
+        i18n.t(
+            "sub_activated_card", lang,
+            days=days,
+            start_date=_format_local_date(datetime.now(timezone.utc).isoformat()),
+            expiry_date=_format_local_date(expires_iso),
+        )
     )
+
+
+# ─────────────────────────── مهمة دورية: تنبيه انتهاء الاشتراك ───────────────────────────
+
+async def check_expired_subscriptions(context: ContextTypes.DEFAULT_TYPE):
+    """تُستدعى كل ساعة (job_queue) — تفحص الفنيين اللي انتهت مدة اشتراكهم فعليًا
+    وما زالوا معلَّمين مشتركين، توقف الامتياز عنهم (is_subscribed=0) وترسل لهم
+    تنبيه بتلغرام بانتهاء الاشتراك مع زر تجديد سريع."""
+    expired = await asyncio.to_thread(db.find_expired_subscriptions)
+    if not expired:
+        return
+
+    ids = [p["id"] for p in expired]
+    await asyncio.to_thread(db.deactivate_expired_subscriptions, ids)
+
+    for p in expired:
+        lang = await asyncio.to_thread(db.get_user_language, p["telegram_user_id"])
+        keyboard = InlineKeyboardMarkup(
+            [[InlineKeyboardButton(i18n.t("sub_renew_btn", lang), callback_data=CB_SUBSCRIBE_MENU)]]
+        )
+        try:
+            await context.bot.send_message(
+                chat_id=p["telegram_user_id"],
+                text=i18n.t("sub_expired_notice", lang),
+                reply_markup=keyboard,
+            )
+        except Exception:
+            # الفني ممكن يكون حظر البوت — ما نوقف باقي الإشعارات بسبب هذا
+            pass
 
 
 # ─────────────────────────── تجميع الهاندلرز ───────────────────────────

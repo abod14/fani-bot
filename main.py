@@ -27,7 +27,11 @@ from handlers.search import (
     build_whatsapp_click_handler,
 )
 from handlers.start import build_language_handlers, start_command
-from handlers.subscription import build_subscription_handlers
+from handlers.subscription import (
+    EXPIRY_CHECK_INTERVAL_SECONDS,
+    build_subscription_handlers,
+    check_expired_subscriptions,
+)
 from translations_data import DOMAIN_TRANSLATIONS, PROFESSION_TRANSLATIONS
 
 logging.basicConfig(
@@ -74,6 +78,11 @@ def main():
         app.add_handler(handler)
     for handler in build_language_handlers():
         app.add_handler(handler)
+
+    # مهمة دورية: فحص الاشتراكات المنتهية وتنبيه الفنيين تلقائيًا بتلغرام (كل ساعة).
+    app.job_queue.run_repeating(
+        check_expired_subscriptions, interval=EXPIRY_CHECK_INTERVAL_SECONDS, first=60
+    )
 
     external_url = os.environ.get("RENDER_EXTERNAL_URL", "")
     if external_url:

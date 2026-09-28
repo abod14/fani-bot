@@ -491,6 +491,58 @@ TEXTS: dict[str, dict[str, str]] = {
             "/help — یہ پیغام دکھائیں"
         ),
     },
+
+    # ─────────────────────────── الاشتراك: تفعيل وانتهاء ───────────────────────────
+    "sub_activated_card": {
+        "ar": (
+            "✅ تم تفعيل اشتراكك بنجاح\n\n"
+            "📦 المدة: {days} يوم\n"
+            "📅 يبدأ: {start_date}\n"
+            "⏳ ينتهي: {expiry_date}\n\n"
+            "طول فترة الاشتراك تظهر بنتائج البحث بدون أي حد لفرص التواصل، وراح "
+            "نرسل لك تنبيه هنا بتلغرام قبل ما ينتهي الاشتراك حتى تجدده بدون انقطاع."
+        ),
+        "en": (
+            "✅ Your subscription is now active\n\n"
+            "📦 Duration: {days} days\n"
+            "📅 Starts: {start_date}\n"
+            "⏳ Ends: {expiry_date}\n\n"
+            "You'll appear in search results with no contact-limit for the whole "
+            "period, and we'll notify you here on Telegram when it's about to end."
+        ),
+        "ur": (
+            "✅ آپ کی سبسکرپشن فعال ہو گئی\n\n"
+            "📦 مدت: {days} دن\n"
+            "📅 شروع: {start_date}\n"
+            "⏳ ختم: {expiry_date}\n\n"
+            "پوری مدت کے دوران آپ بغیر کسی رابطہ کی حد کے تلاش کے نتائج میں نظر آئیں گے، "
+            "اور ختم ہونے سے پہلے ہم آپ کو یہاں ٹیلیگرام پر مطلع کریں گے۔"
+        ),
+    },
+    "sub_expired_notice": {
+        "ar": (
+            "⏰ انتهى اشتراكك في بوت «فني»\n\n"
+            "رجعت الآن للفرص المجانية المحدودة بالتواصل، وممكن تختفي من نتائج "
+            "البحث لو خلصتها. جدّد اشتراكك الآن عشان تستمر تظهر للعملاء بدون حدود:"
+        ),
+        "en": (
+            "⏰ Your Fani bot subscription has expired\n\n"
+            "You're back on the limited free-contacts tier, and may disappear from "
+            "search results if you've used them up. Renew now to keep appearing "
+            "with no limits:"
+        ),
+        "ur": (
+            "⏰ آپ کی فنی بوٹ سبسکرپشن ختم ہو گئی\n\n"
+            "اب آپ محدود مفت رابطوں کی سطح پر واپس آ گئے ہیں، اور اگر وہ ختم ہو "
+            "چکے ہوں تو تلاش کے نتائج سے غائب ہو سکتے ہیں۔ بغیر حد کے نظر آتے "
+            "رہنے کے لیے ابھی تجدید کریں:"
+        ),
+    },
+    "sub_renew_btn": {
+        "ar": "🔄 تجديد الاشتراك الآن",
+        "en": "🔄 Renew subscription now",
+        "ur": "🔄 ابھی سبسکرپشن تجدید کریں",
+    },
 }
 
 

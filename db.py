@@ -597,14 +597,39 @@ def log_contact_click(professional_id: int, customer_telegram_id: int) -> int:
 
 # ─────────────────────────── الاشتراك والدفع (Tap + Stars) ───────────────────────────
 
-def activate_subscription(professional_id: int, days: int):
-    """يفعّل اشتراك الفني (is_subscribed=1) ويمدّد تاريخ الانتهاء من اليوم + عدد الأيام."""
-    from datetime import timedelta
+def activate_subscription(professional_id: int, days: int) -> str:
+    """يفعّل اشتراك الفني (is_subscribed=1) ويمدّد تاريخ الانتهاء من اليوم + عدد الأيام.
+    يرجّع تاريخ الانتهاء (ISO) عشان يُستخدم فورًا برسالة تأكيد الاشتراك للفني."""
     expires = (datetime.now(timezone.utc) + timedelta(days=days)).isoformat()
     with get_conn() as conn:
         conn.execute(
             "UPDATE professionals SET is_subscribed = 1, subscription_expires_at = ? WHERE id = ?",
             (expires, professional_id),
+        )
+    return expires
+
+
+def find_expired_subscriptions():
+    """يرجّع الفنيين المشتركين اللي انتهت مدة اشتراكهم فعليًا (تاريخ الانتهاء
+    فات) وما زالوا مُعلَّمين is_subscribed=1 — يُستخدم من مهمة دورية تنبّههم
+    بانتهاء الاشتراك وتوقف امتيازاتهم تلقائيًا."""
+    now = datetime.now(timezone.utc).isoformat()
+    with get_conn() as conn:
+        rows = conn.execute(
+            "SELECT * FROM professionals WHERE is_subscribed = 1 "
+            "AND subscription_expires_at IS NOT NULL AND subscription_expires_at <= ?",
+            (now,),
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+
+def deactivate_expired_subscriptions(professional_ids: list[int]):
+    if not professional_ids:
+        return
+    with get_conn() as conn:
+        conn.executemany(
+            "UPDATE professionals SET is_subscribed = 0 WHERE id = ?",
+            [(pid,) for pid in professional_ids],
         )
 
 
