@@ -209,10 +209,15 @@ def _profession_keyboard(domain_id: str, lang: str) -> InlineKeyboardMarkup:
 
 
 def _services_keyboard(services: list[str], selected: set[str], lang: str) -> InlineKeyboardMarkup:
+    """نستخدم رقم ترتيب الخدمة (index) بدل نصها الكامل داخل callback_data، لأن
+    تلغرام يفرض حد أقصى 64 بايت على callback_data. بعض أسماء الخدمات العربية
+    الطويلة (مثل خدمة تابعة لـ"كهربائي منازل") تتجاوز هذا الحد بمجرد إضافة
+    البادئة "reg_svc:"، فيرفض تلغرام الزر بصمت وتفشل شاشة الخدمات بالكامل —
+    وهذا كان السبب الحقيقي وراء "رفض" تسجيل هذه المهنة تحديدًا."""
     buttons = []
-    for s in services:
+    for idx, s in enumerate(services):
         mark = "✅ " if s in selected else "▫️ "
-        buttons.append([InlineKeyboardButton(mark + s, callback_data=f"reg_svc:{s}")])
+        buttons.append([InlineKeyboardButton(mark + s, callback_data=f"reg_svc:{idx}")])
     buttons.append(
         [InlineKeyboardButton(i18n.t("reg_services_done_btn", lang), callback_data=SERVICES_DONE_CB)]
     )
@@ -601,7 +606,13 @@ async def choose_profession(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def toggle_service(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = _lang(context)
     query = update.callback_query
-    service = query.data.split(":", 1)[1]
+    available = context.user_data.get("available_services", [])
+    try:
+        idx = int(query.data.split(":", 1)[1])
+        service = available[idx]
+    except (ValueError, IndexError):
+        await query.answer()
+        return SERVICES
     selected = set(context.user_data.get("services", []))
     if service in selected:
         selected.discard(service)
@@ -610,7 +621,6 @@ async def toggle_service(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data["services"] = list(selected)
     await query.answer()
 
-    available = context.user_data.get("available_services", [])
     await query.edit_message_reply_markup(
         reply_markup=_services_keyboard(available, selected, lang)
     )
