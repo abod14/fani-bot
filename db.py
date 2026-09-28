@@ -226,6 +226,24 @@ def init_db():
             """
         )
 
+        # تبرّع/دعم اختياري من العميل (مو الفني) — منفصل تمامًا عن جدول اشتراكات
+        # الفنيين (ما له علاقة بأي professional_id)، يظهر كرسالة اختيارية بعد كل
+        # 10 ضغطات تواصل للعميل، وله حرية كاملة يتجاهله ويكمل البحث عادي.
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS donation_payments (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                customer_telegram_id INTEGER NOT NULL,
+                method TEXT NOT NULL,           -- 'tap' أو 'stars'
+                external_id TEXT,
+                amount_sar REAL NOT NULL,
+                status TEXT NOT NULL DEFAULT 'pending',
+                created_at TEXT NOT NULL,
+                paid_at TEXT
+            )
+            """
+        )
+
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS search_log (
@@ -695,6 +713,58 @@ def update_payment_external_id(payment_id: int, external_id: str):
         conn.execute(
             "UPDATE subscription_payments SET external_id = ? WHERE id = ?",
             (external_id, payment_id),
+        )
+
+
+# ─────────────────────────── تبرّع/دعم اختياري من العميل ───────────────────────────
+
+def count_contact_clicks_by_customer(customer_telegram_id: int) -> int:
+    """عدد كل ضغطات التواصل (واتساب/تلغرام) اللي سواها هذا العميل بكل تاريخه —
+    هذا هو مقياس "الاستخدام" اللي نعرض عليه رسالة الدعم الاختيارية كل 10 ضغطات."""
+    with get_conn() as conn:
+        row = conn.execute(
+            "SELECT COUNT(*) AS c FROM contact_clicks WHERE customer_telegram_id = ?",
+            (customer_telegram_id,),
+        ).fetchone()
+        return row["c"] if row else 0
+
+
+def create_pending_donation(customer_telegram_id: int, method: str, external_id: str | None, amount_sar: float) -> int:
+    with get_conn() as conn:
+        cur = conn.execute(
+            """
+            INSERT INTO donation_payments
+                (customer_telegram_id, method, external_id, amount_sar, status, created_at)
+            VALUES (?, ?, ?, ?, 'pending', ?)
+            """,
+            (customer_telegram_id, method, external_id, amount_sar, _now_iso()),
+        )
+        return cur.lastrowid
+
+
+def get_donation_by_external_id(method: str, external_id: str):
+    with get_conn() as conn:
+        row = conn.execute(
+            "SELECT * FROM donation_payments WHERE method = ? AND external_id = ? "
+            "ORDER BY id DESC LIMIT 1",
+            (method, external_id),
+        ).fetchone()
+        return dict(row) if row else None
+
+
+def mark_donation_paid(donation_id: int):
+    with get_conn() as conn:
+        conn.execute(
+            "UPDATE donation_payments SET status = 'paid', paid_at = ? WHERE id = ?",
+            (_now_iso(), donation_id),
+        )
+
+
+def update_donation_external_id(donation_id: int, external_id: str):
+    with get_conn() as conn:
+        conn.execute(
+            "UPDATE donation_payments SET external_id = ? WHERE id = ?",
+            (external_id, donation_id),
         )
 
 

@@ -52,6 +52,29 @@ def create_charge(amount_sar: float, professional_name: str, professional_id: in
     return {"id": data["id"], "redirect_url": redirect_url, "status": data.get("status")}
 
 
+def create_donation_charge(amount_sar: float, customer_telegram_id: int) -> dict:
+    """نفس create_charge لكن لدعم/تبرّع اختياري من عميل (مو اشتراك فني) — الوصف
+    والبيانات الوصفية تختلف (customer_telegram_id بدل professional_id)."""
+    payload = {
+        "amount": amount_sar,
+        "currency": "SAR",
+        "threeDSecure": True,
+        "save_card": False,
+        "description": "دعم بوت فني",
+        "customer": {"first_name": "عميل بوت فني"},
+        "source": {"id": "src_all"},
+        "redirect": {"url": TAP_REDIRECT_URL},
+        "metadata": {"customer_telegram_id": str(customer_telegram_id), "type": "donation"},
+    }
+
+    resp = requests.post(f"{TAP_API_BASE}/charges/", json=payload, headers=_headers(), timeout=20)
+    resp.raise_for_status()
+    data = resp.json()
+
+    redirect_url = data.get("transaction", {}).get("url")
+    return {"id": data["id"], "redirect_url": redirect_url, "status": data.get("status")}
+
+
 def get_charge_status(charge_id: str) -> str:
     """يرجّع حالة الشحنة الحالية (مثل CAPTURED, INITIATED, DECLINED...)."""
     resp = requests.get(f"{TAP_API_BASE}/charges/{charge_id}", headers=_headers(), timeout=20)

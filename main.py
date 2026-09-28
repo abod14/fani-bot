@@ -19,6 +19,7 @@ from config import (
     SAUDI_REGIONS_JSON_PATH,
 )
 from handlers.admin import build_admin_handler
+from handlers.donation import build_donation_handlers
 from handlers.privacy import build_privacy_handlers
 from handlers.register import build_register_conversation
 from handlers.search import (
@@ -96,6 +97,8 @@ def main():
     app.add_handler(CallbackQueryHandler(handle_stale_callback, pattern="^reg_"))
     app.add_handler(build_admin_handler())
     for handler in build_subscription_handlers():
+        app.add_handler(handler)
+    for handler in build_donation_handlers():
         app.add_handler(handler)
     for handler in build_privacy_handlers():
         app.add_handler(handler)

@@ -703,6 +703,106 @@ TEXTS: dict[str, dict[str, str]] = {
         "en": "🔄 Renew subscription now",
         "ur": "🔄 ابھی سبسکرپشن تجدید کریں",
     },
+    "donate_prompt": {
+        "ar": (
+            "🙏 لاحظنا إنك استخدمت بوت «فني» أكثر من {count} مرة — يسعدنا نخدمك!\n\n"
+            "تشغيل البوت وإضافة/تصنيف الفنيين يأخذ وقت وجهد مستمر من فريق صغير. "
+            "لو تحب تدعمنا بمبلغ رمزي، نكون شاكرين لك 🙏 (اختياري بالكامل، ما يوقف "
+            "استخدامك للبوت أبدًا):"
+        ),
+        "en": (
+            "🙏 We noticed you've used the «Fani» bot more than {count} times — glad it's useful!\n\n"
+            "Running the bot and listing/categorizing professionals takes ongoing time and "
+            "effort from a small team. If you'd like to support us with a small amount, we'd "
+            "be grateful 🙏 (completely optional, never blocks your use of the bot):"
+        ),
+        "ur": (
+            "🙏 ہم نے دیکھا کہ آپ نے «فني» بوٹ {count} سے زیادہ بار استعمال کیا — خوشی ہوئی!\n\n"
+            "بوٹ چلانا اور کاریگروں کو شامل/درجہ بندی کرنا ایک چھوٹی ٹیم کے لیے مسلسل وقت اور "
+            "محنت لیتا ہے۔ اگر آپ ہمیں تھوڑی سی رقم سے سپورٹ کرنا چاہیں تو ہم مشکور ہوں گے 🙏 "
+            "(مکمل طور پر اختیاری، آپ کے بوٹ کے استعمال کو کبھی نہیں روکتا):"
+        ),
+    },
+    "donate_amount_btn": {
+        "ar": "💙 {sar} ريال",
+        "en": "💙 {sar} SAR",
+        "ur": "💙 {sar} ریال",
+    },
+    "donate_dismiss_btn": {
+        "ar": "🙏 لا شكرًا الآن",
+        "en": "🙏 No thanks for now",
+        "ur": "🙏 ابھی نہیں، شکریہ",
+    },
+    "donate_dismissed": {
+        "ar": "تمام، لا مشكلة 🙏 استمتع باستخدام البوت!",
+        "en": "No problem at all 🙏 Enjoy using the bot!",
+        "ur": "کوئی مسئلہ نہیں 🙏 بوٹ کا استعمال جاری رکھیں!",
+    },
+    "donate_method_prompt": {
+        "ar": "اختر طريقة الدفع لدعمنا بمبلغ {sar} ريال:",
+        "en": "Choose a payment method to support us with {sar} SAR:",
+        "ur": "{sar} ریال کی سپورٹ کے لیے ادائیگی کا طریقہ منتخب کریں:",
+    },
+    "donate_tap_btn": {
+        "ar": "💳 الدفع عبر Tap (مدى/فيزا/آبل باي)",
+        "en": "💳 Pay via Tap (mada/Visa/Apple Pay)",
+        "ur": "💳 Tap کے ذریعے ادائیگی",
+    },
+    "donate_stars_btn": {
+        "ar": "⭐ الدفع عبر Telegram Stars — {stars} نجمة",
+        "en": "⭐ Pay via Telegram Stars — {stars} stars",
+        "ur": "⭐ Telegram Stars کے ذریعے — {stars} اسٹارز",
+    },
+    "donate_pay_now_btn": {
+        "ar": "💳 الدفع الآن",
+        "en": "💳 Pay now",
+        "ur": "💳 ابھی ادائیگی کریں",
+    },
+    "donate_verify_btn": {
+        "ar": "✅ تحققت من الدفع",
+        "en": "✅ I've paid",
+        "ur": "✅ ادائیگی ہو گئی",
+    },
+    "donate_tap_instructions": {
+        "ar": "اضغط للدفع عبر Tap، وبعد ما تخلّص الدفع ارجع واضغط 'تحققت من الدفع':",
+        "en": "Tap to pay via Tap, then come back and press 'I've paid':",
+        "ur": "Tap کے ذریعے ادائیگی کے لیے دبائیں، پھر واپس آ کر 'ادائیگی ہو گئی' دبائیں:",
+    },
+    "donate_tap_not_configured": {
+        "ar": "⚠️ الدفع عبر Tap غير مفعّل حاليًا. جرّب الدفع عبر Telegram Stars بدلًا عنه.",
+        "en": "⚠️ Tap payments aren't enabled right now. Try Telegram Stars instead.",
+        "ur": "⚠️ Tap ادائیگی ابھی فعال نہیں۔ اس کی بجائے Telegram Stars آزمائیں۔",
+    },
+    "donate_tap_error": {
+        "ar": "⚠️ صار خطأ أثناء التواصل مع Tap. حاول مرة أخرى بعد شوي، أو جرّب Stars.",
+        "en": "⚠️ Something went wrong contacting Tap. Try again shortly, or use Stars.",
+        "ur": "⚠️ Tap سے رابطے میں خرابی ہوئی۔ تھوڑی دیر بعد کوشش کریں یا Stars استعمال کریں۔",
+    },
+    "donate_tap_verify_error": {
+        "ar": "تعذّر التحقق الآن، حاول بعد شوي.",
+        "en": "Couldn't verify right now, try again shortly.",
+        "ur": "ابھی تصدیق نہیں ہو سکی، تھوڑی دیر بعد کوشش کریں۔",
+    },
+    "donate_tap_not_paid_yet": {
+        "ar": "لسه ما وصلنا تأكيد الدفع. لو دفعت فعلًا، انتظر دقيقة وجرّب الزر مرة ثانية.",
+        "en": "We haven't received payment confirmation yet. If you've already paid, wait a minute and try again.",
+        "ur": "ابھی تک ادائیگی کی تصدیق موصول نہیں ہوئی۔ اگر آپ نے ادائیگی کر دی ہے تو ایک منٹ انتظار کریں۔",
+    },
+    "donate_already_paid": {
+        "ar": "تم تسجيل هذا الدعم مسبقًا ✅ شكرًا لك!",
+        "en": "This contribution was already recorded ✅ thank you!",
+        "ur": "یہ عطیہ پہلے ہی درج ہو چکا ✅ شکریہ!",
+    },
+    "donate_thanks": {
+        "ar": "🙏 شكرًا جزيلاً لدعمك! يساعدنا كثير نكمل نطوّر بوت «فني» ونضيف فنيين جدد.",
+        "en": "🙏 Thank you so much for your support! It really helps us keep improving «Fani» and adding new professionals.",
+        "ur": "🙏 آپ کی سپورٹ کا بہت شکریہ! یہ ہمیں «فني» بوٹ بہتر بنانے اور نئے کاریگر شامل کرنے میں مدد دیتا ہے۔",
+    },
+    "donate_stars_match_error": {
+        "ar": "تم استلام الدعم لكن صار خطأ بمطابقة الطلب. تواصل مع الدعم رجاءً.",
+        "en": "Payment received but there was a matching error. Please contact support.",
+        "ur": "ادائیگی موصول ہوئی لیکن مماثلت میں خرابی آئی۔ براہ کرم سپورٹ سے رابطہ کریں۔",
+    },
 }
 
 

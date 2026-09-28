@@ -25,6 +25,7 @@ import db
 import i18n
 import tap_client
 from config import SUBSCRIPTION_DAYS, SUBSCRIPTION_PRICE_SAR, SUBSCRIPTION_PRICE_STARS
+from handlers import donation
 
 CB_SUBSCRIBE_MENU = "sub_menu"
 CB_SUBSCRIBE_TAP = "sub_tap"
@@ -245,6 +246,13 @@ async def stars_precheckout(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def stars_successful_payment(update: Update, context: ContextTypes.DEFAULT_TYPE):
     payment = update.message.successful_payment
     payload = payment.invoice_payload  # الشكل: sub_stars:<professional_id>:<payment_id>
+
+    # تلغرام يسمح بمعالج وحيد فقط لـ filters.SUCCESSFUL_PAYMENT بكل التطبيق، لذا كل
+    # فواتير Stars (اشتراك فني أو دعم عميل) تمر من هنا — نميّزها من بادئة الـ payload
+    # ونحوّل دفعات الدعم لمعالجها الخاص بـ donation.py.
+    if payload.startswith(donation.STARS_PAYLOAD_PREFIX):
+        await donation.donation_stars_successful_payment(update, context)
+        return
 
     try:
         _, professional_id_str, payment_id_str = payload.split(":")

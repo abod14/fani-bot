@@ -34,6 +34,7 @@ from telegram.ext import (
 import db
 import i18n
 import professions_repo as professions
+from handlers import donation
 
 (
     SEARCH_PROFESSION,
@@ -1029,6 +1030,8 @@ async def whatsapp_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
             i18n.t("srch_no_wa_text", lang, name=p["full_name"], number=p["whatsapp_number"])
         )
 
+    await donation.maybe_prompt_donation(context, update.effective_user.id, lang)
+
 
 async def telegram_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
@@ -1051,6 +1054,8 @@ async def telegram_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
         i18n.t("srch_tg_number_text", lang, name=p["full_name"], number=number),
         reply_markup=open_tg_keyboard,
     )
+
+    await donation.maybe_prompt_donation(context, update.effective_user.id, lang)
 
 
 # ─────────────────────────── إلغاء ───────────────────────────
