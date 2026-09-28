@@ -275,9 +275,9 @@ TEXTS: dict[str, dict[str, str]] = {
 
     # ─────────────────────────── /search ───────────────────────────
     "srch_entry": {
-        "ar": "اختر مهنتك من القائمة:",
-        "en": "Choose your profession from the list:",
-        "ur": "فہرست سے اپنا پیشہ منتخب کریں:",
+        "ar": "اختر مهنتك من القائمة:\n\n(لو تبي ترجع للقائمة الرئيسية بأي وقت، اضغط /start)",
+        "en": "Choose your profession from the list:\n\n(To go back to the main menu anytime, press /start)",
+        "ur": "فہرست سے اپنا پیشہ منتخب کریں:\n\n(کسی بھی وقت مرکزی مینو پر واپس جانے کے لیے /start دبائیں)",
     },
     "srch_no_match": {
         "ar": "لم أستطع التعرف على مشكلتك تلقائيًا 🤔 اختر مهنتك من القائمة:",
