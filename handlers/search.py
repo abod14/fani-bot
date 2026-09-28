@@ -634,6 +634,13 @@ async def cancel_search(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return ConversationHandler.END
 
 
+async def search_timeout(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """لو العميل توقف بمنتصف البحث بدون إكمال، ننهي المحادثة تلقائيًا بعد فترة
+    (بدل ما تبقى عالقة وتسبب ردود غريبة لاحقًا مثل لغة قديمة أو أزرار ما تشتغل)."""
+    context.user_data.clear()
+    return ConversationHandler.END
+
+
 # ─────────────────────────── تجميع الـ ConversationHandler ───────────────────────────
 
 def build_search_conversation() -> ConversationHandler:
@@ -670,10 +677,12 @@ def build_search_conversation() -> ConversationHandler:
                 CallbackQueryHandler(choose_nearby_city, pattern=f"^{NEARBY_CITY_CB_PREFIX}"),
                 CallbackQueryHandler(end_search_results, pattern=f"^{END_SEARCH_CB}$"),
             ],
+            ConversationHandler.TIMEOUT: [MessageHandler(filters.ALL, search_timeout)],
         },
         fallbacks=[CommandHandler("cancel", cancel_search)],
         name="search_conversation",
         persistent=False,
+        conversation_timeout=900,
     )
 
 

@@ -647,6 +647,13 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return ConversationHandler.END
 
 
+async def registration_timeout(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """لو المستخدم توقف بمنتصف التسجيل بدون إكمال أو إلغاء، ننهي المحادثة تلقائيًا
+    بعد فترة (بدل ما تبقى عالقة للأبد وتسبب ردود غريبة لاحقًا مثل لغة قديمة)."""
+    context.user_data.clear()
+    return ConversationHandler.END
+
+
 # ─────────────────────────── تجميع الـ ConversationHandler ───────────────────────────
 
 def build_register_conversation() -> ConversationHandler:
@@ -690,8 +697,10 @@ def build_register_conversation() -> ConversationHandler:
                 CallbackQueryHandler(confirm_yes, pattern=f"^{CONFIRM_YES_CB}$"),
                 CallbackQueryHandler(confirm_edit, pattern=f"^{CONFIRM_EDIT_CB}$"),
             ],
+            ConversationHandler.TIMEOUT: [MessageHandler(filters.ALL, registration_timeout)],
         },
         fallbacks=[CommandHandler("cancel", cancel)],
         name="register_conversation",
         persistent=False,
+        conversation_timeout=900,
     )

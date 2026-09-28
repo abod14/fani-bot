@@ -60,6 +60,10 @@ async def _build_welcome_message(user_id: int, lang: str):
 
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    # نمسح أي بيانات محادثة سابقة عالقة (تسجيل/بحث لم يكتمل) — يمنع مشاكل مثل
+    # ظهور رسائل بلغة قديمة أو ردود غير متوقعة لو ضغط المستخدم /start أثناء
+    # محادثة لم تُنهَ بشكل صحيح.
+    context.user_data.clear()
     user_id = update.effective_user.id
 
     if not await asyncio.to_thread(db.has_chosen_language, user_id):
