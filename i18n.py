@@ -228,9 +228,34 @@ TEXTS: dict[str, dict[str, str]] = {
         "ur": "✅ رجسٹریشن کی تصدیق کریں",
     },
     "reg_edit_btn": {
-        "ar": "✏️ تعديل البيانات",
-        "en": "✏️ Edit details",
-        "ur": "✏️ تفصیلات میں ترمیم کریں",
+        "ar": "🔧 تعديل المهنة فقط",
+        "en": "🔧 Edit profession only",
+        "ur": "🔧 صرف پیشہ میں ترمیم کریں",
+    },
+    "reg_edit_all_btn": {
+        "ar": "🔄 تعديل الكل (البدء من جديد)",
+        "en": "🔄 Edit everything (start over)",
+        "ur": "🔄 سب کچھ تبدیل کریں (دوبارہ شروع کریں)",
+    },
+    "reg_edit_profession_note": {
+        "ar": "يسمح باختيار مهنة واحدة فقط لكل رقم.\nإذا كنت تعمل بأكثر من مهنة، سجّل لكل مهنة من جوال/رقم مختلف.\n\nاختر مجال الخدمة:",
+        "en": "Only one profession is allowed per number.\nIf you work in more than one profession, register each one from a different phone/number.\n\nChoose a service field:",
+        "ur": "ہر نمبر کے لیے صرف ایک پیشہ منتخب کرنے کی اجازت ہے۔\nاگر آپ ایک سے زیادہ پیشوں میں کام کرتے ہیں تو ہر پیشے کے لیے مختلف موبائل نمبر سے رجسٹر کریں۔\n\nخدمت کا شعبہ منتخب کریں:",
+    },
+    "reg_back_to_profession_btn": {
+        "ar": "◀️ رجوع لقائمة المهن",
+        "en": "◀️ Back to professions",
+        "ur": "◀️ پیشوں کی فہرست پر واپس جائیں",
+    },
+    "reg_already_registered": {
+        "ar": "أنت مسجّل بالفعل بمهنة «{profession}» بهذا الحساب.\n\nيسمح بتسجيل مهنة واحدة فقط لكل رقم. إذا كنت تريد تسجيل مهنة أخرى، استخدم جوالًا/حساب تلغرام مختلف.\n\nلتعديل بياناتك الحالية تواصل مع الدعم.",
+        "en": "You're already registered with the profession \"{profession}\" on this account.\n\nOnly one profession is allowed per number. If you want to register another profession, use a different phone/Telegram account.\n\nTo edit your current details, contact support.",
+        "ur": "آپ پہلے ہی اس اکاؤنٹ پر پیشہ \"{profession}\" کے ساتھ رجسٹرڈ ہیں۔\n\nہر نمبر کے لیے صرف ایک پیشے کی رجسٹریشن کی اجازت ہے۔ اگر آپ دوسرا پیشہ رجسٹر کرنا چاہتے ہیں تو مختلف موبائل/ٹیلیگرام اکاؤنٹ استعمال کریں۔\n\nموجودہ تفصیلات میں ترمیم کے لیے سپورٹ سے رابطہ کریں۔",
+    },
+    "reg_card_preview_intro": {
+        "ar": "👀 هذي بطاقتك اللي بيشوفها العميل بالضبط لما يبحث عن مهنتك:",
+        "en": "👀 Here's exactly how your card will look to a customer searching for your profession:",
+        "ur": "👀 جب کوئی گاہک آپ کا پیشہ تلاش کرے گا تو آپ کا کارڈ بالکل ایسا نظر آئے گا:",
     },
     "reg_restart": {
         "ar": "تمام، نبدأ التسجيل من جديد.\nأرسل اسمك الكامل:",
@@ -238,9 +263,9 @@ TEXTS: dict[str, dict[str, str]] = {
         "ur": "ٹھیک ہے، رجسٹریشن دوبارہ شروع کرتے ہیں۔\nاپنا پورا نام بھیجیں:",
     },
     "reg_success": {
-        "ar": "✅ تم استلام طلب تسجيلك بنجاح\n\nالاسم: {name}\nالمدينة: {city}\nالمهنة: {profession}\n\nطلبك الآن قيد المراجعة، وسيتم إعلامك فور الموافقة عليه.",
-        "en": "✅ Your registration request was received\n\nName: {name}\nCity: {city}\nProfession: {profession}\n\nYour request is now under review, and you'll be notified once approved.",
-        "ur": "✅ آپ کی رجسٹریشن کی درخواست موصول ہو گئی\n\nنام: {name}\nشہر: {city}\nپیشہ: {profession}\n\nآپ کی درخواست زیرِ جائزہ ہے، منظوری کے بعد آپ کو مطلع کر دیا جائے گا۔",
+        "ar": "✅ تم تسجيلك بنجاح وتفعيل حسابك مباشرة!\n\nالاسم: {name}\nالمدينة: {city}\nالمهنة: {profession}\n\nأنت الآن تظهر للعملاء عند البحث عن هذي المهنة في مدينتك.",
+        "en": "✅ You're registered and activated right away!\n\nName: {name}\nCity: {city}\nProfession: {profession}\n\nYou now appear to customers searching for this profession in your city.",
+        "ur": "✅ آپ کامیابی سے رجسٹر اور فوری طور پر فعال ہو گئے ہیں!\n\nنام: {name}\nشہر: {city}\nپیشہ: {profession}\n\nاب آپ اپنے شہر میں اس پیشے کی تلاش کرنے والے گاہکوں کو نظر آئیں گے۔",
     },
     "reg_cancelled": {
         "ar": "تم إلغاء التسجيل. أرسل /register في أي وقت للبدء من جديد.",

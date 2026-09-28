@@ -47,8 +47,11 @@ def main():
         asyncio.set_event_loop(asyncio.new_event_loop())
 
     db.init_db()
-    db.seed_professions_from_json_if_empty(PROFESSIONS_JSON_PATH)
-    db.seed_saudi_geo_if_empty(SAUDI_REGIONS_JSON_PATH, SAUDI_CITIES_JSON_PATH, SAUDI_DISTRICTS_JSON_PATH)
+    # مزامنة (UPSERT) بدل البذر لمرة واحدة فقط — أي تحديث لملفات المهن/المدن/الأحياء
+    # بالمستودع ينعكس تلقائيًا على قاعدة البيانات الحية في كل إعادة تشغيل، بدون حذف
+    # أي بيانات فنيين مسجّلين مسبقًا.
+    db.sync_professions_from_json(PROFESSIONS_JSON_PATH)
+    db.sync_saudi_geo_from_json(SAUDI_REGIONS_JSON_PATH, SAUDI_CITIES_JSON_PATH, SAUDI_DISTRICTS_JSON_PATH)
     db.apply_name_translations(DOMAIN_TRANSLATIONS, PROFESSION_TRANSLATIONS)
 
     app = ApplicationBuilder().token(BOT_TOKEN).build()

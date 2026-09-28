@@ -144,12 +144,22 @@ def _wa_link(number: str) -> str:
 
 
 def _professional_card_text(p: dict) -> str:
+    """نص بطاقة الفني كما يشاهدها العميل عند البحث — يشمل مهنته وتخصصاته حتى يفهم
+    العميل نطاق خدماته من أول نظرة. نفس هذي الدالة تُستخدم كمعاينة للفني نفسه فور
+    التسجيل (register.py) عشان يشوف بطاقته بالضبط قبل ما يستقبل أي طلب."""
     location = p["city"] + (f" — {p['neighborhood']}" if p["neighborhood"] else "")
     lines = [
         f"👷 {p['full_name']}",
-        f"📍 {location}",
+        f"🛠️ {p['profession_name']}",
     ]
-    if p["telegram_contact_number"]:
+    services = p.get("services")
+    if services is None and p.get("services_json"):
+        import json as _json
+        services = _json.loads(p["services_json"])
+    if services:
+        lines.append("📋 " + "، ".join(services))
+    lines.append(f"📍 {location}")
+    if p.get("telegram_contact_number"):
         lines.append(f"✈️ {p['telegram_contact_number']}")
     return "\n".join(lines)
 

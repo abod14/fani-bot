@@ -13,13 +13,10 @@ CB_REJECT_PREFIX = "admin_reject:"
 
 
 def _admin_keyboard(row_id: int) -> InlineKeyboardMarkup:
+    # التسجيل يُفعَّل تلقائيًا فور اكتماله (بدون مراجعة يدوية)، فزر "قبول" أصبح غير
+    # لازم — نبقي فقط زر "رفض/حظر" كأداة تدخّل يدوي لو ظهر فني غير مرغوب فيه لاحقًا.
     return InlineKeyboardMarkup(
-        [
-            [
-                InlineKeyboardButton("✅ قبول", callback_data=f"{CB_APPROVE_PREFIX}{row_id}"),
-                InlineKeyboardButton("❌ رفض", callback_data=f"{CB_REJECT_PREFIX}{row_id}"),
-            ]
-        ]
+        [[InlineKeyboardButton("🚫 رفض وحظر هذا الفني", callback_data=f"{CB_REJECT_PREFIX}{row_id}")]]
     )
 
 
@@ -32,7 +29,7 @@ async def notify_admin_new_registration(context: ContextTypes.DEFAULT_TYPE, row_
     services = "، ".join(_json.loads(p["services_json"])) or "لا يوجد"
 
     text = (
-        "🆕 طلب تسجيل فني جديد\n\n"
+        "✅ فني جديد سجّل وتفعّل تلقائيًا (بدون مراجعة)\n\n"
         f"الاسم: {p['full_name']}\n"
         f"المدينة: {p['city']}\n"
         f"الحي: {p['neighborhood'] or 'لم يُحدد'}\n"

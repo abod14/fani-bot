@@ -364,7 +364,8 @@ def get_professional_by_telegram_id(telegram_user_id: int):
 
 
 def create_registration(data: dict) -> int:
-    """يحفظ تسجيل فني جديد بحالة قيد المراجعة، ويرجّع الـ id."""
+    """يحفظ تسجيل فني جديد ويرجّع الـ id. القرار الحالي: موافقة فورية بدون مراجعة
+    يدوية من الأدمن — الفني يصير STATUS_ACTIVE فور التسجيل (يظهر للعملاء مباشرة)."""
     with get_conn() as conn:
         cur = conn.execute(
             """
@@ -387,7 +388,7 @@ def create_registration(data: dict) -> int:
                 data["profession_id"],
                 data["profession_name"],
                 json.dumps(data.get("services", []), ensure_ascii=False),
-                STATUS_PENDING,
+                STATUS_ACTIVE,
                 _now_iso(),
             ),
         )
@@ -655,6 +656,45 @@ def seed_professions_from_json_if_empty(json_path):
             profession_rows,
         )
         return True
+
+
+def sync_professions_from_json(json_path):
+    """يزامن جداول domains/professions مع data/professions.json في كل تشغيل للبوت
+    (UPSERT: يضيف مهنة/مجال جديد أو يحدّث اسمه/خدماته لو تغيّر بالملف)، بدل الدالة
+    القديمة أعلاه اللي كانت تبذر مرة واحدة فقط وتتجاهل أي تعديل لاحق على الملف.
+    لا تحذف أي مهنة/مجال — فقط تضيف/تحدّث، حتى ما تنكسر بيانات فنيين مسجّلين
+    مسبقًا بمهنة قديمة."""
+    import json as _json
+
+    with open(json_path, encoding="utf-8") as f:
+        data = _json.load(f)
+
+    with get_conn() as conn:
+        for d_order, domain in enumerate(data["domains"]):
+            conn.execute(
+                """
+                INSERT INTO domains (id, name, sort_order) VALUES (?, ?, ?)
+                ON CONFLICT(id) DO UPDATE SET name = excluded.name, sort_order = excluded.sort_order
+                """,
+                (domain["id"], domain["name"], d_order),
+            )
+            for p_order, prof in enumerate(domain["professions"]):
+                conn.execute(
+                    """
+                    INSERT INTO professions
+                        (id, domain_id, name, isco_code, status, services_json, sort_order)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                    ON CONFLICT(id) DO UPDATE SET
+                        domain_id = excluded.domain_id, name = excluded.name,
+                        isco_code = excluded.isco_code, status = excluded.status,
+                        services_json = excluded.services_json, sort_order = excluded.sort_order
+                    """,
+                    (
+                        prof["id"], domain["id"], prof["name"], prof.get("isco_code"),
+                        prof.get("status"), _json.dumps(prof.get("services", []), ensure_ascii=False),
+                        p_order,
+                    ),
+                )
 
 
 def apply_name_translations(domain_translations: dict, profession_translations: dict):
@@ -1140,6 +1180,57 @@ def seed_saudi_geo_if_empty(regions_path, cities_path, districts_path):
             [(d["id"], d["city_id"], d["name"], d.get("lat"), d.get("lon")) for d in districts],
         )
         return True
+
+
+def sync_saudi_geo_from_json(regions_path, cities_path, districts_path):
+    """يزامن جداول sa_regions/sa_cities/sa_districts مع ملفات JSON الرسمية في كل
+    تشغيل للبوت (UPSERT)، بدل الدالة القديمة أعلاه اللي تبذر مرة واحدة فقط وتتجاهل
+    أي تصحيح/إضافة لاحقة (هذا كان سبب نقص أحياء بعض المدن مثل جدة على السيرفر رغم
+    اكتمالها بالملف). لا تحذف أي حي/مدينة — فقط تضيف/تحدّث."""
+    import json as _json
+
+    with open(regions_path, encoding="utf-8") as f:
+        regions = _json.load(f)
+    with open(cities_path, encoding="utf-8") as f:
+        cities = _json.load(f)
+    with open(districts_path, encoding="utf-8") as f:
+        districts = _json.load(f)
+
+    cities_with_districts = {d["city_id"] for d in districts}
+
+    with get_conn() as conn:
+        for r in regions:
+            conn.execute(
+                "INSERT INTO sa_regions (id, name) VALUES (?, ?) "
+                "ON CONFLICT(id) DO UPDATE SET name = excluded.name",
+                (r["id"], r["name"]),
+            )
+        for c in cities:
+            conn.execute(
+                """
+                INSERT INTO sa_cities (id, region_id, name, has_districts, lat, lon)
+                VALUES (?, ?, ?, ?, ?, ?)
+                ON CONFLICT(id) DO UPDATE SET
+                    region_id = excluded.region_id, name = excluded.name,
+                    has_districts = excluded.has_districts, lat = excluded.lat, lon = excluded.lon
+                """,
+                (
+                    c["id"], c["region_id"], c["name"],
+                    1 if c["id"] in cities_with_districts else 0,
+                    c.get("lat"), c.get("lon"),
+                ),
+            )
+        for d in districts:
+            conn.execute(
+                """
+                INSERT INTO sa_districts (id, city_id, name, lat, lon)
+                VALUES (?, ?, ?, ?, ?)
+                ON CONFLICT(id) DO UPDATE SET
+                    city_id = excluded.city_id, name = excluded.name,
+                    lat = excluded.lat, lon = excluded.lon
+                """,
+                (d["id"], d["city_id"], d["name"], d.get("lat"), d.get("lon")),
+            )
 
 
 def list_sa_regions():

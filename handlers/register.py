@@ -50,8 +50,10 @@ DISTRICTS_DONE_CB = "reg_dist_done"
 HAS_WHATSAPP_YES_CB = "reg_has_wa_yes"
 HAS_WHATSAPP_NO_CB = "reg_has_wa_no"
 SERVICES_DONE_CB = "reg_services_done"
+SERVICES_BACK_CB = "reg_svc_back"
 CONFIRM_YES_CB = "reg_confirm_yes"
-CONFIRM_EDIT_CB = "reg_confirm_edit"
+CONFIRM_EDIT_CB = "reg_confirm_edit"  # تعديل المهنة فقط (يرجع لخطوة المجال/المهنة)
+CONFIRM_EDIT_ALL_CB = "reg_confirm_edit_all"  # تعديل الكل (يعيد التسجيل من الاسم)
 
 MIN_DISTRICTS = 1
 MAX_DISTRICTS = 5  # قرار نهائي: الفني يختار حي واحد على الأقل وخمسة أحياء كحد أقصى
@@ -192,6 +194,10 @@ def _services_keyboard(services: list[str], selected: set[str], lang: str) -> In
     buttons.append(
         [InlineKeyboardButton(i18n.t("reg_services_done_btn", lang), callback_data=SERVICES_DONE_CB)]
     )
+    # زر رجوع لقائمة المهن — يتيح للفني يستكشف مهنة ثانية بنفس المجال قبل ما يقرر
+    buttons.append(
+        [InlineKeyboardButton(i18n.t("reg_back_to_profession_btn", lang), callback_data=SERVICES_BACK_CB)]
+    )
     return InlineKeyboardMarkup(buttons)
 
 
@@ -213,10 +219,9 @@ def _summary_text(ud: dict, lang: str) -> str:
 def _confirm_keyboard(lang: str) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         [
-            [
-                InlineKeyboardButton(i18n.t("reg_confirm_btn", lang), callback_data=CONFIRM_YES_CB),
-                InlineKeyboardButton(i18n.t("reg_edit_btn", lang), callback_data=CONFIRM_EDIT_CB),
-            ]
+            [InlineKeyboardButton(i18n.t("reg_confirm_btn", lang), callback_data=CONFIRM_YES_CB)],
+            [InlineKeyboardButton(i18n.t("reg_edit_btn", lang), callback_data=CONFIRM_EDIT_CB)],
+            [InlineKeyboardButton(i18n.t("reg_edit_all_btn", lang), callback_data=CONFIRM_EDIT_ALL_CB)],
         ]
     )
 
@@ -230,6 +235,16 @@ async def register_entry(update: Update, context: ContextTypes.DEFAULT_TYPE):
     target = update.message or update.callback_query.message
     if update.callback_query:
         await update.callback_query.answer()
+
+    # يسمح بمهنة واحدة فقط لكل حساب/رقم — لو عنده تسجيل قائم (نشط أو مرفوض لا)
+    # نمنع تسجيل مهنة ثانية بنفس الحساب ونوجّهه لاستخدام رقم مختلف.
+    existing = await asyncio.to_thread(db.get_professional_by_telegram_id, update.effective_user.id)
+    if existing and existing["status"] != db.STATUS_REJECTED:
+        await target.reply_text(
+            i18n.t("reg_already_registered", lang, profession=existing["profession_name"])
+        )
+        return ConversationHandler.END
+
     await target.reply_text(
         i18n.t("reg_start", lang),
         reply_markup=ReplyKeyboardRemove(),
@@ -587,7 +602,21 @@ async def services_done(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # ─────────────────────────── الخطوة 6-7: المراجعة والتأكيد ───────────────────────────
 
 async def confirm_edit(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # أبسط تنفيذ (زي ما ورد بالتصميم الأصلي): نعيد البدء من الخطوة 1
+    """تعديل المهنة فقط: يرجع لخطوة اختيار المجال/المهنة، محتفظًا بباقي البيانات
+    (الاسم، الموقع، أرقام التواصل) — يسمح للفني يستكشف مهنة ثانية قبل ما يقرر،
+    بدون ما يعيد كتابة كل بياناته من الصفر."""
+    lang = _lang(context)
+    query = update.callback_query
+    await query.answer()
+    await query.edit_message_text(
+        i18n.t("reg_edit_profession_note", lang),
+        reply_markup=_domain_keyboard(lang),
+    )
+    return DOMAIN
+
+
+async def confirm_edit_all(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    # تعديل الكل: نعيد البدء من الخطوة 1 بالكامل
     lang = _lang(context)
     query = update.callback_query
     await query.answer()
@@ -595,6 +624,20 @@ async def confirm_edit(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data["lang"] = lang
     await query.edit_message_text(i18n.t("reg_restart", lang))
     return NAME
+
+
+async def back_to_profession_from_services(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """زر رجوع من خطوة الخدمات لقائمة المهن بنفس المجال — يتيح استكشاف مهنة ثانية
+    (بخدماتها) قبل الاستقرار على واحدة، بدل ما يضطر يلغي التسجيل بالكامل."""
+    lang = _lang(context)
+    query = update.callback_query
+    await query.answer()
+    domain_id = context.user_data.get("domain_id")
+    await query.edit_message_text(
+        i18n.t("reg_domain_selected", lang, domain=context.user_data.get("domain_name", "")),
+        reply_markup=_profession_keyboard(domain_id, lang),
+    )
+    return PROFESSION
 
 
 async def confirm_yes(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -627,6 +670,16 @@ async def confirm_yes(update: Update, context: ContextTypes.DEFAULT_TYPE):
             name=ud["full_name"], city=ud["city"], profession=ud["profession_name"],
         )
     )
+
+    # معاينة بطاقته كما بيشوفها العميل بالضبط — حتى يرتاح ويفهم شكل ظهوره، ونفس
+    # الدالة اللي تُستخدم فعليًا بنتائج البحث (handlers/search.py) عشان تكون مطابقة
+    # 100% لما بيشوفه العميل الحقيقي، بدون أي تكرار للمنطق.
+    from handlers.search import _professional_card_text
+
+    saved = await asyncio.to_thread(db.get_professional_by_id, row_id)
+    if saved:
+        await query.message.reply_text(i18n.t("reg_card_preview_intro", lang))
+        await query.message.reply_text(_professional_card_text(saved))
 
     # إشعار الأدمن — نستورد هنا لتفادي استيراد دائري بين register.py و admin.py
     from handlers.admin import notify_admin_new_registration
@@ -693,10 +746,12 @@ def build_register_conversation() -> ConversationHandler:
             ],
             SERVICES: [
                 CallbackQueryHandler(services_done, pattern=f"^{SERVICES_DONE_CB}$"),
+                CallbackQueryHandler(back_to_profession_from_services, pattern=f"^{SERVICES_BACK_CB}$"),
                 CallbackQueryHandler(toggle_service, pattern="^reg_svc:"),
             ],
             CONFIRM: [
                 CallbackQueryHandler(confirm_yes, pattern=f"^{CONFIRM_YES_CB}$"),
+                CallbackQueryHandler(confirm_edit_all, pattern=f"^{CONFIRM_EDIT_ALL_CB}$"),
                 CallbackQueryHandler(confirm_edit, pattern=f"^{CONFIRM_EDIT_CB}$"),
             ],
             ConversationHandler.TIMEOUT: [MessageHandler(filters.ALL, registration_timeout)],
