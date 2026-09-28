@@ -305,9 +305,21 @@ TEXTS: dict[str, dict[str, str]] = {
         "ur": "◀️ پیشوں کی فہرست پر واپس",
     },
     "srch_district_choice_prompt": {
-        "ar": "كيف تحب تحدد حيّك؟",
-        "en": "How would you like to specify your district?",
-        "ur": "آپ اپنا علاقہ کیسے متعین کرنا چاہیں گے؟",
+        "ar": (
+            "كيف تحب تحدد حيّك؟\n\n"
+            "💡 لو ضغطت «شارك موقعي الحالي» وما اشتغل الزر أو ظهر لك خطأ، "
+            "فعّل صلاحية الموقع (Location) لتطبيق تلغرام من إعدادات جوالك، ثم أعد المحاولة."
+        ),
+        "en": (
+            "How would you like to specify your district?\n\n"
+            "💡 If \"Share my current location\" doesn't work or shows an error, "
+            "enable Location permission for the Telegram app in your phone's settings, then try again."
+        ),
+        "ur": (
+            "آپ اپنا علاقہ کیسے متعین کرنا چاہیں گے؟\n\n"
+            "💡 اگر \"میری موجودہ لوکیشن شیئر کریں\" کام نہ کرے یا خرابی دکھائے، تو اپنے فون "
+            "کی سیٹنگز میں ٹیلیگرام ایپ کے لیے لوکیشن کی اجازت فعال کریں، پھر دوبارہ کوشش کریں۔"
+        ),
     },
     "srch_share_location_btn": {
         "ar": "📍 شارك موقعي الحالي",
