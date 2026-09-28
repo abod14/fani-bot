@@ -60,6 +60,28 @@ MAX_DISTRICTS = 5  # قرار نهائي: الفني يختار حي واحد ع
 
 WHATSAPP_RE = re.compile(r"^\+?[0-9]{8,15}$")
 
+
+def _normalize_sa_whatsapp(number: str) -> str | None:
+    """يطبّع رقم الجوال لصيغة دولية موحّدة (+9665XXXXXXXX) مهما كانت الصيغة اللي
+    كتبها الفني (0501234567 / 501234567 / 9665012345667 / +966501234567).
+
+    هذا يصلّح مشكلة كانت تحصل فعليًا: الفني يكتب رقمه بصيغة محلية بدون رمز الدولة
+    (05xxxxxxxx)، فيُحفظ كما هو ويُبنى منه رابط واتساب (wa.me/05xxxxxxxx) غير صحيح
+    دوليًا — فيفتح واتساب فعلاً لكنه يقول للعميل إن الرقم ليس عليه حساب واتساب،
+    رغم إن الفني عنده واتساب فعلاً على نفس الرقم بصيغته الصحيحة."""
+    digits = re.sub(r"\D", "", number)
+    if digits.startswith("00"):
+        digits = digits[2:]
+    if digits.startswith("966"):
+        core = digits[3:]
+    elif digits.startswith("0"):
+        core = digits[1:]
+    else:
+        core = digits
+    if len(core) != 9 or not core.startswith("5"):
+        return None
+    return f"+966{core}"
+
 # عدد المدن/الأحياء بكل صفحة أزرار (4 صفوف × عمودين)
 GEO_PAGE_SIZE = 8
 
@@ -459,11 +481,15 @@ async def _ask_whatsapp(message, context: ContextTypes.DEFAULT_TYPE):
 
 async def got_whatsapp(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = _lang(context)
-    number = update.message.text.strip().replace(" ", "")
-    if not WHATSAPP_RE.match(number):
+    raw = update.message.text.strip().replace(" ", "")
+    if not WHATSAPP_RE.match(raw):
         await update.message.reply_text(i18n.t("reg_invalid_number", lang))
         return WHATSAPP
-    context.user_data["whatsapp_number"] = number
+    normalized = _normalize_sa_whatsapp(raw)
+    if not normalized:
+        await update.message.reply_text(i18n.t("reg_invalid_number", lang))
+        return WHATSAPP
+    context.user_data["whatsapp_number"] = normalized
 
     keyboard = InlineKeyboardMarkup(
         [

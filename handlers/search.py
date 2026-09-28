@@ -139,7 +139,19 @@ def _contact_button(p: dict, lang: str) -> InlineKeyboardMarkup:
 
 
 def _wa_link(number: str) -> str:
-    digits = number.lstrip("+")
+    """يبني رابط واتساب دائمًا برقم دولي كامل برمز الدولة. بعض التسجيلات القديمة
+    (قبل إصلاح التطبيع بخطوة التسجيل) قد يكون رقمها محفوظًا بصيغة محلية بدون رمز
+    الدولة (05xxxxxxxx) — لو تركناه كما هو، واتساب نفسه يفتح لكنه يقول للعميل إن
+    الفني ليس عنده حساب (لأن الرقم دوليًا غير صحيح)، رغم إن الفني فعليًا عنده
+    واتساب على نفس الرقم. لذا نطبّعه هنا أيضًا كطبقة حماية إضافية."""
+    import re as _re
+    digits = _re.sub(r"\D", "", number)
+    if digits.startswith("00"):
+        digits = digits[2:]
+    if digits.startswith("0") and not digits.startswith("966"):
+        digits = "966" + digits[1:]
+    elif not digits.startswith("966") and len(digits) == 9 and digits.startswith("5"):
+        digits = "966" + digits
     return f"https://wa.me/{digits}"
 
 
