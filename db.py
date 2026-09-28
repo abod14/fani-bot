@@ -239,6 +239,9 @@ def init_db():
             )
             """
         )
+        conn.execute(
+            "CREATE INDEX IF NOT EXISTS idx_search_log_profession ON search_log (profession_id)"
+        )
 
         conn.execute(
             """
@@ -725,6 +728,18 @@ def log_search(customer_telegram_id: int, profession_id: str, profession_name: s
             (customer_telegram_id, profession_id, profession_name, city,
              neighborhood, results_count, _now_iso()),
         )
+
+
+def get_profession_popularity() -> dict:
+    """يرجّع {profession_id: عدد مرات البحث} من سجل البحث بالكامل — استعلام
+    COUNT/GROUP BY وحيد وخفيف (search_log مفهرس على profession_id)، يُستخدم
+    لترتيب قائمة المهن بالعميل حسب الأكثر طلبًا. يشتغل مرة وحدة كل ما يفتح
+    عميل /search، مو بكل ضغطة زر — تكلفته على السيرفر تافهة حتى مع آلاف السجلات."""
+    with get_conn() as conn:
+        rows = conn.execute(
+            "SELECT profession_id, COUNT(*) AS c FROM search_log GROUP BY profession_id"
+        ).fetchall()
+        return {r["profession_id"]: r["c"] for r in rows}
 
 
 # ─────────────────────────── بذر بيانات المهن (مرة واحدة فقط) ───────────────────────────
