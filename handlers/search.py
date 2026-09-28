@@ -54,6 +54,8 @@ NEARBY_SUGGESTIONS_COUNT = 3
 
 PROFESSION_BACK_CB = "srch_prof_back"
 SERVICE_ALL_CB = "srch_svc_all"
+CONFIRM_LOCATION_CB = "srch_loc_confirm"
+REJECT_LOCATION_CB = "srch_loc_reject"
 
 GEO_PAGE_SIZE = 8
 
@@ -118,14 +120,16 @@ def _district_keyboard(city_id: int, page: int, lang: str) -> InlineKeyboardMark
     )
 
 
-def _district_choice_reply_keyboard(lang: str) -> ReplyKeyboardMarkup:
+def _location_choice_reply_keyboard(lang: str) -> ReplyKeyboardMarkup:
     """لوحة مفاتيح حقيقية (Reply Keyboard) لا أزرار شفافة — هذا الشكل الوحيد
     بتلغرام اللي يقدر يطلب موقع العميل الفعلي (GPS) عبر request_location.
-    الخيار الثاني نص عادي يفتح قائمة الأحياء المعتادة بالأزرار الشفافة."""
+    مطروحة بأول خطوة الموقع (بدل المنطقة) عشان لو شارك موقعه نحدد له المدينة
+    والحي معًا بضغطة وحدة، بدل تصفح منطقة ← مدينة ← حي كامل يدويًا. الخيار
+    الثاني نص عادي يرجعه للمسار اليدوي المعتاد بالكامل."""
     return ReplyKeyboardMarkup(
         [
             [KeyboardButton(i18n.t("srch_share_location_btn", lang), request_location=True)],
-            [KeyboardButton(i18n.t("srch_manual_district_btn", lang))],
+            [KeyboardButton(i18n.t("srch_manual_location_btn", lang))],
         ],
         resize_keyboard=True,
         one_time_keyboard=True,
@@ -293,8 +297,22 @@ def _profession_selected_state(context: ContextTypes.DEFAULT_TYPE, profession_id
         markup = _subservice_keyboard(profession["services"], lang)
         return text, markup, SEARCH_SUBSERVICE
 
-    text = i18n.t("reg_ask_region", lang)
-    return text, _region_keyboard(), SEARCH_REGION
+    # "location" سترينل مو رقم حالة حقيقي — لأن الخطوة التالية (اختيار الموقع)
+    # تحتاج لوحة مفاتيح حقيقية (Reply Keyboard) ما تقدر تُرفق بتعديل رسالة قديمة
+    # (edit_message_text)، فلازم رسالة جديدة؛ الاستدعاء يتعامل مع هذا السترينل
+    # بمناداة _send_location_choice بدل التعديل المباشر.
+    return None, None, "location"
+
+
+async def _send_location_choice(query, lang: str):
+    """يقفل رسالة المهنة/التفريعات الحالية (تعديل عادي، أزرار شفافة) ثم يرسل
+    رسالة جديدة بلوحة مفاتيح حقيقية (Reply Keyboard) لخيار الموقع — رسالة
+    جديدة لازمة لأن تلغرام ما يسمح بإرفاق Reply Keyboard على تعديل رسالة."""
+    await query.edit_message_text(i18n.t("srch_location_choice_intro", lang))
+    await query.message.reply_text(
+        i18n.t("srch_location_choice_prompt", lang),
+        reply_markup=_location_choice_reply_keyboard(lang),
+    )
 
 
 async def back_to_search_professions(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -327,6 +345,10 @@ async def choose_search_profession(update: Update, context: ContextTypes.DEFAULT
         await query.edit_message_text(i18n.t("unknown_option", lang), reply_markup=_profession_list_keyboard(lang))
         return SEARCH_PROFESSION
 
+    if next_state == "location":
+        await _send_location_choice(query, lang)
+        return SEARCH_REGION
+
     await query.edit_message_text(text, reply_markup=markup)
     return next_state
 
@@ -343,7 +365,7 @@ async def choose_search_subservice(update: Update, context: ContextTypes.DEFAULT
     except (ValueError, IndexError):
         context.user_data["service_filter"] = None
     await query.answer()
-    await query.edit_message_text(i18n.t("reg_ask_region", lang), reply_markup=_region_keyboard())
+    await _send_location_choice(query, lang)
     return SEARCH_REGION
 
 
@@ -352,7 +374,7 @@ async def skip_subservice(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     context.user_data["service_filter"] = None
     await query.answer()
-    await query.edit_message_text(i18n.t("reg_ask_region", lang), reply_markup=_region_keyboard())
+    await _send_location_choice(query, lang)
     return SEARCH_REGION
 
 
@@ -384,6 +406,99 @@ async def back_to_search_regions(update: Update, context: ContextTypes.DEFAULT_T
     return SEARCH_REGION
 
 
+async def region_text_router(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """أي نص بخطوة SEARCH_REGION — سواء زر "اختيار يدوي" (Reply Keyboard) أو أي
+    نص آخر كتبه العميل بالغلط — يوديه لنفس المسار اليدوي المعتاد (لوحة المناطق
+    الشفافة). لوحة المفاتيح الحقيقية one_time_keyboard فتختفي تلقائيًا بمجرد
+    إرسال أي رد."""
+    lang = _lang(context)
+    await update.message.reply_text(
+        i18n.t("reg_ask_region", lang), reply_markup=_region_keyboard()
+    )
+    return SEARCH_REGION
+
+
+async def receive_early_location(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """يستقبل موقع العميل (GPS) المُرسل بخطوة SEARCH_REGION (أول خطوة بعد
+    المهنة/التفريعات) — يحدد أقرب مدينة رسمية وأقرب حي فيها معًا بضغطة وحدة،
+    لكن لا يلتزم بها مباشرة: يعرضها على العميل ويطلب تأكيدًا صريحًا
+    (✅/🏘️) قبل ما يبدأ البحث فعليًا."""
+    lang = _lang(context)
+    loc = update.message.location
+    result = await asyncio.to_thread(
+        db.find_nearest_sa_city_and_district_by_coords, loc.latitude, loc.longitude
+    )
+    await update.message.reply_text(
+        i18n.t("srch_location_received", lang), reply_markup=ReplyKeyboardRemove()
+    )
+
+    if not result or not result[0]:
+        await update.message.reply_text(
+            i18n.t("srch_location_no_match", lang), reply_markup=_region_keyboard()
+        )
+        return SEARCH_REGION
+
+    city, district = result
+    context.user_data["pending_city_id"] = city["id"]
+    context.user_data["pending_city_name"] = city["name"]
+    context.user_data["pending_district_id"] = district["id"] if district else None
+    context.user_data["pending_district_name"] = district["name"] if district else None
+
+    district_line = (
+        i18n.t("srch_location_confirm_district_line", lang, district=district["name"])
+        if district else ""
+    )
+    text = i18n.t("srch_location_confirm", lang, city=city["name"], district_line=district_line)
+    keyboard = InlineKeyboardMarkup(
+        [
+            [InlineKeyboardButton(i18n.t("srch_location_confirm_yes_btn", lang), callback_data=CONFIRM_LOCATION_CB)],
+            [InlineKeyboardButton(i18n.t("srch_location_confirm_no_btn", lang), callback_data=REJECT_LOCATION_CB)],
+        ]
+    )
+    await update.message.reply_text(text, reply_markup=keyboard)
+    return SEARCH_REGION
+
+
+async def confirm_early_location(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """العميل أكّد الموقع المكتشف تلقائيًا — الآن فقط نثبّته بذاكرة المحادثة
+    ونبدأ البحث مباشرة (يتخطى خطوات المنطقة/المدينة/الحي اليدوية بالكامل)."""
+    lang = _lang(context)
+    query = update.callback_query
+    await query.answer()
+    ud = context.user_data
+    city_id = ud.pop("pending_city_id", None)
+    city_name = ud.pop("pending_city_name", None)
+    district_id = ud.pop("pending_district_id", None)
+    district_name = ud.pop("pending_district_name", None)
+
+    if not city_id:
+        await query.edit_message_text(i18n.t("unknown_option", lang), reply_markup=_region_keyboard())
+        return SEARCH_REGION
+
+    ud["city_id"] = city_id
+    ud["city"] = city_name
+    ud["neighborhood"] = district_name
+    ud["district_id"] = district_id
+    ud.setdefault("tried_city_ids", []).append(city_id)
+    if district_id:
+        ud["tried_district_ids"] = [district_id]
+
+    await query.edit_message_text(i18n.t("srch_location_confirmed", lang, city=city_name))
+    return await _run_search(query.message, context, is_edit=False, customer_telegram_id=update.effective_user.id)
+
+
+async def reject_early_location(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """العميل رفض الموقع المكتشف تلقائيًا (مو صحيح) — نتجاهل الاقتراح المعلّق
+    بالكامل ونرجعه للمسار اليدوي المعتاد من أول خطوة (المنطقة)."""
+    lang = _lang(context)
+    query = update.callback_query
+    await query.answer()
+    for key in ("pending_city_id", "pending_city_name", "pending_district_id", "pending_district_name"):
+        context.user_data.pop(key, None)
+    await query.edit_message_text(i18n.t("reg_ask_region", lang), reply_markup=_region_keyboard())
+    return SEARCH_REGION
+
+
 async def search_city_page_nav(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = _lang(context)
     query = update.callback_query
@@ -395,6 +510,9 @@ async def search_city_page_nav(update: Update, context: ContextTypes.DEFAULT_TYP
 
 
 async def choose_search_city(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """اختيار الموقع (شارك موقعي / يدوي) صار خطوة واحدة مبكرة بعد المهنة مباشرة
+    (راجع _send_location_choice) — فوصول العميل لهذي الخطوة يعني أصلًا اختار
+    المسار اليدوي، فنكمله بالكامل يدويًا بدون مقاطعة ثانية بخطوة المدينة."""
     lang = _lang(context)
     query = update.callback_query
     await query.answer()
@@ -407,70 +525,11 @@ async def choose_search_city(update: Update, context: ContextTypes.DEFAULT_TYPE)
     context.user_data["city_id"] = city_id
     context.user_data["city"] = city["name"]
     context.user_data.setdefault("tried_city_ids", []).append(city_id)
-    await query.edit_message_text(i18n.t("srch_city_step", lang, city=city["name"]))
-    # لوحة تحديد الحي (يدوي أو مشاركة موقع) لازم تُرسل برسالة جديدة — تلغرام ما
-    # يسمح بإرفاق Reply Keyboard على تعديل رسالة قديمة (edit_message_text/
-    # edit_message_reply_markup تدعم Inline فقط).
-    await query.message.reply_text(
-        i18n.t("srch_district_choice_prompt", lang),
-        reply_markup=_district_choice_reply_keyboard(lang),
-    )
-    return SEARCH_NEIGHBORHOOD
-
-
-async def choose_manual_district(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    lang = _lang(context)
-    city_id = context.user_data["city_id"]
-    await update.message.reply_text(
-        i18n.t("srch_city_step", lang, city=context.user_data["city"]),
-        reply_markup=ReplyKeyboardRemove(),
-    )
-    await update.message.reply_text(
-        i18n.t("srch_city_step", lang, city=context.user_data["city"]),
+    await query.edit_message_text(
+        i18n.t("srch_city_step", lang, city=city["name"]),
         reply_markup=_district_keyboard(city_id, page=0, lang=lang),
     )
     return SEARCH_NEIGHBORHOOD
-
-
-async def receive_customer_location(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """العميل شارك موقعه الفعلي (GPS) بدل اختيار الحي يدويًا — نحدد أقرب حي
-    مسجّل بقاعدة البيانات لنفس المدينة، ونكمل البحث فورًا بيه."""
-    lang = _lang(context)
-    city_id = context.user_data.get("city_id")
-    location = update.message.location
-    nearest = await asyncio.to_thread(
-        db.find_nearest_sa_district_by_coords, city_id, location.latitude, location.longitude
-    )
-
-    if not nearest:
-        await update.message.reply_text(
-            i18n.t("srch_location_no_match", lang), reply_markup=ReplyKeyboardRemove()
-        )
-        await update.message.reply_text(
-            i18n.t("srch_city_step", lang, city=context.user_data.get("city", "")),
-            reply_markup=_district_keyboard(city_id, page=0, lang=lang),
-        )
-        return SEARCH_NEIGHBORHOOD
-
-    context.user_data["neighborhood"] = nearest["name"]
-    context.user_data["district_id"] = nearest["id"]
-    context.user_data["tried_district_ids"] = [nearest["id"]]
-
-    await update.message.reply_text(
-        i18n.t("srch_location_matched", lang, district=nearest["name"]),
-        reply_markup=ReplyKeyboardRemove(),
-    )
-    return await _run_search(update.message, context, is_edit=False, customer_telegram_id=update.effective_user.id)
-
-
-async def neighborhood_text_router(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """يفرّق بين ضغطة زر "اختيار الحي يدويًا" (نص ثابت من لوحة المفاتيح المخصّصة)
-    وبين كتابة حرة لاسم حي (اكتمال تلقائي كالمعتاد)."""
-    lang = _lang(context)
-    text = update.message.text.strip()
-    if text == i18n.t("srch_manual_district_btn", lang):
-        return await choose_manual_district(update, context)
-    return await district_text_search(update, context)
 
 
 async def city_text_search(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -880,7 +939,13 @@ def build_search_conversation() -> ConversationHandler:
                 CallbackQueryHandler(skip_subservice, pattern=f"^{SERVICE_ALL_CB}$"),
                 CallbackQueryHandler(back_to_search_professions, pattern=f"^{PROFESSION_BACK_CB}$"),
             ],
-            SEARCH_REGION: [CallbackQueryHandler(choose_search_region, pattern="^srch_region:")],
+            SEARCH_REGION: [
+                MessageHandler(filters.LOCATION, receive_early_location),
+                CallbackQueryHandler(confirm_early_location, pattern=f"^{CONFIRM_LOCATION_CB}$"),
+                CallbackQueryHandler(reject_early_location, pattern=f"^{REJECT_LOCATION_CB}$"),
+                CallbackQueryHandler(choose_search_region, pattern="^srch_region:"),
+                MessageHandler(filters.TEXT & ~filters.COMMAND, region_text_router),
+            ],
             SEARCH_CITY: [
                 CallbackQueryHandler(choose_search_city, pattern="^srch_city:"),
                 CallbackQueryHandler(search_city_page_nav, pattern="^srch_city_page:"),
@@ -888,11 +953,10 @@ def build_search_conversation() -> ConversationHandler:
                 MessageHandler(filters.TEXT & ~filters.COMMAND, city_text_search),
             ],
             SEARCH_NEIGHBORHOOD: [
-                MessageHandler(filters.LOCATION, receive_customer_location),
                 CallbackQueryHandler(choose_search_district, pattern="^srch_dist:"),
                 CallbackQueryHandler(search_district_page_nav, pattern="^srch_dist_page:"),
                 CallbackQueryHandler(skip_neighborhood, pattern=f"^{SKIP_NEIGHBORHOOD_CB}$"),
-                MessageHandler(filters.TEXT & ~filters.COMMAND, neighborhood_text_router),
+                MessageHandler(filters.TEXT & ~filters.COMMAND, district_text_search),
             ],
             SEARCH_RESULTS: [
                 CallbackQueryHandler(show_more_results, pattern=f"^{MORE_RESULTS_CB}$"),

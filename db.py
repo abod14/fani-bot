@@ -1488,6 +1488,29 @@ def find_nearest_sa_district_by_coords(city_id: int, lat: float, lon: float):
     return candidates[0]
 
 
+def find_nearest_sa_city_and_district_by_coords(lat: float, lon: float):
+    """يرجّع (أقرب مدينة رسمية، أقرب حي فيها أو None) لإحداثيات موقع شاركه العميل
+    — يُستخدم لتحديد المدينة والحي معًا بضغطة وحدة، بدل التصفح اليدوي الكامل
+    (منطقة ← مدينة ← حي). يقتصر على المدن الرسمية (has_districts=1) نفس قائمة
+    الاختيار اليدوي، حتى النتيجة تطابق نفس الخيارات المتاحة أصلًا."""
+    with get_conn() as conn:
+        rows = conn.execute(
+            "SELECT * FROM sa_cities WHERE lat IS NOT NULL AND has_districts = 1"
+        ).fetchall()
+
+    candidates = [dict(r) for r in rows]
+    if not candidates:
+        return None
+
+    def dist(c):
+        return (c["lat"] - lat) ** 2 + (c["lon"] - lon) ** 2
+
+    candidates.sort(key=dist)
+    nearest_city = candidates[0]
+    nearest_district = find_nearest_sa_district_by_coords(nearest_city["id"], lat, lon)
+    return nearest_city, nearest_district
+
+
 def nearest_sa_cities(city_id: int, exclude_ids: list[int], limit: int = 3):
     """يرجّع أقرب N مدينة (من نفس القائمة الرسمية) بغض النظر عن المنطقة الإدارية —
     مدينة قريبة بمنطقة مجاورة أهم من مدينة بعيدة بنفس المنطقة. يُستخدم فقط لما تنتهي

@@ -376,6 +376,69 @@ TEXTS: dict[str, dict[str, str]] = {
         "en": "You might need one of these professions, choose the best fit:",
         "ur": "آپ کو ان میں سے کسی ایک پیشے کی ضرورت ہو سکتی ہے، بہترین آپشن منتخب کریں:",
     },
+    "srch_location_choice_intro": {
+        "ar": "تمام ✅",
+        "en": "Got it ✅",
+        "ur": "ٹھیک ہے ✅",
+    },
+    "srch_location_choice_prompt": {
+        "ar": (
+            "كيف تحب نحدد موقعك؟\n\n"
+            "📍 «شارك موقعي الحالي» تحدد لك المدينة والحي مباشرة بضغطة وحدة.\n"
+            "🗂️ «اختيار يدوي» لو تفضل تختار المنطقة والمدينة والحي بنفسك.\n\n"
+            "💡 لو ضغطت «شارك موقعي الحالي» وما اشتغل الزر أو ظهر لك خطأ، "
+            "فعّل صلاحية الموقع (Location) لتطبيق تلغرام من إعدادات جوالك، ثم أعد المحاولة."
+        ),
+        "en": (
+            "How would you like us to determine your location?\n\n"
+            "📍 \"Share my current location\" sets your city and district in one tap.\n"
+            "🗂️ \"Choose manually\" if you'd rather pick the region, city and district yourself.\n\n"
+            "💡 If \"Share my current location\" doesn't work or shows an error, "
+            "enable Location permission for the Telegram app in your phone's settings, then try again."
+        ),
+        "ur": (
+            "آپ چاہتے ہیں ہم آپ کی لوکیشن کیسے متعین کریں؟\n\n"
+            "📍 \"میری موجودہ لوکیشن شیئر کریں\" ایک ہی ٹیپ میں شہر اور علاقہ متعین کر دیتا ہے۔\n"
+            "🗂️ \"دستی انتخاب\" اگر آپ خود علاقہ، شہر اور محلہ منتخب کرنا چاہیں۔\n\n"
+            "💡 اگر \"میری موجودہ لوکیشن شیئر کریں\" کام نہ کرے یا خرابی دکھائے، تو اپنے فون "
+            "کی سیٹنگز میں ٹیلیگرام ایپ کے لیے لوکیشن کی اجازت فعال کریں، پھر دوبارہ کوشش کریں۔"
+        ),
+    },
+    "srch_manual_location_btn": {
+        "ar": "🗂️ اختيار يدوي",
+        "en": "🗂️ Choose manually",
+        "ur": "🗂️ دستی انتخاب",
+    },
+    "srch_location_received": {
+        "ar": "📍 تم استلام موقعك، لحظة نحدده...",
+        "en": "📍 Location received, one moment while we match it...",
+        "ur": "📍 لوکیشن موصول ہو گئی، ذرا انتظار کریں...",
+    },
+    "srch_location_confirm_district_line": {
+        "ar": "\n🏘️ الحي: {district}",
+        "en": "\n🏘️ District: {district}",
+        "ur": "\n🏘️ علاقہ: {district}",
+    },
+    "srch_location_confirm": {
+        "ar": "حددنا موقعك تقريبيًا:\n\n🏙️ المدينة: {city}{district_line}\n\nهل هذا صحيح؟",
+        "en": "We matched your approximate location:\n\n🏙️ City: {city}{district_line}\n\nIs this correct?",
+        "ur": "ہم نے آپ کی تقریبی لوکیشن متعین کی:\n\n🏙️ شہر: {city}{district_line}\n\nکیا یہ درست ہے؟",
+    },
+    "srch_location_confirm_yes_btn": {
+        "ar": "✅ نعم صحيح",
+        "en": "✅ Yes, correct",
+        "ur": "✅ جی ہاں، درست",
+    },
+    "srch_location_confirm_no_btn": {
+        "ar": "🏘️ لا، اختيار يدوي",
+        "en": "🏘️ No, choose manually",
+        "ur": "🏘️ نہیں، دستی انتخاب",
+    },
+    "srch_location_confirmed": {
+        "ar": "✅ تم تأكيد الموقع: {city}\nنبحث لك الآن عن أقرب الفنيين...",
+        "en": "✅ Location confirmed: {city}\nSearching for the nearest professionals now...",
+        "ur": "✅ لوکیشن کی تصدیق ہو گئی: {city}\nاب قریب ترین کاریگر تلاش کیے جا رہے ہیں...",
+    },
     "srch_city_step": {
         "ar": "المدينة: {city}\n\nاختر الحي (أو تخطى للبحث بكل المدينة):",
         "en": "City: {city}\n\nChoose a district (or skip to search the whole city):",
