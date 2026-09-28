@@ -304,6 +304,11 @@ TEXTS: dict[str, dict[str, str]] = {
         "en": "📋 All services",
         "ur": "📋 تمام سروسز",
     },
+    "srch_svc_done_btn": {
+        "ar": "✅ تم",
+        "en": "✅ Done",
+        "ur": "✅ ہو گیا",
+    },
     "srch_back_to_professions_btn": {
         "ar": "◀️ رجوع لقائمة المهن",
         "en": "◀️ Back to professions list",

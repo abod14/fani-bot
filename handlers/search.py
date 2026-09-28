@@ -57,6 +57,7 @@ NEARBY_SUGGESTIONS_COUNT = 3
 
 PROFESSION_BACK_CB = "srch_prof_back"
 SERVICE_ALL_CB = "srch_svc_all"
+SERVICES_DONE_CB = "srch_svc_done"
 CONFIRM_LOCATION_CB = "srch_loc_confirm"
 REJECT_LOCATION_CB = "srch_loc_reject"
 LOCATION_ALL_CITY_CB = "srch_loc_all_city"
@@ -178,13 +179,16 @@ def _profession_list_keyboard(lang: str) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(buttons)
 
 
-def _subservice_keyboard(services: list[str], lang: str) -> InlineKeyboardMarkup:
-    """نفس أسلوب register.py: index بدل النص الكامل بـ callback_data (حد تلغرام
-    64 بايت). العميل يختار خدمة وحدة فقط للتصفية (بحث الزبون بحاجة تحديد سريع،
-    مو تحديد متعدد)، أو يضغط "كل الخدمات" لو ما يبي يضيّق النتائج."""
-    buttons = [
-        [InlineKeyboardButton(s, callback_data=f"srch_svc:{idx}")] for idx, s in enumerate(services)
-    ]
+def _subservice_keyboard(services: list[str], selected: set[str], lang: str) -> InlineKeyboardMarkup:
+    """اختيار متعدد (تعليم) بنفس أسلوب register.py: index بدل النص الكامل بـ
+    callback_data (حد تلغرام 64 بايت)، وعلامة ✅/▫️ قبل كل خدمة تدل هل هي
+    محددة حاليًا أو لا. العميل يقدر يعلّم أكثر من خدمة ثم يضغط "تم"، أو يضغط
+    "كل الخدمات" مباشرة لو ما يبي يضيّق النتائج بخدمة معيّنة."""
+    buttons = []
+    for idx, s in enumerate(services):
+        mark = "✅ " if s in selected else "▫️ "
+        buttons.append([InlineKeyboardButton(mark + s, callback_data=f"srch_svc:{idx}")])
+    buttons.append([InlineKeyboardButton(i18n.t("srch_svc_done_btn", lang), callback_data=SERVICES_DONE_CB)])
     buttons.append([InlineKeyboardButton(i18n.t("srch_svc_all_btn", lang), callback_data=SERVICE_ALL_CB)])
     buttons.append([InlineKeyboardButton(i18n.t("srch_back_to_professions_btn", lang), callback_data=PROFESSION_BACK_CB)])
     return InlineKeyboardMarkup(buttons)
@@ -296,10 +300,11 @@ def _profession_selected_state(context: ContextTypes.DEFAULT_TYPE, profession_id
     context.user_data["profession_name"] = profession["name"]
     context.user_data["available_services"] = profession["services"]
     context.user_data["service_filter"] = None
+    context.user_data["selected_services"] = []
 
     if profession["services"]:
         text = i18n.t("srch_subservice_prompt", lang, profession=profession["name"])
-        markup = _subservice_keyboard(profession["services"], lang)
+        markup = _subservice_keyboard(profession["services"], set(), lang)
         return text, markup, SEARCH_SUBSERVICE
 
     # "location" سترينل مو رقم حالة حقيقي — لأن الخطوة التالية (اختيار الموقع)
@@ -358,18 +363,42 @@ async def choose_search_profession(update: Update, context: ContextTypes.DEFAULT
     return next_state
 
 
-# ─────────────────────────── الخطوة 2: التفريعات (خدمة فرعية اختيارية) ───────────────────────────
+# ─────────────────────────── الخطوة 2: التفريعات (اختيار متعدد/تعليم) ───────────────────────────
 
 async def choose_search_subservice(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """تعليم/إلغاء تعليم خدمة فرعية وحدة — اختيار متعدد (زي register.py)، مو
+    اختيار وحيد يقفل الخطوة فورًا. العميل يقدر يعلّم أكثر من خدمة ثم يضغط "تم"."""
     lang = _lang(context)
     query = update.callback_query
     available = context.user_data.get("available_services", [])
     try:
         idx = int(query.data.split(":", 1)[1])
-        context.user_data["service_filter"] = available[idx]
+        service = available[idx]
     except (ValueError, IndexError):
-        context.user_data["service_filter"] = None
+        await query.answer()
+        return SEARCH_SUBSERVICE
+
+    selected = set(context.user_data.get("selected_services", []))
+    if service in selected:
+        selected.discard(service)
+    else:
+        selected.add(service)
+    context.user_data["selected_services"] = list(selected)
     await query.answer()
+
+    await query.edit_message_reply_markup(reply_markup=_subservice_keyboard(available, selected, lang))
+    return SEARCH_SUBSERVICE
+
+
+async def subservice_done(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """العميل خلّص تعليم الخدمات اللي يبيها (وحدة أو أكثر) وضغط "تم" — نستخدمها
+    كلها معًا كتصفية (أي فني يقدّم أي واحدة منها يظهر بالنتائج). لو ما علّم
+    شي، نعتبرها بدون تصفية (كل الخدمات)."""
+    lang = _lang(context)
+    query = update.callback_query
+    await query.answer()
+    selected = context.user_data.get("selected_services") or []
+    context.user_data["service_filter"] = selected or None
     await _send_location_choice(query, lang)
     return SEARCH_REGION
 
@@ -1055,6 +1084,7 @@ def build_search_conversation() -> ConversationHandler:
             ],
             SEARCH_SUBSERVICE: [
                 CallbackQueryHandler(choose_search_subservice, pattern="^srch_svc:"),
+                CallbackQueryHandler(subservice_done, pattern=f"^{SERVICES_DONE_CB}$"),
                 CallbackQueryHandler(skip_subservice, pattern=f"^{SERVICE_ALL_CB}$"),
                 CallbackQueryHandler(back_to_search_professions, pattern=f"^{PROFESSION_BACK_CB}$"),
             ],

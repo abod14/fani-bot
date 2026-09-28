@@ -444,13 +444,14 @@ def set_status(row_id: int, status: str):
 
 def search_active_professional_ids(
     profession_id: str, city: str, neighborhood: str | None, district_id: int | None = None,
-    service: str | None = None,
+    service: str | list[str] | None = None,
 ):
     """
     بحث العميل: مهنة (تطابق تام) + مدينة (تطابق تقريبي) + حي (اختياري، تطابق تقريبي)
-    + خدمة فرعية (اختياري — يقلّل النتائج للفنيين اللي حدّدوا هذي الخدمة بالضبط
-    وقت التسجيل؛ لو ما اختار العميل خدمة معيّنة "الكل" يرجع كل فنيي هذي المهنة
-    بغض النظر عن خدماتهم الفرعية).
+    + خدمة فرعية (اختياري — يقلّل النتائج للفنيين اللي حدّدوا (وحدة أو أكثر) من هذي
+    الخدمة عند التسجيل؛ اختيار متعدد بمنطق "أو" — يكفي إن الفني يقدّم خدمة وحدة على
+    الأقل من المُعلَّمة حتى يظهر. لو ما اختار العميل خدمة معيّنة "الكل" يرجع كل فنيي
+    هذي المهنة بغض النظر عن خدماتهم الفرعية).
     الترتيب: تناوب عادل — الأقل ظهورًا (times_shown الأصغر) يظهر أولاً، وعند التساوي
     نستخدم ترتيب عشوائي (RANDOM()) بدل id، لتفادي تحيّز ثابت لصالح IDs الأصغر
     (هذا بالضبط الخطأ اللي صار وانضبط بالاختبار: last_shown_at ASC + id ASC كتعادل
@@ -502,14 +503,16 @@ def search_active_professional_ids(
             return [r["id"] for r in rows]
 
         # فلترة الخدمة الفرعية تصير هنا بايثون (بدل SQL LIKE) لتفادي مشاكل ترميز
-        # نصوص عربية تحتوي أقواس أو رموز خاصة داخل services_json.
+        # نصوص عربية تحتوي أقواس أو رموز خاصة داخل services_json. دعم اختيار متعدد
+        # (قائمة خدمات) بمنطق "أو" — يكفي تقاطع وحدة على الأقل.
+        wanted = {service} if isinstance(service, str) else set(service)
         matching_ids = []
         for r in rows:
             try:
                 services = json.loads(r["services_json"]) if r["services_json"] else []
             except (TypeError, ValueError):
                 services = []
-            if service in services:
+            if wanted & set(services):
                 matching_ids.append(r["id"])
         return matching_ids
 
