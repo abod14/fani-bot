@@ -309,6 +309,16 @@ TEXTS: dict[str, dict[str, str]] = {
         "en": "No professionals ({profession}) are currently available in «{city}»{district_suffix}.",
         "ur": "فی الحال «{city}»{district_suffix} میں کوئی ({profession}) کاریگر دستیاب نہیں۔",
     },
+    "srch_missed_nudge": {
+        "ar": "🔔 فيه عميل الحين يدوّر على «{profession}» في {city}{district_suffix}، لكن رقمك ما ظهر له لأنك خلّصت فرصك المجانية.\n\nاشترك الآن حتى تظهر لكل العملاء اللي يبحثون عن خدمتك 👇",
+        "en": "🔔 A customer is searching for \"{profession}\" in {city}{district_suffix} right now, but you didn't show up because you've used up your free contacts.\n\nSubscribe now to appear to every customer searching for your service 👇",
+        "ur": "🔔 ابھی ایک گاہک {city}{district_suffix} میں \"{profession}\" تلاش کر رہا ہے، لیکن آپ کا نمبر نظر نہیں آیا کیونکہ آپ کی مفت رابطے ختم ہو چکے ہیں۔\n\nاب سبسکرائب کریں تاکہ آپ ہر تلاش کرنے والے گاہک کو نظر آئیں 👇",
+    },
+    "srch_missed_nudge_subscribe_btn": {
+        "ar": "⭐ اشترك الآن",
+        "en": "⭐ Subscribe now",
+        "ur": "⭐ ابھی سبسکرائب کریں",
+    },
     "srch_results_header": {
         "ar": "وجدنا {count} فني/فنيين ({profession}) بمدينة «{city}»:",
         "en": "We found {count} professional(s) ({profession}) in «{city}»:",

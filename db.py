@@ -7,7 +7,7 @@ import json
 import os
 import sqlite3
 from contextlib import contextmanager
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from config import DB_PATH
 
@@ -181,6 +181,12 @@ def init_db():
         if "has_whatsapp" not in existing_columns:
             conn.execute(
                 "ALTER TABLE professionals ADD COLUMN has_whatsapp INTEGER NOT NULL DEFAULT 1"
+            )
+        if "last_search_nudge_at" not in existing_columns:
+            # تُستخدم لتنبيه الفني: "فيه عميل بحث عنك لكن ما ظهرت لأنك خلّصت فرصك
+            # المجانية" — بحد أقصى مرة كل عدة ساعات حتى ما نزعجه بإشعارات متكررة.
+            conn.execute(
+                "ALTER TABLE professionals ADD COLUMN last_search_nudge_at TEXT"
             )
 
         # فهرس يسرّع بحث العميل: مهنة + مدينة + حي على الفنيين النشطين، مرتّب بالتناوب
@@ -485,6 +491,62 @@ def search_active_professional_ids(
         ).fetchall()
 
         return [r["id"] for r in rows]
+
+
+# ─────────────────────────── تنبيه الفنيين اللي فاتهم البحث بسبب الاشتراك ───────────────────────────
+
+NUDGE_COOLDOWN_HOURS = 6
+
+
+def find_subscription_missed_professionals(
+    profession_id: str, city: str, neighborhood: str | None, district_id: int | None = None
+):
+    """يرجّع الفنيين اللي كانوا سيظهرون بهذا البحث (نفس المهنة/المدينة/الحي) لولا
+    إنهم خلّصوا فرصهم المجانية ولا يوجد لهم اشتراك فعّال — نستخدمها لتنبيههم إن فيه
+    طلب فاتهم، تشجيعًا على الاشتراك. لا نكرر التنبيه لنفس الفني أكثر من مرة كل
+    NUDGE_COOLDOWN_HOURS ساعات حتى ما نزعجه."""
+    free_limit = int(get_setting("free_contacts_limit", str(FREE_CONTACTS_LIMIT)))
+    with get_conn() as conn:
+        where = [
+            "status = ?",
+            "profession_id = ?",
+            "city LIKE ?",
+            "is_subscribed = 0",
+            "free_contacts_used >= ?",
+            "(last_search_nudge_at IS NULL OR last_search_nudge_at < ?)",
+        ]
+        cooldown_cutoff = (
+            datetime.now(timezone.utc) - timedelta(hours=NUDGE_COOLDOWN_HOURS)
+        ).isoformat()
+        params = [STATUS_ACTIVE, profession_id, f"%{city.strip()}%", free_limit, cooldown_cutoff]
+
+        if district_id:
+            where.append(
+                "(id IN (SELECT professional_id FROM professional_districts WHERE district_id = ?) "
+                "OR (id NOT IN (SELECT professional_id FROM professional_districts) AND neighborhood LIKE ?))"
+            )
+            params.append(district_id)
+            params.append(f"%{(neighborhood or '').strip()}%")
+        elif neighborhood:
+            where.append("neighborhood LIKE ?")
+            params.append(f"%{neighborhood.strip()}%")
+
+        where_sql = " AND ".join(where)
+        rows = conn.execute(
+            f"SELECT * FROM professionals WHERE {where_sql}", params
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+
+def mark_search_nudge_sent(professional_ids: list[int]):
+    if not professional_ids:
+        return
+    with get_conn() as conn:
+        now = _now_iso()
+        conn.executemany(
+            "UPDATE professionals SET last_search_nudge_at = ? WHERE id = ?",
+            [(now, pid) for pid in professional_ids],
+        )
 
 
 def get_professionals_by_ids(ids: list[int]):

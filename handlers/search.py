@@ -468,7 +468,45 @@ async def _run_search(message, context: ContextTypes.DEFAULT_TYPE, is_edit: bool
         ud["city"], ud.get("neighborhood"), len(result_ids),
     )
 
+    # نبّه (عبر البوت بتلغرام) أي فني كان سيظهر بهذا البحث لولا إنه خلّص فرصه
+    # المجانية وما اشترك — يشجّعه يشترك لما يشوف إنه فعليًا يفوّت طلبات حقيقية.
+    await _notify_missed_professionals(context, ud)
+
     return await _show_results_page(message, context, is_edit=is_edit)
+
+
+async def _notify_missed_professionals(context: ContextTypes.DEFAULT_TYPE, ud: dict):
+    missed = await asyncio.to_thread(
+        db.find_subscription_missed_professionals,
+        ud["profession_id"], ud["city"], ud.get("neighborhood"), ud.get("district_id"),
+    )
+    if not missed:
+        return
+
+    from handlers.subscription import CB_SUBSCRIBE_MENU
+
+    district_suffix = f" — {ud['neighborhood']}" if ud.get("neighborhood") else ""
+    sent_ids = []
+    for p in missed:
+        p_lang = await asyncio.to_thread(db.get_user_language, p["telegram_user_id"])
+        text = i18n.t(
+            "srch_missed_nudge", p_lang,
+            profession=ud["profession_name"], city=ud["city"], district_suffix=district_suffix,
+        )
+        keyboard = InlineKeyboardMarkup(
+            [[InlineKeyboardButton(
+                i18n.t("srch_missed_nudge_subscribe_btn", p_lang), callback_data=CB_SUBSCRIBE_MENU
+            )]]
+        )
+        try:
+            await context.bot.send_message(chat_id=p["telegram_user_id"], text=text, reply_markup=keyboard)
+            sent_ids.append(p["id"])
+        except Exception:
+            # الفني ممكن يكون حظر البوت أو غيره — ما نوقف تنبيه بقية الفنيين بسببه
+            pass
+
+    if sent_ids:
+        await asyncio.to_thread(db.mark_search_nudge_sent, sent_ids)
 
 
 async def _show_results_page(message, context: ContextTypes.DEFAULT_TYPE, is_edit: bool):
