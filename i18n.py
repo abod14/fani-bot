@@ -304,6 +304,28 @@ TEXTS: dict[str, dict[str, str]] = {
         "en": "◀️ Back to professions list",
         "ur": "◀️ پیشوں کی فہرست پر واپس",
     },
+    "stale_session_alert": {
+        "ar": "⏰ خلصت مهلة هذي الجلسة لتأخرك بالرد",
+        "en": "⏰ This session expired because you took too long to respond",
+        "ur": "⏰ جواب دینے میں تاخیر کی وجہ سے یہ سیشن ختم ہو گیا",
+    },
+    "stale_session_restart": {
+        "ar": (
+            "⏰ خلصت مهلة هذي المحادثة لأنك تأخرت بالرد (بعد فترة من عدم النشاط "
+            "نمسح الخطوات القديمة تلقائيًا).\n\n"
+            "ما فيه مشكلة — بس ابدأ من جديد بإرسال {command}"
+        ),
+        "en": (
+            "⏰ This conversation expired because you took too long to respond "
+            "(we automatically clear old steps after a period of inactivity).\n\n"
+            "No problem — just start again by sending {command}"
+        ),
+        "ur": (
+            "⏰ جواب دینے میں تاخیر کی وجہ سے یہ گفتگو ختم ہو گئی (غیر فعالیت کی ایک "
+            "مدت کے بعد ہم پرانے مراحل خودکار طور پر صاف کر دیتے ہیں)۔\n\n"
+            "کوئی مسئلہ نہیں — بس {command} بھیج کر دوبارہ شروع کریں"
+        ),
+    },
     "srch_district_choice_prompt": {
         "ar": (
             "كيف تحب تحدد حيّك؟\n\n"

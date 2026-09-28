@@ -7,7 +7,7 @@ import asyncio
 import logging
 import os
 
-from telegram.ext import ApplicationBuilder, CommandHandler
+from telegram.ext import ApplicationBuilder, CallbackQueryHandler, CommandHandler
 
 import db
 import i18n
@@ -45,6 +45,23 @@ async def help_command(update, context):
     await update.message.reply_text(i18n.t("help_text", lang))
 
 
+async def handle_stale_callback(update, context):
+    """يلتقط أي ضغطة على زر قديم يخص محادثة /search أو /register بعد ما انتهت
+    مهلتها (conversation_timeout) بسبب تأخّر العميل بالرد — بدون هذا الهاندلر،
+    الزر يبقى "يدور" بدون أي رد لأن تلغرام ينتظر answerCallbackQuery ولا أحد
+    يرسله. نجاوب فورًا ونرشد العميل يبدأ من جديد بدل ما يحس إن البوت معلّق.
+
+    مُسجَّل عمدًا بعد كل هاندلرز /search و/register الفعلية (بنفس المجموعة
+    الافتراضية 0) — فيتلقط بس الضغطات اللي ما قدر أي هاندلر سابق يتعرف عليها،
+    ولا يتعارض مع أزرار واتساب/تلغرام (srch_wa:/srch_tg:) اللي تبقى شغالة عمدًا
+    حتى بعد انتهاء المحادثة."""
+    query = update.callback_query
+    lang = await asyncio.to_thread(db.get_user_language, update.effective_user.id)
+    await query.answer(i18n.t("stale_session_alert", lang), show_alert=True)
+    command = "/search" if query.data.startswith("srch_") else "/register"
+    await query.message.reply_text(i18n.t("stale_session_restart", lang, command=command))
+
+
 def main():
     # بايثون 3.12+ ما عاد يسوي event loop تلقائي بالخيط الرئيسي (Main Thread) —
     # وهذا يكسر run_webhook/run_polling الداخليين بمكتبة python-telegram-bot.
@@ -71,6 +88,12 @@ def main():
     app.add_handler(build_search_conversation())
     app.add_handler(build_whatsapp_click_handler())
     app.add_handler(build_telegram_click_handler())
+    # هاندلرز "التقاط الجلسات المنتهية" — لازم تُسجَّل بعد كل هاندلرز /search
+    # و/register أعلاه (بنفس المجموعة الافتراضية)، عشان تلتقط بس الضغطات اللي
+    # ما قدر أي هاندلر سابق (المحادثة النشطة، أو أزرار واتساب/تلغرام الدائمة)
+    # يتعرّف عليها — راجع تعليق handle_stale_callback لتفاصيل السبب.
+    app.add_handler(CallbackQueryHandler(handle_stale_callback, pattern="^srch_"))
+    app.add_handler(CallbackQueryHandler(handle_stale_callback, pattern="^reg_"))
     app.add_handler(build_admin_handler())
     for handler in build_subscription_handlers():
         app.add_handler(handler)
