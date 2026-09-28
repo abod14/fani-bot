@@ -4,6 +4,7 @@
 # نناديها من الهاندلرز غير المتزامنة عبر asyncio.to_thread.
 
 import json
+import math
 import os
 import sqlite3
 from contextlib import contextmanager
@@ -1441,6 +1442,17 @@ def get_sa_district_by_id(district_id: int):
         return dict(row) if row else None
 
 
+def _approx_dist_sq(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """مسافة إقليدية تقريبية (مربّعة) بين نقطتين، مع تصحيح خط الطول بضرب فرقه
+    بجيب تمام خط العرض (cos) — بدون هذا التصحيح، درجة خط الطول تُحسب بنفس "وزن"
+    درجة خط العرض رغم إنها بالكيلومترات الفعلية أقصر (خصوصًا بعيدًا عن خط
+    الاستواء)، مما قد يُبعّد حيًا أقرب فعليًا شرقًا/غربًا ويقرّب حيًا أبعد.
+    التصحيح يكفي لمسافات صغيرة داخل مدينة وحدة (بدون حاجة لهافرساين الدقيق)."""
+    lat_km = lat1 - lat2
+    lon_km = (lon1 - lon2) * math.cos(math.radians((lat1 + lat2) / 2))
+    return lat_km ** 2 + lon_km ** 2
+
+
 def nearest_sa_districts(district_id: int, exclude_ids: list[int], limit: int = 3):
     """يرجّع أقرب N حي لنفس حي الأصل (بنفس المدينة)، مرتّبة بالمسافة الفعلية (إحداثيات
     مركز كل حي)، باستثناء الأحياء اللي جُرّبت مسبقًا بنفس جلسة البحث. يُستخدم فقط بعد
@@ -1462,7 +1474,7 @@ def nearest_sa_districts(district_id: int, exclude_ids: list[int], limit: int = 
     # مسافة إقليدية تقريبية على الإحداثيات (كافية لترتيب "الأقرب" داخل نفس المدينة،
     # بدون الحاجة لحساب هافرساين الدقيق على مسافات صغيرة زي هذي).
     def dist(d):
-        return (d["lat"] - origin["lat"]) ** 2 + (d["lon"] - origin["lon"]) ** 2
+        return _approx_dist_sq(d["lat"], d["lon"], origin["lat"], origin["lon"])
 
     candidates.sort(key=dist)
     return candidates[:limit]
@@ -1482,7 +1494,7 @@ def find_nearest_sa_district_by_coords(city_id: int, lat: float, lon: float):
         return None
 
     def dist(d):
-        return (d["lat"] - lat) ** 2 + (d["lon"] - lon) ** 2
+        return _approx_dist_sq(d["lat"], d["lon"], lat, lon)
 
     candidates.sort(key=dist)
     return candidates[0]
@@ -1503,7 +1515,7 @@ def find_nearest_sa_city_and_district_by_coords(lat: float, lon: float):
         return None
 
     def dist(c):
-        return (c["lat"] - lat) ** 2 + (c["lon"] - lon) ** 2
+        return _approx_dist_sq(c["lat"], c["lon"], lat, lon)
 
     candidates.sort(key=dist)
     nearest_city = candidates[0]
@@ -1531,7 +1543,7 @@ def nearest_sa_cities(city_id: int, exclude_ids: list[int], limit: int = 3):
     candidates = [dict(r) for r in rows]
 
     def dist(c):
-        return (c["lat"] - origin["lat"]) ** 2 + (c["lon"] - origin["lon"]) ** 2
+        return _approx_dist_sq(c["lat"], c["lon"], origin["lat"], origin["lon"])
 
     candidates.sort(key=dist)
     return candidates[:limit]

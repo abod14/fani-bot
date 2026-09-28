@@ -50,6 +50,9 @@ MORE_RESULTS_CB = "srch_more"
 NEARBY_DISTRICT_CB_PREFIX = "srch_nearby:"
 NEARBY_CITY_CB_PREFIX = "srch_nearby_city:"
 END_SEARCH_CB = "srch_end_search"
+MANUAL_DISTRICT_PICK_CB = "srch_manual_dist_pick"
+MANUAL_REGION_PICK_CB = "srch_manual_region_pick"
+ALL_CITY_DISTRICTS_CB = "srch_all_city_districts"
 NEARBY_SUGGESTIONS_COUNT = 3
 
 PROFESSION_BACK_CB = "srch_prof_back"
@@ -766,6 +769,8 @@ async def _offer_nearby_or_end(message, context: ContextTypes.DEFAULT_TYPE):
                 [InlineKeyboardButton(f"🏘️ {d['name']}", callback_data=f"{NEARBY_DISTRICT_CB_PREFIX}{d['id']}")]
                 for d in nearby_districts
             ]
+            buttons.append([InlineKeyboardButton(i18n.t("srch_all_city_districts_btn", lang), callback_data=ALL_CITY_DISTRICTS_CB)])
+            buttons.append([InlineKeyboardButton(i18n.t("srch_manual_choice_btn", lang), callback_data=MANUAL_DISTRICT_PICK_CB)])
             buttons.append([InlineKeyboardButton(i18n.t("srch_end_search_btn", lang), callback_data=END_SEARCH_CB)])
             await message.reply_text(
                 i18n.t("srch_offer_nearby_district", lang),
@@ -785,6 +790,7 @@ async def _offer_nearby_or_end(message, context: ContextTypes.DEFAULT_TYPE):
                 [InlineKeyboardButton(f"🏙️ {c['name']}", callback_data=f"{NEARBY_CITY_CB_PREFIX}{c['id']}")]
                 for c in nearby_cities
             ]
+            buttons.append([InlineKeyboardButton(i18n.t("srch_manual_choice_btn", lang), callback_data=MANUAL_REGION_PICK_CB)])
             buttons.append([InlineKeyboardButton(i18n.t("srch_end_search_btn", lang), callback_data=END_SEARCH_CB)])
             await message.reply_text(
                 i18n.t("srch_offer_nearby_city", lang),
@@ -833,6 +839,44 @@ async def choose_nearby_city(update: Update, context: ContextTypes.DEFAULT_TYPE)
     ud["tried_district_ids"] = []
     ud.setdefault("tried_city_ids", []).append(city_id)
     return await _run_search(query.message, context, is_edit=True, customer_telegram_id=update.effective_user.id)
+
+
+async def search_all_city_districts(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """العميل يبي يشوف كل فنيي المدينة بهذي المهنة، بغض النظر عن الحي — يلغي أي
+    تقييد بحي معيّن ويعيد البحث على مستوى المدينة كاملة (نفس فكرة "تخطي الحي")."""
+    query = update.callback_query
+    await query.answer()
+    context.user_data["neighborhood"] = None
+    context.user_data["district_id"] = None
+    return await _run_search(query.message, context, is_edit=True, customer_telegram_id=update.effective_user.id)
+
+
+async def manual_district_pick(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """العميل ما يبي أحد الأحياء المقترحة (المجاورة) ولا يبي ينهي البحث — يرجّعه
+    لقائمة أحياء المدينة الحالية كاملة يختار منها يدويًا."""
+    lang = _lang(context)
+    query = update.callback_query
+    await query.answer()
+    city_id = context.user_data.get("city_id")
+    if not city_id:
+        await query.edit_message_text(i18n.t("reg_ask_region", lang), reply_markup=_region_keyboard())
+        return SEARCH_REGION
+
+    await query.edit_message_text(
+        i18n.t("srch_city_step", lang, city=context.user_data.get("city", "")),
+        reply_markup=_district_keyboard(city_id, page=0, lang=lang),
+    )
+    return SEARCH_NEIGHBORHOOD
+
+
+async def manual_region_pick(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """العميل ما يبي أحد المدن المقترحة (المجاورة) ولا يبي ينهي البحث — يرجّعه
+    لبداية الاختيار اليدوي الكامل (المنطقة) عشان يختار مدينة ثانية كليًا."""
+    lang = _lang(context)
+    query = update.callback_query
+    await query.answer()
+    await query.edit_message_text(i18n.t("reg_ask_region", lang), reply_markup=_region_keyboard())
+    return SEARCH_REGION
 
 
 async def end_search_results(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -962,6 +1006,9 @@ def build_search_conversation() -> ConversationHandler:
                 CallbackQueryHandler(show_more_results, pattern=f"^{MORE_RESULTS_CB}$"),
                 CallbackQueryHandler(choose_nearby_district, pattern=f"^{NEARBY_DISTRICT_CB_PREFIX}"),
                 CallbackQueryHandler(choose_nearby_city, pattern=f"^{NEARBY_CITY_CB_PREFIX}"),
+                CallbackQueryHandler(search_all_city_districts, pattern=f"^{ALL_CITY_DISTRICTS_CB}$"),
+                CallbackQueryHandler(manual_district_pick, pattern=f"^{MANUAL_DISTRICT_PICK_CB}$"),
+                CallbackQueryHandler(manual_region_pick, pattern=f"^{MANUAL_REGION_PICK_CB}$"),
                 CallbackQueryHandler(end_search_results, pattern=f"^{END_SEARCH_CB}$"),
             ],
             ConversationHandler.TIMEOUT: [MessageHandler(filters.ALL, search_timeout)],

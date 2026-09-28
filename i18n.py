@@ -439,6 +439,16 @@ TEXTS: dict[str, dict[str, str]] = {
         "en": "✅ Location confirmed: {city}\nSearching for the nearest professionals now...",
         "ur": "✅ لوکیشن کی تصدیق ہو گئی: {city}\nاب قریب ترین کاریگر تلاش کیے جا رہے ہیں...",
     },
+    "srch_manual_choice_btn": {
+        "ar": "🗂️ اختيار يدوي",
+        "en": "🗂️ Choose manually",
+        "ur": "🗂️ دستی انتخاب",
+    },
+    "srch_all_city_districts_btn": {
+        "ar": "🏙️ كل أحياء المدينة",
+        "en": "🏙️ All districts in the city",
+        "ur": "🏙️ شہر کے تمام علاقے",
+    },
     "srch_city_step": {
         "ar": "المدينة: {city}\n\nاختر الحي (أو تخطى للبحث بكل المدينة):",
         "en": "City: {city}\n\nChoose a district (or skip to search the whole city):",
