@@ -275,19 +275,34 @@ TEXTS: dict[str, dict[str, str]] = {
 
     # ─────────────────────────── /search ───────────────────────────
     "srch_entry": {
-        "ar": "اكتب مشكلتك بكلماتك (مثال: «اريد اصلح غسالتي») وسنقترح المهنة المناسبة،\nأو اختر مجال الخدمة مباشرة من القائمة:",
-        "en": "Describe your problem in your own words (e.g. \"I need to fix my washing machine\") and we'll suggest the right profession,\nor choose a field directly from the list:",
-        "ur": "اپنا مسئلہ اپنے الفاظ میں لکھیں (مثلاً \"مجھے اپنی واشنگ مشین ٹھیک کروانی ہے\") اور ہم موزوں پیشہ تجویز کریں گے،\nیا فہرست سے براہ راست شعبہ منتخب کریں:",
+        "ar": "اكتب مشكلتك بكلماتك (مثال: «اريد اصلح غسالتي») وسنقترح المهنة المناسبة،\nأو اختر مهنتك مباشرة من القائمة:",
+        "en": "Describe your problem in your own words (e.g. \"I need to fix my washing machine\") and we'll suggest the right profession,\nor choose your profession directly from the list:",
+        "ur": "اپنا مسئلہ اپنے الفاظ میں لکھیں (مثلاً \"مجھے اپنی واشنگ مشین ٹھیک کروانی ہے\") اور ہم موزوں پیشہ تجویز کریں گے،\nیا فہرست سے براہ راست اپنا پیشہ منتخب کریں:",
     },
     "srch_no_match": {
-        "ar": "لم أستطع التعرف على مشكلتك تلقائيًا 🤔 اختر مجال الخدمة من القائمة:",
-        "en": "I couldn't automatically figure out your issue 🤔 Choose a field from the list:",
-        "ur": "میں خودکار طور پر آپ کا مسئلہ سمجھ نہیں سکا 🤔 فہرست سے شعبہ منتخب کریں:",
+        "ar": "لم أستطع التعرف على مشكلتك تلقائيًا 🤔 اختر مهنتك من القائمة:",
+        "en": "I couldn't automatically figure out your issue 🤔 Choose your profession from the list:",
+        "ur": "میں خودکار طور پر آپ کا مسئلہ سمجھ نہیں سکا 🤔 فہرست سے اپنا پیشہ منتخب کریں:",
     },
     "srch_smart_match_one": {
-        "ar": "يبدو أنك تحتاج: {profession} ✅\n\nاختر منطقتك:",
-        "en": "It looks like you need: {profession} ✅\n\nChoose your region:",
-        "ur": "لگتا ہے آپ کو ضرورت ہے: {profession} ✅\n\nاپنا علاقہ منتخب کریں:",
+        "ar": "يبدو أنك تحتاج: {profession} ✅",
+        "en": "It looks like you need: {profession} ✅",
+        "ur": "لگتا ہے آپ کو ضرورت ہے: {profession} ✅",
+    },
+    "srch_subservice_prompt": {
+        "ar": "اختر الخدمة المحدّدة اللي تحتاجها من «{profession}» (أو اختر «كل الخدمات» لو مو متأكد):",
+        "en": "Choose the specific service you need from \"{profession}\" (or pick \"All services\" if unsure):",
+        "ur": "\"{profession}\" میں سے اپنی مطلوبہ مخصوص سروس منتخب کریں (یا غیر یقینی صورت میں \"تمام سروسز\" منتخب کریں):",
+    },
+    "srch_svc_all_btn": {
+        "ar": "📋 كل الخدمات",
+        "en": "📋 All services",
+        "ur": "📋 تمام سروسز",
+    },
+    "srch_back_to_professions_btn": {
+        "ar": "◀️ رجوع لقائمة المهن",
+        "en": "◀️ Back to professions list",
+        "ur": "◀️ پیشوں کی فہرست پر واپس",
     },
     "srch_smart_match_many": {
         "ar": "يبدو أنك تحتاج إحدى هذه المهن، اختر الأنسب:",

@@ -439,10 +439,14 @@ def set_status(row_id: int, status: str):
 
 
 def search_active_professional_ids(
-    profession_id: str, city: str, neighborhood: str | None, district_id: int | None = None
+    profession_id: str, city: str, neighborhood: str | None, district_id: int | None = None,
+    service: str | None = None,
 ):
     """
-    بحث العميل: مهنة (تطابق تام) + مدينة (تطابق تقريبي) + حي (اختياري، تطابق تقريبي).
+    بحث العميل: مهنة (تطابق تام) + مدينة (تطابق تقريبي) + حي (اختياري، تطابق تقريبي)
+    + خدمة فرعية (اختياري — يقلّل النتائج للفنيين اللي حدّدوا هذي الخدمة بالضبط
+    وقت التسجيل؛ لو ما اختار العميل خدمة معيّنة "الكل" يرجع كل فنيي هذي المهنة
+    بغض النظر عن خدماتهم الفرعية).
     الترتيب: تناوب عادل — الأقل ظهورًا (times_shown الأصغر) يظهر أولاً، وعند التساوي
     نستخدم ترتيب عشوائي (RANDOM()) بدل id، لتفادي تحيّز ثابت لصالح IDs الأصغر
     (هذا بالضبط الخطأ اللي صار وانضبط بالاختبار: last_shown_at ASC + id ASC كتعادل
@@ -483,14 +487,27 @@ def search_active_professional_ids(
 
         rows = conn.execute(
             f"""
-            SELECT id FROM professionals
+            SELECT id, services_json FROM professionals
             WHERE {where_sql}
             ORDER BY times_shown ASC, RANDOM()
             """,
             params,
         ).fetchall()
 
-        return [r["id"] for r in rows]
+        if not service:
+            return [r["id"] for r in rows]
+
+        # فلترة الخدمة الفرعية تصير هنا بايثون (بدل SQL LIKE) لتفادي مشاكل ترميز
+        # نصوص عربية تحتوي أقواس أو رموز خاصة داخل services_json.
+        matching_ids = []
+        for r in rows:
+            try:
+                services = json.loads(r["services_json"]) if r["services_json"] else []
+            except (TypeError, ValueError):
+                services = []
+            if service in services:
+                matching_ids.append(r["id"])
+        return matching_ids
 
 
 # ─────────────────────────── تنبيه الفنيين اللي فاتهم البحث بسبب الاشتراك ───────────────────────────

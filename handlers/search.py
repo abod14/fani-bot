@@ -1,7 +1,12 @@
-# تدفق /search — الترتيب: المهنة (مجال ثم مهنة) → المنطقة → المدينة (من قائمة رسمية
-# بأزرار) → الحي (أزرار من أحياء حقيقية لنفس المدينة، مع تخطي اختياري)، ثم نتائج
-# مُرتّبة بنظام تناوب عادل، صفحات من 5، وزر "تواصل عبر واتساب" يسجّل الضغطة ويستهلك
-# من الفرص المجانية لكل فني قبل ما يحتاج اشتراك.
+# تدفق /search — الترتيب: المهنة (قائمة مسطّحة من كل المهن مباشرة، بدون خطوة
+# "مجال" وسيطة) → التفريعات (خدمة فرعية اختيارية داخل المهنة) → المنطقة → المدينة
+# (من قائمة رسمية بأزرار) → الحي (أزرار من أحياء حقيقية لنفس المدينة، مع تخطي
+# اختياري)، ثم نتائج مُرتّبة بنظام تناوب عادل، صفحات من 5، وزر "تواصل عبر واتساب/
+# تلغرام" يسجّل الضغطة ويستهلك من الفرص المجانية لكل فني قبل ما يحتاج اشتراك.
+#
+# خطوة "المجال" اتشالت من بحث العميل تحديدًا (تجربة أسرع: خطوتين بس — المهنة ثم
+# التفريعات — بدل ثلاثة) بناءً على طلب صريح؛ خطوة المجال ما زالت موجودة بتسجيل
+# الفني نفسه (register.py) لأنها ما تأثرت بهذا التعديل.
 #
 # دعم تعدد اللغات: نجيب لغة العميل المحفوظة مرة واحدة عند الدخول ونخزّنها بـ
 # context.user_data["lang"]، وكل النصوص/الأزرار تُعرض بهذي اللغة عبر i18n.t(...).
@@ -25,8 +30,8 @@ import intent_matcher
 import professions_repo as professions
 
 (
-    SEARCH_DOMAIN,
     SEARCH_PROFESSION,
+    SEARCH_SUBSERVICE,
     SEARCH_REGION,
     SEARCH_CITY,
     SEARCH_NEIGHBORHOOD,
@@ -40,6 +45,10 @@ NEARBY_DISTRICT_CB_PREFIX = "srch_nearby:"
 NEARBY_CITY_CB_PREFIX = "srch_nearby_city:"
 END_SEARCH_CB = "srch_end_search"
 NEARBY_SUGGESTIONS_COUNT = 3
+
+PROFESSION_PAGE_CB_PREFIX = "srch_prof_page:"
+PROFESSION_BACK_CB = "srch_prof_back"
+SERVICE_ALL_CB = "srch_svc_all"
 
 GEO_PAGE_SIZE = 8
 
@@ -106,29 +115,32 @@ def _district_keyboard(city_id: int, page: int, lang: str) -> InlineKeyboardMark
 
 # ─────────────────────────── لوحات الأزرار ───────────────────────────
 
-def _domain_keyboard(lang: str) -> InlineKeyboardMarkup:
-    buttons, row = [], []
+def _all_professions_flat(lang: str) -> list[dict]:
+    """كل المهن (الـ65) بترتيب واحد مسطّح عبر كل الأقسام، بدون تجميع بمجال —
+    هذا هو أساس شاشة اختيار المهنة الجديدة (خطوة واحدة بدل خطوتين)."""
+    result = []
     for d in professions.get_domains(lang):
-        row.append(InlineKeyboardButton(d["name"], callback_data=f"srch_dom:{d['id']}"))
-        if len(row) == 2:
-            buttons.append(row)
-            row = []
-    if row:
-        buttons.append(row)
+        result.extend(professions.get_professions_by_domain(d["id"], lang))
+    return result
+
+
+def _profession_list_keyboard(lang: str, page: int = 0) -> InlineKeyboardMarkup:
+    items = _all_professions_flat(lang)
+    return _paginated_keyboard(items, page, "srch_prof:", PROFESSION_PAGE_CB_PREFIX)
+
+
+def _subservice_keyboard(services: list[str], lang: str) -> InlineKeyboardMarkup:
+    """نفس أسلوب register.py: index بدل النص الكامل بـ callback_data (حد تلغرام
+    64 بايت). العميل يختار خدمة وحدة فقط للتصفية (بحث الزبون بحاجة تحديد سريع،
+    مو تحديد متعدد)، أو يضغط "كل الخدمات" لو ما يبي يضيّق النتائج."""
+    buttons = [
+        [InlineKeyboardButton(s, callback_data=f"srch_svc:{idx}")] for idx, s in enumerate(services)
+    ]
+    buttons.append([InlineKeyboardButton(i18n.t("srch_svc_all_btn", lang), callback_data=SERVICE_ALL_CB)])
+    buttons.append([InlineKeyboardButton(i18n.t("srch_back_to_professions_btn", lang), callback_data=PROFESSION_BACK_CB)])
     return InlineKeyboardMarkup(buttons)
 
 
-def _profession_keyboard(domain_id: str, lang: str) -> InlineKeyboardMarkup:
-    buttons, row = [], []
-    for p in professions.get_professions_by_domain(domain_id, lang):
-        row.append(InlineKeyboardButton(p["name"], callback_data=f"srch_prof:{p['id']}"))
-        if len(row) == 2:
-            buttons.append(row)
-            row = []
-    if row:
-        buttons.append(row)
-    buttons.append([InlineKeyboardButton(i18n.t("back_to_domain_btn", lang), callback_data="srch_back_domain")])
-    return InlineKeyboardMarkup(buttons)
 
 
 def _contact_button(p: dict, lang: str) -> InlineKeyboardMarkup:
@@ -207,7 +219,7 @@ def _professional_card_text(p: dict) -> str:
     return "\n".join(lines)
 
 
-# ─────────────────────────── الخطوة 1: المهنة (مجال ثم مهنة) ───────────────────────────
+# ─────────────────────────── الخطوة 1: المهنة (قائمة مسطّحة، بدون مجال) ───────────────────────────
 
 async def search_entry(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data.clear()
@@ -218,14 +230,36 @@ async def search_entry(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.callback_query.answer()
     await target.reply_text(
         i18n.t("srch_entry", lang),
-        reply_markup=_domain_keyboard(lang),
+        reply_markup=_profession_list_keyboard(lang, 0),
     )
-    return SEARCH_DOMAIN
+    return SEARCH_PROFESSION
+
+
+def _profession_selected_state(context: ContextTypes.DEFAULT_TYPE, profession_id: str, lang: str):
+    """يحضّر بيانات المهنة المختارة، ويرجّع (نص، لوحة أزرار، الحالة التالية):
+    لو عندها خدمات فرعية → خطوة التفريعات، وإلا → مباشرة لخطوة المنطقة (الموقع
+    مو جزء من وعد "خطوتين"، هو خطوة لاحقة منفصلة لازمة لتحديد الفنيين القريبين)."""
+    _, profession = professions.get_profession(profession_id, lang)
+    if not profession:
+        return None, None, None
+
+    context.user_data["profession_id"] = profession_id
+    context.user_data["profession_name"] = profession["name"]
+    context.user_data["available_services"] = profession["services"]
+    context.user_data["service_filter"] = None
+
+    if profession["services"]:
+        text = i18n.t("srch_subservice_prompt", lang, profession=profession["name"])
+        markup = _subservice_keyboard(profession["services"], lang)
+        return text, markup, SEARCH_SUBSERVICE
+
+    text = i18n.t("reg_ask_region", lang)
+    return text, _region_keyboard(), SEARCH_REGION
 
 
 async def smart_profession_from_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """تحليل مجاني محلي (بدون أي API) لوصف العميل الحر لمشكلته، واقتراح المهنة
-    المناسبة مباشرة بدل ما يمر بخطوتي المجال ثم المهنة يدويًا."""
+    المناسبة مباشرة بدل ما يمر بقائمة المهن يدويًا."""
     lang = _lang(context)
     text = update.message.text.strip()
     matched_ids = intent_matcher.match_professions(text, limit=3)
@@ -233,20 +267,17 @@ async def smart_profession_from_text(update: Update, context: ContextTypes.DEFAU
     if not matched_ids:
         await update.message.reply_text(
             i18n.t("srch_no_match", lang),
-            reply_markup=_domain_keyboard(lang),
+            reply_markup=_profession_list_keyboard(lang, 0),
         )
-        return SEARCH_DOMAIN
+        return SEARCH_PROFESSION
 
     if len(matched_ids) == 1:
-        domain, profession = professions.get_profession(matched_ids[0], lang)
-        if profession:
-            context.user_data["profession_id"] = matched_ids[0]
-            context.user_data["profession_name"] = profession["name"]
-            await update.message.reply_text(
-                i18n.t("srch_smart_match_one", lang, profession=profession["name"]),
-                reply_markup=_region_keyboard(),
-            )
-            return SEARCH_REGION
+        reply_text, markup, next_state = _profession_selected_state(context, matched_ids[0], lang)
+        if next_state:
+            profession_name = context.user_data["profession_name"]
+            intro = i18n.t("srch_smart_match_one", lang, profession=profession_name)
+            await update.message.reply_text(f"{intro}\n\n{reply_text}", reply_markup=markup)
+            return next_state
 
     buttons, row = [], []
     for pid in matched_ids:
@@ -259,7 +290,7 @@ async def smart_profession_from_text(update: Update, context: ContextTypes.DEFAU
             row = []
     if row:
         buttons.append(row)
-    buttons.append([InlineKeyboardButton(i18n.t("back_to_domain_btn", lang), callback_data="srch_back_domain")])
+    buttons.append([InlineKeyboardButton(i18n.t("srch_back_to_professions_btn", lang), callback_data=PROFESSION_BACK_CB)])
 
     await update.message.reply_text(
         i18n.t("srch_smart_match_many", lang),
@@ -268,29 +299,21 @@ async def smart_profession_from_text(update: Update, context: ContextTypes.DEFAU
     return SEARCH_PROFESSION
 
 
-async def choose_search_domain(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def search_profession_page_nav(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = _lang(context)
     query = update.callback_query
     await query.answer()
-    domain_id = query.data.split(":", 1)[1]
-    domain = professions.get_domain(domain_id, lang)
-    if not domain:
-        await query.edit_message_text(i18n.t("unknown_option", lang), reply_markup=_domain_keyboard(lang))
-        return SEARCH_DOMAIN
-
-    await query.edit_message_text(
-        i18n.t("reg_domain_selected", lang, domain=domain["name"]),
-        reply_markup=_profession_keyboard(domain_id, lang),
-    )
+    page = int(query.data.split(":", 1)[1])
+    await query.edit_message_reply_markup(reply_markup=_profession_list_keyboard(lang, page))
     return SEARCH_PROFESSION
 
 
-async def back_to_search_domain(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def back_to_search_professions(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = _lang(context)
     query = update.callback_query
     await query.answer()
-    await query.edit_message_text(i18n.t("domains_available", lang), reply_markup=_domain_keyboard(lang))
-    return SEARCH_DOMAIN
+    await query.edit_message_text(i18n.t("srch_entry", lang), reply_markup=_profession_list_keyboard(lang, 0))
+    return SEARCH_PROFESSION
 
 
 async def choose_search_profession(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -298,14 +321,37 @@ async def choose_search_profession(update: Update, context: ContextTypes.DEFAULT
     query = update.callback_query
     await query.answer()
     profession_id = query.data.split(":", 1)[1]
-    domain, profession = professions.get_profession(profession_id, lang)
-    if not profession:
-        await query.edit_message_text(i18n.t("unknown_option", lang))
+
+    text, markup, next_state = _profession_selected_state(context, profession_id, lang)
+    if not next_state:
+        await query.edit_message_text(i18n.t("unknown_option", lang), reply_markup=_profession_list_keyboard(lang, 0))
         return SEARCH_PROFESSION
 
-    context.user_data["profession_id"] = profession_id
-    context.user_data["profession_name"] = profession["name"]
+    await query.edit_message_text(text, reply_markup=markup)
+    return next_state
 
+
+# ─────────────────────────── الخطوة 2: التفريعات (خدمة فرعية اختيارية) ───────────────────────────
+
+async def choose_search_subservice(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    lang = _lang(context)
+    query = update.callback_query
+    available = context.user_data.get("available_services", [])
+    try:
+        idx = int(query.data.split(":", 1)[1])
+        context.user_data["service_filter"] = available[idx]
+    except (ValueError, IndexError):
+        context.user_data["service_filter"] = None
+    await query.answer()
+    await query.edit_message_text(i18n.t("reg_ask_region", lang), reply_markup=_region_keyboard())
+    return SEARCH_REGION
+
+
+async def skip_subservice(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    lang = _lang(context)
+    query = update.callback_query
+    context.user_data["service_filter"] = None
+    await query.answer()
     await query.edit_message_text(i18n.t("reg_ask_region", lang), reply_markup=_region_keyboard())
     return SEARCH_REGION
 
@@ -480,7 +526,7 @@ async def _run_search(message, context: ContextTypes.DEFAULT_TYPE, is_edit: bool
     ud = context.user_data
     result_ids = await asyncio.to_thread(
         db.search_active_professional_ids, ud["profession_id"], ud["city"], ud.get("neighborhood"),
-        ud.get("district_id"),
+        ud.get("district_id"), ud.get("service_filter"),
     )
     ud["result_ids"] = result_ids
     ud["shown_count"] = 0
@@ -766,13 +812,16 @@ def build_search_conversation() -> ConversationHandler:
             CallbackQueryHandler(search_entry, pattern="^start_search$"),
         ],
         states={
-            SEARCH_DOMAIN: [
-                CallbackQueryHandler(choose_search_domain, pattern="^srch_dom:"),
-                MessageHandler(filters.TEXT & ~filters.COMMAND, smart_profession_from_text),
-            ],
             SEARCH_PROFESSION: [
                 CallbackQueryHandler(choose_search_profession, pattern="^srch_prof:"),
-                CallbackQueryHandler(back_to_search_domain, pattern="^srch_back_domain$"),
+                CallbackQueryHandler(search_profession_page_nav, pattern=f"^{PROFESSION_PAGE_CB_PREFIX}"),
+                CallbackQueryHandler(back_to_search_professions, pattern=f"^{PROFESSION_BACK_CB}$"),
+                MessageHandler(filters.TEXT & ~filters.COMMAND, smart_profession_from_text),
+            ],
+            SEARCH_SUBSERVICE: [
+                CallbackQueryHandler(choose_search_subservice, pattern="^srch_svc:"),
+                CallbackQueryHandler(skip_subservice, pattern=f"^{SERVICE_ALL_CB}$"),
+                CallbackQueryHandler(back_to_search_professions, pattern=f"^{PROFESSION_BACK_CB}$"),
             ],
             SEARCH_REGION: [CallbackQueryHandler(choose_search_region, pattern="^srch_region:")],
             SEARCH_CITY: [
