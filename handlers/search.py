@@ -62,13 +62,25 @@ SERVICES_DONE_CB = "srch_svc_done"
 CONFIRM_LOCATION_CB = "srch_loc_confirm"
 REJECT_LOCATION_CB = "srch_loc_reject"
 LOCATION_ALL_CITY_CB = "srch_loc_all_city"
-LOCATION_NEARBY_DISTRICT_PREFIX = "srch_loc_near:"
+LOCATION_TOGGLE_PREFIX = "srch_loc_toggle:"
+LOCATION_NEARBY_DONE_CB = "srch_loc_nearby_done"
+LOCATION_NEARBY_COUNT = 3  # + الحي المكتشف نفسه = 4 خيارات تعليم بالمجموع
 
 GEO_PAGE_SIZE = 8
 
 
 def _lang(context: ContextTypes.DEFAULT_TYPE) -> str:
     return context.user_data.get("lang", "ar")
+
+
+def _neighborhood_display(neighborhood) -> str:
+    """ud["neighborhood"] ممكن تكون نص وحد أو قائمة (لما العميل يعلّم أكثر من حي
+    بشاشة تأكيد الموقع) — هذي تحوّلها لنص واحد يُعرض بأي رسالة بشكل موحّد."""
+    if not neighborhood:
+        return ""
+    if isinstance(neighborhood, str):
+        return neighborhood
+    return "، ".join(neighborhood)
 
 
 def _region_keyboard() -> InlineKeyboardMarkup:
@@ -141,6 +153,29 @@ def _location_choice_reply_keyboard(lang: str) -> ReplyKeyboardMarkup:
         resize_keyboard=True,
         one_time_keyboard=True,
     )
+
+
+def _location_confirm_keyboard(
+    choices: dict, selected_ids: list[int], detected_id: int | None, lang: str
+) -> InlineKeyboardMarkup:
+    """قائمة تعليم (checkbox) لأحياء GPS المقترحة: الحي المكتشف نفسه ("نعم هو")
+    + أقرب 3 أحياء له (٤ خيارات بالمجموع)، يعلّم منها العميل وحدة أو أكثر ثم
+    يضغط "تم" — بدل الاختيار الفوري القديم اللي يقفل الخطوة بضغطة وحدة."""
+    buttons = []
+    for did_str, name in choices.items():
+        did = int(did_str)
+        mark = "✅ " if did in selected_ids else "▫️ "
+        if did == detected_id:
+            label = f"{i18n.t('srch_location_confirm_yes_btn', lang)} — {name}"
+        else:
+            label = f"📍 {name}"
+        buttons.append([InlineKeyboardButton(mark + label, callback_data=f"{LOCATION_TOGGLE_PREFIX}{did}")])
+
+    buttons.append([InlineKeyboardButton(i18n.t("srch_svc_done_btn", lang), callback_data=LOCATION_NEARBY_DONE_CB)])
+    buttons.append([InlineKeyboardButton(i18n.t("srch_all_city_districts_btn", lang), callback_data=LOCATION_ALL_CITY_CB)])
+    buttons.append([InlineKeyboardButton(i18n.t("srch_location_confirm_no_btn", lang), callback_data=REJECT_LOCATION_CB)])
+    buttons.append([InlineKeyboardButton(i18n.t("srch_end_search_btn", lang), callback_data=END_SEARCH_CB)])
+    return InlineKeyboardMarkup(buttons)
 
 
 # ─────────────────────────── لوحات الأزرار ───────────────────────────
@@ -456,8 +491,9 @@ async def region_text_router(update: Update, context: ContextTypes.DEFAULT_TYPE)
 async def receive_early_location(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """يستقبل موقع العميل (GPS) المُرسل بخطوة SEARCH_REGION (أول خطوة بعد
     المهنة/التفريعات) — يحدد أقرب مدينة رسمية وأقرب حي فيها معًا بضغطة وحدة،
-    لكن لا يلتزم بها مباشرة: يعرضها على العميل ويطلب تأكيدًا صريحًا
-    (✅/🏘️) قبل ما يبدأ البحث فعليًا."""
+    لكن لا يلتزم بها مباشرة: يعرض على العميل قائمة تعليم (الحي المكتشف + أقرب
+    3 أحياء له = 4 خيارات) يعلّم منها ما يشاء (وحدة أو أكثر) ثم يضغط "تم"،
+    قبل ما يبدأ البحث فعليًا."""
     lang = _lang(context)
     loc = update.message.location
     result = await asyncio.to_thread(
@@ -474,51 +510,52 @@ async def receive_early_location(update: Update, context: ContextTypes.DEFAULT_T
         return SEARCH_REGION
 
     city, district = result
-    context.user_data["pending_city_id"] = city["id"]
-    context.user_data["pending_city_name"] = city["name"]
-    context.user_data["pending_district_id"] = district["id"] if district else None
-    context.user_data["pending_district_name"] = district["name"] if district else None
+    ud = context.user_data
+    ud["pending_city_id"] = city["id"]
+    ud["pending_city_name"] = city["name"]
 
-    district_line = (
-        i18n.t("srch_location_confirm_district_line", lang, district=district["name"])
-        if district else ""
+    if not district:
+        # ما قدرنا نحدد حي داخل المدينة (بيانات ناقصة) — ما فيه أحياء نعرضها
+        # أصلًا، فتأكيد بسيط على مستوى المدينة فقط (بدون قائمة تعليم).
+        text = i18n.t("srch_location_confirm", lang, city=city["name"], district_line="")
+        buttons = [
+            [InlineKeyboardButton(i18n.t("srch_location_confirm_yes_btn", lang), callback_data=CONFIRM_LOCATION_CB)],
+            [InlineKeyboardButton(i18n.t("srch_location_confirm_no_btn", lang), callback_data=REJECT_LOCATION_CB)],
+            [InlineKeyboardButton(i18n.t("srch_end_search_btn", lang), callback_data=END_SEARCH_CB)],
+        ]
+        await update.message.reply_text(text, reply_markup=InlineKeyboardMarkup(buttons))
+        return SEARCH_REGION
+
+    choices = {str(district["id"]): district["name"]}
+    nearby = await asyncio.to_thread(
+        db.nearest_sa_districts, district["id"], [district["id"]], LOCATION_NEARBY_COUNT
     )
+    for d in nearby:
+        choices[str(d["id"])] = d["name"]
+
+    ud["pending_detected_district_id"] = district["id"]
+    ud["loc_choice_map"] = choices
+    ud["loc_selected_ids"] = [district["id"]]  # محدد افتراضيًا (نفس سلوك "نعم هو" القديم)
+
+    district_line = i18n.t("srch_location_confirm_district_line", lang, district=district["name"])
     text = i18n.t("srch_location_confirm", lang, city=city["name"], district_line=district_line)
 
-    buttons = [
-        [InlineKeyboardButton(i18n.t("srch_location_confirm_yes_btn", lang), callback_data=CONFIRM_LOCATION_CB)],
-    ]
-
-    # أحياء "قريبة منه" — نعرضها كعلامات موقع (📍) للتمييز عن أزرار الاختيار
-    # العادية (🏘️) بالقوائم اليدوية، فهي اقتراح سريع بديل مو تصفح قائمة كاملة.
-    if district:
-        nearby = await asyncio.to_thread(
-            db.nearest_sa_districts, district["id"], [district["id"]], NEARBY_SUGGESTIONS_COUNT
-        )
-        for d in nearby:
-            buttons.append(
-                [InlineKeyboardButton(f"📍 {d['name']}", callback_data=f"{LOCATION_NEARBY_DISTRICT_PREFIX}{d['id']}")]
-            )
-
-    buttons.append([InlineKeyboardButton(i18n.t("srch_all_city_districts_btn", lang), callback_data=LOCATION_ALL_CITY_CB)])
-    buttons.append([InlineKeyboardButton(i18n.t("srch_location_confirm_no_btn", lang), callback_data=REJECT_LOCATION_CB)])
-    buttons.append([InlineKeyboardButton(i18n.t("srch_end_search_btn", lang), callback_data=END_SEARCH_CB)])
-
-    await update.message.reply_text(text, reply_markup=InlineKeyboardMarkup(buttons))
+    await update.message.reply_text(
+        text,
+        reply_markup=_location_confirm_keyboard(choices, [district["id"]], district["id"], lang),
+    )
     return SEARCH_REGION
 
 
 async def confirm_early_location(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """العميل أكّد الموقع المكتشف تلقائيًا — الآن فقط نثبّته بذاكرة المحادثة
-    ونبدأ البحث مباشرة (يتخطى خطوات المنطقة/المدينة/الحي اليدوية بالكامل)."""
+    """مسار احتياطي: يُستخدم فقط لما ما قدرنا نحدد أي حي (بيانات ناقصة) —
+    تأكيد مباشر على مستوى المدينة فقط، بدون قائمة تعليم أحياء."""
     lang = _lang(context)
     query = update.callback_query
     await query.answer()
     ud = context.user_data
     city_id = ud.pop("pending_city_id", None)
     city_name = ud.pop("pending_city_name", None)
-    district_id = ud.pop("pending_district_id", None)
-    district_name = ud.pop("pending_district_name", None)
 
     if not city_id:
         await query.edit_message_text(i18n.t("unknown_option", lang), reply_markup=_region_keyboard())
@@ -526,45 +563,69 @@ async def confirm_early_location(update: Update, context: ContextTypes.DEFAULT_T
 
     ud["city_id"] = city_id
     ud["city"] = city_name
-    ud["neighborhood"] = district_name
-    ud["district_id"] = district_id
+    ud["neighborhood"] = None
+    ud["district_id"] = None
     ud.setdefault("tried_city_ids", []).append(city_id)
-    if district_id:
-        ud["tried_district_ids"] = [district_id]
 
     await query.edit_message_text(i18n.t("srch_location_confirmed", lang, city=city_name))
     return await _run_search(query.message, context, is_edit=False, customer_telegram_id=update.effective_user.id)
 
 
-async def confirm_early_location_nearby(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """العميل ما يبي الحي المكتشف بالضبط، لكن اختار أحد الأحياء "القريبة منه"
-    المعروضة كاقتراح مباشر بنفس شاشة التأكيد — يثبّته كحي البحث مباشرة (بدون
-    خطوة تأكيد ثانية، لأنه هو نفسه اللي اختاره بضغطة وحدة)."""
+async def toggle_location_choice(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """تعليم/إلغاء تعليم حي وحد من قائمة الأحياء المقترحة (الحي المكتشف أو أحد
+    الأقرب له) — اختيار متعدد، ما يقفل الخطوة، لين يضغط العميل "تم"."""
     lang = _lang(context)
     query = update.callback_query
     await query.answer()
     ud = context.user_data
+    choices = ud.get("loc_choice_map", {})
+    detected_id = ud.get("pending_detected_district_id")
+    selected = set(ud.get("loc_selected_ids", []))
+
+    did = int(query.data.split(":", 1)[1])
+    if did in selected:
+        selected.discard(did)
+    else:
+        selected.add(did)
+    ud["loc_selected_ids"] = list(selected)
+
+    await query.edit_message_reply_markup(
+        reply_markup=_location_confirm_keyboard(choices, list(selected), detected_id, lang)
+    )
+    return SEARCH_REGION
+
+
+async def confirm_location_selection(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """العميل خلّص تعليم الأحياء اللي يبيها من قائمة الاقتراحات وضغط "تم" —
+    نبحث بكل الأحياء المُعلَّمة معًا (منطق "أو": أي فني بأي حي منها يظهر)."""
+    lang = _lang(context)
+    query = update.callback_query
+    ud = context.user_data
+    selected_ids = ud.get("loc_selected_ids", [])
+
+    if not selected_ids:
+        await query.answer(i18n.t("srch_location_select_at_least_one", lang), show_alert=True)
+        return SEARCH_REGION
+
+    await query.answer()
     city_id = ud.pop("pending_city_id", None)
     city_name = ud.pop("pending_city_name", None)
-    ud.pop("pending_district_id", None)
-    ud.pop("pending_district_name", None)
+    choices = ud.pop("loc_choice_map", {})
+    ud.pop("loc_selected_ids", None)
+    ud.pop("pending_detected_district_id", None)
 
     if not city_id:
         await query.edit_message_text(i18n.t("unknown_option", lang), reply_markup=_region_keyboard())
         return SEARCH_REGION
 
-    district_id = int(query.data.split(":", 1)[1])
-    district = await asyncio.to_thread(db.get_sa_district_by_id, district_id)
-    if not district:
-        await query.edit_message_text(i18n.t("unknown_option", lang), reply_markup=_region_keyboard())
-        return SEARCH_REGION
+    names = [choices[str(did)] for did in selected_ids if str(did) in choices]
 
     ud["city_id"] = city_id
     ud["city"] = city_name
-    ud["neighborhood"] = district["name"]
-    ud["district_id"] = district_id
+    ud["district_id"] = selected_ids if len(selected_ids) > 1 else selected_ids[0]
+    ud["neighborhood"] = names if len(names) > 1 else (names[0] if names else None)
     ud.setdefault("tried_city_ids", []).append(city_id)
-    ud["tried_district_ids"] = [district_id]
+    ud["tried_district_ids"] = list(selected_ids)
 
     await query.edit_message_text(i18n.t("srch_location_confirmed", lang, city=city_name))
     return await _run_search(query.message, context, is_edit=False, customer_telegram_id=update.effective_user.id)
@@ -578,8 +639,9 @@ async def confirm_location_all_city(update: Update, context: ContextTypes.DEFAUL
     ud = context.user_data
     city_id = ud.pop("pending_city_id", None)
     city_name = ud.pop("pending_city_name", None)
-    ud.pop("pending_district_id", None)
-    ud.pop("pending_district_name", None)
+    ud.pop("pending_detected_district_id", None)
+    ud.pop("loc_choice_map", None)
+    ud.pop("loc_selected_ids", None)
 
     if not city_id:
         await query.edit_message_text(i18n.t("unknown_option", lang), reply_markup=_region_keyboard())
@@ -601,7 +663,10 @@ async def reject_early_location(update: Update, context: ContextTypes.DEFAULT_TY
     lang = _lang(context)
     query = update.callback_query
     await query.answer()
-    for key in ("pending_city_id", "pending_city_name", "pending_district_id", "pending_district_name"):
+    for key in (
+        "pending_city_id", "pending_city_name", "pending_detected_district_id",
+        "loc_choice_map", "loc_selected_ids",
+    ):
         context.user_data.pop(key, None)
     await query.edit_message_text(i18n.t("reg_ask_region", lang), reply_markup=_region_keyboard())
     return SEARCH_REGION
@@ -779,7 +844,7 @@ async def _notify_missed_professionals(context: ContextTypes.DEFAULT_TYPE, ud: d
 
     from handlers.subscription import CB_SUBSCRIBE_MENU
 
-    district_suffix = f" — {ud['neighborhood']}" if ud.get("neighborhood") else ""
+    district_suffix = f" — {_neighborhood_display(ud.get('neighborhood'))}" if ud.get("neighborhood") else ""
     sent_ids = []
     for p in missed:
         p_lang = await asyncio.to_thread(db.get_user_language, p["telegram_user_id"])
@@ -811,7 +876,7 @@ async def _show_results_page(message, context: ContextTypes.DEFAULT_TYPE, is_edi
     shown_count = ud.get("shown_count", 0)
 
     if shown_count == 0 and total == 0:
-        district_suffix = f" — {ud['neighborhood']}" if ud.get("neighborhood") else ""
+        district_suffix = f" — {_neighborhood_display(ud.get('neighborhood'))}" if ud.get("neighborhood") else ""
         text = i18n.t(
             "srch_no_results", lang,
             profession=ud["profession_name"], city=ud["city"], district_suffix=district_suffix,
@@ -1096,7 +1161,8 @@ def build_search_conversation() -> ConversationHandler:
             SEARCH_REGION: [
                 MessageHandler(filters.LOCATION, receive_early_location),
                 CallbackQueryHandler(confirm_early_location, pattern=f"^{CONFIRM_LOCATION_CB}$"),
-                CallbackQueryHandler(confirm_early_location_nearby, pattern=f"^{LOCATION_NEARBY_DISTRICT_PREFIX}"),
+                CallbackQueryHandler(toggle_location_choice, pattern=f"^{LOCATION_TOGGLE_PREFIX}"),
+                CallbackQueryHandler(confirm_location_selection, pattern=f"^{LOCATION_NEARBY_DONE_CB}$"),
                 CallbackQueryHandler(confirm_location_all_city, pattern=f"^{LOCATION_ALL_CITY_CB}$"),
                 CallbackQueryHandler(reject_early_location, pattern=f"^{REJECT_LOCATION_CB}$"),
                 CallbackQueryHandler(end_search_results, pattern=f"^{END_SEARCH_CB}$"),

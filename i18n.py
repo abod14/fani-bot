@@ -444,6 +444,11 @@ TEXTS: dict[str, dict[str, str]] = {
         "en": "✅ Location confirmed: {city}\nSearching for the nearest professionals now...",
         "ur": "✅ لوکیشن کی تصدیق ہو گئی: {city}\nاب قریب ترین کاریگر تلاش کیے جا رہے ہیں...",
     },
+    "srch_location_select_at_least_one": {
+        "ar": "علّم حي واحد على الأقل قبل ما تضغط تم، أو اختر «كل أحياء المدينة».",
+        "en": "Mark at least one district before pressing done, or choose \"All districts in the city\".",
+        "ur": "تم دبانے سے پہلے کم از کم ایک علاقہ منتخب کریں، یا \"شہر کے تمام علاقے\" چنیں۔",
+    },
     "srch_manual_choice_btn": {
         "ar": "🗂️ اختيار يدوي",
         "en": "🗂️ Choose manually",

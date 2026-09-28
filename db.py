@@ -461,7 +461,7 @@ def set_status(row_id: int, status: str):
 
 
 def search_active_professional_ids(
-    profession_id: str, city: str, neighborhood: str | None, district_id: int | None = None,
+    profession_id: str, city: str, neighborhood: str | list[str] | None, district_id: int | list[int] | None = None,
     service: str | list[str] | None = None,
 ):
     """
@@ -492,19 +492,28 @@ def search_active_professional_ids(
         params = [STATUS_ACTIVE, profession_id, f"%{city.strip()}%", free_limit]
 
         if district_id:
-            # المطابقة الدقيقة: الفني عنده هذا الحي ضمن أحيائه المسجّلة (1 إلى 5 أحياء).
+            # اختيار متعدد للأحياء (منطق "أو" — يكفي تطابق حي وحد من المُعلَّمة).
+            # المطابقة الدقيقة: الفني عنده أحد هذي الأحياء ضمن أحيائه المسجّلة (1-5).
             # + توافق مع فنيين قدامى قبل ميزة تعدد الأحياء (ما عندهم صفوف بجدول الربط
             # إطلاقًا) عبر مطابقة نصية على عمود neighborhood القديم كحل احتياطي لهم فقط.
+            district_ids = [district_id] if isinstance(district_id, int) else list(district_id)
+            neighborhood_names = [neighborhood] if isinstance(neighborhood, str) else (neighborhood or [])
+            placeholders = ",".join("?" for _ in district_ids)
+            name_conditions = " OR ".join(["neighborhood LIKE ?"] * len(neighborhood_names)) or "0"
             where.append(
-                "(id IN (SELECT professional_id FROM professional_districts WHERE district_id = ?) "
-                "OR (id NOT IN (SELECT professional_id FROM professional_districts) AND neighborhood LIKE ?))"
+                f"(id IN (SELECT professional_id FROM professional_districts WHERE district_id IN ({placeholders})) "
+                f"OR (id NOT IN (SELECT professional_id FROM professional_districts) AND ({name_conditions})))"
             )
-            params.append(district_id)
-            params.append(f"%{(neighborhood or '').strip()}%")
+            params.extend(district_ids)
+            for n in neighborhood_names:
+                params.append(f"%{n.strip()}%")
         elif neighborhood:
             # توافق مع بيانات/بحث قديم بالنص الحر (بدون district_id محدد)
-            where.append("neighborhood LIKE ?")
-            params.append(f"%{neighborhood.strip()}%")
+            names = [neighborhood] if isinstance(neighborhood, str) else neighborhood
+            name_conditions = " OR ".join(["neighborhood LIKE ?"] * len(names))
+            where.append(f"({name_conditions})")
+            for n in names:
+                params.append(f"%{n.strip()}%")
 
         where_sql = " AND ".join(where)
 
@@ -541,7 +550,7 @@ NUDGE_COOLDOWN_HOURS = 6
 
 
 def find_subscription_missed_professionals(
-    profession_id: str, city: str, neighborhood: str | None, district_id: int | None = None
+    profession_id: str, city: str, neighborhood: str | list[str] | None, district_id: int | list[int] | None = None
 ):
     """يرجّع الفنيين اللي كانوا سيظهرون بهذا البحث (نفس المهنة/المدينة/الحي) لولا
     إنهم خلّصوا فرصهم المجانية ولا يوجد لهم اشتراك فعّال — نستخدمها لتنبيههم إن فيه
@@ -563,15 +572,23 @@ def find_subscription_missed_professionals(
         params = [STATUS_ACTIVE, profession_id, f"%{city.strip()}%", free_limit, cooldown_cutoff]
 
         if district_id:
+            district_ids = [district_id] if isinstance(district_id, int) else list(district_id)
+            neighborhood_names = [neighborhood] if isinstance(neighborhood, str) else (neighborhood or [])
+            placeholders = ",".join("?" for _ in district_ids)
+            name_conditions = " OR ".join(["neighborhood LIKE ?"] * len(neighborhood_names)) or "0"
             where.append(
-                "(id IN (SELECT professional_id FROM professional_districts WHERE district_id = ?) "
-                "OR (id NOT IN (SELECT professional_id FROM professional_districts) AND neighborhood LIKE ?))"
+                f"(id IN (SELECT professional_id FROM professional_districts WHERE district_id IN ({placeholders})) "
+                f"OR (id NOT IN (SELECT professional_id FROM professional_districts) AND ({name_conditions})))"
             )
-            params.append(district_id)
-            params.append(f"%{(neighborhood or '').strip()}%")
+            params.extend(district_ids)
+            for n in neighborhood_names:
+                params.append(f"%{n.strip()}%")
         elif neighborhood:
-            where.append("neighborhood LIKE ?")
-            params.append(f"%{neighborhood.strip()}%")
+            names = [neighborhood] if isinstance(neighborhood, str) else neighborhood
+            name_conditions = " OR ".join(["neighborhood LIKE ?"] * len(names))
+            where.append(f"({name_conditions})")
+            for n in names:
+                params.append(f"%{n.strip()}%")
 
         where_sql = " AND ".join(where)
         rows = conn.execute(
