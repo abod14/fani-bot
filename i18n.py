@@ -275,9 +275,9 @@ TEXTS: dict[str, dict[str, str]] = {
 
     # ─────────────────────────── /search ───────────────────────────
     "srch_entry": {
-        "ar": "اكتب مشكلتك بكلماتك (مثال: «اريد اصلح غسالتي») وسنقترح المهنة المناسبة،\nأو اختر مهنتك مباشرة من القائمة:",
-        "en": "Describe your problem in your own words (e.g. \"I need to fix my washing machine\") and we'll suggest the right profession,\nor choose your profession directly from the list:",
-        "ur": "اپنا مسئلہ اپنے الفاظ میں لکھیں (مثلاً \"مجھے اپنی واشنگ مشین ٹھیک کروانی ہے\") اور ہم موزوں پیشہ تجویز کریں گے،\nیا فہرست سے براہ راست اپنا پیشہ منتخب کریں:",
+        "ar": "اختر مهنتك من القائمة:",
+        "en": "Choose your profession from the list:",
+        "ur": "فہرست سے اپنا پیشہ منتخب کریں:",
     },
     "srch_no_match": {
         "ar": "لم أستطع التعرف على مشكلتك تلقائيًا 🤔 اختر مهنتك من القائمة:",

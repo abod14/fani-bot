@@ -305,6 +305,17 @@ async def back_to_search_professions(update: Update, context: ContextTypes.DEFAU
     return SEARCH_PROFESSION
 
 
+async def profession_text_fallback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """هذي الخطوة صارت أزرار فقط (بدون اقتراح ذكي من نص حر) — لو العميل كتب
+    بدل ما يضغط زر، نرسل له القائمة من جديد بدل ما نتجاهل رسالته بصمت (هذا
+    بالضبط اللي كان يخلي البحث يبدو "معلّق" على العميل)."""
+    lang = _lang(context)
+    await update.message.reply_text(
+        i18n.t("srch_entry", lang), reply_markup=_profession_list_keyboard(lang)
+    )
+    return SEARCH_PROFESSION
+
+
 async def choose_search_profession(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = _lang(context)
     query = update.callback_query
@@ -862,6 +873,7 @@ def build_search_conversation() -> ConversationHandler:
         states={
             SEARCH_PROFESSION: [
                 CallbackQueryHandler(choose_search_profession, pattern="^srch_prof:"),
+                MessageHandler(filters.TEXT & ~filters.COMMAND, profession_text_fallback),
             ],
             SEARCH_SUBSERVICE: [
                 CallbackQueryHandler(choose_search_subservice, pattern="^srch_svc:"),
