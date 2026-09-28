@@ -679,7 +679,13 @@ def build_search_conversation() -> ConversationHandler:
             ],
             ConversationHandler.TIMEOUT: [MessageHandler(filters.ALL, search_timeout)],
         },
-        fallbacks=[CommandHandler("cancel", cancel_search)],
+        fallbacks=[
+            CommandHandler("cancel", cancel_search),
+            # نفس فكرة التسجيل: لو العميل عالق بمنتصف بحث قديم، نخليه يقدر يبدأ
+            # بحث جديد فورًا بمجرد ما يضغط الزر أو يرسل الأمر من جديد.
+            CommandHandler("search", search_entry),
+            CallbackQueryHandler(search_entry, pattern="^start_search$"),
+        ],
         name="search_conversation",
         persistent=False,
         conversation_timeout=900,

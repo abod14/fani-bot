@@ -654,6 +654,8 @@ async def registration_timeout(update: Update, context: ContextTypes.DEFAULT_TYP
     return ConversationHandler.END
 
 
+
+
 # ─────────────────────────── تجميع الـ ConversationHandler ───────────────────────────
 
 def build_register_conversation() -> ConversationHandler:
@@ -699,7 +701,14 @@ def build_register_conversation() -> ConversationHandler:
             ],
             ConversationHandler.TIMEOUT: [MessageHandler(filters.ALL, registration_timeout)],
         },
-        fallbacks=[CommandHandler("cancel", cancel)],
+        fallbacks=[
+            CommandHandler("cancel", cancel),
+            # لو المستخدم عالق بمنتصف محاولة تسجيل قديمة (ما أكملها ولا ألغاها)،
+            # نخليه يقدر يبدأ من جديد فورًا بمجرد ما يضغط زر التسجيل أو يرسل الأمر
+            # من جديد، بدل ما ينتظر 15 دقيقة (conversation_timeout) بدون أي استجابة.
+            CommandHandler("register", register_entry),
+            CallbackQueryHandler(register_entry, pattern="^start_register$"),
+        ],
         name="register_conversation",
         persistent=False,
         conversation_timeout=900,
