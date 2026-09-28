@@ -19,9 +19,9 @@ TEXTS: dict[str, dict[str, str]] = {
 
     # ─────────────────────────── /start ───────────────────────────
     "welcome": {
-        "ar": "أهلًا بك في بوت «فني» 👋\n\nبوت «فني» يربط العملاء بمهنيين وفنيين موثوقين بمختلف المدن.\n\nاختر ما يناسبك:",
-        "en": "Welcome to «Fani» bot 👋\n\n«Fani» connects customers with trusted professionals across different cities.\n\nChoose an option:",
-        "ur": "«فنی» بوٹ میں خوش آمدید 👋\n\n«فنی» گاہکوں کو مختلف شہروں کے قابل اعتماد کاریگروں سے ملاتا ہے۔\n\nاپنی مطلوبہ چیز منتخب کریں:",
+        "ar": "أهلًا بك في بوت «فني» 👋\n\nبوت «فني» يربط العملاء بمهنيين وفنيين في أكثر من 60 مهنة بمختلف المدن.\n\nاختر ما يناسبك:",
+        "en": "Welcome to «Fani» bot 👋\n\n«Fani» connects customers with professionals in 60+ professions across different cities.\n\nChoose an option:",
+        "ur": "«فنی» بوٹ میں خوش آمدید 👋\n\n«فنی» گاہکوں کو 60 سے زیادہ پیشوں کے کاریگروں سے مختلف شہروں میں ملاتا ہے۔\n\nاپنی مطلوبہ چیز منتخب کریں:",
     },
     "menu_search": {
         "ar": "🔍 البحث عن فني",
