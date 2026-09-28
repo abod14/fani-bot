@@ -138,13 +138,19 @@ def _contact_button(p: dict, lang: str) -> InlineKeyboardMarkup:
     )
 
 
-def _wa_link(number: str) -> str:
+def _wa_link(number: str, text: str | None = None) -> str:
     """يبني رابط واتساب دائمًا برقم دولي كامل برمز الدولة. بعض التسجيلات القديمة
     (قبل إصلاح التطبيع بخطوة التسجيل) قد يكون رقمها محفوظًا بصيغة محلية بدون رمز
     الدولة (05xxxxxxxx) — لو تركناه كما هو، واتساب نفسه يفتح لكنه يقول للعميل إن
     الفني ليس عنده حساب (لأن الرقم دوليًا غير صحيح)، رغم إن الفني فعليًا عنده
-    واتساب على نفس الرقم. لذا نطبّعه هنا أيضًا كطبقة حماية إضافية."""
+    واتساب على نفس الرقم. لذا نطبّعه هنا أيضًا كطبقة حماية إضافية.
+
+    text (اختياري): رسالة جاهزة تُدرج تلقائيًا بحقل الكتابة بواتساب (wa.me يدعم
+    ?text=)، نستخدمها عشان الفني يعرف إن العميل جاله عبر بوت «فني» — يشجّعه على
+    الاشتراك لما يشوف إن البوت يجيبه عملاء فعليين."""
     import re as _re
+    from urllib.parse import quote as _quote
+
     digits = _re.sub(r"\D", "", number)
     if digits.startswith("00"):
         digits = digits[2:]
@@ -152,7 +158,10 @@ def _wa_link(number: str) -> str:
         digits = "966" + digits[1:]
     elif not digits.startswith("966") and len(digits) == 9 and digits.startswith("5"):
         digits = "966" + digits
-    return f"https://wa.me/{digits}"
+    link = f"https://wa.me/{digits}"
+    if text:
+        link += f"?text={_quote(text)}"
+    return link
 
 
 def _professional_card_text(p: dict) -> str:
@@ -631,8 +640,11 @@ async def whatsapp_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await query.answer()
 
     if p.get("has_whatsapp", 1):
+        prefill = i18n.t("srch_wa_prefill_text", lang, profession=p["profession_name"])
         open_wa_keyboard = InlineKeyboardMarkup(
-            [[InlineKeyboardButton(i18n.t("srch_open_wa_btn", lang), url=_wa_link(p["whatsapp_number"]))]]
+            [[InlineKeyboardButton(
+                i18n.t("srch_open_wa_btn", lang), url=_wa_link(p["whatsapp_number"], prefill)
+            )]]
         )
         await query.message.reply_text(
             i18n.t("srch_wa_number_text", lang, name=p["full_name"], number=p["whatsapp_number"]),

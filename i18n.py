@@ -374,6 +374,11 @@ TEXTS: dict[str, dict[str, str]] = {
         "en": "💬 Open WhatsApp now",
         "ur": "💬 ابھی واٹس ایپ کھولیں",
     },
+    "srch_wa_prefill_text": {
+        "ar": "مرحبًا، لقيتك عبر بوت «فني» 🛠️ أحتاج خدمة: {profession}",
+        "en": "Hi, I found you through the Fani bot 🛠️ I need this service: {profession}",
+        "ur": "السلام علیکم، میں نے آپ کو فنی بوٹ کے ذریعے پایا 🛠️ مجھے یہ سروس چاہیے: {profession}",
+    },
     "srch_no_wa_text": {
         "ar": "{name} — هذا الرقم بدون واتساب:\n📞 للاتصال المباشر: {number}",
         "en": "{name} — this number has no WhatsApp:\n📞 Call directly: {number}",
