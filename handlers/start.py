@@ -51,6 +51,11 @@ async def _build_welcome_message(user_id: int, lang: str):
             )
         elif existing["status"] == db.STATUS_ACTIVE and existing["is_subscribed"]:
             text += i18n.t("subscribed_line", lang)
+        # توضيح صريح: كونك مسجّل كفني ما يمنعك تستخدم البوت كعميل بنفس الحساب —
+        # كثير مستخدمين (وحتى أثناء اختبار البوت) يلخبطهم ظهور حالة تسجيلهم
+        # كفني ويظنون إنه خطأ يمنعهم من البحث. هذا التنبيه لأي حساب مسجّل،
+        # مو حل خاص بحساب معيّن.
+        text += i18n.t("dual_role_hint", lang)
         keyboard = _main_menu_keyboard(lang, show_register=False)
     else:
         text = i18n.t("welcome", lang)

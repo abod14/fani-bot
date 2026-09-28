@@ -48,6 +48,11 @@ TEXTS: dict[str, dict[str, str]] = {
         "en": "\nYour subscription is active ✅",
         "ur": "\nآپ کی سبسکرپشن فعال ہے ✅",
     },
+    "dual_role_hint": {
+        "ar": "\n\n👇 هذا لا يمنعك من استخدام البوت كعميل أيضًا بنفس الحساب — اضغط زر «🔍 البحث عن فني» تحت في أي وقت تبي تدور على فني ثاني.",
+        "en": "\n\n👇 This doesn't stop you from also using the bot as a customer with the same account — tap \"🔍 Find a professional\" below anytime you want to search for someone else.",
+        "ur": "\n\n👇 یہ آپ کو اسی اکاؤنٹ سے بطور گاہک بوٹ استعمال کرنے سے نہیں روکتا — جب چاہیں کسی اور کاریگر کی تلاش کے لیے نیچے \"🔍 کاریگر تلاش کریں\" دبائیں۔",
+    },
     "status_pending": {"ar": "قيد المراجعة", "en": "Under review", "ur": "زیرِ جائزہ"},
     "status_active": {"ar": "نشط", "en": "Active", "ur": "فعال"},
     "status_rejected": {"ar": "مرفوض", "en": "Rejected", "ur": "مسترد"},
