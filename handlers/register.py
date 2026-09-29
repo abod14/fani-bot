@@ -746,6 +746,20 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return ConversationHandler.END
 
 
+async def restart_via_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """لو المستخدم أرسل /start وهو عالق بمنتصف محادثة تسجيل (بأي خطوة)، نخرجه
+    منها فورًا ونعرض له القائمة الرئيسية من جديد — بدل ما يبقى "محشور" بمحادثة
+    قديمة ما تستجيب صح لباقي أوامره لين تنتهي مهلتها (15 دقيقة). هذا الهاندلر
+    مسجَّل كـ fallback هنا، ومهم إن هاندلرز /register و/search بـ main.py تُسجَّل
+    *قبل* هاندلر /start العام، وإلا هذا الكود ما بيوصله /start أبدًا."""
+    context.user_data.clear()
+    from handlers.start import start_command
+
+    await update.message.reply_text(i18n.t("reg_cancelled", lang=_lang(context)), reply_markup=ReplyKeyboardRemove())
+    await start_command(update, context)
+    return ConversationHandler.END
+
+
 async def registration_timeout(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """لو المستخدم توقف بمنتصف التسجيل بدون إكمال أو إلغاء، ننهي المحادثة تلقائيًا
     بعد فترة (بدل ما تبقى عالقة للأبد وتسبب ردود غريبة لاحقًا مثل لغة قديمة)."""
@@ -808,6 +822,9 @@ def build_register_conversation() -> ConversationHandler:
             # من جديد، بدل ما ينتظر 15 دقيقة (conversation_timeout) بدون أي استجابة.
             CommandHandler("register", register_entry),
             CallbackQueryHandler(register_entry, pattern="^start_register$"),
+            # /start يخرجه من أي محادثة تسجيل عالقة ويرجعه للقائمة الرئيسية —
+            # لازم main.py يسجّل هذي المحادثة *قبل* هاندلر /start العام.
+            CommandHandler("start", restart_via_start),
         ],
         name="register_conversation",
         persistent=False,

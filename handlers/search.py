@@ -1133,6 +1133,20 @@ async def cancel_search(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return ConversationHandler.END
 
 
+async def restart_via_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """نفس فكرة register.py: لو العميل أرسل /start وهو عالق بمنتصف بحث قديم،
+    نخرجه منه فورًا ونعرض له القائمة الرئيسية، بدل ما يبقى عالق لين تنتهي مهلة
+    المحادثة (15 دقيقة). لازم main.py يسجّل هذي المحادثة *قبل* هاندلر /start
+    العام حتى يوصلها /start أصلًا."""
+    lang = _lang(context)
+    context.user_data.clear()
+    from handlers.start import start_command
+
+    await update.message.reply_text(i18n.t("srch_cancelled", lang))
+    await start_command(update, context)
+    return ConversationHandler.END
+
+
 async def search_timeout(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """لو العميل توقف بمنتصف البحث بدون إكمال، ننهي المحادثة تلقائيًا بعد فترة
     (بدل ما تبقى عالقة وتسبب ردود غريبة لاحقًا مثل لغة قديمة أو أزرار ما تشتغل)."""
@@ -1199,6 +1213,8 @@ def build_search_conversation() -> ConversationHandler:
             # بحث جديد فورًا بمجرد ما يضغط الزر أو يرسل الأمر من جديد.
             CommandHandler("search", search_entry),
             CallbackQueryHandler(search_entry, pattern="^start_search$"),
+            # /start يخرجه من أي بحث عالق ويرجعه للقائمة الرئيسية.
+            CommandHandler("start", restart_via_start),
         ],
         name="search_conversation",
         persistent=False,

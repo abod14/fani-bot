@@ -82,13 +82,18 @@ def main():
 
     app = ApplicationBuilder().token(BOT_TOKEN).build()
 
-    app.add_handler(CommandHandler("start", start_command))
-    app.add_handler(CommandHandler("help", help_command))
-
+    # محادثات /register و/search لازم تُسجَّل *قبل* هاندلر /start العام هنا —
+    # وإلا /start يوصّل دايمًا لـ start_command مباشرة (لأنه أول هاندلر بنفس
+    # المجموعة الافتراضية) وما توصل أبدًا لـ fallback الخاص بـ"/start" داخل كل
+    # محادثة، فتبقى حالة المحادثة الداخلية عالقة حتى بعد /start ويحس المستخدم
+    # إنه "ما يقدر يطلع" من البوت. الترتيب هنا يضمن إن أي محادثة نشطة تلتقط
+    # /start أول عن طريق fallback الخاص فيها وتنهي نفسها بشكل صحيح.
     app.add_handler(build_register_conversation())
     app.add_handler(build_search_conversation())
     app.add_handler(build_whatsapp_click_handler())
     app.add_handler(build_telegram_click_handler())
+    app.add_handler(CommandHandler("start", start_command))
+    app.add_handler(CommandHandler("help", help_command))
     # هاندلرز "التقاط الجلسات المنتهية" — لازم تُسجَّل بعد كل هاندلرز /search
     # و/register أعلاه (بنفس المجموعة الافتراضية)، عشان تلتقط بس الضغطات اللي
     # ما قدر أي هاندلر سابق (المحادثة النشطة، أو أزرار واتساب/تلغرام الدائمة)
