@@ -1300,6 +1300,13 @@ def get_admin_stats() -> dict:
     """إحصائيات عامة للوحة الرئيسية: أعداد الفنيين بكل حالة، التواصلات، الإيرادات،
     وأكثر المهن والمدن طلبًا."""
     with get_conn() as conn:
+        # إجمالي المستخدمين اللي دخلوا البوت وسووا /start ولو مرة (كل مستخدم
+        # يُسجَّل بجدول user_languages أول ما يختار لغته، فهذا يعطي عدد فعلي
+        # لكل من "دخل" البوت — فنيين وعملاء مع بعض، بدون تكرار).
+        total_users = conn.execute(
+            "SELECT COUNT(*) FROM user_languages"
+        ).fetchone()[0]
+
         status_counts = {
             row["status"]: row["c"]
             for row in conn.execute(
@@ -1337,6 +1344,7 @@ def get_admin_stats() -> dict:
         ).fetchall()
 
         return {
+            "total_users": total_users,
             "status_counts": status_counts,
             "total_professionals": total_professionals,
             "subscribed_count": subscribed_count,
