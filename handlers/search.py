@@ -547,7 +547,7 @@ async def receive_early_location(update: Update, context: ContextTypes.DEFAULT_T
 
     await update.message.reply_text(
         text,
-        reply_markup=_location_confirm_keyboard(choices, [district["id"]], district["id"], lang),
+        reply_markup=_location_confirm_keyboard(choices, [], district["id"], lang),
     )
     return SEARCH_REGION
 
