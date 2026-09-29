@@ -540,7 +540,7 @@ async def receive_early_location(update: Update, context: ContextTypes.DEFAULT_T
 
     ud["pending_detected_district_id"] = district["id"]
     ud["loc_choice_map"] = choices
-    ud["loc_selected_ids"] = [district["id"]]  # محدد افتراضيًا (نفس سلوك "نعم هو" القديم)
+    ud["loc_selected_ids"] = []  # ما فيه أي تحديد افتراضي — العميل يعلّم بنفسه
 
     district_line = i18n.t("srch_location_confirm_district_line", lang, district=district["name"])
     text = i18n.t("srch_location_confirm", lang, city=city["name"], district_line=district_line)
