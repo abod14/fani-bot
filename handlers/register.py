@@ -322,7 +322,7 @@ async def choose_region(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
     region_id = int(query.data.split(":", 1)[1])
-    region = db.get_sa_region_by_id(region_id)
+    region = await asyncio.to_thread(db.get_sa_region_by_id, region_id)
     if not region:
         await query.edit_message_text(i18n.t("unknown_option", lang), reply_markup=_region_keyboard())
         return REGION
@@ -352,7 +352,7 @@ async def city_text_search(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return REGION
 
     query_text = update.message.text.strip()
-    matches = db.search_sa_major_cities(region_id, query_text)
+    matches = await asyncio.to_thread(db.search_sa_major_cities, region_id, query_text)
     if not matches:
         await update.message.reply_text(
             i18n.t("reg_city_not_found", lang),
@@ -389,7 +389,7 @@ async def choose_city(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
     city_id = int(query.data.split(":", 1)[1])
-    city = db.get_sa_city_by_id(city_id)
+    city = await asyncio.to_thread(db.get_sa_city_by_id, city_id)
     if not city:
         await query.edit_message_text(i18n.t("unknown_option", lang))
         return CITY
@@ -428,7 +428,7 @@ async def district_text_search(update: Update, context: ContextTypes.DEFAULT_TYP
 
     selected = set(context.user_data.get("selected_district_ids", []))
     query_text = update.message.text.strip()
-    matches = db.search_sa_districts(city_id, query_text)
+    matches = await asyncio.to_thread(db.search_sa_districts, city_id, query_text)
     if not matches:
         await update.message.reply_text(
             i18n.t("reg_district_not_found", lang),
@@ -493,7 +493,7 @@ async def districts_done(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return NEIGHBORHOOD
     await query.answer()
 
-    districts = db.list_sa_districts_by_city(context.user_data["city_id"])
+    districts = await asyncio.to_thread(db.list_sa_districts_by_city, context.user_data["city_id"])
     by_id = {d["id"]: d for d in districts}
     chosen = [by_id[did] for did in selected_ids if did in by_id]
 
@@ -566,8 +566,9 @@ async def got_telegram_contact(update: Update, context: ContextTypes.DEFAULT_TYP
         i18n.t("reg_profession_prompt", lang),
         reply_markup=ReplyKeyboardRemove(),
     )
+    keyboard = await asyncio.to_thread(_profession_list_grouped_keyboard, lang)
     await update.message.reply_text(
-        i18n.t("reg_all_professions_list", lang), reply_markup=_profession_list_grouped_keyboard(lang)
+        i18n.t("reg_all_professions_list", lang), reply_markup=keyboard
     )
     return PROFESSION
 
@@ -586,10 +587,11 @@ async def choose_profession(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
     profession_id = query.data.split(":", 1)[1]
-    domain, profession = professions.get_profession(profession_id, lang)
+    domain, profession = await asyncio.to_thread(professions.get_profession, profession_id, lang)
     if not profession:
+        keyboard = await asyncio.to_thread(_profession_list_grouped_keyboard, lang)
         await query.edit_message_text(
-            i18n.t("unknown_option", lang), reply_markup=_profession_list_grouped_keyboard(lang)
+            i18n.t("unknown_option", lang), reply_markup=keyboard
         )
         return PROFESSION
 
@@ -655,9 +657,10 @@ async def confirm_edit(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = _lang(context)
     query = update.callback_query
     await query.answer()
+    keyboard = await asyncio.to_thread(_profession_list_grouped_keyboard, lang)
     await query.edit_message_text(
         i18n.t("reg_edit_profession_note", lang),
-        reply_markup=_profession_list_grouped_keyboard(lang),
+        reply_markup=keyboard,
     )
     return PROFESSION
 
@@ -679,9 +682,10 @@ async def back_to_profession_from_services(update: Update, context: ContextTypes
     lang = _lang(context)
     query = update.callback_query
     await query.answer()
+    keyboard = await asyncio.to_thread(_profession_list_grouped_keyboard, lang)
     await query.edit_message_text(
         i18n.t("reg_all_professions_list", lang),
-        reply_markup=_profession_list_grouped_keyboard(lang),
+        reply_markup=keyboard,
     )
     return PROFESSION
 

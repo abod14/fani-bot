@@ -318,9 +318,10 @@ async def search_entry(update: Update, context: ContextTypes.DEFAULT_TYPE):
     target = update.message or update.callback_query.message
     if update.callback_query:
         await update.callback_query.answer()
+    keyboard = await asyncio.to_thread(_profession_list_keyboard, lang)
     await target.reply_text(
         i18n.t("srch_entry", lang),
-        reply_markup=_profession_list_keyboard(lang),
+        reply_markup=keyboard,
     )
     return SEARCH_PROFESSION
 
@@ -366,7 +367,8 @@ async def back_to_search_professions(update: Update, context: ContextTypes.DEFAU
     lang = _lang(context)
     query = update.callback_query
     await query.answer()
-    await query.edit_message_text(i18n.t("srch_entry", lang), reply_markup=_profession_list_keyboard(lang))
+    keyboard = await asyncio.to_thread(_profession_list_keyboard, lang)
+    await query.edit_message_text(i18n.t("srch_entry", lang), reply_markup=keyboard)
     return SEARCH_PROFESSION
 
 
@@ -375,8 +377,9 @@ async def profession_text_fallback(update: Update, context: ContextTypes.DEFAULT
     بدل ما يضغط زر، نرسل له القائمة من جديد بدل ما نتجاهل رسالته بصمت (هذا
     بالضبط اللي كان يخلي البحث يبدو "معلّق" على العميل)."""
     lang = _lang(context)
+    keyboard = await asyncio.to_thread(_profession_list_keyboard, lang)
     await update.message.reply_text(
-        i18n.t("srch_entry", lang), reply_markup=_profession_list_keyboard(lang)
+        i18n.t("srch_entry", lang), reply_markup=keyboard
     )
     return SEARCH_PROFESSION
 
@@ -387,9 +390,10 @@ async def choose_search_profession(update: Update, context: ContextTypes.DEFAULT
     await query.answer()
     profession_id = query.data.split(":", 1)[1]
 
-    text, markup, next_state = _profession_selected_state(context, profession_id, lang)
+    text, markup, next_state = await asyncio.to_thread(_profession_selected_state, context, profession_id, lang)
     if not next_state:
-        await query.edit_message_text(i18n.t("unknown_option", lang), reply_markup=_profession_list_keyboard(lang))
+        keyboard = await asyncio.to_thread(_profession_list_keyboard, lang)
+        await query.edit_message_text(i18n.t("unknown_option", lang), reply_markup=keyboard)
         return SEARCH_PROFESSION
 
     if next_state == "location":
@@ -456,7 +460,7 @@ async def choose_search_region(update: Update, context: ContextTypes.DEFAULT_TYP
     query = update.callback_query
     await query.answer()
     region_id = int(query.data.split(":", 1)[1])
-    region = db.get_sa_region_by_id(region_id)
+    region = await asyncio.to_thread(db.get_sa_region_by_id, region_id)
     if not region:
         await query.edit_message_text(i18n.t("unknown_option", lang), reply_markup=_region_keyboard())
         return SEARCH_REGION
@@ -691,7 +695,7 @@ async def choose_search_city(update: Update, context: ContextTypes.DEFAULT_TYPE)
     query = update.callback_query
     await query.answer()
     city_id = int(query.data.split(":", 1)[1])
-    city = db.get_sa_city_by_id(city_id)
+    city = await asyncio.to_thread(db.get_sa_city_by_id, city_id)
     if not city:
         await query.edit_message_text(i18n.t("unknown_option", lang))
         return SEARCH_CITY
@@ -715,7 +719,7 @@ async def city_text_search(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return SEARCH_REGION
 
     query_text = update.message.text.strip()
-    matches = db.search_sa_major_cities(region_id, query_text)
+    matches = await asyncio.to_thread(db.search_sa_major_cities, region_id, query_text)
     if not matches:
         await update.message.reply_text(
             i18n.t("reg_city_not_found", lang),
@@ -746,7 +750,7 @@ async def district_text_search(update: Update, context: ContextTypes.DEFAULT_TYP
         return SEARCH_CITY
 
     query_text = update.message.text.strip()
-    matches = db.search_sa_districts(city_id, query_text)
+    matches = await asyncio.to_thread(db.search_sa_districts, city_id, query_text)
     if not matches:
         await update.message.reply_text(
             i18n.t("reg_district_not_found", lang),
@@ -783,7 +787,7 @@ async def choose_search_district(update: Update, context: ContextTypes.DEFAULT_T
     query = update.callback_query
     await query.answer()
     district_id = int(query.data.split(":", 1)[1])
-    districts = db.list_sa_districts_by_city(context.user_data["city_id"])
+    districts = await asyncio.to_thread(db.list_sa_districts_by_city, context.user_data["city_id"])
     district = next((d for d in districts if d["id"] == district_id), None)
     if not district:
         await query.edit_message_text(i18n.t("unknown_option", lang))
