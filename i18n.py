@@ -188,6 +188,16 @@ TEXTS: dict[str, dict[str, str]] = {
         "en": "Field: {domain}\n\nChoose your profession:",
         "ur": "شعبہ: {domain}\n\nاپنا پیشہ منتخب کریں:",
     },
+    "reg_profession_prompt": {
+        "ar": "تمام ✅ اختر مهنتك من القائمة (مقسّمة حسب المجال):",
+        "en": "Great ✅ Choose your profession from the list (grouped by field):",
+        "ur": "ٹھیک ہے ✅ فہرست سے اپنا پیشہ منتخب کریں (شعبے کے مطابق تقسیم شدہ):",
+    },
+    "reg_all_professions_list": {
+        "ar": "كل المهن المتاحة:",
+        "en": "All available professions:",
+        "ur": "تمام دستیاب پیشے:",
+    },
     "back_to_domain_btn": {
         "ar": "⬅️ رجوع لاختيار المجال",
         "en": "⬅️ Back to field selection",

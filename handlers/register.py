@@ -51,6 +51,7 @@ HAS_WHATSAPP_YES_CB = "reg_has_wa_yes"
 HAS_WHATSAPP_NO_CB = "reg_has_wa_no"
 SERVICES_DONE_CB = "reg_services_done"
 SERVICES_BACK_CB = "reg_svc_back"
+PROFESSION_NOOP_CB = "reg_prof_noop"
 CONFIRM_YES_CB = "reg_confirm_yes"
 CONFIRM_EDIT_CB = "reg_confirm_edit"  # تعديل المهنة فقط (يرجع لخطوة المجال/المهنة)
 CONFIRM_EDIT_ALL_CB = "reg_confirm_edit_all"  # تعديل الكل (يعيد التسجيل من الاسم)
@@ -205,6 +206,30 @@ def _profession_keyboard(domain_id: str, lang: str) -> InlineKeyboardMarkup:
     buttons.append(
         [InlineKeyboardButton(i18n.t("back_to_domain_btn", lang), callback_data="reg_back_domain")]
     )
+    return InlineKeyboardMarkup(buttons)
+
+
+def _profession_list_grouped_keyboard(lang: str) -> InlineKeyboardMarkup:
+    """كل المهن (أيًا كان عددها الحالي) بلوحة واحدة مسطّحة مقسّمة تحت عناوين
+    مجالاتها (أقسامها) — نفس فكرة القائمة المسطّحة اللي بنيناها لخطوة بحث
+    العميل (_profession_list_keyboard بـ search.py)، مع فرق واحد: هنا نضيف قبل
+    مهن كل مجال زر عنوان غير قابل للاستخدام (callback_data ثابت PROFESSION_NOOP_CB)
+    يوضّح للفني القسم اللي تنتمي له المهن التالية، بدل ما يضطر يختار المجال أولاً
+    بخطوة منفصلة كما كان سابقًا."""
+    buttons = []
+    for d in professions.get_domains(lang):
+        profs = professions.get_professions_by_domain(d["id"], lang)
+        if not profs:
+            continue
+        buttons.append([InlineKeyboardButton(f"── {d['name']} ──", callback_data=PROFESSION_NOOP_CB)])
+        row = []
+        for p in profs:
+            row.append(InlineKeyboardButton(p["name"], callback_data=f"reg_prof:{p['id']}"))
+            if len(row) == 2:
+                buttons.append(row)
+                row = []
+        if row:
+            buttons.append(row)
     return InlineKeyboardMarkup(buttons)
 
 
@@ -538,40 +563,22 @@ async def got_telegram_contact(update: Update, context: ContextTypes.DEFAULT_TYP
 
     context.user_data["telegram_contact_number"] = contact.phone_number
     await update.message.reply_text(
-        i18n.t("reg_domain_prompt", lang),
+        i18n.t("reg_profession_prompt", lang),
         reply_markup=ReplyKeyboardRemove(),
     )
-    await update.message.reply_text(i18n.t("domains_available", lang), reply_markup=_domain_keyboard(lang))
-    return DOMAIN
-
-
-# ─────────────────────────── الخطوة 3 (بديل): المجال والمهنة ───────────────────────────
-
-async def choose_domain(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    lang = _lang(context)
-    query = update.callback_query
-    await query.answer()
-    domain_id = query.data.split(":", 1)[1]
-    domain = professions.get_domain(domain_id, lang)
-    if not domain:
-        await query.edit_message_text(i18n.t("unknown_option", lang), reply_markup=_domain_keyboard(lang))
-        return DOMAIN
-
-    context.user_data["domain_id"] = domain_id
-    context.user_data["domain_name"] = domain["name"]
-    await query.edit_message_text(
-        i18n.t("reg_domain_selected", lang, domain=domain["name"]),
-        reply_markup=_profession_keyboard(domain_id, lang),
+    await update.message.reply_text(
+        i18n.t("reg_all_professions_list", lang), reply_markup=_profession_list_grouped_keyboard(lang)
     )
     return PROFESSION
 
 
-async def back_to_domain(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    lang = _lang(context)
-    query = update.callback_query
-    await query.answer()
-    await query.edit_message_text(i18n.t("domains_available", lang), reply_markup=_domain_keyboard(lang))
-    return DOMAIN
+# ─────────────────────────── الخطوة 3 (بديل): المهنة (كل المهن مع أقسامها) ───────────────────────────
+
+async def profession_list_noop(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """زر عنوان القسم غير قابل للاستخدام — فقط يرد على الضغطة بصمت لو أحد
+    ضغطه بالخطأ (تلغرام يظهر ساعة تحميل على الزر لو ما رددنا على الاستعلام)."""
+    await update.callback_query.answer()
+    return PROFESSION
 
 
 async def choose_profession(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -581,9 +588,13 @@ async def choose_profession(update: Update, context: ContextTypes.DEFAULT_TYPE):
     profession_id = query.data.split(":", 1)[1]
     domain, profession = professions.get_profession(profession_id, lang)
     if not profession:
-        await query.edit_message_text(i18n.t("unknown_option", lang))
+        await query.edit_message_text(
+            i18n.t("unknown_option", lang), reply_markup=_profession_list_grouped_keyboard(lang)
+        )
         return PROFESSION
 
+    context.user_data["domain_id"] = domain["id"] if domain else None
+    context.user_data["domain_name"] = domain["name"] if domain else ""
     context.user_data["profession_id"] = profession_id
     context.user_data["profession_name"] = profession["name"]
     context.user_data["available_services"] = profession["services"]
@@ -638,7 +649,7 @@ async def services_done(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # ─────────────────────────── الخطوة 6-7: المراجعة والتأكيد ───────────────────────────
 
 async def confirm_edit(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """تعديل المهنة فقط: يرجع لخطوة اختيار المجال/المهنة، محتفظًا بباقي البيانات
+    """تعديل المهنة فقط: يرجع لقائمة كل المهن (مع أقسامها)، محتفظًا بباقي البيانات
     (الاسم، الموقع، أرقام التواصل) — يسمح للفني يستكشف مهنة ثانية قبل ما يقرر،
     بدون ما يعيد كتابة كل بياناته من الصفر."""
     lang = _lang(context)
@@ -646,9 +657,9 @@ async def confirm_edit(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await query.answer()
     await query.edit_message_text(
         i18n.t("reg_edit_profession_note", lang),
-        reply_markup=_domain_keyboard(lang),
+        reply_markup=_profession_list_grouped_keyboard(lang),
     )
-    return DOMAIN
+    return PROFESSION
 
 
 async def confirm_edit_all(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -663,15 +674,14 @@ async def confirm_edit_all(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def back_to_profession_from_services(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """زر رجوع من خطوة الخدمات لقائمة المهن بنفس المجال — يتيح استكشاف مهنة ثانية
-    (بخدماتها) قبل الاستقرار على واحدة، بدل ما يضطر يلغي التسجيل بالكامل."""
+    """زر رجوع من خطوة الخدمات لقائمة كل المهن (مع أقسامها) — يتيح استكشاف مهنة
+    ثانية (بخدماتها) قبل الاستقرار على واحدة، بدل ما يضطر يلغي التسجيل بالكامل."""
     lang = _lang(context)
     query = update.callback_query
     await query.answer()
-    domain_id = context.user_data.get("domain_id")
     await query.edit_message_text(
-        i18n.t("reg_domain_selected", lang, domain=context.user_data.get("domain_name", "")),
-        reply_markup=_profession_keyboard(domain_id, lang),
+        i18n.t("reg_all_professions_list", lang),
+        reply_markup=_profession_list_grouped_keyboard(lang),
     )
     return PROFESSION
 
@@ -775,10 +785,9 @@ def build_register_conversation() -> ConversationHandler:
             TELEGRAM_CONTACT: [
                 MessageHandler(filters.CONTACT | (filters.TEXT & ~filters.COMMAND), got_telegram_contact)
             ],
-            DOMAIN: [CallbackQueryHandler(choose_domain, pattern="^reg_dom:")],
             PROFESSION: [
                 CallbackQueryHandler(choose_profession, pattern="^reg_prof:"),
-                CallbackQueryHandler(back_to_domain, pattern="^reg_back_domain$"),
+                CallbackQueryHandler(profession_list_noop, pattern=f"^{PROFESSION_NOOP_CB}$"),
             ],
             SERVICES: [
                 CallbackQueryHandler(services_done, pattern=f"^{SERVICES_DONE_CB}$"),
