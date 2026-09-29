@@ -440,9 +440,9 @@ TEXTS: dict[str, dict[str, str]] = {
         "ur": "ہم نے آپ کی تقریبی لوکیشن متعین کی:\n\n🏙️ شہر: {city}{district_line}\n\nکیا یہ درست ہے؟",
     },
     "srch_location_confirm_yes_btn": {
-        "ar": "✅ نعم هو",
-        "en": "✅ Yes, that's it",
-        "ur": "✅ جی ہاں",
+        "ar": "نعم هو",
+        "en": "Yes, that's it",
+        "ur": "جی ہاں",
     },
     "srch_location_confirm_no_btn": {
         "ar": "🏘️ لا، اختيار يدوي",
