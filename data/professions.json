@@ -498,6 +498,19 @@
           ]
         },
         {
+          "id": "p68",
+          "name": "ميكب آرتست",
+          "subcategory": "مكياج (نسائي)",
+          "isco_code": "5142",
+          "official_name_en": "Beauticians and Related Workers (أقرب فئة)",
+          "status": "يحتاج تحقق",
+          "services": [
+            "مكياج مناسبات وأعراس",
+            "مكياج خفيف يومي",
+            "خدمة منزلية أو بالصالون"
+          ]
+        },
+        {
           "id": "p33",
           "name": "مدرب لياقة شخصي",
           "subcategory": "لياقة",
