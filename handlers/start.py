@@ -20,7 +20,7 @@ def _language_keyboard() -> InlineKeyboardMarkup:
         [
             [InlineKeyboardButton("🇸🇦 العربية", callback_data=f"{LANG_CB_PREFIX}ar")],
             [InlineKeyboardButton("🇬🇧 English", callback_data=f"{LANG_CB_PREFIX}en")],
-            [InlineKeyboardButton("🇵🇰 اردو", callback_data=f"{LANG_CB_PREFIX}ur")],
+            [InlineKeyboardButton("اردو", callback_data=f"{LANG_CB_PREFIX}ur")],
         ]
     )
 
