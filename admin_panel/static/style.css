@@ -183,10 +183,10 @@ button.danger, .btn.danger {
 button.danger:hover, .btn.danger:hover {
   background: #b91c1c;
 }
-button.success {
+button.success, .btn.success {
   background: #059669;
 }
-button.success:hover {
+button.success:hover, .btn.success:hover {
   background: #047857;
 }
 

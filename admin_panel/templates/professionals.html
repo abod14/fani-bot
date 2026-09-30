@@ -51,6 +51,9 @@
   <div class="field">
     <a class="btn secondary" href="{{ url_for('professionals_list') }}">إعادة تعيين</a>
   </div>
+  <div class="field">
+    <a class="btn success" href="{{ url_for('professionals_export', **filters_qs) }}">⬇️ تنزيل إكسل</a>
+  </div>
 </form>
 
 <div class="card">

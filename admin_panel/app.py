@@ -12,7 +12,9 @@ from pathlib import Path
 # داخل مجلد فرعي (admin_panel/).
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from flask import Flask, flash, redirect, render_template, request, session, url_for
+import io
+
+from flask import Flask, Response, flash, redirect, render_template, request, session, url_for
 
 import config
 import db
@@ -131,6 +133,83 @@ def professionals_list():
         profession_options=_profession_options(),
         status_labels=db.STATUS_LABELS_AR,
         active_page="professionals",
+    )
+
+
+@app.route("/professionals/export.xlsx")
+@login_required
+def professionals_export():
+    """تنزيل قائمة الفنيين (بنفس فلاتر صفحة الفنيون الحالية إن وُجدت) كملف إكسل."""
+    try:
+        import openpyxl
+        from openpyxl.styles import Alignment, Font
+    except ImportError:
+        flash("ميزة التصدير تحتاج مكتبة openpyxl غير مثبتة على السيرفر — شغّل: pip install openpyxl", "error")
+        return redirect(url_for("professionals_list"))
+
+    status = request.args.get("status") or None
+    city = request.args.get("city") or None
+    profession_id = request.args.get("profession_id") or None
+    subscribed_raw = request.args.get("subscribed") or None
+    query = request.args.get("q") or None
+
+    subscribed = None
+    if subscribed_raw == "yes":
+        subscribed = True
+    elif subscribed_raw == "no":
+        subscribed = False
+
+    total_count = db.admin_count_professionals(
+        status=status, city=city, profession_id=profession_id, subscribed=subscribed, query=query
+    )
+    professionals = db.admin_list_professionals(
+        status=status, city=city, profession_id=profession_id, subscribed=subscribed, query=query,
+        limit=max(total_count, 1), offset=0,
+    )
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "الفنيون"
+    ws.sheet_view.rightToLeft = True
+
+    headers = [
+        "الاسم", "رقم الواتساب", "رقم تواصل تيليجرام", "المهنة", "المجال",
+        "المدينة", "الحي", "الحالة", "مشترك", "تاريخ انتهاء الاشتراك",
+        "فرص مجانية مستخدمة", "تاريخ التسجيل",
+    ]
+    ws.append(headers)
+    for cell in ws[1]:
+        cell.font = Font(bold=True)
+        cell.alignment = Alignment(horizontal="center")
+
+    for p in professionals:
+        ws.append([
+            p["full_name"],
+            p["whatsapp_number"],
+            p["telegram_contact_number"] or "",
+            p["profession_name"],
+            p["domain_name"],
+            p["city"],
+            p["neighborhood"] or "",
+            db.STATUS_LABELS_AR.get(p["status"], p["status"]),
+            "نعم" if p["is_subscribed"] else "لا",
+            (p["subscription_expires_at"] or "")[:10],
+            p["free_contacts_used"],
+            (p["created_at"] or "")[:16],
+        ])
+
+    for col in ws.columns:
+        max_len = max((len(str(c.value)) for c in col if c.value is not None), default=10)
+        ws.column_dimensions[col[0].column_letter].width = min(max_len + 2, 40)
+
+    buf = io.BytesIO()
+    wb.save(buf)
+    buf.seek(0)
+
+    return Response(
+        buf.getvalue(),
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": "attachment; filename=الفنيون.xlsx"},
     )
 
 
