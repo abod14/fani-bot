@@ -33,6 +33,31 @@ TEXTS: dict[str, dict[str, str]] = {
         "en": "📝 Register as a professional",
         "ur": "📝 کاریگر کے طور پر رجسٹر کریں",
     },
+    "menu_channel": {
+        "ar": "📢 قناتنا بتلغرام",
+        "en": "📢 Our Telegram channel",
+        "ur": "📢 ہمارا ٹیلیگرام چینل",
+    },
+    "reg_channel_gate": {
+        "ar": "قبل ما نكمل تسجيلك كفني، لازم تكون مشترك بقناتنا بتلغرام أول 📢\n\n١) اضغط \"اشترك بالقناة\"\n٢) بعد ما تشترك، ارجع واضغط \"تحققت، أكمل\"",
+        "en": "Before we continue your registration, please join our Telegram channel first 📢\n\n1) Tap \"Join the channel\"\n2) After joining, come back and tap \"I joined, continue\"",
+        "ur": "رجسٹریشن جاری رکھنے سے پہلے، پہلے ہمارے ٹیلیگرام چینل میں شامل ہوں 📢\n\n١) \"چینل میں شامل ہوں\" دبائیں\n٢) شامل ہونے کے بعد واپس آکر \"شامل ہو گیا، جاری رکھیں\" دبائیں",
+    },
+    "reg_channel_join_btn": {
+        "ar": "📢 اشترك بالقناة",
+        "en": "📢 Join the channel",
+        "ur": "📢 چینل میں شامل ہوں",
+    },
+    "reg_channel_check_btn": {
+        "ar": "✅ تحققت، أكمل",
+        "en": "✅ I joined, continue",
+        "ur": "✅ شامل ہو گیا، جاری رکھیں",
+    },
+    "reg_channel_not_joined": {
+        "ar": "لسا ما ظهر إنك مشترك بالقناة 🤔\nتأكد إنك ضغطت \"اشترك\" فعليًا بالقناة، ثم جرّب زر \"تحققت\" مرة ثانية.",
+        "en": "It looks like you haven't joined the channel yet 🤔\nMake sure you actually joined, then try \"I joined, continue\" again.",
+        "ur": "لگتا ہے آپ ابھی تک چینل میں شامل نہیں ہوئے 🤔\nیقینی بنائیں کہ آپ شامل ہو چکے ہیں، پھر دوبارہ کوشش کریں۔",
+    },
     "status_line": {
         "ar": "\n\nأنت مسجّل لدينا كفني ({profession}) — حالة طلبك: {status}.",
         "en": "\n\nYou're registered with us as a professional ({profession}) — your status: {status}.",

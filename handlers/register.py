@@ -26,11 +26,13 @@ from telegram.ext import (
     filters,
 )
 
+import config
 import db
 import i18n
 import professions_repo as professions
 
 (
+    CHANNEL_GATE,
     NAME,
     REGION,
     CITY,
@@ -42,7 +44,32 @@ import professions_repo as professions
     PROFESSION,
     SERVICES,
     CONFIRM,
-) = range(11)
+) = range(12)
+
+CHANNEL_CHECK_CB = "reg_channel_check"
+
+
+def _channel_gate_keyboard(lang: str) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        [
+            [InlineKeyboardButton(i18n.t("reg_channel_join_btn", lang), url=config.CHANNEL_URL)],
+            [InlineKeyboardButton(i18n.t("reg_channel_check_btn", lang), callback_data=CHANNEL_CHECK_CB)],
+        ]
+    )
+
+
+async def _is_subscribed_to_channel(context: ContextTypes.DEFAULT_TYPE, user_id: int) -> bool:
+    """يتحقق هل المستخدم مشترك بقناة البوت (config.CHANNEL_USERNAME) فعليًا.
+
+    يحتاج البوت يكون "مشرف" (Admin) بالقناة حتى يقدر يستعلم — لو حصل أي خطأ
+    (البوت لسا مو أدمن، القناة غير موجودة...) نسمح بإكمال التسجيل بدل ما نعلّق
+    كل المسجّلين الجدد بسبب خطأ إعداد عندنا (fail-open، مع تسجيل تحذير بالسجلات)."""
+    try:
+        member = await context.bot.get_chat_member(f"@{config.CHANNEL_USERNAME}", user_id)
+        return member.status in ("member", "administrator", "creator")
+    except Exception as e:  # noqa: BLE001 — أي خطأ هنا يعني مشكلة إعداد، مو مشكلة بالمستخدم
+        print(f"[channel_check] تعذّر التحقق من اشتراك {user_id} بالقناة: {e}")
+        return True
 
 BACK_TO_REGIONS_CB = "reg_back_regions"
 DISTRICT_TOGGLE_CB_PREFIX = "reg_dist_toggle:"
@@ -297,10 +324,32 @@ async def register_entry(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return ConversationHandler.END
 
+    if not await _is_subscribed_to_channel(context, update.effective_user.id):
+        await target.reply_text(
+            i18n.t("reg_channel_gate", lang),
+            reply_markup=_channel_gate_keyboard(lang),
+        )
+        return CHANNEL_GATE
+
     await target.reply_text(
         i18n.t("reg_start", lang),
         reply_markup=ReplyKeyboardRemove(),
     )
+    return NAME
+
+
+async def channel_check(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    lang = _lang(context)
+    query = update.callback_query
+
+    if not await _is_subscribed_to_channel(context, update.effective_user.id):
+        # answer() تُستدعى مرة وحدة فقط لكل ضغطة زر — هنا نستخدمها لعرض تنبيه منبثق
+        # بدل رسالة عادية، لأنه الحالة الأكثر احتمالًا (نسي يشترك فعليًا).
+        await query.answer(i18n.t("reg_channel_not_joined", lang), show_alert=True)
+        return CHANNEL_GATE
+
+    await query.answer()
+    await query.edit_message_text(i18n.t("reg_start", lang))
     return NAME
 
 
@@ -782,6 +831,7 @@ def build_register_conversation() -> ConversationHandler:
             CallbackQueryHandler(register_entry, pattern="^start_register$"),
         ],
         states={
+            CHANNEL_GATE: [CallbackQueryHandler(channel_check, pattern=f"^{CHANNEL_CHECK_CB}$")],
             NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, got_name)],
             REGION: [CallbackQueryHandler(choose_region, pattern="^reg_region:")],
             CITY: [

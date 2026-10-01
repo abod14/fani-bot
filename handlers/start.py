@@ -7,6 +7,7 @@ import asyncio
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import CallbackQueryHandler, CommandHandler, ContextTypes
 
+import config
 import db
 import i18n
 
@@ -31,6 +32,7 @@ def _main_menu_keyboard(lang: str, show_register: bool = True) -> InlineKeyboard
         buttons.append(
             [InlineKeyboardButton(i18n.t("menu_register", lang), callback_data=CB_START_REGISTER)]
         )
+    buttons.append([InlineKeyboardButton(i18n.t("menu_channel", lang), url=config.CHANNEL_URL)])
     return InlineKeyboardMarkup(buttons)
 
 
