@@ -66,9 +66,11 @@ async def _is_subscribed_to_channel(context: ContextTypes.DEFAULT_TYPE, user_id:
     كل المسجّلين الجدد بسبب خطأ إعداد عندنا (fail-open، مع تسجيل تحذير بالسجلات)."""
     try:
         member = await context.bot.get_chat_member(f"@{config.CHANNEL_USERNAME}", user_id)
-        return member.status in ("member", "administrator", "creator")
+        is_sub = member.status in ("member", "administrator", "creator")
+        print(f"[channel_check] user={user_id} status={member.status!r} subscribed={is_sub}", flush=True)
+        return is_sub
     except Exception as e:  # noqa: BLE001 — أي خطأ هنا يعني مشكلة إعداد، مو مشكلة بالمستخدم
-        print(f"[channel_check] تعذّر التحقق من اشتراك {user_id} بالقناة: {e}")
+        print(f"[channel_check] تعذّر التحقق من اشتراك {user_id} بالقناة: {e}", flush=True)
         return True
 
 BACK_TO_REGIONS_CB = "reg_back_regions"
