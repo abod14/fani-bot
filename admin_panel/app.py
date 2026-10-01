@@ -206,10 +206,19 @@ def professionals_export():
     wb.save(buf)
     buf.seek(0)
 
+    # ملاحظة مهمة: اسم ملف بحروف عربية في Content-Disposition العادي (filename=...)
+    # يكسر الترويسة (HTTP headers لازم تكون ASCII/latin-1) ويسبب خطأ 500 بدل ما
+    # ينزل الملف — لازم نستخدم الصيغة المشفّرة filename*=UTF-8''... مع اسم احتياطي
+    # إنجليزي بسيط بالصيغة العادية لأي متصفح قديم ما يفهم الصيغة الجديدة.
+    from urllib.parse import quote
+
+    encoded_name = quote("الفنيون.xlsx")
     return Response(
         buf.getvalue(),
         mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        headers={"Content-Disposition": "attachment; filename=الفنيون.xlsx"},
+        headers={
+            "Content-Disposition": f"attachment; filename=professionals.xlsx; filename*=UTF-8''{encoded_name}"
+        },
     )
 
 
