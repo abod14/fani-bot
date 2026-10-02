@@ -164,11 +164,20 @@ def _city_keyboard(region_id: int, page: int, lang: str, back_cb: str | None = B
     )
 
 
+def _change_country_rows(lang: str) -> list:
+    """زر «تغيير الدولة» — يظهر تحت قائمة الأحياء أيضًا، لأن بالكويت/البحرين البوت
+    يتخطى المنطقة والمدينة ويوصل للأحياء مباشرة، فبدونه العميل يعلق بدولته."""
+    if len(countries.enabled_codes()) > 1:
+        return [[InlineKeyboardButton(i18n.t("change_country_btn", lang), callback_data=CHANGE_COUNTRY_CB)]]
+    return []
+
+
 def _district_keyboard(city_id: int, page: int, lang: str) -> InlineKeyboardMarkup:
     districts = db.list_sa_districts_by_city(city_id)
     return _paginated_keyboard(
         districts, page, "srch_dist:", "srch_dist_page:",
-        extra_rows=[[InlineKeyboardButton(i18n.t("srch_skip_district_btn", lang), callback_data=SKIP_NEIGHBORHOOD_CB)]],
+        extra_rows=[[InlineKeyboardButton(i18n.t("srch_skip_district_btn", lang), callback_data=SKIP_NEIGHBORHOOD_CB)]]
+        + _change_country_rows(lang),
     )
 
 
@@ -870,6 +879,7 @@ async def district_text_search(update: Update, context: ContextTypes.DEFAULT_TYP
     if row:
         buttons.append(row)
     buttons.append([InlineKeyboardButton(i18n.t("srch_skip_district_btn", lang), callback_data=SKIP_NEIGHBORHOOD_CB)])
+    buttons.extend(_change_country_rows(lang))
 
     await update.message.reply_text(i18n.t("matched_results", lang), reply_markup=InlineKeyboardMarkup(buttons))
     return SEARCH_NEIGHBORHOOD
@@ -1306,6 +1316,7 @@ def build_search_conversation() -> ConversationHandler:
                 CallbackQueryHandler(choose_search_district, pattern="^srch_dist:"),
                 CallbackQueryHandler(search_district_page_nav, pattern="^srch_dist_page:"),
                 CallbackQueryHandler(skip_neighborhood, pattern=f"^{SKIP_NEIGHBORHOOD_CB}$"),
+                CallbackQueryHandler(search_change_country, pattern=f"^{CHANGE_COUNTRY_CB}$"),
                 MessageHandler(filters.TEXT & ~filters.COMMAND, district_text_search),
             ],
             SEARCH_RESULTS: [

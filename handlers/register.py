@@ -249,6 +249,10 @@ def _district_keyboard(city_id: int, page: int, selected_ids: set[int], lang: st
                 callback_data=DISTRICTS_DONE_CB,
             )]
         )
+    # الكويت/البحرين: البوت يتخطى المنطقة والمدينة ويوصل هنا مباشرة — بدون هالزر الفني
+    # ما يقدر يرجع يغيّر دولته لو اختارها بالغلط
+    if len(countries.enabled_codes()) > 1:
+        buttons.append([InlineKeyboardButton(i18n.t("change_country_btn", lang), callback_data=CHANGE_COUNTRY_CB)])
 
     return InlineKeyboardMarkup(buttons)
 
@@ -639,6 +643,8 @@ async def district_text_search(update: Update, context: ContextTypes.DEFAULT_TYP
                 callback_data=DISTRICTS_DONE_CB,
             )]
         )
+    if len(countries.enabled_codes()) > 1:
+        buttons.append([InlineKeyboardButton(i18n.t("change_country_btn", lang), callback_data=CHANGE_COUNTRY_CB)])
 
     await update.message.reply_text(i18n.t("matched_results", lang), reply_markup=InlineKeyboardMarkup(buttons))
     return NEIGHBORHOOD
@@ -1028,6 +1034,7 @@ def build_register_conversation() -> ConversationHandler:
             ],
             NEIGHBORHOOD: [
                 CallbackQueryHandler(districts_done, pattern=f"^{DISTRICTS_DONE_CB}$"),
+                CallbackQueryHandler(change_country, pattern=f"^{CHANGE_COUNTRY_CB}$"),
                 CallbackQueryHandler(toggle_district, pattern=f"^{DISTRICT_TOGGLE_CB_PREFIX}"),
                 CallbackQueryHandler(district_page_nav, pattern="^reg_dist_page:"),
                 MessageHandler(filters.TEXT & ~filters.COMMAND, district_text_search),
