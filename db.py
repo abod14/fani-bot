@@ -1140,6 +1140,42 @@ def admin_list_cities() -> list[str]:
         return [r["city"] for r in rows]
 
 
+def admin_coverage_summary() -> list[dict]:
+    """ملخص جاهزية كل مدينة للإطلاق: عدد الفنيين النشطين فيها، وعدد المهن
+    المختلفة اللي عندها فني نشط واحد على الأقل. تُستخدم بصفحة "مؤشرات التغطية"
+    باللوحة لمعرفة أي مدينة جاهزة تُفتح للعملاء وأيهم ناقصة فنيين."""
+    with get_conn() as conn:
+        rows = conn.execute(
+            """
+            SELECT city,
+                   COUNT(*) AS total_active,
+                   COUNT(DISTINCT profession_id) AS distinct_professions
+            FROM professionals
+            WHERE status = ?
+            GROUP BY city
+            ORDER BY total_active DESC
+            """,
+            (STATUS_ACTIVE,),
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+
+def admin_coverage_matrix() -> list[dict]:
+    """عدد الفنيين النشطين لكل (مدينة × مهنة) — المادة الخام لجدول التغطية
+    التفصيلي (صفوف = مهن، أعمدة = مدن) بصفحة "مؤشرات التغطية"."""
+    with get_conn() as conn:
+        rows = conn.execute(
+            """
+            SELECT city, profession_id, COUNT(*) AS cnt
+            FROM professionals
+            WHERE status = ?
+            GROUP BY city, profession_id
+            """,
+            (STATUS_ACTIVE,),
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+
 def admin_update_professional(
     professional_id: int,
     full_name: str | None = None,

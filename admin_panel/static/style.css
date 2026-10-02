@@ -132,6 +132,14 @@ tr:hover td {
 .badge.paid { background: #d1fae5; color: #065f46; }
 .badge.pending-pay { background: #fef3c7; color: #92400e; }
 
+/* صفحة مؤشرات التغطية */
+.coverage-matrix { white-space: nowrap; }
+.coverage-matrix th, .coverage-matrix td { text-align: center; padding: 6px 10px; }
+.coverage-matrix .domain-row td { background: #f3f4f6; text-align: right; }
+.coverage-matrix td.coverage-ready { background: #d1fae5; color: #065f46; font-weight: 600; }
+.coverage-matrix td.coverage-some { background: #fef3c7; color: #92400e; }
+.coverage-matrix td.coverage-none { color: #9ca3af; }
+
 .filters {
   display: flex;
   flex-wrap: wrap;

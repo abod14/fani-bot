@@ -293,6 +293,52 @@ def professional_delete(professional_id):
     return redirect(url_for("professionals_list"))
 
 
+# ─────────────────────────── مؤشرات التغطية (جاهزية الإطلاق) ───────────────────────────
+
+# أي مدينة فيها "عدد كافٍ" من الفنيين لمهنة معينة تُعتبر مغطّاة بهالمهنة — حد أدنى
+# بسيط قابل للتعديل لاحقًا حسب الحاجة الفعلية.
+COVERAGE_READY_THRESHOLD = 3
+
+
+@app.route("/coverage")
+@login_required
+def coverage_page():
+    summary = db.admin_coverage_summary()
+    matrix_rows = db.admin_coverage_matrix()
+
+    # counts[profession_id][city] = عدد الفنيين النشطين
+    counts: dict[str, dict[str, int]] = {}
+    for r in matrix_rows:
+        counts.setdefault(r["profession_id"], {})[r["city"]] = r["cnt"]
+
+    domains = []
+    total_professions = 0
+    for d in professions_repo.get_domains():
+        profs = professions_repo.get_professions_by_domain(d["id"])
+        domains.append({"id": d["id"], "name": d["name"], "professions": profs})
+        total_professions += len(profs)
+
+    # عدد المهن "الجاهزة" (وصلت الحد الأدنى) لكل مدينة — لحساب نسبة الجاهزية
+    cities = [row["city"] for row in summary]
+    ready_counts = {city: 0 for city in cities}
+    for prof_counts in counts.values():
+        for city, cnt in prof_counts.items():
+            if city in ready_counts and cnt >= COVERAGE_READY_THRESHOLD:
+                ready_counts[city] += 1
+
+    return render_template(
+        "coverage.html",
+        summary=summary,
+        cities=cities,
+        counts=counts,
+        domains=domains,
+        total_professions=total_professions,
+        ready_counts=ready_counts,
+        ready_threshold=COVERAGE_READY_THRESHOLD,
+        active_page="coverage",
+    )
+
+
 # ─────────────────────────── الاشتراكات والمدفوعات ───────────────────────────
 
 @app.route("/payments")

@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}مؤشرات التغطية — لوحة تحكم «فني»{% endblock %}
+{% block content %}
+<h1>مؤشرات التغطية — جاهزية المدن للإطلاق</h1>
+<p class="muted">يحسب فقط الفنيين بحالة "نشط". مهنة تُعتبر "مغطّاة" بمدينة لما يوصل عدد الفنيين النشطين فيها لـ{{ ready_threshold }} فأكثر.</p>
+
+<div class="card">
+{% if summary %}
+<table>
+  <thead>
+    <tr>
+      <th>المدينة</th>
+      <th>إجمالي الفنيين النشطين</th>
+      <th>عدد المهن المغطّاة (≥{{ ready_threshold }})</th>
+      <th>عدد المهن اللي فيها فني واحد على الأقل</th>
+      <th>نسبة الجاهزية</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in summary %}
+    {% set pct = ((ready_counts.get(row.city, 0) / total_professions) * 100) if total_professions else 0 %}
+    <tr>
+      <td><strong>{{ row.city }}</strong></td>
+      <td>{{ row.total_active }}</td>
+      <td>{{ ready_counts.get(row.city, 0) }} / {{ total_professions }}</td>
+      <td>{{ row.distinct_professions }} / {{ total_professions }}</td>
+      <td>
+        <span class="badge {{ 'sub-yes' if pct >= 50 else ('pending' if pct >= 15 else 'rejected') }}">
+          {{ "%.0f"|format(pct) }}٪
+        </span>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="muted">ما فيه فنيون نشطون بعد — بتظهر هنا المدن أول ما يُقبل أول فني بحالة "نشط".</p>
+{% endif %}
+</div>
+
+<h2>تفصيل كامل: عدد الفنيين لكل مهنة بكل مدينة</h2>
+<div class="card" style="overflow-x: auto;">
+{% if cities %}
+<table class="coverage-matrix">
+  <thead>
+    <tr>
+      <th style="position: sticky; right: 0; background: #fff;">المهنة</th>
+      {% for city in cities %}
+      <th>{{ city }}</th>
+      {% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for domain in domains %}
+      {% if domain.professions %}
+      <tr class="domain-row">
+        <td colspan="{{ cities|length + 1 }}"><strong>── {{ domain.name }} ──</strong></td>
+      </tr>
+        {% for p in domain.professions %}
+        <tr>
+          <td style="position: sticky; right: 0; background: #fff;">{{ p.name }}</td>
+          {% for city in cities %}
+          {% set cnt = counts.get(p.id, {}).get(city, 0) %}
+          <td class="{{ 'coverage-ready' if cnt >= ready_threshold else ('coverage-some' if cnt > 0 else 'coverage-none') }}">
+            {{ cnt if cnt > 0 else '—' }}
+          </td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      {% endif %}
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="muted">ما فيه بيانات بعد لعرض الجدول التفصيلي.</p>
+{% endif %}
+</div>
+{% endblock %}
