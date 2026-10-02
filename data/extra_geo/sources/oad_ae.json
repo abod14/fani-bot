@@ -1,0 +1,917 @@
+{
+"_source": "Open Admin Data — CC-BY-4.0 — https://github.com/open-admin-data/united-arab-emirates-administrative-divisions",
+"data": [
+{
+"name": "أبوظبى",
+"en": "Abu Dhabi",
+"level": 1,
+"parent": null,
+"lat": 23.896,
+"lon": 53.774
+},
+{
+"name": "دبى",
+"en": "Dubai",
+"level": 1,
+"parent": null,
+"lat": 24.975,
+"lon": 55.538
+},
+{
+"name": "الشارقة",
+"en": "Sharjah",
+"level": 1,
+"parent": null,
+"lat": 25.329,
+"lon": 55.289
+},
+{
+"name": "عجمان",
+"en": "Ajman",
+"level": 1,
+"parent": null,
+"lat": 25.097,
+"lon": 55.769
+},
+{
+"name": "أم القيوين",
+"en": "Umm Al Quwain",
+"level": 1,
+"parent": null,
+"lat": 25.486,
+"lon": 55.729
+},
+{
+"name": "رأس الخيمة",
+"en": "Ras Al Khaimah",
+"level": 1,
+"parent": null,
+"lat": 25.559,
+"lon": 55.709
+},
+{
+"name": "الفجيرة",
+"en": "Fujairah",
+"level": 1,
+"parent": null,
+"lat": 25.264,
+"lon": 56.178
+},
+{
+"name": "أبوظبي",
+"en": "Abu Dhabi",
+"level": 2,
+"parent": "أبوظبى",
+"lat": 24.454,
+"lon": 54.377
+},
+{
+"name": "أبو الأبيض",
+"en": "Abu al Abyad",
+"level": 2,
+"parent": "أبوظبى",
+"lat": 24.224,
+"lon": 53.798
+},
+{
+"name": "مدينة بوابة أبوظبي",
+"en": "Abu Dhabi Gate City",
+"level": 2,
+"parent": "أبوظبى",
+"lat": 24.454,
+"lon": 54.377
+},
+{
+"name": "العين",
+"en": "Al Ain",
+"level": 2,
+"parent": "أبوظبى",
+"lat": 24.225,
+"lon": 55.745
+},
+{
+"name": "العجبان",
+"en": "Al Ajban",
+"level": 2,
+"parent": "أبوظبى",
+"lat": 23.896,
+"lon": 53.774
+},
+{
+"name": "الاريام",
+"en": "Al Aryam",
+"level": 2,
+"parent": "أبوظبى",
+"lat": 24.312,
+"lon": 54.217
+},
+{
+"name": "الدانة",
+"en": "Al Danah",
+"level": 2,
+"parent": "أبوظبى",
+"lat": 24.485,
+"lon": 54.37
+},
+{
+"name": "الفقع",
+"en": "Al Faqa",
+"level": 2,
+"parent": "أبوظبى",
+"lat": 24.337,
+"lon": 54.997
+},
+{
+"name": "المرفأ",
+"en": "Al Mirfa",
+"level": 2,
+"parent": "أبوظبى",
+"lat": 24.624,
+"lon": 54.583
+},
+{
+"name": "الشامخة",
+"en": "Al Shamkhah",
+"level": 2,
+"parent": "أبوظبى",
+"lat": 24.378,
+"lon": 54.704
+},
+{
+"name": "الشويب",
+"en": "Al Shuwaib",
+"level": 2,
+"parent": "أبوظبى",
+"lat": 24.378,
+"lon": 54.704
+},
+{
+"name": "اليحر",
+"en": "Al Yahar",
+"level": 2,
+"parent": "أبوظبى",
+"lat": 24.178,
+"lon": 51.995
+},
+{
+"name": "بني ياس",
+"en": "Baniyas",
+"level": 2,
+"parent": "أبوظبى",
+"lat": 23.896,
+"lon": 53.774
+},
+{
+"name": "دلما",
+"en": "Dalma",
+"level": 2,
+"parent": "أبوظبى",
+"lat": 23.896,
+"lon": 53.774
+},
+{
+"name": "غياثي",
+"en": "Ghayathi",
+"level": 2,
+"parent": "أبوظبى",
+"lat": 23.896,
+"lon": 53.774
+},
+{
+"name": "حبشان",
+"en": "Habshan",
+"level": 2,
+"parent": "أبوظبى",
+"lat": 23.896,
+"lon": 53.774
+},
+{
+"name": "مدينة خليفة",
+"en": "Khalifa City",
+"level": 2,
+"parent": "أبوظبى",
+"lat": 24.42,
+"lon": 54.575
+},
+{
+"name": "C مدينة خليفة",
+"en": "Khalifa City C",
+"level": 2,
+"parent": "أبوظبى",
+"lat": 24.697,
+"lon": 54.894
+},
+{
+"name": "واحة ليوا",
+"en": "Liwa Oasis",
+"level": 2,
+"parent": "أبوظبى",
+"lat": 23.896,
+"lon": 53.774
+},
+{
+"name": "مدينة زايد",
+"en": "Madinat Zayed",
+"level": 2,
+"parent": "أبوظبى",
+"lat": 23.896,
+"lon": 53.774
+},
+{
+"name": "مروح",
+"en": "Marawah",
+"level": 2,
+"parent": "أبوظبى",
+"lat": 23.896,
+"lon": 53.774
+},
+{
+"name": "مدينة مصدر",
+"en": "Masdar City",
+"level": 2,
+"parent": "أبوظبى",
+"lat": 23.896,
+"lon": 53.774
+},
+{
+"name": "مدينة محمد بن زايد",
+"en": "Mohammed Bin Zayed City",
+"level": 2,
+"parent": "أبوظبى",
+"lat": 24.34,
+"lon": 54.552
+},
+{
+"name": "مصفح",
+"en": "Mussaffah",
+"level": 2,
+"parent": "أبوظبى",
+"lat": 23.896,
+"lon": 53.774
+},
+{
+"name": "نهيل",
+"en": "Nahil",
+"level": 2,
+"parent": "أبوظبى",
+"lat": 23.896,
+"lon": 53.774
+},
+{
+"name": "الرويس",
+"en": "Ruwais",
+"level": 2,
+"parent": "أبوظبى",
+"lat": 23.896,
+"lon": 53.774
+},
+{
+"name": "مدينة شخبوط",
+"en": "Shakhbout City",
+"level": 2,
+"parent": "أبوظبى",
+"lat": 24.359,
+"lon": 54.632
+},
+{
+"name": "السلع",
+"en": "Sila",
+"level": 2,
+"parent": "أبوظبى",
+"lat": 23.896,
+"lon": 53.774
+},
+{
+"name": "سويحان",
+"en": "Sweihan",
+"level": 2,
+"parent": "أبوظبى",
+"lat": 23.896,
+"lon": 53.774
+},
+{
+"name": "عجمان",
+"en": "Ajman",
+"level": 2,
+"parent": "عجمان",
+"lat": 25.394,
+"lon": 55.445
+},
+{
+"name": "المنامة",
+"en": "Al Manama",
+"level": 2,
+"parent": "عجمان",
+"lat": 24.912,
+"lon": 55.776
+},
+{
+"name": "مصفوت",
+"en": "Masfut",
+"level": 2,
+"parent": "عجمان",
+"lat": 24.815,
+"lon": 56.097
+},
+{
+"name": "العوير",
+"en": "Al Awir",
+"level": 2,
+"parent": "دبى",
+"lat": 24.975,
+"lon": 55.538
+},
+{
+"name": "الخوانيج",
+"en": "Al Khawaneej",
+"level": 2,
+"parent": "دبى",
+"lat": 24.469,
+"lon": 54.349
+},
+{
+"name": "الليسيلي",
+"en": "Al Lisaili",
+"level": 2,
+"parent": "دبى",
+"lat": 24.975,
+"lon": 55.538
+},
+{
+"name": "القوز",
+"en": "Al Quoz",
+"level": 2,
+"parent": "دبى",
+"lat": 24.421,
+"lon": 54.397
+},
+{
+"name": "الراس",
+"en": "Al Ras",
+"level": 2,
+"parent": "دبى",
+"lat": 24.462,
+"lon": 54.31
+},
+{
+"name": "الروية",
+"en": "Al Ruwayyah",
+"level": 2,
+"parent": "دبى",
+"lat": 24.136,
+"lon": 52.828
+},
+{
+"name": "الشندغة",
+"en": "Al Shindagha",
+"level": 2,
+"parent": "دبى",
+"lat": 24.378,
+"lon": 54.704
+},
+{
+"name": "مدينة العرب",
+"en": "City of Arabia",
+"level": 2,
+"parent": "دبى",
+"lat": 24.975,
+"lon": 55.538
+},
+{
+"name": "سيتي ووك",
+"en": "Citywalk",
+"level": 2,
+"parent": "دبى",
+"lat": 24.975,
+"lon": 55.538
+},
+{
+"name": "ديرة",
+"en": "Deira",
+"level": 2,
+"parent": "دبى",
+"lat": 24.975,
+"lon": 55.538
+},
+{
+"name": "مدينة التنين",
+"en": "Dragon City",
+"level": 2,
+"parent": "دبى",
+"lat": 24.975,
+"lon": 55.538
+},
+{
+"name": "دبي",
+"en": "Dubai",
+"level": 2,
+"parent": "دبى",
+"lat": 25.265,
+"lon": 55.292
+},
+{
+"name": "دبي فستيفال سيتي",
+"en": "Dubai Festival City",
+"level": 2,
+"parent": "دبى",
+"lat": 25.265,
+"lon": 55.292
+},
+{
+"name": "مدينة دبي للجولف",
+"en": "Dubai Golf City",
+"level": 2,
+"parent": "دبى",
+"lat": 25.265,
+"lon": 55.292
+},
+{
+"name": "مدينة دبي الطبية",
+"en": "Dubai Healthcare City",
+"level": 2,
+"parent": "دبى",
+"lat": 25.265,
+"lon": 55.292
+},
+{
+"name": "مدينة دبي الصناعية",
+"en": "Dubai Industrial City",
+"level": 2,
+"parent": "دبى",
+"lat": 25.265,
+"lon": 55.292
+},
+{
+"name": "مدينة دبي للإنترنت",
+"en": "Dubai Internet City",
+"level": 2,
+"parent": "دبى",
+"lat": 25.265,
+"lon": 55.292
+},
+{
+"name": "مدينة دبي للإعلام",
+"en": "Dubai Media City",
+"level": 2,
+"parent": "دبى",
+"lat": 25.265,
+"lon": 55.292
+},
+{
+"name": "مدينة دبي للإنتاج",
+"en": "Dubai Production City",
+"level": 2,
+"parent": "دبى",
+"lat": 25.265,
+"lon": 55.292
+},
+{
+"name": "مدينة دبي الرياضية",
+"en": "Dubai Sports City",
+"level": 2,
+"parent": "دبى",
+"lat": 25.265,
+"lon": 55.292
+},
+{
+"name": "مدينة دبي للاستوديوهات",
+"en": "Dubai Studio City",
+"level": 2,
+"parent": "دبى",
+"lat": 25.265,
+"lon": 55.292
+},
+{
+"name": "مدينة دبي المستدامة",
+"en": "Dubai Sustainable City",
+"level": 2,
+"parent": "دبى",
+"lat": 25.265,
+"lon": 55.292
+},
+{
+"name": "إكسبو 2020",
+"en": "Expo 2020",
+"level": 2,
+"parent": "دبى",
+"lat": 24.975,
+"lon": 55.538
+},
+{
+"name": "القرية العالمية",
+"en": "Global Village",
+"level": 2,
+"parent": "دبى",
+"lat": 24.975,
+"lon": 55.538
+},
+{
+"name": "حتا",
+"en": "Hatta",
+"level": 2,
+"parent": "دبى",
+"lat": 24.798,
+"lon": 56.121
+},
+{
+"name": "المدينة العالمية",
+"en": "International City",
+"level": 2,
+"parent": "دبى",
+"lat": 24.975,
+"lon": 55.538
+},
+{
+"name": "الجداف",
+"en": "Jaddaf",
+"level": 2,
+"parent": "دبى",
+"lat": 24.975,
+"lon": 55.538
+},
+{
+"name": "جبل علي",
+"en": "Jebel Ali",
+"level": 2,
+"parent": "دبى",
+"lat": 24.975,
+"lon": 55.538
+},
+{
+"name": "مدينة جميرا",
+"en": "Jumeirah City",
+"level": 2,
+"parent": "دبى",
+"lat": 24.975,
+"lon": 55.538
+},
+{
+"name": "لهباب",
+"en": "Lahbab",
+"level": 2,
+"parent": "دبى",
+"lat": 24.975,
+"lon": 55.538
+},
+{
+"name": "معيصم",
+"en": "Me'aisem",
+"level": 2,
+"parent": "دبى",
+"lat": 24.975,
+"lon": 55.538
+},
+{
+"name": "مردف",
+"en": "Mirdiff",
+"level": 2,
+"parent": "دبى",
+"lat": 24.975,
+"lon": 55.538
+},
+{
+"name": "مدينة محمد بن راشد",
+"en": "Mohammed Bin Rashid City",
+"level": 2,
+"parent": "دبى",
+"lat": 24.34,
+"lon": 54.552
+},
+{
+"name": "البدية",
+"en": "Al Badiyah",
+"level": 2,
+"parent": "الفجيرة",
+"lat": 25.438,
+"lon": 56.343
+},
+{
+"name": "البثنة",
+"en": "Al Bithnah",
+"level": 2,
+"parent": "الفجيرة",
+"lat": 24.187,
+"lon": 54.492
+},
+{
+"name": "الحلاه",
+"en": "Al Halah",
+"level": 2,
+"parent": "الفجيرة",
+"lat": 24.276,
+"lon": 54.787
+},
+{
+"name": "ضدنا",
+"en": "Dadna",
+"level": 2,
+"parent": "الفجيرة",
+"lat": 25.523,
+"lon": 56.358
+},
+{
+"name": "دبا الفجيرة",
+"en": "Dibba Al Fujairah",
+"level": 2,
+"parent": "الفجيرة",
+"lat": 25.602,
+"lon": 56.307
+},
+{
+"name": "الفجيرة",
+"en": "Fujairah",
+"level": 2,
+"parent": "الفجيرة",
+"lat": 25.124,
+"lon": 56.336
+},
+{
+"name": "مربح",
+"en": "Mirbah",
+"level": 2,
+"parent": "الفجيرة",
+"lat": 25.276,
+"lon": 56.361
+},
+{
+"name": "قدفع",
+"en": "Qidfa",
+"level": 2,
+"parent": "الفجيرة",
+"lat": 25.264,
+"lon": 56.178
+},
+{
+"name": "وادي الغب",
+"en": "Wadi Ghub",
+"level": 2,
+"parent": "الفجيرة",
+"lat": 25.264,
+"lon": 56.178
+},
+{
+"name": "اذن",
+"en": "Adhen",
+"level": 2,
+"parent": "رأس الخيمة",
+"lat": 25.559,
+"lon": 55.709
+},
+{
+"name": "الحمرانية",
+"en": "Al Hamraniyah",
+"level": 2,
+"parent": "رأس الخيمة",
+"lat": 24.276,
+"lon": 54.787
+},
+{
+"name": "الجزيرة الحمراء",
+"en": "Al Jazirah Al Hamra",
+"level": 2,
+"parent": "رأس الخيمة",
+"lat": 25.559,
+"lon": 55.709
+},
+{
+"name": "الجير",
+"en": "Al Jeer",
+"level": 2,
+"parent": "رأس الخيمة",
+"lat": 26.036,
+"lon": 56.098
+},
+{
+"name": "القور",
+"en": "Al Qor",
+"level": 2,
+"parent": "رأس الخيمة",
+"lat": 25.559,
+"lon": 55.709
+},
+{
+"name": "القسيدات",
+"en": "Al Qusaidat",
+"level": 2,
+"parent": "رأس الخيمة",
+"lat": 24.421,
+"lon": 54.397
+},
+{
+"name": "الرامس",
+"en": "Al Rams",
+"level": 2,
+"parent": "رأس الخيمة",
+"lat": 24.462,
+"lon": 54.31
+},
+{
+"name": "أعسمة",
+"en": "Asimah",
+"level": 2,
+"parent": "رأس الخيمة",
+"lat": 25.559,
+"lon": 55.709
+},
+{
+"name": "الدقداقة",
+"en": "Digdaga",
+"level": 2,
+"parent": "رأس الخيمة",
+"lat": 25.559,
+"lon": 55.709
+},
+{
+"name": "غليلة",
+"en": "Ghalilah",
+"level": 2,
+"parent": "رأس الخيمة",
+"lat": 25.997,
+"lon": 56.074
+},
+{
+"name": "الغيل",
+"en": "Ghayl",
+"level": 2,
+"parent": "رأس الخيمة",
+"lat": 25.559,
+"lon": 55.709
+},
+{
+"name": "الحويلات",
+"en": "Huwaylat",
+"level": 2,
+"parent": "رأس الخيمة",
+"lat": 25.559,
+"lon": 55.709
+},
+{
+"name": "خت",
+"en": "Khatt",
+"level": 2,
+"parent": "رأس الخيمة",
+"lat": 25.635,
+"lon": 55.988
+},
+{
+"name": "خور خوير",
+"en": "Khor Khwair",
+"level": 2,
+"parent": "رأس الخيمة",
+"lat": 25.966,
+"lon": 56.054
+},
+{
+"name": "مسافي",
+"en": "Masafi",
+"level": 2,
+"parent": "رأس الخيمة",
+"lat": 25.559,
+"lon": 55.709
+},
+{
+"name": "رأس الخيمة",
+"en": "Ras Al Khaimah",
+"level": 2,
+"parent": "رأس الخيمة",
+"lat": 25.774,
+"lon": 55.938
+},
+{
+"name": "شعم",
+"en": "Sha'am",
+"level": 2,
+"parent": "رأس الخيمة",
+"lat": 26.029,
+"lon": 56.086
+},
+{
+"name": "وادي شحة",
+"en": "Wadi Shah",
+"level": 2,
+"parent": "رأس الخيمة",
+"lat": 25.559,
+"lon": 55.709
+},
+{
+"name": "البطائح",
+"en": "Al Bataeh",
+"level": 2,
+"parent": "الشارقة",
+"lat": 25.438,
+"lon": 56.343
+},
+{
+"name": "الحمرية",
+"en": "Al Hamriyah",
+"level": 2,
+"parent": "الشارقة",
+"lat": 24.276,
+"lon": 54.787
+},
+{
+"name": "المدام",
+"en": "Al Madam",
+"level": 2,
+"parent": "الشارقة",
+"lat": 24.912,
+"lon": 55.776
+},
+{
+"name": "الذيد",
+"en": "Dhaid",
+"level": 2,
+"parent": "الشارقة",
+"lat": 25.329,
+"lon": 55.289
+},
+{
+"name": "دبا الحصن",
+"en": "Dibba Al-Hisn",
+"level": 2,
+"parent": "الشارقة",
+"lat": 25.602,
+"lon": 56.307
+},
+{
+"name": "كلباء",
+"en": "Kalba",
+"level": 2,
+"parent": "الشارقة",
+"lat": 25.051,
+"lon": 56.354
+},
+{
+"name": "خورفكان",
+"en": "Khor Fakkan",
+"level": 2,
+"parent": "الشارقة",
+"lat": 25.349,
+"lon": 56.348
+},
+{
+"name": "مليحة",
+"en": "Mleiha",
+"level": 2,
+"parent": "الشارقة",
+"lat": 25.329,
+"lon": 55.289
+},
+{
+"name": "الشارقة",
+"en": "Sharjah",
+"level": 2,
+"parent": "الشارقة",
+"lat": 25.346,
+"lon": 55.421
+},
+{
+"name": "الزبارة",
+"en": "Zubarah",
+"level": 2,
+"parent": "الشارقة",
+"lat": 25.329,
+"lon": 55.289
+},
+{
+"name": "الراعفة",
+"en": "Al Rafaah",
+"level": 2,
+"parent": "أم القيوين",
+"lat": 24.462,
+"lon": 54.31
+},
+{
+"name": "الراشدية",
+"en": "Al Rashidya",
+"level": 2,
+"parent": "أم القيوين",
+"lat": 24.462,
+"lon": 54.31
+},
+{
+"name": "السلمة",
+"en": "Al Salamah",
+"level": 2,
+"parent": "أم القيوين",
+"lat": 24.436,
+"lon": 54.427
+},
+{
+"name": "فلج المعلا",
+"en": "Falaj Al Mualla",
+"level": 2,
+"parent": "أم القيوين",
+"lat": 25.486,
+"lon": 55.729
+},
+{
+"name": "أم القيوين",
+"en": "Umm Al Quwain",
+"level": 2,
+"parent": "أم القيوين",
+"lat": 25.552,
+"lon": 55.547
+}
+]
+}

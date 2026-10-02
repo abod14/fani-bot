@@ -1,0 +1,357 @@
+{
+"_source": "Open Admin Data — CC-BY-4.0 — https://github.com/open-admin-data/bahrain-administrative-divisions",
+"data": [
+{
+"name": "محافظة العاصمة",
+"en": "Capital",
+"level": 1,
+"parent": null,
+"lat": 26.228,
+"lon": 50.586
+},
+{
+"name": "محافظة المحرق",
+"en": "Muharraq",
+"level": 1,
+"parent": null,
+"lat": 26.257,
+"lon": 50.612
+},
+{
+"name": "المحافظة الشمالية",
+"en": "Northern",
+"level": 1,
+"parent": null,
+"lat": 26.219,
+"lon": 50.509
+},
+{
+"name": "المحافظة الجنوبية",
+"en": "Southern",
+"level": 1,
+"parent": null,
+"lat": 26.023,
+"lon": 50.554
+},
+{
+"name": "المنامة",
+"en": "Manama",
+"level": 2,
+"parent": "محافظة العاصمة",
+"lat": 26.228,
+"lon": 50.586
+},
+{
+"name": "الجفير",
+"en": "Juffair",
+"level": 2,
+"parent": "محافظة العاصمة",
+"lat": 26.228,
+"lon": 50.586
+},
+{
+"name": "السيف",
+"en": "Seef",
+"level": 2,
+"parent": "محافظة العاصمة",
+"lat": 26.228,
+"lon": 50.586
+},
+{
+"name": "السنابس",
+"en": "Sanabis",
+"level": 2,
+"parent": "محافظة العاصمة",
+"lat": 26.228,
+"lon": 50.586
+},
+{
+"name": "كرباباد",
+"en": "Karbabad",
+"level": 2,
+"parent": "محافظة العاصمة",
+"lat": 26.228,
+"lon": 50.586
+},
+{
+"name": "الماحوز",
+"en": "Mahooz",
+"level": 2,
+"parent": "محافظة العاصمة",
+"lat": 26.228,
+"lon": 50.586
+},
+{
+"name": "عذاري",
+"en": "Adhari",
+"level": 2,
+"parent": "محافظة العاصمة",
+"lat": 26.228,
+"lon": 50.586
+},
+{
+"name": "أم الحصم",
+"en": "Umm Al Hassam",
+"level": 2,
+"parent": "محافظة العاصمة",
+"lat": 26.228,
+"lon": 50.586
+},
+{
+"name": "الحورة",
+"en": "Hoora",
+"level": 2,
+"parent": "محافظة العاصمة",
+"lat": 26.228,
+"lon": 50.586
+},
+{
+"name": "القضيبية",
+"en": "Gudaibiya",
+"level": 2,
+"parent": "محافظة العاصمة",
+"lat": 26.228,
+"lon": 50.586
+},
+{
+"name": "الزنج",
+"en": "Zinj",
+"level": 2,
+"parent": "محافظة العاصمة",
+"lat": 26.228,
+"lon": 50.586
+},
+{
+"name": "السلمانية",
+"en": "Salmaniya",
+"level": 2,
+"parent": "محافظة العاصمة",
+"lat": 26.228,
+"lon": 50.586
+},
+{
+"name": "المحرق",
+"en": "Muharraq",
+"level": 2,
+"parent": "محافظة المحرق",
+"lat": 26.257,
+"lon": 50.612
+},
+{
+"name": "عراد",
+"en": "Arad",
+"level": 2,
+"parent": "محافظة المحرق",
+"lat": 26.257,
+"lon": 50.612
+},
+{
+"name": "حالة بوماهر",
+"en": "Halat Bu Maher",
+"level": 2,
+"parent": "محافظة المحرق",
+"lat": 26.257,
+"lon": 50.612
+},
+{
+"name": "الحد",
+"en": "Hidd",
+"level": 2,
+"parent": "محافظة المحرق",
+"lat": 26.257,
+"lon": 50.612
+},
+{
+"name": "بوشهري",
+"en": "Busaiteen",
+"level": 2,
+"parent": "محافظة المحرق",
+"lat": 26.257,
+"lon": 50.612
+},
+{
+"name": "الدير",
+"en": "Dair",
+"level": 2,
+"parent": "محافظة المحرق",
+"lat": 26.257,
+"lon": 50.612
+},
+{
+"name": "قلالي",
+"en": "Galali",
+"level": 2,
+"parent": "محافظة المحرق",
+"lat": 26.257,
+"lon": 50.612
+},
+{
+"name": "سماهيج",
+"en": "Samaheej",
+"level": 2,
+"parent": "محافظة المحرق",
+"lat": 26.257,
+"lon": 50.612
+},
+{
+"name": "مدينة حمد",
+"en": "Hamad Town",
+"level": 2,
+"parent": "المحافظة الشمالية",
+"lat": 26.219,
+"lon": 50.509
+},
+{
+"name": "البديع",
+"en": "Budaiya",
+"level": 2,
+"parent": "المحافظة الشمالية",
+"lat": 26.219,
+"lon": 50.509
+},
+{
+"name": "جدحفص",
+"en": "Jidhafs",
+"level": 2,
+"parent": "المحافظة الشمالية",
+"lat": 26.219,
+"lon": 50.509
+},
+{
+"name": "المقشع",
+"en": "Al Maqsha",
+"level": 2,
+"parent": "المحافظة الشمالية",
+"lat": 26.219,
+"lon": 50.509
+},
+{
+"name": "الدراز",
+"en": "Diraz",
+"level": 2,
+"parent": "المحافظة الشمالية",
+"lat": 26.219,
+"lon": 50.509
+},
+{
+"name": "بني جمرة",
+"en": "Bani Jamra",
+"level": 2,
+"parent": "المحافظة الشمالية",
+"lat": 26.219,
+"lon": 50.509
+},
+{
+"name": "كرزكان",
+"en": "Karzakkan",
+"level": 2,
+"parent": "المحافظة الشمالية",
+"lat": 26.219,
+"lon": 50.509
+},
+{
+"name": "دمستان",
+"en": "Dumistan",
+"level": 2,
+"parent": "المحافظة الشمالية",
+"lat": 26.219,
+"lon": 50.509
+},
+{
+"name": "مدينة عيسى",
+"en": "Isa Town",
+"level": 2,
+"parent": "المحافظة الشمالية",
+"lat": 26.219,
+"lon": 50.509
+},
+{
+"name": "سار",
+"en": "Saar",
+"level": 2,
+"parent": "المحافظة الشمالية",
+"lat": 26.219,
+"lon": 50.509
+},
+{
+"name": "جنوسان",
+"en": "Janusan",
+"level": 2,
+"parent": "المحافظة الشمالية",
+"lat": 26.219,
+"lon": 50.509
+},
+{
+"name": "باربار",
+"en": "Barbar",
+"level": 2,
+"parent": "المحافظة الشمالية",
+"lat": 26.219,
+"lon": 50.509
+},
+{
+"name": "الرفاع",
+"en": "Riffa",
+"level": 2,
+"parent": "المحافظة الجنوبية",
+"lat": 26.023,
+"lon": 50.554
+},
+{
+"name": "عوالي",
+"en": "Awali",
+"level": 2,
+"parent": "المحافظة الجنوبية",
+"lat": 26.023,
+"lon": 50.554
+},
+{
+"name": "الزلاق",
+"en": "Zallaq",
+"level": 2,
+"parent": "المحافظة الجنوبية",
+"lat": 26.023,
+"lon": 50.554
+},
+{
+"name": "سترة",
+"en": "Sitra",
+"level": 2,
+"parent": "المحافظة الجنوبية",
+"lat": 26.023,
+"lon": 50.554
+},
+{
+"name": "جزر حوار",
+"en": "Hawar Islands",
+"level": 2,
+"parent": "المحافظة الجنوبية",
+"lat": 26.023,
+"lon": 50.554
+},
+{
+"name": "عسكر",
+"en": "Askar",
+"level": 2,
+"parent": "المحافظة الجنوبية",
+"lat": 26.023,
+"lon": 50.554
+},
+{
+"name": "جو",
+"en": "Jaw",
+"level": 2,
+"parent": "المحافظة الجنوبية",
+"lat": 26.023,
+"lon": 50.554
+},
+{
+"name": "الدور",
+"en": "Al Dur",
+"level": 2,
+"parent": "المحافظة الجنوبية",
+"lat": 26.023,
+"lon": 50.554
+}
+]
+}

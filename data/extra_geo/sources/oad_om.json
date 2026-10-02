@@ -1,0 +1,485 @@
+{
+"_source": "Open Admin Data — CC-BY-4.0 — https://github.com/open-admin-data/oman-administrative-divisions",
+"data": [
+{
+"name": "الداخلية",
+"en": "Ad Dakhliyah",
+"level": 1,
+"parent": null,
+"lat": 22.388,
+"lon": 57.224
+},
+{
+"name": "أدم",
+"en": "Adam",
+"level": 2,
+"parent": "الداخلية",
+"lat": 21.706,
+"lon": 57.536
+},
+{
+"name": "الحـمراء",
+"en": "Al Hamra",
+"level": 2,
+"parent": "الداخلية",
+"lat": 22.912,
+"lon": 56.892
+},
+{
+"name": "بـهـلاء",
+"en": "Bahla",
+"level": 2,
+"parent": "الداخلية",
+"lat": 22.644,
+"lon": 56.997
+},
+{
+"name": "Bid Bid",
+"en": "Bid Bid",
+"level": 2,
+"parent": "الداخلية",
+"lat": 23.136,
+"lon": 58.435
+},
+{
+"name": "ازكـي",
+"en": "Izki",
+"level": 2,
+"parent": "الداخلية",
+"lat": 23.064,
+"lon": 57.829
+},
+{
+"name": "مـنح",
+"en": "Manah",
+"level": 2,
+"parent": "الداخلية",
+"lat": 22.736,
+"lon": 57.642
+},
+{
+"name": "نـزوى",
+"en": "Nizwa",
+"level": 2,
+"parent": "الداخلية",
+"lat": 23.029,
+"lon": 57.532
+},
+{
+"name": "سـمائل",
+"en": "Samail",
+"level": 2,
+"parent": "الداخلية",
+"lat": 23.111,
+"lon": 58.146
+},
+{
+"name": "شمال الباطنة",
+"en": "Al Batinah North",
+"level": 1,
+"parent": null,
+"lat": 24.235,
+"lon": 56.574
+},
+{
+"name": "Al Khabourah",
+"en": "Al Khabourah",
+"level": 2,
+"parent": "شمال الباطنة",
+"lat": 23.734,
+"lon": 57.066
+},
+{
+"name": "السـويق",
+"en": "As Suwaiq",
+"level": 2,
+"parent": "شمال الباطنة",
+"lat": 23.704,
+"lon": 57.481
+},
+{
+"name": "لـوى",
+"en": "Liwa",
+"level": 2,
+"parent": "شمال الباطنة",
+"lat": 24.361,
+"lon": 56.361
+},
+{
+"name": "صــحم",
+"en": "Saham",
+"level": 2,
+"parent": "شمال الباطنة",
+"lat": 24.093,
+"lon": 56.725
+},
+{
+"name": "شـناص",
+"en": "Shinas",
+"level": 2,
+"parent": "شمال الباطنة",
+"lat": 24.755,
+"lon": 56.311
+},
+{
+"name": "صــحار",
+"en": "Sohar",
+"level": 2,
+"parent": "شمال الباطنة",
+"lat": 24.288,
+"lon": 56.535
+},
+{
+"name": "جنوب الباطنة",
+"en": "Al Batinah South",
+"level": 1,
+"parent": null,
+"lat": 23.483,
+"lon": 57.649
+},
+{
+"name": "A Rustaq",
+"en": "A Rustaq",
+"level": 2,
+"parent": "جنوب الباطنة",
+"lat": 23.365,
+"lon": 57.472
+},
+{
+"name": "العـوابي",
+"en": "Al Awabi",
+"level": 2,
+"parent": "جنوب الباطنة",
+"lat": 23.438,
+"lon": 57.749
+},
+{
+"name": "Al Masnaah",
+"en": "Al Masnaah",
+"level": 2,
+"parent": "جنوب الباطنة",
+"lat": 23.678,
+"lon": 57.721
+},
+{
+"name": "بـركـاء",
+"en": "Barka",
+"level": 2,
+"parent": "جنوب الباطنة",
+"lat": 23.653,
+"lon": 57.96
+},
+{
+"name": "نـخـل",
+"en": "Nakhal",
+"level": 2,
+"parent": "جنوب الباطنة",
+"lat": 23.379,
+"lon": 57.937
+},
+{
+"name": "البريمي",
+"en": "Al Buraymi",
+"level": 1,
+"parent": null,
+"lat": 24.292,
+"lon": 56.045
+},
+{
+"name": "البريمي",
+"en": "Al Buraimi",
+"level": 2,
+"parent": "البريمي",
+"lat": 23.973,
+"lon": 55.81
+},
+{
+"name": "Mahdha",
+"en": "Mahdha",
+"level": 2,
+"parent": "البريمي",
+"lat": 24.504,
+"lon": 56.007
+},
+{
+"name": "الظاهرة",
+"en": "Al Dhahira",
+"level": 1,
+"parent": null,
+"lat": 23.005,
+"lon": 55.988
+},
+{
+"name": "ضـنـك",
+"en": "Dhank",
+"level": 2,
+"parent": "الظاهرة",
+"lat": 23.451,
+"lon": 55.851
+},
+{
+"name": "عبـري",
+"en": "Ibri",
+"level": 2,
+"parent": "الظاهرة",
+"lat": 22.674,
+"lon": 55.951
+},
+{
+"name": "ينقل",
+"en": "Yanqul",
+"level": 2,
+"parent": "الظاهرة",
+"lat": 23.674,
+"lon": 56.551
+},
+{
+"name": "الوسطى",
+"en": "Al Wusta",
+"level": 1,
+"parent": null,
+"lat": 20.476,
+"lon": 56.904
+},
+{
+"name": "Al Wusta",
+"en": "Al Wusta",
+"level": 2,
+"parent": "الوسطى",
+"lat": 20.476,
+"lon": 56.904
+},
+{
+"name": "شمال الشرقية",
+"en": "Ash Sharqiyah North",
+"level": 1,
+"parent": null,
+"lat": 21.722,
+"lon": 58.547
+},
+{
+"name": "المضيبي",
+"en": "Al Mudhaibi",
+"level": 2,
+"parent": "شمال الشرقية",
+"lat": 21.828,
+"lon": 58.22
+},
+{
+"name": "القابل",
+"en": "Al Qabil",
+"level": 2,
+"parent": "شمال الشرقية",
+"lat": 22.178,
+"lon": 59.236
+},
+{
+"name": "Al Wafi",
+"en": "Al Wafi",
+"level": 2,
+"parent": "شمال الشرقية",
+"lat": 22.159,
+"lon": 59.368
+},
+{
+"name": "Biddiya",
+"en": "Biddiya",
+"level": 2,
+"parent": "شمال الشرقية",
+"lat": 21.722,
+"lon": 58.697
+},
+{
+"name": "ابـراء",
+"en": "Ibra",
+"level": 2,
+"parent": "شمال الشرقية",
+"lat": 22.519,
+"lon": 58.495
+},
+{
+"name": "جنوب الشرقية",
+"en": "Ash Sharqiyah South",
+"level": 1,
+"parent": null,
+"lat": 22.116,
+"lon": 59.521
+},
+{
+"name": "Jalan Bani",
+"en": "Jalan Bani",
+"level": 2,
+"parent": "جنوب الشرقية",
+"lat": 21.855,
+"lon": 59.311
+},
+{
+"name": "مصـيره",
+"en": "Masirah",
+"level": 2,
+"parent": "جنوب الشرقية",
+"lat": 20.429,
+"lon": 58.796
+},
+{
+"name": "صـور",
+"en": "Sur",
+"level": 2,
+"parent": "جنوب الشرقية",
+"lat": 22.586,
+"lon": 59.41
+},
+{
+"name": "ظفار",
+"en": "Dhofar",
+"level": 1,
+"parent": null,
+"lat": 18.86,
+"lon": 54.557
+},
+{
+"name": "Al Halaniyat Islands",
+"en": "Al Halaniyat Islands",
+"level": 2,
+"parent": "ظفار",
+"lat": 17.517,
+"lon": 56.015
+},
+{
+"name": "Marbat",
+"en": "Marbat",
+"level": 2,
+"parent": "ظفار",
+"lat": 17.37,
+"lon": 54.728
+},
+{
+"name": "مقشن",
+"en": "Muqshin",
+"level": 2,
+"parent": "ظفار",
+"lat": 19.458,
+"lon": 54.87
+},
+{
+"name": "صــلالـة",
+"en": "Salalah",
+"level": 2,
+"parent": "ظفار",
+"lat": 17.047,
+"lon": 53.467
+},
+{
+"name": "Sudh",
+"en": "Sudh",
+"level": 2,
+"parent": "ظفار",
+"lat": 17.726,
+"lon": 55.027
+},
+{
+"name": "طاقة",
+"en": "Taqah",
+"level": 2,
+"parent": "ظفار",
+"lat": 17.215,
+"lon": 54.375
+},
+{
+"name": "ثمريت",
+"en": "Thumrait",
+"level": 2,
+"parent": "ظفار",
+"lat": 18.061,
+"lon": 53.623
+},
+{
+"name": "مسندم",
+"en": "Musandam",
+"level": 1,
+"parent": null,
+"lat": 25.997,
+"lon": 56.298
+},
+{
+"name": "Al Khasab",
+"en": "Al Khasab",
+"level": 2,
+"parent": "مسندم",
+"lat": 26.088,
+"lon": 56.306
+},
+{
+"name": "Bukha",
+"en": "Bukha",
+"level": 2,
+"parent": "مسندم",
+"lat": 26.008,
+"lon": 56.23
+},
+{
+"name": "Diba",
+"en": "Diba",
+"level": 2,
+"parent": "مسندم",
+"lat": 25.762,
+"lon": 56.235
+},
+{
+"name": "Madha",
+"en": "Madha",
+"level": 2,
+"parent": "مسندم",
+"lat": 26.258,
+"lon": 56.331
+},
+{
+"name": "مسقط",
+"en": "Muscat",
+"level": 1,
+"parent": null,
+"lat": 23.25,
+"lon": 58.76
+},
+{
+"name": "A Seeb",
+"en": "A Seeb",
+"level": 2,
+"parent": "مسقط",
+"lat": 23.582,
+"lon": 58.236
+},
+{
+"name": "Bausher",
+"en": "Bausher",
+"level": 2,
+"parent": "مسقط",
+"lat": 23.406,
+"lon": 58.505
+},
+{
+"name": "مسـقط",
+"en": "Muscat",
+"level": 2,
+"parent": "مسقط",
+"lat": 23.48,
+"lon": 58.663
+},
+{
+"name": "مطرح",
+"en": "Muttrah",
+"level": 2,
+"parent": "مسقط",
+"lat": 23.568,
+"lon": 58.502
+},
+{
+"name": "Quriyat",
+"en": "Quriyat",
+"level": 2,
+"parent": "مسقط",
+"lat": 23.129,
+"lon": 58.786
+}
+]
+}

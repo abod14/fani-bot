@@ -1,0 +1,3141 @@
+{
+"_source": "Open Admin Data — CC-BY-4.0 — https://github.com/open-admin-data/egypt-administrative-divisions",
+"data": [
+{
+"name": "القاهرة",
+"en": "Cairo",
+"level": 1,
+"parent": null,
+"lat": 29.966,
+"lon": 31.573
+},
+{
+"name": "خارج الزمام",
+"en": "Zemam Out",
+"level": 2,
+"parent": "القاهرة",
+"lat": 29.972,
+"lon": 31.799
+},
+{
+"name": "قسم التبين",
+"en": "Al Tibbin",
+"level": 2,
+"parent": "القاهرة",
+"lat": 29.781,
+"lon": 31.337
+},
+{
+"name": "قسم حلوان",
+"en": "Hilwan",
+"level": 2,
+"parent": "القاهرة",
+"lat": 29.854,
+"lon": 31.329
+},
+{
+"name": "قسم 15 مايو",
+"en": "15 Mayu",
+"level": 2,
+"parent": "القاهرة",
+"lat": 29.853,
+"lon": 31.387
+},
+{
+"name": "قسم المعادي",
+"en": "Maadi",
+"level": 2,
+"parent": "القاهرة",
+"lat": 29.963,
+"lon": 31.368
+},
+{
+"name": "قسم طره",
+"en": "Tura",
+"level": 2,
+"parent": "القاهرة",
+"lat": 29.939,
+"lon": 31.38
+},
+{
+"name": "مصرالقديمة",
+"en": "Misr Al-Qadima",
+"level": 2,
+"parent": "القاهرة",
+"lat": 30.006,
+"lon": 31.242
+},
+{
+"name": "قسم السيدة زينب",
+"en": "Sayyida Zainab",
+"level": 2,
+"parent": "القاهرة",
+"lat": 30.03,
+"lon": 31.242
+},
+{
+"name": "قسم الخليفة",
+"en": "Al Khalifa",
+"level": 2,
+"parent": "القاهرة",
+"lat": 30.01,
+"lon": 31.296
+},
+{
+"name": "قسم عابدين",
+"en": "Abdin",
+"level": 2,
+"parent": "القاهرة",
+"lat": 30.046,
+"lon": 31.245
+},
+{
+"name": "قسم الموسكي",
+"en": "Muski",
+"level": 2,
+"parent": "القاهرة",
+"lat": 30.05,
+"lon": 31.252
+},
+{
+"name": "قسم قصر النيل",
+"en": "Qasr Al-Nile",
+"level": 2,
+"parent": "القاهرة",
+"lat": 30.043,
+"lon": 31.235
+},
+{
+"name": "قسم بولاق",
+"en": "Bulaq",
+"level": 2,
+"parent": "القاهرة",
+"lat": 30.062,
+"lon": 31.234
+},
+{
+"name": "قسم الأزبكية",
+"en": "Al Azbakiyya",
+"level": 2,
+"parent": "القاهرة",
+"lat": 30.06,
+"lon": 31.246
+},
+{
+"name": "قسم الدرب الأحمر",
+"en": "Al Darb al-Ahmar",
+"level": 2,
+"parent": "القاهرة",
+"lat": 30.041,
+"lon": 31.26
+},
+{
+"name": "قسم الجمالية",
+"en": "Gamaliyya",
+"level": 2,
+"parent": "القاهرة",
+"lat": 30.054,
+"lon": 31.265
+},
+{
+"name": "قسم باب الشعرية",
+"en": "Bab Al-Shariyya",
+"level": 2,
+"parent": "القاهرة",
+"lat": 30.059,
+"lon": 31.258
+},
+{
+"name": "قسم الظاهر",
+"en": "Al Zahir",
+"level": 2,
+"parent": "القاهرة",
+"lat": 30.063,
+"lon": 31.268
+},
+{
+"name": "قسم الشرابية",
+"en": "Al Sharabiyya",
+"level": 2,
+"parent": "القاهرة",
+"lat": 30.082,
+"lon": 31.264
+},
+{
+"name": "قسم شبرا",
+"en": "Shubra",
+"level": 2,
+"parent": "القاهرة",
+"lat": 30.072,
+"lon": 31.25
+},
+{
+"name": "قسم روضالفرج",
+"en": "Rud Al-Farag",
+"level": 2,
+"parent": "القاهرة",
+"lat": 30.075,
+"lon": 31.238
+},
+{
+"name": "قسم الساحل",
+"en": "Al Sahil",
+"level": 2,
+"parent": "القاهرة",
+"lat": 30.092,
+"lon": 31.247
+},
+{
+"name": "قسم الوايلي",
+"en": "Al Wayli",
+"level": 2,
+"parent": "القاهرة",
+"lat": 30.072,
+"lon": 31.283
+},
+{
+"name": "قسم حدائقالقبة",
+"en": "Hadaiq Al-Qubba",
+"level": 2,
+"parent": "القاهرة",
+"lat": 30.086,
+"lon": 31.283
+},
+{
+"name": "قسم الزيتون",
+"en": "Al Zaytun",
+"level": 2,
+"parent": "القاهرة",
+"lat": 30.1,
+"lon": 31.301
+},
+{
+"name": "قسم المطرية",
+"en": "Al Matariyya",
+"level": 2,
+"parent": "القاهرة",
+"lat": 30.128,
+"lon": 31.304
+},
+{
+"name": "قسم أول مدينة نصر",
+"en": "Nasr City",
+"level": 2,
+"parent": "القاهرة",
+"lat": 30.032,
+"lon": 31.369
+},
+{
+"name": "قسم ثانمدينةنصر",
+"en": "Madinat Nasr-2",
+"level": 2,
+"parent": "القاهرة",
+"lat": 30.048,
+"lon": 31.309
+},
+{
+"name": "قسم مصرالجديدة",
+"en": "Misr al-Gadida",
+"level": 2,
+"parent": "القاهرة",
+"lat": 30.091,
+"lon": 31.327
+},
+{
+"name": "قسم النزهة",
+"en": "Nuzha",
+"level": 2,
+"parent": "القاهرة",
+"lat": 30.115,
+"lon": 31.389
+},
+{
+"name": "قسم عينشمس",
+"en": "Ain Shams",
+"level": 2,
+"parent": "القاهرة",
+"lat": 30.123,
+"lon": 31.33
+},
+{
+"name": "قسم الزاويةالحمراء",
+"en": "Zawiyya Al-Hamra",
+"level": 2,
+"parent": "القاهرة",
+"lat": 30.098,
+"lon": 31.27
+},
+{
+"name": "قسم السلام",
+"en": "Al Salam",
+"level": 2,
+"parent": "القاهرة",
+"lat": 30.162,
+"lon": 31.428
+},
+{
+"name": "قسم الزمالك",
+"en": "Zamalik",
+"level": 2,
+"parent": "القاهرة",
+"lat": 30.056,
+"lon": 31.223
+},
+{
+"name": "منشأةناصر",
+"en": "Minshat Nasir",
+"level": 2,
+"parent": "القاهرة",
+"lat": 30.043,
+"lon": 31.284
+},
+{
+"name": "قسم البساتين",
+"en": "Basatin",
+"level": 2,
+"parent": "القاهرة",
+"lat": 29.98,
+"lon": 31.293
+},
+{
+"name": "قسم المرج",
+"en": "Marg",
+"level": 2,
+"parent": "القاهرة",
+"lat": 30.156,
+"lon": 31.346
+},
+{
+"name": "قسم أول القاهرة الجديدة",
+"en": "New Cairo-1",
+"level": 2,
+"parent": "القاهرة",
+"lat": 30.024,
+"lon": 31.55
+},
+{
+"name": "قسم ثان القاهرة الجديدة",
+"en": "New Cairo-2",
+"level": 2,
+"parent": "القاهرة",
+"lat": 30.074,
+"lon": 31.582
+},
+{
+"name": "قسم ثالث القاهرة الجديدة",
+"en": "New Cairo-3",
+"level": 2,
+"parent": "القاهرة",
+"lat": 29.978,
+"lon": 31.456
+},
+{
+"name": "قسم الشروق",
+"en": "Shroq",
+"level": 2,
+"parent": "القاهرة",
+"lat": 30.133,
+"lon": 31.547
+},
+{
+"name": "قسم بدر",
+"en": "Badr",
+"level": 2,
+"parent": "القاهرة",
+"lat": 30.136,
+"lon": 31.706
+},
+{
+"name": "الاسكندرية",
+"en": "Alexandria",
+"level": 1,
+"parent": null,
+"lat": 30.798,
+"lon": 29.708
+},
+{
+"name": "خارج الزمام",
+"en": "Zemam Out",
+"level": 2,
+"parent": "الاسكندرية",
+"lat": 30.537,
+"lon": 29.721
+},
+{
+"name": "قسم المنتزة",
+"en": "Muntazah",
+"level": 2,
+"parent": "الاسكندرية",
+"lat": 31.264,
+"lon": 30.03
+},
+{
+"name": "قسم أول الرمل",
+"en": "Al Raml",
+"level": 2,
+"parent": "الاسكندرية",
+"lat": 31.237,
+"lon": 29.986
+},
+{
+"name": "قسم سيدى جابر",
+"en": "Sidi Gabir",
+"level": 2,
+"parent": "الاسكندرية",
+"lat": 31.216,
+"lon": 29.949
+},
+{
+"name": "قسم باب شرقى",
+"en": "Bab Sharqi",
+"level": 2,
+"parent": "الاسكندرية",
+"lat": 31.205,
+"lon": 29.921
+},
+{
+"name": "قسم محرم بك",
+"en": "Muharam Bik",
+"level": 2,
+"parent": "الاسكندرية",
+"lat": 31.184,
+"lon": 29.939
+},
+{
+"name": "قسم العطارين",
+"en": "Al Attarin",
+"level": 2,
+"parent": "الاسكندرية",
+"lat": 31.198,
+"lon": 29.904
+},
+{
+"name": "قسم المنشية",
+"en": "Al Manshiyya",
+"level": 2,
+"parent": "الاسكندرية",
+"lat": 31.198,
+"lon": 29.892
+},
+{
+"name": "قسم كرموز",
+"en": "Karmuz",
+"level": 2,
+"parent": "الاسكندرية",
+"lat": 31.179,
+"lon": 29.904
+},
+{
+"name": "قسم اللبان",
+"en": "A L Labban",
+"level": 2,
+"parent": "الاسكندرية",
+"lat": 31.191,
+"lon": 29.892
+},
+{
+"name": "قسم الجمرك",
+"en": "Al Gumruk",
+"level": 2,
+"parent": "الاسكندرية",
+"lat": 31.203,
+"lon": 29.879
+},
+{
+"name": "قسم مينا البصل",
+"en": "Mina Al-Basal",
+"level": 2,
+"parent": "الاسكندرية",
+"lat": 31.167,
+"lon": 29.88
+},
+{
+"name": "قسم الدخيلة",
+"en": "Al Dikhila",
+"level": 2,
+"parent": "الاسكندرية",
+"lat": 31.119,
+"lon": 29.806
+},
+{
+"name": "قسم العامرية",
+"en": "Al Amreia",
+"level": 2,
+"parent": "الاسكندرية",
+"lat": 30.959,
+"lon": 29.828
+},
+{
+"name": "قسم برج العرب",
+"en": "Burg al-Arab",
+"level": 2,
+"parent": "الاسكندرية",
+"lat": 30.901,
+"lon": 29.494
+},
+{
+"name": "اداره شرطه ميناء الأسكندريه",
+"en": "Port Alexandria Police Department",
+"level": 2,
+"parent": "الاسكندرية",
+"lat": 31.18,
+"lon": 29.876
+},
+{
+"name": "مدينه برج العرب الجديده",
+"en": "Burg Al-Arab City",
+"level": 2,
+"parent": "الاسكندرية",
+"lat": 30.899,
+"lon": 29.622
+},
+{
+"name": "قسم ثان الرمل",
+"en": "Kesm than Al Raml",
+"level": 2,
+"parent": "الاسكندرية",
+"lat": 31.211,
+"lon": 29.994
+},
+{
+"name": "الساحل الشمالى",
+"en": "North Coast",
+"level": 2,
+"parent": "الاسكندرية",
+"lat": 30.935,
+"lon": 29.475
+},
+{
+"name": "بورسعيد",
+"en": "Port Said",
+"level": 1,
+"parent": null,
+"lat": 31.067,
+"lon": 32.43
+},
+{
+"name": "قسم الشرق",
+"en": "Al-Sharq",
+"level": 2,
+"parent": "بورسعيد",
+"lat": 31.263,
+"lon": 32.307
+},
+{
+"name": "قسم العرب",
+"en": "Al-Arab",
+"level": 2,
+"parent": "بورسعيد",
+"lat": 31.262,
+"lon": 32.294
+},
+{
+"name": "قسم المناخ",
+"en": "Al-Munakh",
+"level": 2,
+"parent": "بورسعيد",
+"lat": 31.265,
+"lon": 32.287
+},
+{
+"name": "قسم بور فؤاد",
+"en": "Port Fuad",
+"level": 2,
+"parent": "بورسعيد",
+"lat": 31.236,
+"lon": 32.33
+},
+{
+"name": "قسم الضواحى",
+"en": "Al-Dawahy",
+"level": 2,
+"parent": "بورسعيد",
+"lat": 31.246,
+"lon": 32.28
+},
+{
+"name": "قسم الجنوب",
+"en": "Al-Ganoub",
+"level": 2,
+"parent": "بورسعيد",
+"lat": 31.141,
+"lon": 32.291
+},
+{
+"name": "قسم الزهور",
+"en": "Al-Zohour",
+"level": 2,
+"parent": "بورسعيد",
+"lat": 31.266,
+"lon": 32.266
+},
+{
+"name": "قسم ثان بور فؤاد",
+"en": "Port Fuad 2",
+"level": 2,
+"parent": "بورسعيد",
+"lat": 31.17,
+"lon": 32.318
+},
+{
+"name": "قسم مبارك - شرق التفريعة",
+"en": "Mubark-Sharq Tafrea",
+"level": 2,
+"parent": "بورسعيد",
+"lat": 31.067,
+"lon": 32.43
+},
+{
+"name": "قسم المناصرة",
+"en": "Al-Manasra",
+"level": 2,
+"parent": "بورسعيد",
+"lat": 31.237,
+"lon": 32.173
+},
+{
+"name": "قسم ثان الجنوب",
+"en": "Al-Ganoub 2",
+"level": 2,
+"parent": "بورسعيد",
+"lat": 30.993,
+"lon": 32.254
+},
+{
+"name": "إدارة شرطة ميناء بورسعيد",
+"en": "Police Department Port Said Port",
+"level": 2,
+"parent": "بورسعيد",
+"lat": 31.254,
+"lon": 32.301
+},
+{
+"name": "السويس",
+"en": "Suez",
+"level": 1,
+"parent": null,
+"lat": 29.622,
+"lon": 32.121
+},
+{
+"name": "قسم السويس",
+"en": "Suez",
+"level": 2,
+"parent": "السويس",
+"lat": 29.961,
+"lon": 32.569
+},
+{
+"name": "قسم الأربعين",
+"en": "Al-Arbiin",
+"level": 2,
+"parent": "السويس",
+"lat": 29.98,
+"lon": 32.536
+},
+{
+"name": "قسم عتاقة",
+"en": "Ataqa",
+"level": 2,
+"parent": "السويس",
+"lat": 29.539,
+"lon": 32.128
+},
+{
+"name": "قسم فيصل",
+"en": "Faysal",
+"level": 2,
+"parent": "السويس",
+"lat": 30.118,
+"lon": 32.181
+},
+{
+"name": "قسم الجناين",
+"en": "Al-Ganayin",
+"level": 2,
+"parent": "السويس",
+"lat": 30.063,
+"lon": 32.703
+},
+{
+"name": "إدارة شرطة ميناء السويس",
+"en": "Port Suez Police Department",
+"level": 2,
+"parent": "السويس",
+"lat": 29.882,
+"lon": 32.619
+},
+{
+"name": "دمياط",
+"en": "Damietta",
+"level": 1,
+"parent": null,
+"lat": 31.394,
+"lon": 31.628
+},
+{
+"name": "قسم أول دمياط",
+"en": "Dumyat 1",
+"level": 2,
+"parent": "دمياط",
+"lat": 31.407,
+"lon": 31.807
+},
+{
+"name": "مركز دمياط",
+"en": "Dumyat",
+"level": 2,
+"parent": "دمياط",
+"lat": 31.44,
+"lon": 31.842
+},
+{
+"name": "مركز فارسكور",
+"en": "Fariskur",
+"level": 2,
+"parent": "دمياط",
+"lat": 31.31,
+"lon": 31.733
+},
+{
+"name": "مركز كفر سعد",
+"en": "Kafr Sad",
+"level": 2,
+"parent": "دمياط",
+"lat": 31.359,
+"lon": 31.603
+},
+{
+"name": "قسم مدينه دمياط الجديده",
+"en": "Dumyat Al-Gadida",
+"level": 2,
+"parent": "دمياط",
+"lat": 31.439,
+"lon": 31.706
+},
+{
+"name": "قسم رأس البر",
+"en": "Ras al-Bar",
+"level": 2,
+"parent": "دمياط",
+"lat": 31.51,
+"lon": 31.83
+},
+{
+"name": "مركز الزرقا",
+"en": "Zarqa",
+"level": 2,
+"parent": "دمياط",
+"lat": 31.209,
+"lon": 31.649
+},
+{
+"name": "إداره شرطه ميناء دمياط الجديد",
+"en": "Police Department Port of Damietta",
+"level": 2,
+"parent": "دمياط",
+"lat": 31.466,
+"lon": 31.778
+},
+{
+"name": "قسم ثان دمياط",
+"en": "Dumyat 2",
+"level": 2,
+"parent": "دمياط",
+"lat": 31.425,
+"lon": 31.819
+},
+{
+"name": "الدقهلية",
+"en": "Dakahlia",
+"level": 1,
+"parent": null,
+"lat": 30.966,
+"lon": 31.469
+},
+{
+"name": "قسم اول المنصورة",
+"en": "El Mansora 1",
+"level": 2,
+"parent": "الدقهلية",
+"lat": 31.029,
+"lon": 31.375
+},
+{
+"name": "قسم ثان المنصورة",
+"en": "E Mansora 2",
+"level": 2,
+"parent": "الدقهلية",
+"lat": 31.047,
+"lon": 31.419
+},
+{
+"name": "مركز المنصورة",
+"en": "El Mansora",
+"level": 2,
+"parent": "الدقهلية",
+"lat": 31.053,
+"lon": 31.467
+},
+{
+"name": "مركز أجا",
+"en": "Aga",
+"level": 2,
+"parent": "الدقهلية",
+"lat": 30.895,
+"lon": 31.313
+},
+{
+"name": "مركز السنبلاوين",
+"en": "Sinbillawin",
+"level": 2,
+"parent": "الدقهلية",
+"lat": 30.883,
+"lon": 31.513
+},
+{
+"name": "مركز المطرية",
+"en": "Matariyya",
+"level": 2,
+"parent": "الدقهلية",
+"lat": 31.191,
+"lon": 32.004
+},
+{
+"name": "مركز المنزلة",
+"en": "Manzala",
+"level": 2,
+"parent": "الدقهلية",
+"lat": 31.153,
+"lon": 31.958
+},
+{
+"name": "مركز بلقاس",
+"en": "Bilqas",
+"level": 2,
+"parent": "الدقهلية",
+"lat": 31.344,
+"lon": 31.379
+},
+{
+"name": "مركز دكرنس",
+"en": "Dikirnis",
+"level": 2,
+"parent": "الدقهلية",
+"lat": 31.093,
+"lon": 31.78
+},
+{
+"name": "مركز شربين",
+"en": "Shirbin",
+"level": 2,
+"parent": "الدقهلية",
+"lat": 31.261,
+"lon": 31.576
+},
+{
+"name": "مركز طلخا",
+"en": "Talkha",
+"level": 2,
+"parent": "الدقهلية",
+"lat": 31.109,
+"lon": 31.383
+},
+{
+"name": "قسم ميت غمر",
+"en": "Mit Ghamr",
+"level": 2,
+"parent": "الدقهلية",
+"lat": 30.713,
+"lon": 31.276
+},
+{
+"name": "مركز ميت غمر",
+"en": "Mit Ghamr",
+"level": 2,
+"parent": "الدقهلية",
+"lat": 30.708,
+"lon": 31.338
+},
+{
+"name": "مركز منية النصر",
+"en": "Minya Al-Nasr",
+"level": 2,
+"parent": "الدقهلية",
+"lat": 31.154,
+"lon": 31.707
+},
+{
+"name": "مركز الجمالية",
+"en": "Gamaliyya",
+"level": 2,
+"parent": "الدقهلية",
+"lat": 31.205,
+"lon": 31.852
+},
+{
+"name": "مركز تمى الأمديد",
+"en": "Tamy Al-Amdid",
+"level": 2,
+"parent": "الدقهلية",
+"lat": 30.947,
+"lon": 31.594
+},
+{
+"name": "مركز ميت سلسيل",
+"en": "MIt Salsil",
+"level": 2,
+"parent": "الدقهلية",
+"lat": 31.233,
+"lon": 31.792
+},
+{
+"name": "مركز بنى عبيد",
+"en": "Bany Abeed",
+"level": 2,
+"parent": "الدقهلية",
+"lat": 31.024,
+"lon": 31.648
+},
+{
+"name": "مركز محلة دمنة",
+"en": "Mahalet Demna",
+"level": 2,
+"parent": "الدقهلية",
+"lat": 31.09,
+"lon": 31.513
+},
+{
+"name": "قسم جمصة",
+"en": "Gamsa",
+"level": 2,
+"parent": "الدقهلية",
+"lat": 31.438,
+"lon": 31.549
+},
+{
+"name": "مركز نبروة",
+"en": "Nebro",
+"level": 2,
+"parent": "الدقهلية",
+"lat": 31.129,
+"lon": 31.297
+},
+{
+"name": "الشرقية",
+"en": "Sharkia",
+"level": 1,
+"parent": null,
+"lat": 30.65,
+"lon": 31.772
+},
+{
+"name": "خارج الزمام",
+"en": "Zemam Out",
+"level": 2,
+"parent": "الشرقية",
+"lat": 30.327,
+"lon": 31.719
+},
+{
+"name": "قسم اول الزقازيق",
+"en": "Zaqaziq 1",
+"level": 2,
+"parent": "الشرقية",
+"lat": 30.585,
+"lon": 31.513
+},
+{
+"name": "قسم ثان الزقازيق",
+"en": "Zaqaziq 2",
+"level": 2,
+"parent": "الشرقية",
+"lat": 30.601,
+"lon": 31.519
+},
+{
+"name": "مركز الزقازيق",
+"en": "Zaqaziq",
+"level": 2,
+"parent": "الشرقية",
+"lat": 30.587,
+"lon": 31.581
+},
+{
+"name": "مركز أبو حماد",
+"en": "Abu Hammad",
+"level": 2,
+"parent": "الشرقية",
+"lat": 30.543,
+"lon": 31.649
+},
+{
+"name": "مركز أبوكبير",
+"en": "Abu Kabir",
+"level": 2,
+"parent": "الشرقية",
+"lat": 30.733,
+"lon": 31.69
+},
+{
+"name": "مركز الحسينية",
+"en": "Al-Husayniya",
+"level": 2,
+"parent": "الشرقية",
+"lat": 30.924,
+"lon": 32.006
+},
+{
+"name": "قسم الصالحية الجديدة",
+"en": "Al-Salhiyya",
+"level": 2,
+"parent": "الشرقية",
+"lat": 30.634,
+"lon": 32.006
+},
+{
+"name": "مركز بلبيس",
+"en": "Bilbis",
+"level": 2,
+"parent": "الشرقية",
+"lat": 30.408,
+"lon": 31.531
+},
+{
+"name": "قسم اول مدينة العاشر من رمضان",
+"en": "10 Ramadan 1",
+"level": 2,
+"parent": "الشرقية",
+"lat": 30.222,
+"lon": 31.732
+},
+{
+"name": "مركز ديرب نجم",
+"en": "Dyarb Nigm",
+"level": 2,
+"parent": "الشرقية",
+"lat": 30.752,
+"lon": 31.444
+},
+{
+"name": "قسم فاقوس",
+"en": "Faqus",
+"level": 2,
+"parent": "الشرقية",
+"lat": 30.723,
+"lon": 31.798
+},
+{
+"name": "مركز فاقوس",
+"en": "Faqus",
+"level": 2,
+"parent": "الشرقية",
+"lat": 30.749,
+"lon": 31.896
+},
+{
+"name": "مركز كفر صقر",
+"en": "Kafr Saqr",
+"level": 2,
+"parent": "الشرقية",
+"lat": 30.837,
+"lon": 31.675
+},
+{
+"name": "مركز منيا القمح",
+"en": "Minya al-Qamh",
+"level": 2,
+"parent": "الشرقية",
+"lat": 30.507,
+"lon": 31.369
+},
+{
+"name": "مركز ههيا",
+"en": "Hihya",
+"level": 2,
+"parent": "الشرقية",
+"lat": 30.652,
+"lon": 31.617
+},
+{
+"name": "مركز مشتول السوق",
+"en": "Mashtul Al-Suq",
+"level": 2,
+"parent": "الشرقية",
+"lat": 30.361,
+"lon": 31.383
+},
+{
+"name": "مركز الأبراهيمية",
+"en": "El-Ibrahimiya",
+"level": 2,
+"parent": "الشرقية",
+"lat": 30.732,
+"lon": 31.564
+},
+{
+"name": "قسم القنايات",
+"en": "Al-Qanayat",
+"level": 2,
+"parent": "الشرقية",
+"lat": 30.635,
+"lon": 31.471
+},
+{
+"name": "مركز أولاد صقر",
+"en": "Awlad Saqr",
+"level": 2,
+"parent": "الشرقية",
+"lat": 30.969,
+"lon": 31.777
+},
+{
+"name": "قسم القرين",
+"en": "Qurin",
+"level": 2,
+"parent": "الشرقية",
+"lat": 30.611,
+"lon": 31.742
+},
+{
+"name": "قسم ثان مدينه العاشر من رمضان",
+"en": "10 Ramadan 2",
+"level": 2,
+"parent": "الشرقية",
+"lat": 30.238,
+"lon": 31.7
+},
+{
+"name": "القليوبية",
+"en": "Kalyoubia",
+"level": 1,
+"parent": null,
+"lat": 30.36,
+"lon": 31.209
+},
+{
+"name": "خارج الزمام",
+"en": "Zemam Out",
+"level": 2,
+"parent": "القليوبية",
+"lat": 30.24,
+"lon": 31.514
+},
+{
+"name": "قسم بنها",
+"en": "Banha",
+"level": 2,
+"parent": "القليوبية",
+"lat": 30.466,
+"lon": 31.19
+},
+{
+"name": "مركز بنها",
+"en": "Banha",
+"level": 2,
+"parent": "القليوبية",
+"lat": 30.443,
+"lon": 31.248
+},
+{
+"name": "مركز الخانكة",
+"en": "Al Khanka",
+"level": 2,
+"parent": "القليوبية",
+"lat": 30.231,
+"lon": 31.358
+},
+{
+"name": "مركز القناطر الخيرية",
+"en": "Qanatir Al-Khayriyya",
+"level": 2,
+"parent": "القليوبية",
+"lat": 30.214,
+"lon": 31.135
+},
+{
+"name": "مركز شبين القناطر",
+"en": "Shibin al-Qanatir",
+"level": 2,
+"parent": "القليوبية",
+"lat": 30.296,
+"lon": 31.307
+},
+{
+"name": "قسم أول شبرا الخيمة",
+"en": "Shubra Al-Khayma 1",
+"level": 2,
+"parent": "القليوبية",
+"lat": 30.132,
+"lon": 31.248
+},
+{
+"name": "قسم ثان شبرا الخيمة",
+"en": "Shubra Al-Khayma 2",
+"level": 2,
+"parent": "القليوبية",
+"lat": 30.135,
+"lon": 31.285
+},
+{
+"name": "مركز طوخ",
+"en": "Tukh",
+"level": 2,
+"parent": "القليوبية",
+"lat": 30.344,
+"lon": 31.19
+},
+{
+"name": "قسم قليوب",
+"en": "Qalyub",
+"level": 2,
+"parent": "القليوبية",
+"lat": 30.18,
+"lon": 31.216
+},
+{
+"name": "مركز قليوب",
+"en": "Qalyub",
+"level": 2,
+"parent": "القليوبية",
+"lat": 30.207,
+"lon": 31.214
+},
+{
+"name": "مركز كفر شكر",
+"en": "Kafr Shukr",
+"level": 2,
+"parent": "القليوبية",
+"lat": 30.554,
+"lon": 31.275
+},
+{
+"name": "قسم الخصوص",
+"en": "Khsos",
+"level": 2,
+"parent": "القليوبية",
+"lat": 30.157,
+"lon": 31.318
+},
+{
+"name": "قسم العبور",
+"en": "Abour",
+"level": 2,
+"parent": "القليوبية",
+"lat": 30.225,
+"lon": 31.447
+},
+{
+"name": "قسم قها",
+"en": "Qaha",
+"level": 2,
+"parent": "القليوبية",
+"lat": 30.293,
+"lon": 31.215
+},
+{
+"name": "كفر الشيخ",
+"en": "Kafr El-Shikh",
+"level": 1,
+"parent": null,
+"lat": 31.31,
+"lon": 30.901
+},
+{
+"name": "قسم كفر الشيخ",
+"en": "Kafr Al-Shaykh",
+"level": 2,
+"parent": "كفر الشيخ",
+"lat": 31.119,
+"lon": 30.941
+},
+{
+"name": "مركز كفر الشيخ",
+"en": "Kafr Al-Shaykh",
+"level": 2,
+"parent": "كفر الشيخ",
+"lat": 31.2,
+"lon": 31.016
+},
+{
+"name": "مركز البرلس",
+"en": "Burullus",
+"level": 2,
+"parent": "كفر الشيخ",
+"lat": 31.521,
+"lon": 31.273
+},
+{
+"name": "مركز بيلا",
+"en": "Biyalu",
+"level": 2,
+"parent": "كفر الشيخ",
+"lat": 31.32,
+"lon": 31.248
+},
+{
+"name": "قسم دسوق",
+"en": "Disuq",
+"level": 2,
+"parent": "كفر الشيخ",
+"lat": 31.145,
+"lon": 30.649
+},
+{
+"name": "مركز دسوق",
+"en": "Disuq",
+"level": 2,
+"parent": "كفر الشيخ",
+"lat": 31.15,
+"lon": 30.72
+},
+{
+"name": "مركز سيدى سالم",
+"en": "Sidi Salim",
+"level": 2,
+"parent": "كفر الشيخ",
+"lat": 31.31,
+"lon": 30.738
+},
+{
+"name": "مركز فوه",
+"en": "Fuwwa",
+"level": 2,
+"parent": "كفر الشيخ",
+"lat": 31.232,
+"lon": 30.564
+},
+{
+"name": "مركز قلين",
+"en": "Qillin",
+"level": 2,
+"parent": "كفر الشيخ",
+"lat": 31.085,
+"lon": 30.817
+},
+{
+"name": "مركز مطوبس",
+"en": "Mitubas",
+"level": 2,
+"parent": "كفر الشيخ",
+"lat": 31.383,
+"lon": 30.47
+},
+{
+"name": "مركز الحامول",
+"en": "Al Hamul",
+"level": 2,
+"parent": "كفر الشيخ",
+"lat": 31.388,
+"lon": 31.075
+},
+{
+"name": "مركز الرياض",
+"en": "Riyad",
+"level": 2,
+"parent": "كفر الشيخ",
+"lat": 31.321,
+"lon": 30.92
+},
+{
+"name": "الغربية",
+"en": "Gharbia",
+"level": 1,
+"parent": null,
+"lat": 30.872,
+"lon": 31.017
+},
+{
+"name": "قسم أول طنطا",
+"en": "Tanta 1",
+"level": 2,
+"parent": "الغربية",
+"lat": 30.795,
+"lon": 31.014
+},
+{
+"name": "قسم ثان طنطا",
+"en": "Tanta 2",
+"level": 2,
+"parent": "الغربية",
+"lat": 30.786,
+"lon": 30.989
+},
+{
+"name": "مركز طنطا",
+"en": "Tanta",
+"level": 2,
+"parent": "الغربية",
+"lat": 30.809,
+"lon": 30.932
+},
+{
+"name": "مركز السنطة",
+"en": "Santa",
+"level": 2,
+"parent": "الغربية",
+"lat": 30.773,
+"lon": 31.119
+},
+{
+"name": "قسم أول المحلة الكبرى",
+"en": "El Mahalla El Kobra 1",
+"level": 2,
+"parent": "الغربية",
+"lat": 30.972,
+"lon": 31.172
+},
+{
+"name": "قسم ثان المحلة الكبرى",
+"en": "El Mahalla El Kobra 2",
+"level": 2,
+"parent": "الغربية",
+"lat": 30.971,
+"lon": 31.157
+},
+{
+"name": "مركز المحله الكبرى",
+"en": "El Mahalla El Kobra",
+"level": 2,
+"parent": "الغربية",
+"lat": 31.017,
+"lon": 31.13
+},
+{
+"name": "مركز بسيون",
+"en": "Basyun",
+"level": 2,
+"parent": "الغربية",
+"lat": 30.959,
+"lon": 30.827
+},
+{
+"name": "مركز زفتى",
+"en": "Zifta",
+"level": 2,
+"parent": "الغربية",
+"lat": 30.728,
+"lon": 31.215
+},
+{
+"name": "مركز سمنود",
+"en": "Samannud",
+"level": 2,
+"parent": "الغربية",
+"lat": 30.95,
+"lon": 31.221
+},
+{
+"name": "مركز قطور",
+"en": "Qutur",
+"level": 2,
+"parent": "الغربية",
+"lat": 30.971,
+"lon": 30.97
+},
+{
+"name": "مركز كفر الزيات",
+"en": "Kafr Al-Zayyat",
+"level": 2,
+"parent": "الغربية",
+"lat": 30.807,
+"lon": 30.835
+},
+{
+"name": "المنوفية",
+"en": "Menoufia",
+"level": 1,
+"parent": null,
+"lat": 30.358,
+"lon": 30.661
+},
+{
+"name": "قسم شبين الكوم",
+"en": "Shibin al-Kum",
+"level": 2,
+"parent": "المنوفية",
+"lat": 30.556,
+"lon": 31.0
+},
+{
+"name": "مركز شبين الكوم",
+"en": "Shibin al-Kum",
+"level": 2,
+"parent": "المنوفية",
+"lat": 30.561,
+"lon": 30.954
+},
+{
+"name": "مركز أشمون",
+"en": "Ashmun",
+"level": 2,
+"parent": "المنوفية",
+"lat": 30.299,
+"lon": 31.008
+},
+{
+"name": "مركز الباجور",
+"en": "Al-Bagur",
+"level": 2,
+"parent": "المنوفية",
+"lat": 30.413,
+"lon": 31.032
+},
+{
+"name": "مركز الشهداء",
+"en": "Al-Shuhada",
+"level": 2,
+"parent": "المنوفية",
+"lat": 30.601,
+"lon": 30.87
+},
+{
+"name": "مركز بركة السبع",
+"en": "Birkat Al-Sab",
+"level": 2,
+"parent": "المنوفية",
+"lat": 30.651,
+"lon": 31.108
+},
+{
+"name": "مركز تلا",
+"en": "Tala",
+"level": 2,
+"parent": "المنوفية",
+"lat": 30.67,
+"lon": 30.946
+},
+{
+"name": "مركز قويسنا",
+"en": "Quwisna",
+"level": 2,
+"parent": "المنوفية",
+"lat": 30.56,
+"lon": 31.163
+},
+{
+"name": "مركز منوف",
+"en": "Minuf",
+"level": 2,
+"parent": "المنوفية",
+"lat": 30.46,
+"lon": 30.881
+},
+{
+"name": "قسم مدينة سرس الليانة",
+"en": "Sirs Al-Layyana City",
+"level": 2,
+"parent": "المنوفية",
+"lat": 30.445,
+"lon": 30.969
+},
+{
+"name": "مركز السادات",
+"en": "Sadat City",
+"level": 2,
+"parent": "المنوفية",
+"lat": 30.358,
+"lon": 30.661
+},
+{
+"name": "قسم مدينة منوف",
+"en": "Minuf City",
+"level": 2,
+"parent": "المنوفية",
+"lat": 30.462,
+"lon": 30.931
+},
+{
+"name": "البحيرة",
+"en": "Behera",
+"level": 1,
+"parent": null,
+"lat": 30.689,
+"lon": 30.356
+},
+{
+"name": "خارج الزمام",
+"en": "Zemam Out",
+"level": 2,
+"parent": "البحيرة",
+"lat": 30.26,
+"lon": 30.306
+},
+{
+"name": "قسم دمنهور",
+"en": "Damanhur",
+"level": 2,
+"parent": "البحيرة",
+"lat": 31.049,
+"lon": 30.463
+},
+{
+"name": "مركز دمنهور",
+"en": "Damanhur",
+"level": 2,
+"parent": "البحيرة",
+"lat": 31.032,
+"lon": 30.527
+},
+{
+"name": "مركز ابوالمطامير",
+"en": "Abu-l-Matamir",
+"level": 2,
+"parent": "البحيرة",
+"lat": 30.773,
+"lon": 30.144
+},
+{
+"name": "مركز ابوحمص",
+"en": "Abu Hummus",
+"level": 2,
+"parent": "البحيرة",
+"lat": 31.106,
+"lon": 30.31
+},
+{
+"name": "مركز الدلنجات",
+"en": "Al-Dilingat",
+"level": 2,
+"parent": "البحيرة",
+"lat": 30.81,
+"lon": 30.49
+},
+{
+"name": "مركز المحمودية",
+"en": "Al-Mahmudiyya",
+"level": 2,
+"parent": "البحيرة",
+"lat": 31.197,
+"lon": 30.488
+},
+{
+"name": "مركز إيتاى البارود",
+"en": "Itay Al-Barud",
+"level": 2,
+"parent": "البحيرة",
+"lat": 30.886,
+"lon": 30.656
+},
+{
+"name": "مركز حوش عيسى",
+"en": "Hush Isa",
+"level": 2,
+"parent": "البحيرة",
+"lat": 30.891,
+"lon": 30.346
+},
+{
+"name": "مركز رشيد",
+"en": "Rashid",
+"level": 2,
+"parent": "البحيرة",
+"lat": 31.379,
+"lon": 30.375
+},
+{
+"name": "مركز شبراخيت",
+"en": "Shubra Khit",
+"level": 2,
+"parent": "البحيرة",
+"lat": 31.003,
+"lon": 30.679
+},
+{
+"name": "قسم كفرالدوار",
+"en": "Kafr Al-Dawwar",
+"level": 2,
+"parent": "البحيرة",
+"lat": 31.137,
+"lon": 30.133
+},
+{
+"name": "مركز كفر الدوار",
+"en": "Kafr Al-Dawwar",
+"level": 2,
+"parent": "البحيرة",
+"lat": 31.129,
+"lon": 30.038
+},
+{
+"name": "مركز كوم حمادة",
+"en": "Kum Hamada",
+"level": 2,
+"parent": "البحيرة",
+"lat": 30.654,
+"lon": 30.774
+},
+{
+"name": "مركز وادى النطرون",
+"en": "Wadi Al-NatrUn",
+"level": 2,
+"parent": "البحيرة",
+"lat": 30.43,
+"lon": 30.313
+},
+{
+"name": "مركز الرحمانية",
+"en": "Al-Rahmaniyya",
+"level": 2,
+"parent": "البحيرة",
+"lat": 31.106,
+"lon": 30.584
+},
+{
+"name": "مركز إدكو",
+"en": "Idku",
+"level": 2,
+"parent": "البحيرة",
+"lat": 31.298,
+"lon": 30.325
+},
+{
+"name": "قسم غرب النوبارية",
+"en": "Nubariyya West",
+"level": 2,
+"parent": "البحيرة",
+"lat": 30.425,
+"lon": 29.897
+},
+{
+"name": "مركز بدر",
+"en": "Badr",
+"level": 2,
+"parent": "البحيرة",
+"lat": 30.547,
+"lon": 30.679
+},
+{
+"name": "الإسماعيلية",
+"en": "Ismailia",
+"level": 1,
+"parent": null,
+"lat": 30.603,
+"lon": 32.55
+},
+{
+"name": "قسم أول الاسماعيلية",
+"en": "Ismailiyya 1",
+"level": 2,
+"parent": "الإسماعيلية",
+"lat": 30.606,
+"lon": 32.311
+},
+{
+"name": "قسم ثان الاسماعيلية",
+"en": "Ismailiyya 2",
+"level": 2,
+"parent": "الإسماعيلية",
+"lat": 30.614,
+"lon": 32.26
+},
+{
+"name": "قسم ثالث الاسماعيلية",
+"en": "Ismailiyya 3",
+"level": 2,
+"parent": "الإسماعيلية",
+"lat": 30.612,
+"lon": 32.291
+},
+{
+"name": "مركز الاسماعيلية",
+"en": "Ismailiyya",
+"level": 2,
+"parent": "الإسماعيلية",
+"lat": 30.426,
+"lon": 32.183
+},
+{
+"name": "مركز التل الكبير",
+"en": "Tal al-Kabir, al-",
+"level": 2,
+"parent": "الإسماعيلية",
+"lat": 30.418,
+"lon": 31.933
+},
+{
+"name": "مركز القنطرة",
+"en": "Qantara Gharb, al-",
+"level": 2,
+"parent": "الإسماعيلية",
+"lat": 30.742,
+"lon": 32.245
+},
+{
+"name": "مركز فايد",
+"en": "Fayid",
+"level": 2,
+"parent": "الإسماعيلية",
+"lat": 30.366,
+"lon": 32.292
+},
+{
+"name": "قسم القنطرة شرق",
+"en": "Qantara Sharq, al-",
+"level": 2,
+"parent": "الإسماعيلية",
+"lat": 30.603,
+"lon": 32.55
+},
+{
+"name": "الجيزة",
+"en": "Giza",
+"level": 1,
+"parent": null,
+"lat": 28.935,
+"lon": 29.392
+},
+{
+"name": "خارج الزمام",
+"en": "Zemam Out",
+"level": 2,
+"parent": "الجيزة",
+"lat": 28.935,
+"lon": 29.392
+},
+{
+"name": "قسم امبابه",
+"en": "Imbaba",
+"level": 2,
+"parent": "الجيزة",
+"lat": 30.083,
+"lon": 31.21
+},
+{
+"name": "قسم العجوزة",
+"en": "Al-Aguza",
+"level": 2,
+"parent": "الجيزة",
+"lat": 30.059,
+"lon": 31.204
+},
+{
+"name": "قسم الدقي",
+"en": "DuqqI",
+"level": 2,
+"parent": "الجيزة",
+"lat": 30.042,
+"lon": 31.208
+},
+{
+"name": "قسم الجيزة",
+"en": "Giza",
+"level": 2,
+"parent": "الجيزة",
+"lat": 29.999,
+"lon": 31.216
+},
+{
+"name": "قسم بولاق الدكرور",
+"en": "Bulaq Al-DakrUr",
+"level": 2,
+"parent": "الجيزة",
+"lat": 30.03,
+"lon": 31.19
+},
+{
+"name": "قسم الأهرام",
+"en": "Al-Ahram",
+"level": 2,
+"parent": "الجيزة",
+"lat": 29.99,
+"lon": 31.136
+},
+{
+"name": "قسم أول 6 أكتوبر",
+"en": "6 October-1",
+"level": 2,
+"parent": "الجيزة",
+"lat": 29.985,
+"lon": 30.963
+},
+{
+"name": "قسم الحوامدية",
+"en": "Hwamdeia",
+"level": 2,
+"parent": "الجيزة",
+"lat": 29.902,
+"lon": 31.253
+},
+{
+"name": "مركز الجيزة",
+"en": "Giza",
+"level": 2,
+"parent": "الجيزة",
+"lat": 29.943,
+"lon": 31.213
+},
+{
+"name": "مركز البدرشين",
+"en": "Badrashain",
+"level": 2,
+"parent": "الجيزة",
+"lat": 29.824,
+"lon": 31.258
+},
+{
+"name": "مركز الصف",
+"en": "Saf",
+"level": 2,
+"parent": "الجيزة",
+"lat": 29.62,
+"lon": 31.305
+},
+{
+"name": "مركز العياط",
+"en": "Ayat",
+"level": 2,
+"parent": "الجيزة",
+"lat": 29.564,
+"lon": 31.25
+},
+{
+"name": "مركز إمبابة",
+"en": "Imbaba",
+"level": 2,
+"parent": "الجيزة",
+"lat": 30.22,
+"lon": 30.963
+},
+{
+"name": "قسم الواحاتالبحرية",
+"en": "Bahariya Oasis",
+"level": 2,
+"parent": "الجيزة",
+"lat": 28.452,
+"lon": 28.836
+},
+{
+"name": "مركز أطفيح",
+"en": "Atfeh",
+"level": 2,
+"parent": "الجيزة",
+"lat": 29.343,
+"lon": 31.25
+},
+{
+"name": "مركز أوسيم",
+"en": "Auseem",
+"level": 2,
+"parent": "الجيزة",
+"lat": 30.132,
+"lon": 31.142
+},
+{
+"name": "قسم الوراق",
+"en": "Waraq",
+"level": 2,
+"parent": "الجيزة",
+"lat": 30.097,
+"lon": 31.189
+},
+{
+"name": "قسم العمرانية",
+"en": "Umraniyya",
+"level": 2,
+"parent": "الجيزة",
+"lat": 29.993,
+"lon": 31.177
+},
+{
+"name": "قسم الشيخ زايد",
+"en": "Shaykh Zayed",
+"level": 2,
+"parent": "الجيزة",
+"lat": 30.049,
+"lon": 30.978
+},
+{
+"name": "مركز كرداسة",
+"en": "Kardasa",
+"level": 2,
+"parent": "الجيزة",
+"lat": 30.051,
+"lon": 31.134
+},
+{
+"name": "قسم ثان 6 أكتوبر",
+"en": "6 October-2",
+"level": 2,
+"parent": "الجيزة",
+"lat": 29.941,
+"lon": 30.908
+},
+{
+"name": "بنى سويف",
+"en": "Beni Suef",
+"level": 1,
+"parent": null,
+"lat": 28.725,
+"lon": 31.338
+},
+{
+"name": "خارج الزمام",
+"en": "Zemam Out",
+"level": 2,
+"parent": "بنى سويف",
+"lat": 28.723,
+"lon": 31.341
+},
+{
+"name": "قسم بنى سويف",
+"en": "Bani Swayf",
+"level": 2,
+"parent": "بنى سويف",
+"lat": 29.077,
+"lon": 31.097
+},
+{
+"name": "مركز بنى سويف",
+"en": "Bani Swayf",
+"level": 2,
+"parent": "بنى سويف",
+"lat": 29.098,
+"lon": 31.042
+},
+{
+"name": "قسم مدينة بنى سويف الجديدة",
+"en": "Bani Swayf City",
+"level": 2,
+"parent": "بنى سويف",
+"lat": 28.982,
+"lon": 31.159
+},
+{
+"name": "مركز الفشن",
+"en": "Al Fashn",
+"level": 2,
+"parent": "بنى سويف",
+"lat": 28.809,
+"lon": 30.827
+},
+{
+"name": "مركز الواسطى",
+"en": "Al Wasta",
+"level": 2,
+"parent": "بنى سويف",
+"lat": 29.324,
+"lon": 31.17
+},
+{
+"name": "مركز أهناسيا",
+"en": "Ahnasya",
+"level": 2,
+"parent": "بنى سويف",
+"lat": 29.102,
+"lon": 30.943
+},
+{
+"name": "مركز ببا",
+"en": "Biba",
+"level": 2,
+"parent": "بنى سويف",
+"lat": 28.951,
+"lon": 30.967
+},
+{
+"name": "مركز سمسطا",
+"en": "Sumusta",
+"level": 2,
+"parent": "بنى سويف",
+"lat": 28.951,
+"lon": 30.866
+},
+{
+"name": "مركز ناصر",
+"en": "Nasir",
+"level": 2,
+"parent": "بنى سويف",
+"lat": 29.187,
+"lon": 31.078
+},
+{
+"name": "الفيوم",
+"en": "Fayoum",
+"level": 1,
+"parent": null,
+"lat": 29.318,
+"lon": 30.585
+},
+{
+"name": "خارج الزمام",
+"en": "Zemam Out",
+"level": 2,
+"parent": "الفيوم",
+"lat": 29.347,
+"lon": 30.344
+},
+{
+"name": "قسم الفيوم",
+"en": "Fayyum",
+"level": 2,
+"parent": "الفيوم",
+"lat": 29.314,
+"lon": 30.839
+},
+{
+"name": "مركز الفيوم",
+"en": "Fayyum",
+"level": 2,
+"parent": "الفيوم",
+"lat": 29.3,
+"lon": 30.955
+},
+{
+"name": "مركز أبشواى",
+"en": "Abshaway",
+"level": 2,
+"parent": "الفيوم",
+"lat": 29.374,
+"lon": 30.69
+},
+{
+"name": "مركز أطسا",
+"en": "Atsa",
+"level": 2,
+"parent": "الفيوم",
+"lat": 29.208,
+"lon": 30.767
+},
+{
+"name": "مركز سنورس",
+"en": "Sinuras",
+"level": 2,
+"parent": "الفيوم",
+"lat": 29.441,
+"lon": 30.815
+},
+{
+"name": "مركز طامية",
+"en": "Tamya",
+"level": 2,
+"parent": "الفيوم",
+"lat": 29.467,
+"lon": 30.982
+},
+{
+"name": "مركز يوسف الصديق",
+"en": "Yousef El sadeq",
+"level": 2,
+"parent": "الفيوم",
+"lat": 29.353,
+"lon": 30.586
+},
+{
+"name": "مدينة الفيوم الجديدة",
+"en": "Fayyum City",
+"level": 2,
+"parent": "الفيوم",
+"lat": 29.208,
+"lon": 30.882
+},
+{
+"name": "المنيا",
+"en": "Menia",
+"level": 1,
+"parent": null,
+"lat": 28.156,
+"lon": 31.61
+},
+{
+"name": "خارج الزمام",
+"en": "Zemam Out",
+"level": 2,
+"parent": "المنيا",
+"lat": 28.16,
+"lon": 31.623
+},
+{
+"name": "قسم المنيا",
+"en": "Kesm Al-minya",
+"level": 2,
+"parent": "المنيا",
+"lat": 28.095,
+"lon": 30.744
+},
+{
+"name": "مركز المنيا",
+"en": "Markz Al Minya",
+"level": 2,
+"parent": "المنيا",
+"lat": 28.101,
+"lon": 30.641
+},
+{
+"name": "مدينة المنيا الجديدة",
+"en": "New Minya",
+"level": 2,
+"parent": "المنيا",
+"lat": 28.11,
+"lon": 30.788
+},
+{
+"name": "مركز ابو قرقاص",
+"en": "Markz Abu Qurqas",
+"level": 2,
+"parent": "المنيا",
+"lat": 27.939,
+"lon": 30.77
+},
+{
+"name": "مركز العدوة",
+"en": "Markz Al Idwa",
+"level": 2,
+"parent": "المنيا",
+"lat": 28.696,
+"lon": 30.74
+},
+{
+"name": "مركز بنى مزار",
+"en": "Markz Bani Mazar",
+"level": 2,
+"parent": "المنيا",
+"lat": 28.518,
+"lon": 30.731
+},
+{
+"name": "مركز دير مواس",
+"en": "Markz Dir Mawas",
+"level": 2,
+"parent": "المنيا",
+"lat": 27.655,
+"lon": 30.79
+},
+{
+"name": "مركز سمالوط",
+"en": "Markz Samalut",
+"level": 2,
+"parent": "المنيا",
+"lat": 28.285,
+"lon": 30.629
+},
+{
+"name": "مركز مطاى",
+"en": "Markz Matay",
+"level": 2,
+"parent": "المنيا",
+"lat": 28.431,
+"lon": 30.71
+},
+{
+"name": "مركز مغاغة",
+"en": "Markz Maghagha",
+"level": 2,
+"parent": "المنيا",
+"lat": 28.641,
+"lon": 30.794
+},
+{
+"name": "قسم ملوى",
+"en": "Kesm Mallawi",
+"level": 2,
+"parent": "المنيا",
+"lat": 27.729,
+"lon": 30.837
+},
+{
+"name": "مركز ملوى",
+"en": "Markz Mallawi",
+"level": 2,
+"parent": "المنيا",
+"lat": 27.775,
+"lon": 30.801
+},
+{
+"name": "أسيوط",
+"en": "Assiut",
+"level": 1,
+"parent": null,
+"lat": 27.359,
+"lon": 31.795
+},
+{
+"name": "صحراء أسيوط",
+"en": "Zemam Out",
+"level": 2,
+"parent": "أسيوط",
+"lat": 27.358,
+"lon": 31.799
+},
+{
+"name": "قسم أول أسيوط",
+"en": "Kesm Awal Assuit",
+"level": 2,
+"parent": "أسيوط",
+"lat": 27.186,
+"lon": 31.154
+},
+{
+"name": "قسم ثان أسيوط",
+"en": "Kesm Than Assuit",
+"level": 2,
+"parent": "أسيوط",
+"lat": 27.193,
+"lon": 31.179
+},
+{
+"name": "مركز أسيوط",
+"en": "Assuit",
+"level": 2,
+"parent": "أسيوط",
+"lat": 27.117,
+"lon": 31.232
+},
+{
+"name": "مركز أبنوب",
+"en": "Abnub",
+"level": 2,
+"parent": "أسيوط",
+"lat": 27.295,
+"lon": 31.106
+},
+{
+"name": "مركز أبوتيج",
+"en": "Abu Tig",
+"level": 2,
+"parent": "أسيوط",
+"lat": 27.037,
+"lon": 31.289
+},
+{
+"name": "مركز البدارى",
+"en": "Al- Badari",
+"level": 2,
+"parent": "أسيوط",
+"lat": 26.946,
+"lon": 31.456
+},
+{
+"name": "مركز ساحل سليم",
+"en": "Sahil Silim",
+"level": 2,
+"parent": "أسيوط",
+"lat": 27.093,
+"lon": 31.349
+},
+{
+"name": "مركز الغنايم",
+"en": "Al-Ghanayem",
+"level": 2,
+"parent": "أسيوط",
+"lat": 26.922,
+"lon": 31.329
+},
+{
+"name": "مركز القوصية",
+"en": "Al-Qusia",
+"level": 2,
+"parent": "أسيوط",
+"lat": 27.403,
+"lon": 30.826
+},
+{
+"name": "مركز ديروط",
+"en": "Dayrut",
+"level": 2,
+"parent": "أسيوط",
+"lat": 27.537,
+"lon": 30.782
+},
+{
+"name": "مركز صدفا",
+"en": "Sidfa",
+"level": 2,
+"parent": "أسيوط",
+"lat": 26.943,
+"lon": 31.38
+},
+{
+"name": "مركز منفلوط",
+"en": "Manfalut",
+"level": 2,
+"parent": "أسيوط",
+"lat": 27.294,
+"lon": 30.951
+},
+{
+"name": "مركز الفتح",
+"en": "Alfath",
+"level": 2,
+"parent": "أسيوط",
+"lat": 27.218,
+"lon": 31.212
+},
+{
+"name": "مدينة اسيوط الجديدة",
+"en": "Assuit City",
+"level": 2,
+"parent": "أسيوط",
+"lat": 27.254,
+"lon": 31.281
+},
+{
+"name": "سوهاج",
+"en": "Suhag",
+"level": 1,
+"parent": null,
+"lat": 26.726,
+"lon": 32.175
+},
+{
+"name": "صحراء سوهاج",
+"en": "Zemam Out",
+"level": 2,
+"parent": "سوهاج",
+"lat": 26.727,
+"lon": 32.193
+},
+{
+"name": "قسم اول سوهاج",
+"en": "Suhag",
+"level": 2,
+"parent": "سوهاج",
+"lat": 26.547,
+"lon": 31.693
+},
+{
+"name": "قسم ثان سوهاج",
+"en": "Suhag-2",
+"level": 2,
+"parent": "سوهاج",
+"lat": 26.543,
+"lon": 31.703
+},
+{
+"name": "مركز سوهاج",
+"en": "Suhag",
+"level": 2,
+"parent": "سوهاج",
+"lat": 26.547,
+"lon": 31.655
+},
+{
+"name": "مركز أخميم",
+"en": "Akhmim",
+"level": 2,
+"parent": "سوهاج",
+"lat": 26.551,
+"lon": 31.715
+},
+{
+"name": "مركز البلينا",
+"en": "Al-Balyana",
+"level": 2,
+"parent": "سوهاج",
+"lat": 26.241,
+"lon": 31.944
+},
+{
+"name": "مركز المراغة",
+"en": "Al-Maragha",
+"level": 2,
+"parent": "سوهاج",
+"lat": 26.669,
+"lon": 31.588
+},
+{
+"name": "مركز المنشأة",
+"en": "Al-Minshat",
+"level": 2,
+"parent": "سوهاج",
+"lat": 26.464,
+"lon": 31.756
+},
+{
+"name": "مركز دار السلام",
+"en": "Dar al-Salam",
+"level": 2,
+"parent": "سوهاج",
+"lat": 26.274,
+"lon": 32.043
+},
+{
+"name": "قسم جرجا",
+"en": "Girga",
+"level": 2,
+"parent": "سوهاج",
+"lat": 26.348,
+"lon": 31.888
+},
+{
+"name": "مركز جرجا",
+"en": "Girga",
+"level": 2,
+"parent": "سوهاج",
+"lat": 26.307,
+"lon": 31.867
+},
+{
+"name": "مركز جهينة الغربية",
+"en": "Guhayna Al-Gharbiyya",
+"level": 2,
+"parent": "سوهاج",
+"lat": 26.689,
+"lon": 31.471
+},
+{
+"name": "مركز ساقلته",
+"en": "Saqulta",
+"level": 2,
+"parent": "سوهاج",
+"lat": 26.692,
+"lon": 31.663
+},
+{
+"name": "مركز طما",
+"en": "Tama",
+"level": 2,
+"parent": "سوهاج",
+"lat": 26.874,
+"lon": 31.422
+},
+{
+"name": "مركز طهطا",
+"en": "Tahta",
+"level": 2,
+"parent": "سوهاج",
+"lat": 26.785,
+"lon": 31.42
+},
+{
+"name": "قسم طهطا",
+"en": "Kesm Tahta",
+"level": 2,
+"parent": "سوهاج",
+"lat": 26.767,
+"lon": 31.492
+},
+{
+"name": "قسم الكوثر",
+"en": "Kawther",
+"level": 2,
+"parent": "سوهاج",
+"lat": 26.555,
+"lon": 31.722
+},
+{
+"name": "مركز العسيرات",
+"en": "Al Usayrat",
+"level": 2,
+"parent": "سوهاج",
+"lat": 26.401,
+"lon": 31.815
+},
+{
+"name": "مدينة أخميم الجديدة",
+"en": "Akhmim City",
+"level": 2,
+"parent": "سوهاج",
+"lat": 26.524,
+"lon": 31.865
+},
+{
+"name": "مدينة سوهاج الجديدة",
+"en": "Suhag City",
+"level": 2,
+"parent": "سوهاج",
+"lat": 26.485,
+"lon": 31.649
+},
+{
+"name": "قنا",
+"en": "Qena",
+"level": 1,
+"parent": null,
+"lat": 25.963,
+"lon": 33.154
+},
+{
+"name": "صحراء قنا",
+"en": "Zemam Out",
+"level": 2,
+"parent": "قنا",
+"lat": 25.966,
+"lon": 33.191
+},
+{
+"name": "قسم قنا",
+"en": "Qina",
+"level": 2,
+"parent": "قنا",
+"lat": 26.165,
+"lon": 32.712
+},
+{
+"name": "مركز قنا",
+"en": "Qina",
+"level": 2,
+"parent": "قنا",
+"lat": 26.163,
+"lon": 32.578
+},
+{
+"name": "مركز أبو طشت",
+"en": "Abu Tisht",
+"level": 2,
+"parent": "قنا",
+"lat": 26.13,
+"lon": 32.086
+},
+{
+"name": "مركز أرمنت",
+"en": "Armant",
+"level": 2,
+"parent": "قنا",
+"lat": 25.612,
+"lon": 32.492
+},
+{
+"name": "مركز إسنا",
+"en": "Isna",
+"level": 2,
+"parent": "قنا",
+"lat": 25.365,
+"lon": 32.52
+},
+{
+"name": "مركز دشنا",
+"en": "Dishna",
+"level": 2,
+"parent": "قنا",
+"lat": 26.142,
+"lon": 32.444
+},
+{
+"name": "مركز قوص",
+"en": "Qus",
+"level": 2,
+"parent": "قنا",
+"lat": 25.857,
+"lon": 32.789
+},
+{
+"name": "مركز نجع حمادى",
+"en": "Nag Hammadi",
+"level": 2,
+"parent": "قنا",
+"lat": 26.085,
+"lon": 32.297
+},
+{
+"name": "مركز نقادة",
+"en": "Naqada",
+"level": 2,
+"parent": "قنا",
+"lat": 25.89,
+"lon": 32.711
+},
+{
+"name": "مركز فرشوط",
+"en": "Farshut",
+"level": 2,
+"parent": "قنا",
+"lat": 26.056,
+"lon": 32.149
+},
+{
+"name": "مركز قفط",
+"en": "Qift",
+"level": 2,
+"parent": "قنا",
+"lat": 25.998,
+"lon": 32.827
+},
+{
+"name": "مركز الوقف",
+"en": "Al Waqf",
+"level": 2,
+"parent": "قنا",
+"lat": 26.084,
+"lon": 32.448
+},
+{
+"name": "مدينة قنا الجديدة",
+"en": "Qina City",
+"level": 2,
+"parent": "قنا",
+"lat": 26.173,
+"lon": 32.761
+},
+{
+"name": "أسوان",
+"en": "Aswan",
+"level": 1,
+"parent": null,
+"lat": 23.606,
+"lon": 32.264
+},
+{
+"name": "خارج الزمام",
+"en": "Zemam Out",
+"level": 2,
+"parent": "أسوان",
+"lat": 23.594,
+"lon": 32.263
+},
+{
+"name": "قسم أسوان",
+"en": "Aswan",
+"level": 2,
+"parent": "أسوان",
+"lat": 24.063,
+"lon": 32.901
+},
+{
+"name": "مركز أسوان",
+"en": "Aswan",
+"level": 2,
+"parent": "أسوان",
+"lat": 23.972,
+"lon": 32.831
+},
+{
+"name": "مركز أدفو",
+"en": "Adfu",
+"level": 2,
+"parent": "أسوان",
+"lat": 25.061,
+"lon": 32.957
+},
+{
+"name": "مركز كوم امبو",
+"en": "Kum Umbu",
+"level": 2,
+"parent": "أسوان",
+"lat": 24.48,
+"lon": 32.947
+},
+{
+"name": "مركز نصر",
+"en": "Nasr",
+"level": 2,
+"parent": "أسوان",
+"lat": 24.373,
+"lon": 32.932
+},
+{
+"name": "مركز دراو",
+"en": "Daraw",
+"level": 2,
+"parent": "أسوان",
+"lat": 24.326,
+"lon": 33.001
+},
+{
+"name": "مركز أبوسنبل",
+"en": "Abu Simbel",
+"level": 2,
+"parent": "أسوان",
+"lat": 22.624,
+"lon": 32.599
+},
+{
+"name": "مدينة أسوان الجديدة",
+"en": "Aswan City",
+"level": 2,
+"parent": "أسوان",
+"lat": 24.068,
+"lon": 32.983
+},
+{
+"name": "مدينة توشكى الجديدة",
+"en": "Tushaka",
+"level": 2,
+"parent": "أسوان",
+"lat": 22.856,
+"lon": 31.661
+},
+{
+"name": "مدينة الأقصر",
+"en": "Luxor",
+"level": 1,
+"parent": null,
+"lat": 25.658,
+"lon": 32.725
+},
+{
+"name": "خارج الزمام",
+"en": "Zemam Out",
+"level": 2,
+"parent": "مدينة الأقصر",
+"lat": 25.634,
+"lon": 32.716
+},
+{
+"name": "قسم الأقصر",
+"en": "Luxor",
+"level": 2,
+"parent": "مدينة الأقصر",
+"lat": 25.707,
+"lon": 32.67
+},
+{
+"name": "مركز الأقصر",
+"en": "Luxor",
+"level": 2,
+"parent": "مدينة الأقصر",
+"lat": 25.685,
+"lon": 32.588
+},
+{
+"name": "مركز شرطة طيبة",
+"en": "Tiba police station",
+"level": 2,
+"parent": "مدينة الأقصر",
+"lat": 25.738,
+"lon": 32.703
+},
+{
+"name": "البحر الأحمر",
+"en": "Red Sea",
+"level": 1,
+"parent": null,
+"lat": 25.588,
+"lon": 33.944
+},
+{
+"name": "قسم أول الغردقة",
+"en": "Hurghada 1",
+"level": 2,
+"parent": "البحر الأحمر",
+"lat": 27.129,
+"lon": 33.244
+},
+{
+"name": "قسم القصير",
+"en": "Qusir",
+"level": 2,
+"parent": "البحر الأحمر",
+"lat": 25.957,
+"lon": 33.951
+},
+{
+"name": "قسم سفاجا",
+"en": "Safaga",
+"level": 2,
+"parent": "البحر الأحمر",
+"lat": 26.732,
+"lon": 33.46
+},
+{
+"name": "قسم مرسى علم",
+"en": "Marsa Alam",
+"level": 2,
+"parent": "البحر الأحمر",
+"lat": 24.707,
+"lon": 34.286
+},
+{
+"name": "قسم رأس غارب",
+"en": "Ras Gharib",
+"level": 2,
+"parent": "البحر الأحمر",
+"lat": 28.506,
+"lon": 32.377
+},
+{
+"name": "قسم شلاتين",
+"en": "Shallatin",
+"level": 2,
+"parent": "البحر الأحمر",
+"lat": 23.079,
+"lon": 34.574
+},
+{
+"name": "قسم حلايب",
+"en": "Halayib",
+"level": 2,
+"parent": "البحر الأحمر",
+"lat": 22.386,
+"lon": 36.0
+},
+{
+"name": "قسم ثان الغردقة",
+"en": "Hurghada 2",
+"level": 2,
+"parent": "البحر الأحمر",
+"lat": 27.745,
+"lon": 33.08
+},
+{
+"name": "الوادى الجديد",
+"en": "New Valley",
+"level": 1,
+"parent": null,
+"lat": 24.719,
+"lon": 28.709
+},
+{
+"name": "مركز الواحات الخارجة",
+"en": "Al-Kharga Oasis",
+"level": 2,
+"parent": "الوادى الجديد",
+"lat": 24.964,
+"lon": 31.013
+},
+{
+"name": "مركز الوحات الداخلة",
+"en": "A-Dakhla Oasis",
+"level": 2,
+"parent": "الوادى الجديد",
+"lat": 24.803,
+"lon": 27.209
+},
+{
+"name": "مركز الفرافرة",
+"en": "Al Farafra Oasis",
+"level": 2,
+"parent": "الوادى الجديد",
+"lat": 27.205,
+"lon": 26.76
+},
+{
+"name": "مركز باريس",
+"en": "Paris Paris",
+"level": 2,
+"parent": "الوادى الجديد",
+"lat": 22.737,
+"lon": 30.412
+},
+{
+"name": "مطروح",
+"en": "Matrouh",
+"level": 1,
+"parent": null,
+"lat": 29.667,
+"lon": 27.403
+},
+{
+"name": "قسم مرسى مطروح",
+"en": "Marsa Matruh",
+"level": 2,
+"parent": "مطروح",
+"lat": 30.022,
+"lon": 26.997
+},
+{
+"name": "قسم الحمام",
+"en": "Al-Hammam",
+"level": 2,
+"parent": "مطروح",
+"lat": 29.804,
+"lon": 29.418
+},
+{
+"name": "قسم السلوم",
+"en": "Salloum",
+"level": 2,
+"parent": "مطروح",
+"lat": 30.646,
+"lon": 25.255
+},
+{
+"name": "مركز الضبعة",
+"en": "Daba",
+"level": 2,
+"parent": "مطروح",
+"lat": 29.463,
+"lon": 28.243
+},
+{
+"name": "قسم سيدى برانى",
+"en": "Sidi Barani",
+"level": 2,
+"parent": "مطروح",
+"lat": 30.656,
+"lon": 25.886
+},
+{
+"name": "مركز سيوة",
+"en": "Siwa",
+"level": 2,
+"parent": "مطروح",
+"lat": 28.703,
+"lon": 25.589
+},
+{
+"name": "قسم مارينا العلمين السياحية",
+"en": "Alamn",
+"level": 2,
+"parent": "مطروح",
+"lat": 30.782,
+"lon": 28.74
+},
+{
+"name": "قسم الساحل الشمالى-جزء",
+"en": "North Coast",
+"level": 2,
+"parent": "مطروح",
+"lat": 30.861,
+"lon": 29.281
+},
+{
+"name": "شمال سيناء",
+"en": "North Sinai",
+"level": 1,
+"parent": null,
+"lat": 30.425,
+"lon": 33.701
+},
+{
+"name": "قسم أول العريش",
+"en": "El Arish 1",
+"level": 2,
+"parent": "شمال سيناء",
+"lat": 31.12,
+"lon": 33.824
+},
+{
+"name": "قسم ثان العريش",
+"en": "El Arish 2",
+"level": 2,
+"parent": "شمال سيناء",
+"lat": 31.09,
+"lon": 33.751
+},
+{
+"name": "قسم ثالث العريش",
+"en": "El Arish 3",
+"level": 2,
+"parent": "شمال سيناء",
+"lat": 30.995,
+"lon": 33.777
+},
+{
+"name": "قسم رابع العريش",
+"en": "El Arish 4",
+"level": 2,
+"parent": "شمال سيناء",
+"lat": 30.851,
+"lon": 33.596
+},
+{
+"name": "قسم بئر العبد",
+"en": "Bir Al-Abd",
+"level": 2,
+"parent": "شمال سيناء",
+"lat": 30.69,
+"lon": 33.102
+},
+{
+"name": "قسم الحسنة",
+"en": "Al-Hasna",
+"level": 2,
+"parent": "شمال سيناء",
+"lat": 30.288,
+"lon": 33.542
+},
+{
+"name": "قسم نخل",
+"en": "Nakhl",
+"level": 2,
+"parent": "شمال سيناء",
+"lat": 29.909,
+"lon": 34.024
+},
+{
+"name": "قسم الشيخ زويد",
+"en": "Shaykh Zuwayd",
+"level": 2,
+"parent": "شمال سيناء",
+"lat": 30.918,
+"lon": 33.971
+},
+{
+"name": "قسم رفح",
+"en": "Rafah",
+"level": 2,
+"parent": "شمال سيناء",
+"lat": 31.087,
+"lon": 34.227
+},
+{
+"name": "قسم رمانة",
+"en": "Rummana",
+"level": 2,
+"parent": "شمال سيناء",
+"lat": 30.957,
+"lon": 32.699
+},
+{
+"name": "قسم القسيمة",
+"en": "Qasima",
+"level": 2,
+"parent": "شمال سيناء",
+"lat": 30.464,
+"lon": 34.301
+},
+{
+"name": "جنوب سيناء",
+"en": "South Sinai",
+"level": 1,
+"parent": null,
+"lat": 28.836,
+"lon": 33.902
+},
+{
+"name": "قسم الطور",
+"en": "Al-Tur",
+"level": 2,
+"parent": "جنوب سيناء",
+"lat": 28.365,
+"lon": 33.753
+},
+{
+"name": "قسم رأس سدر",
+"en": "Ras Sidr",
+"level": 2,
+"parent": "جنوب سيناء",
+"lat": 29.599,
+"lon": 33.317
+},
+{
+"name": "قسم أبو رديس",
+"en": "Abu Radis",
+"level": 2,
+"parent": "جنوب سيناء",
+"lat": 29.049,
+"lon": 33.598
+},
+{
+"name": "قسم سانت كاترين",
+"en": "Sant Katrin",
+"level": 2,
+"parent": "جنوب سيناء",
+"lat": 28.66,
+"lon": 34.052
+},
+{
+"name": "قسم شرم الشيخ",
+"en": "Sharm el-Sheikh",
+"level": 2,
+"parent": "جنوب سيناء",
+"lat": 28.08,
+"lon": 34.203
+},
+{
+"name": "قسم دهب",
+"en": "Dahab",
+"level": 2,
+"parent": "جنوب سيناء",
+"lat": 28.73,
+"lon": 34.451
+},
+{
+"name": "قسم نويبع",
+"en": "Nuweiba",
+"level": 2,
+"parent": "جنوب سيناء",
+"lat": 29.314,
+"lon": 34.312
+},
+{
+"name": "قسم طابا",
+"en": "Taba",
+"level": 2,
+"parent": "جنوب سيناء",
+"lat": 29.501,
+"lon": 34.84
+}
+]
+}

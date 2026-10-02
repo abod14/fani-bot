@@ -1,0 +1,6253 @@
+{
+"_source": "Open Admin Data — CC-BY-4.0 — https://github.com/open-admin-data/qatar-administrative-divisions",
+"data": [
+{
+"name": "العقلة",
+"en": "Al Egla",
+"level": 3,
+"parent": "بلدية الظعاين",
+"lat": 25.388,
+"lon": 51.511
+},
+{
+"name": "لوسيل 69",
+"en": "Lusail 69",
+"level": 3,
+"parent": "بلدية الظعاين",
+"lat": 25.427,
+"lon": 51.525
+},
+{
+"name": "الخرايج",
+"en": "Al Kharayej",
+"level": 3,
+"parent": "بلدية الظعاين",
+"lat": 25.406,
+"lon": 51.508
+},
+{
+"name": "غار ثعيلب",
+"en": "Ghar Thuaileb",
+"level": 3,
+"parent": "بلدية الظعاين",
+"lat": 25.394,
+"lon": 51.534
+},
+{
+"name": "سميسمة",
+"en": "Semaisma",
+"level": 3,
+"parent": "بلدية الظعاين",
+"lat": 25.596,
+"lon": 51.507
+},
+{
+"name": "لوسيل 70",
+"en": "Lusail 70",
+"level": 3,
+"parent": "بلدية الظعاين",
+"lat": 25.504,
+"lon": 51.52
+},
+{
+"name": "الرحية",
+"en": "Al Rehayya",
+"level": 3,
+"parent": "بلدية الظعاين",
+"lat": 25.629,
+"lon": 51.468
+},
+{
+"name": "جري المطروشي",
+"en": "Jery Al Matrooshi",
+"level": 3,
+"parent": "بلدية الظعاين",
+"lat": 25.596,
+"lon": 51.437
+},
+{
+"name": "لعبيب",
+"en": "Leabaib",
+"level": 3,
+"parent": "بلدية الظعاين",
+"lat": 25.377,
+"lon": 51.456
+},
+{
+"name": "روضة الحمامة",
+"en": "Rawdat Al Hamama",
+"level": 3,
+"parent": "بلدية الظعاين",
+"lat": 25.439,
+"lon": 51.46
+},
+{
+"name": "الجريان",
+"en": "Al Jeryan",
+"level": 3,
+"parent": "بلدية الظعاين",
+"lat": 25.576,
+"lon": 51.453
+},
+{
+"name": "جريان جنيحات",
+"en": "Jeryan Jenaihat",
+"level": 3,
+"parent": "بلدية الظعاين",
+"lat": 25.421,
+"lon": 51.433
+},
+{
+"name": "وادي العويرة",
+"en": "Wadi Al Ewaira",
+"level": 3,
+"parent": "بلدية الظعاين",
+"lat": 25.608,
+"lon": 51.43
+},
+{
+"name": "حالة اوبير",
+"en": "Halat Awbair",
+"level": 3,
+"parent": "بلدية الظعاين",
+"lat": 25.617,
+"lon": 51.514
+},
+{
+"name": "العب",
+"en": "Al Ebb",
+"level": 3,
+"parent": "بلدية الظعاين",
+"lat": 25.395,
+"lon": 51.448
+},
+{
+"name": "الظعاين",
+"en": "Al Daayen",
+"level": 3,
+"parent": "بلدية الظعاين",
+"lat": 25.557,
+"lon": 51.474
+},
+{
+"name": "المسروحية",
+"en": "Al Masrouhiya",
+"level": 3,
+"parent": "بلدية الظعاين",
+"lat": 25.478,
+"lon": 51.46
+},
+{
+"name": "الخيسة",
+"en": "Al Kheesa",
+"level": 3,
+"parent": "بلدية الظعاين",
+"lat": 25.417,
+"lon": 51.466
+},
+{
+"name": "تنبك",
+"en": "Tenbek",
+"level": 3,
+"parent": "بلدية الظعاين",
+"lat": 25.603,
+"lon": 51.462
+},
+{
+"name": "وادي البنات",
+"en": "Wadi Al Banat",
+"level": 3,
+"parent": "بلدية الظعاين",
+"lat": 25.395,
+"lon": 51.477
+},
+{
+"name": "وادي الوسعة",
+"en": "Wadi Al Wasah",
+"level": 3,
+"parent": "بلدية الظعاين",
+"lat": 25.443,
+"lon": 51.424
+},
+{
+"name": "وادي لوسيل",
+"en": "Wadi Lusail",
+"level": 3,
+"parent": "بلدية الظعاين",
+"lat": 25.495,
+"lon": 51.434
+},
+{
+"name": "الصخامة",
+"en": "Al Sakhama",
+"level": 3,
+"parent": "بلدية الظعاين",
+"lat": 25.474,
+"lon": 51.416
+},
+{
+"name": "ام قرن",
+"en": "Umm Garn",
+"level": 3,
+"parent": "بلدية الظعاين",
+"lat": 25.552,
+"lon": 51.437
+},
+{
+"name": "ام اسميرة",
+"en": "Umm Smaira",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.641,
+"lon": 51.419
+},
+{
+"name": "ام غويلينة",
+"en": "Umm Ghuwailina",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.646,
+"lon": 51.319
+},
+{
+"name": "روضة بخيلة",
+"en": "Rawdat Bakheela",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.589,
+"lon": 51.383
+},
+{
+"name": "راس النوف",
+"en": "Ras Al Noof",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.651,
+"lon": 51.547
+},
+{
+"name": "العقدة",
+"en": "Al Egda",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.67,
+"lon": 51.463
+},
+{
+"name": "بو خريسعة",
+"en": "Bu Kheraisah",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.602,
+"lon": 51.27
+},
+{
+"name": "ام قرين",
+"en": "Umm Grain",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.615,
+"lon": 51.389
+},
+{
+"name": "حينة المعشاب",
+"en": "Heenat Al Meashab",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.7,
+"lon": 51.319
+},
+{
+"name": "ام الشخوط",
+"en": "Umm Al Shukhoot",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.696,
+"lon": 51.372
+},
+{
+"name": "روضة بو فضالة",
+"en": "Rawdat Bu Fadala",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.634,
+"lon": 51.291
+},
+{
+"name": "وادي الجلتة",
+"en": "Wadi Al Jalta",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.696,
+"lon": 51.484
+},
+{
+"name": "عصاة الراعي",
+"en": "Asat Al Raei",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.67,
+"lon": 51.413
+},
+{
+"name": "لمنيصبات",
+"en": "Lemnaisbat",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.671,
+"lon": 51.275
+},
+{
+"name": "عصمة",
+"en": "Asma",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.696,
+"lon": 51.334
+},
+{
+"name": "ام اعنيق",
+"en": "Umm Enaig",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.701,
+"lon": 51.537
+},
+{
+"name": "صناعية الخور",
+"en": "Industrial Area",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.714,
+"lon": 51.502
+},
+{
+"name": "راس النخ",
+"en": "Ras Al Nekh",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.646,
+"lon": 51.515
+},
+{
+"name": "ام اجويفة",
+"en": "Umm Ejwaifa",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.673,
+"lon": 51.353
+},
+{
+"name": "محيرجة",
+"en": "Mehairja",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.633,
+"lon": 51.263
+},
+{
+"name": "معيذر رشيدة",
+"en": "Muaither Rasheeda",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.579,
+"lon": 51.333
+},
+{
+"name": "وادي البنات",
+"en": "Wadi Al Banat",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.619,
+"lon": 51.317
+},
+{
+"name": "روضة عرص",
+"en": "Rawdat Aras",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.574,
+"lon": 51.304
+},
+{
+"name": "ام اسوية",
+"en": "Umm Swayya",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.665,
+"lon": 51.44
+},
+{
+"name": "الخور",
+"en": "Al Khor",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.676,
+"lon": 51.502
+},
+{
+"name": "الحيضان",
+"en": "Al Heedan",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.655,
+"lon": 51.481
+},
+{
+"name": "ام دحل",
+"en": "Umm Dahal",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.7,
+"lon": 51.278
+},
+{
+"name": "رشيدة",
+"en": "Rasheeda",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.63,
+"lon": 51.36
+},
+{
+"name": "الجبيل",
+"en": "Al Jebail",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.706,
+"lon": 51.573
+},
+{
+"name": "وادي محري",
+"en": "Wadi Mehri",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.699,
+"lon": 51.465
+},
+{
+"name": "راس القرمة",
+"en": "Ras Al Gurma",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.667,
+"lon": 51.52
+},
+{
+"name": "الذيبية",
+"en": "Al Theebiya",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.6,
+"lon": 51.309
+},
+{
+"name": "الغليظة",
+"en": "Al Ghaleeda",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.669,
+"lon": 51.307
+},
+{
+"name": "ام الحوايا",
+"en": "Umm Al Hawaya",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.704,
+"lon": 51.414
+},
+{
+"name": "وادي الدحول",
+"en": "Wadi Al Dehool",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.728,
+"lon": 51.303
+},
+{
+"name": "الوعب",
+"en": "Al Waab",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.845,
+"lon": 51.442
+},
+{
+"name": "لخريص",
+"en": "Lekhrais",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.891,
+"lon": 51.452
+},
+{
+"name": "اقريات الفايدة",
+"en": "Grayyat Al Faida",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.869,
+"lon": 51.498
+},
+{
+"name": "سمسمة",
+"en": "Simsima",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.813,
+"lon": 51.389
+},
+{
+"name": "بركة رابعة",
+"en": "Birkat Rabiah",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.9,
+"lon": 51.435
+},
+{
+"name": "امقيطنة",
+"en": "Imgaitna",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.739,
+"lon": 51.385
+},
+{
+"name": "خطاف",
+"en": "Khattaf",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.732,
+"lon": 51.475
+},
+{
+"name": "لخضيرا",
+"en": "Lekhdaira",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.837,
+"lon": 51.369
+},
+{
+"name": "الغصن",
+"en": "Al Ghesen",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.766,
+"lon": 51.343
+},
+{
+"name": "وادي الهرم",
+"en": "Wadi Al Harm",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.846,
+"lon": 51.401
+},
+{
+"name": "وعب المشرب",
+"en": "Waab Al Mashrab",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.88,
+"lon": 51.403
+},
+{
+"name": "لمتيبنات",
+"en": "Lemtaibnat",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.803,
+"lon": 51.541
+},
+{
+"name": "ابا القراريص",
+"en": "Abal Gararees",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.743,
+"lon": 51.426
+},
+{
+"name": "الذخيرة",
+"en": "Al Thakhira",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.739,
+"lon": 51.541
+},
+{
+"name": "وادي الغربان",
+"en": "Wadi Al Gherban",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.854,
+"lon": 51.366
+},
+{
+"name": "ام الحرابي",
+"en": "Umm Al Harabi",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.833,
+"lon": 51.484
+},
+{
+"name": "المشرب",
+"en": "Al Mashrab",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.907,
+"lon": 51.405
+},
+{
+"name": "راس مريدغة",
+"en": "Ras Mraidgha",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.803,
+"lon": 51.576
+},
+{
+"name": "مدينة الكعبان",
+"en": "Madinat Al Kaaban",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.875,
+"lon": 51.354
+},
+{
+"name": "ام ثغيب",
+"en": "Umm Theghaib",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.798,
+"lon": 51.343
+},
+{
+"name": "لبويردة",
+"en": "Lebwairda",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.772,
+"lon": 51.532
+},
+{
+"name": "الهشم",
+"en": "Al Hashem",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.721,
+"lon": 51.355
+},
+{
+"name": "راس امليجي",
+"en": "Ras Imlaiji",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.835,
+"lon": 51.55
+},
+{
+"name": "بو صليلة",
+"en": "Bu Slaila",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.747,
+"lon": 51.497
+},
+{
+"name": "ام اثنيتين",
+"en": "Umm Ethnaitain",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.794,
+"lon": 51.38
+},
+{
+"name": "وادي السهل",
+"en": "Wadi Al Sahal",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.882,
+"lon": 51.603
+},
+{
+"name": "ام بركة",
+"en": "Umm Birka",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.795,
+"lon": 51.456
+},
+{
+"name": "المملحة",
+"en": "Al Mamlaha",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.896,
+"lon": 51.593
+},
+{
+"name": "راس قرطاس",
+"en": "Ras Gertas",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.93,
+"lon": 51.463
+},
+{
+"name": "راس لفان",
+"en": "Rass Laffan",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.913,
+"lon": 51.566
+},
+{
+"name": "ام اقريبة",
+"en": "Umm Graiba",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.747,
+"lon": 51.34
+},
+{
+"name": "الغزلانية",
+"en": "Al Ghezlaniya",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.746,
+"lon": 51.163
+},
+{
+"name": "ام خيسة",
+"en": "Umm Kheesa",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.788,
+"lon": 51.029
+},
+{
+"name": "ام لبرك",
+"en": "Umm Lebrak",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.831,
+"lon": 51.296
+},
+{
+"name": "وعب لبارق",
+"en": "Waab Labareg",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.888,
+"lon": 51.308
+},
+{
+"name": "ام لعشوش",
+"en": "Umm Leashoosh",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.872,
+"lon": 51.323
+},
+{
+"name": "ام الماء",
+"en": "Umm Al Maa",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.824,
+"lon": 50.985
+},
+{
+"name": "الدغيشيات",
+"en": "Al Deghaishiyat",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.883,
+"lon": 51.157
+},
+{
+"name": "روضة الفرس",
+"en": "Rawdat Al Faras",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.812,
+"lon": 51.303
+},
+{
+"name": "النفيليات",
+"en": "Al Nefailiyat",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.746,
+"lon": 51.193
+},
+{
+"name": "يودة",
+"en": "Yoodah",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.855,
+"lon": 51.18
+},
+{
+"name": "وادي ميثا",
+"en": "Wadi Maitha",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.796,
+"lon": 51.08
+},
+{
+"name": "المايدة",
+"en": "Al Mayeda",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.866,
+"lon": 51.263
+},
+{
+"name": "ام لعظام",
+"en": "Umm Leadam",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.809,
+"lon": 51.148
+},
+{
+"name": "روضة حوطان",
+"en": "Rawdat Hawtan",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.749,
+"lon": 51.293
+},
+{
+"name": "السليمي",
+"en": "Al Selaimi",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.885,
+"lon": 51.226
+},
+{
+"name": "المبتعدة",
+"en": "Al Mebtaeda",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.917,
+"lon": 51.142
+},
+{
+"name": "ام قريبة",
+"en": "Umm Graiba",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.941,
+"lon": 51.155
+},
+{
+"name": "الصعلوكية",
+"en": "Al Saalookiya",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.824,
+"lon": 51.029
+},
+{
+"name": "لحنيزيبة",
+"en": "Lehnaizeeba",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.739,
+"lon": 51.241
+},
+{
+"name": "الصويريات",
+"en": "Al Suwairiyat",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.804,
+"lon": 51.233
+},
+{
+"name": "لسيود",
+"en": "Lesaiwed",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.788,
+"lon": 50.996
+},
+{
+"name": "النهي",
+"en": "Al Nehayy",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.915,
+"lon": 51.2
+},
+{
+"name": "الطبعة",
+"en": "Al Tabaah",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.911,
+"lon": 51.24
+},
+{
+"name": "لغريفة",
+"en": "Leghraifa",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.81,
+"lon": 51.193
+},
+{
+"name": "لغوير",
+"en": "Leghwair",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.863,
+"lon": 51.281
+},
+{
+"name": "لعويجا",
+"en": "Leawaija",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.824,
+"lon": 51.097
+},
+{
+"name": "جري الذياب",
+"en": "Jery Al Theyab",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.832,
+"lon": 51.061
+},
+{
+"name": "لغويرية",
+"en": "Leghwairiya",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.838,
+"lon": 51.242
+},
+{
+"name": "الداودية",
+"en": "Al Dawoodiya",
+"level": 3,
+"parent": "بلدية الخور و الذخيرة",
+"lat": 25.847,
+"lon": 51.311
+},
+{
+"name": "روضة الجهانية",
+"en": "Rawdat Al Jahhaniya",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.339,
+"lon": 51.35
+},
+{
+"name": "الغرافة",
+"en": "Al Gharrafa",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.336,
+"lon": 51.446
+},
+{
+"name": "روضة اقديم",
+"en": "Rawdat Egdaim",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.336,
+"lon": 51.391
+},
+{
+"name": "بني هاجر",
+"en": "Bani Hajer",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.315,
+"lon": 51.407
+},
+{
+"name": "شرية",
+"en": "Shariya",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.372,
+"lon": 51.335
+},
+{
+"name": "ام الافاعي",
+"en": "Umm Al Afaei",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.363,
+"lon": 51.323
+},
+{
+"name": "جريان السهم",
+"en": "Jeryan Al Saham",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.369,
+"lon": 51.354
+},
+{
+"name": "جري الظبي",
+"en": "Jery Al Dabi",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.342,
+"lon": 51.341
+},
+{
+"name": "ازغوى 51",
+"en": "Izghawa 51",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.358,
+"lon": 51.429
+},
+{
+"name": "غرافة الريان",
+"en": "Gharrafat Al Rayyan",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.331,
+"lon": 51.425
+},
+{
+"name": "السيج",
+"en": "Al Seej",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.321,
+"lon": 51.375
+},
+{
+"name": "الثميد",
+"en": "Al Themaid",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.353,
+"lon": 51.38
+},
+{
+"name": "فريج الزعيم",
+"en": "Fereej Al Zaeem",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.307,
+"lon": 51.419
+},
+{
+"name": "الريان العتيق",
+"en": "Old Al Rayyan",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.307,
+"lon": 51.455
+},
+{
+"name": "الشقب",
+"en": "Al Shagub",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.309,
+"lon": 51.434
+},
+{
+"name": "اللقطة",
+"en": "Al Luqta",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.314,
+"lon": 51.461
+},
+{
+"name": "لبديع",
+"en": "Lebday",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.304,
+"lon": 51.464
+},
+{
+"name": "ام الجواشن",
+"en": "Umm Al Juwashen",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.28,
+"lon": 51.331
+},
+{
+"name": "روضة ابا الحيران",
+"en": "Rawdat Abal Heeran",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.261,
+"lon": 51.363
+},
+{
+"name": "روضة النيسر",
+"en": "Rawdat Al Naisar",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.26,
+"lon": 51.394
+},
+{
+"name": "مقرون المرخية",
+"en": "Magroon Al Markhiya",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.287,
+"lon": 51.292
+},
+{
+"name": "الريان الجديد",
+"en": "New Al Rayyan",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.287,
+"lon": 51.427
+},
+{
+"name": "معيذر 53",
+"en": "Muaither 53",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.273,
+"lon": 51.417
+},
+{
+"name": "الوجبة",
+"en": "Al Wajba",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.291,
+"lon": 51.378
+},
+{
+"name": "محيرجة",
+"en": "Mehairja",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.269,
+"lon": 51.46
+},
+{
+"name": "فريج الأمير",
+"en": "Fereej Al Amir",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.286,
+"lon": 51.476
+},
+{
+"name": "بعيا",
+"en": "Baaya",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.267,
+"lon": 51.443
+},
+{
+"name": "فريج السودان 54",
+"en": "Fereej Al Soudan 54",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.274,
+"lon": 51.482
+},
+{
+"name": "مريخ",
+"en": "Muraikh",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.285,
+"lon": 51.445
+},
+{
+"name": "لوعيب",
+"en": "Luaib",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.285,
+"lon": 51.461
+},
+{
+"name": "المعراض",
+"en": "Al Mearad",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.231,
+"lon": 51.351
+},
+{
+"name": "الوعب",
+"en": "Al Waab",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.256,
+"lon": 51.47
+},
+{
+"name": "معيذر 55",
+"en": "Muaither 55",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.25,
+"lon": 51.408
+},
+{
+"name": "العزيزية",
+"en": "Al Aziziya",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.247,
+"lon": 51.448
+},
+{
+"name": "فريج السودان 55",
+"en": "Fereej Al Soudan 55",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.266,
+"lon": 51.487
+},
+{
+"name": "فريج المرة",
+"en": "Fereej Al Murra",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.232,
+"lon": 51.437
+},
+{
+"name": "الغانم الجديد",
+"en": "Al Ghanim Al Jadeed",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.236,
+"lon": 51.444
+},
+{
+"name": "السيلية",
+"en": "Al Sailiya",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.202,
+"lon": 51.363
+},
+{
+"name": "فريج المناصير",
+"en": "Fereej Al Manaseer",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.248,
+"lon": 51.429
+},
+{
+"name": "بو سدرة",
+"en": "Bu Sidra",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.229,
+"lon": 51.414
+},
+{
+"name": "بو هامور",
+"en": "Bu Hamour",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.235,
+"lon": 51.491
+},
+{
+"name": "مسيمير",
+"en": "Mesaimeer",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.201,
+"lon": 51.499
+},
+{
+"name": "ام السنيم",
+"en": "Umm Al Seneem",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.207,
+"lon": 51.472
+},
+{
+"name": "عين خالد",
+"en": "Ain Khaled",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.23,
+"lon": 51.458
+},
+{
+"name": "المعمورة 56",
+"en": "Al Maamoura 56",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.239,
+"lon": 51.506
+},
+{
+"name": "قاعدة العديد",
+"en": "Al Edaid Base",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.113,
+"lon": 51.318
+},
+{
+"name": "الحميلة",
+"en": "Al Hemaila",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.162,
+"lon": 51.371
+},
+{
+"name": "مبيريك",
+"en": "Mebaireek",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.184,
+"lon": 51.371
+},
+{
+"name": "منطقة الصناعات الصغيرة والمتوسطة",
+"en": "Small and Medium Industries Area",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.157,
+"lon": 51.408
+},
+{
+"name": "جريان الريوق",
+"en": "Jeryan Al Reyoog",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.111,
+"lon": 51.385
+},
+{
+"name": "امهات عوينة",
+"en": "Ummahat Owaina",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.121,
+"lon": 51.263
+},
+{
+"name": "مكينس",
+"en": "Mekaines",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.122,
+"lon": 51.221
+},
+{
+"name": "الخالدية",
+"en": "Al Khaldiya",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.15,
+"lon": 51.288
+},
+{
+"name": "بو اليوابي",
+"en": "Bul Yuwabi",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.147,
+"lon": 51.379
+},
+{
+"name": "جري الطويلة",
+"en": "Jery Al Tuweela",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.159,
+"lon": 51.33
+},
+{
+"name": "الغاف",
+"en": "Al Ghaf",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.102,
+"lon": 51.083
+},
+{
+"name": "الكرعانة",
+"en": "Al Karaana",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.003,
+"lon": 51.041
+},
+{
+"name": "ام قرن الغربية",
+"en": "Umm Garn West",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.098,
+"lon": 51.127
+},
+{
+"name": "مشاش وادي الذياب",
+"en": "Imshash Wadi Al Theyab",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.015,
+"lon": 50.929
+},
+{
+"name": "وادي لهولة",
+"en": "Wadi Lehwela",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.065,
+"lon": 50.858
+},
+{
+"name": "لبسيتينات",
+"en": "Lebsaiteenat",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.063,
+"lon": 51.12
+},
+{
+"name": "قيزان الخرايج",
+"en": "Geezan Al Kharayej",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.034,
+"lon": 50.832
+},
+{
+"name": "ام الصوب",
+"en": "Umm Al Suwab",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.049,
+"lon": 51.081
+},
+{
+"name": "وادي المرخية",
+"en": "Wadi Al Markhiya",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.047,
+"lon": 51.161
+},
+{
+"name": "ام الجماجم",
+"en": "Umm Al Jamajim",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.021,
+"lon": 51.097
+},
+{
+"name": "لعشرا",
+"en": "Leashara",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.143,
+"lon": 51.083
+},
+{
+"name": "الخرايج",
+"en": "Al Kharayej",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.005,
+"lon": 50.817
+},
+{
+"name": "صبيحة",
+"en": "Sbaiha",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.014,
+"lon": 50.99
+},
+{
+"name": "بو ضعة",
+"en": "Bu Daah",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.031,
+"lon": 51.034
+},
+{
+"name": "ام الجفيرات",
+"en": "Umm Al Jefairat",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.045,
+"lon": 51.134
+},
+{
+"name": "مرخية الدرب",
+"en": "Markhiyat Al Darb",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.09,
+"lon": 51.154
+},
+{
+"name": "الضعينيات",
+"en": "Al Deainiyat",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.147,
+"lon": 51.04
+},
+{
+"name": "بيضا القاع",
+"en": "Baida Al Gaa",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.061,
+"lon": 51.199
+},
+{
+"name": "ام عين",
+"en": "Umm Ain",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.005,
+"lon": 50.858
+},
+{
+"name": "اوجاب مدهش",
+"en": "Awjab Medhesh",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.134,
+"lon": 51.127
+},
+{
+"name": "ابا الحسك",
+"en": "Abal Hasak",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.107,
+"lon": 51.039
+},
+{
+"name": "جو النصلة",
+"en": "Jaww Al Nasla",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.065,
+"lon": 50.825
+},
+{
+"name": "الجليعات",
+"en": "Al Jelaiat",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.06,
+"lon": 50.898
+},
+{
+"name": "روضة ادغيم",
+"en": "Rawdat Edghaim",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.105,
+"lon": 51.193
+},
+{
+"name": "جو بشير",
+"en": "Jaww Basheer",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.034,
+"lon": 50.88
+},
+{
+"name": "امهات التويم",
+"en": "Ummahat Al Tuwwaim",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.005,
+"lon": 50.904
+},
+{
+"name": "ام الشبرم",
+"en": "Umm Al Shubrum",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.077,
+"lon": 51.035
+},
+{
+"name": "الركية",
+"en": "Al Rekayya",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.011,
+"lon": 51.154
+},
+{
+"name": "جريان البطنة",
+"en": "Jeryan Al Butna",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.116,
+"lon": 51.159
+},
+{
+"name": "ام المرخ",
+"en": "Umm Al Markh",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 25.06,
+"lon": 50.954
+},
+{
+"name": "امشاش لخوان",
+"en": "Imshash Lekhwan",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.744,
+"lon": 51.052
+},
+{
+"name": "روضة اكظيم",
+"en": "Rawdat Ekdaim",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.885,
+"lon": 50.932
+},
+{
+"name": "وادي الجح",
+"en": "Wadi Al Jihh",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.892,
+"lon": 51.02
+},
+{
+"name": "ام حوطة",
+"en": "Umm Hawta",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.883,
+"lon": 51.079
+},
+{
+"name": "ام عين",
+"en": "Umm Ain",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.978,
+"lon": 50.898
+},
+{
+"name": "روضة المرخ",
+"en": "Rawdat Al Markh",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.951,
+"lon": 50.846
+},
+{
+"name": "المسحبية",
+"en": "Al Maszhabiya",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.765,
+"lon": 50.893
+},
+{
+"name": "الصنيعات",
+"en": "Al Snaiat",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.883,
+"lon": 51.036
+},
+{
+"name": "السبسب",
+"en": "Al Sabsab",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.973,
+"lon": 51.09
+},
+{
+"name": "جليعات علي بن سعيد",
+"en": "Jelaiat Ali Bin Saeed",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.692,
+"lon": 51.044
+},
+{
+"name": "عين حمد",
+"en": "Ain Hamad",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.909,
+"lon": 50.958
+},
+{
+"name": "خشم النخش",
+"en": "Khashem Al Nekhsh",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.883,
+"lon": 50.907
+},
+{
+"name": "روضة اشعلا",
+"en": "Rawdat Ishala",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.923,
+"lon": 50.879
+},
+{
+"name": "امشاش بن شافي",
+"en": "Imshash Bin Shafi",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.692,
+"lon": 50.956
+},
+{
+"name": "السلمية",
+"en": "Al Slemiya",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.923,
+"lon": 51.061
+},
+{
+"name": "العامرية",
+"en": "Al Aamriya",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.835,
+"lon": 51.078
+},
+{
+"name": "الخريطيات الغربية",
+"en": "Al Kharaitiyat West",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.931,
+"lon": 51.027
+},
+{
+"name": "جو بو اشجرة",
+"en": "Jaww Bu Eshjara",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.744,
+"lon": 51.017
+},
+{
+"name": "روضة ام سمرة",
+"en": "Rawdat Umm Samra",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.882,
+"lon": 50.969
+},
+{
+"name": "طوار لحريثي",
+"en": "Tuwar Lehraithi",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.789,
+"lon": 51.087
+},
+{
+"name": "لوسيل الغربية",
+"en": "Lusail West",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.965,
+"lon": 50.979
+},
+{
+"name": "بو سمرة",
+"en": "Bu Samra",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.741,
+"lon": 50.85
+},
+{
+"name": "ام الجراثيم",
+"en": "Umm Al Jaratheem",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.976,
+"lon": 51.032
+},
+{
+"name": "اوحلة الخرايج",
+"en": "Awhalat Al Karayej",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.978,
+"lon": 50.835
+},
+{
+"name": "حزم ابا الجح",
+"en": "Hazm Abal Jihh",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.908,
+"lon": 50.982
+},
+{
+"name": "وادي لخوان",
+"en": "Wadi Lekhwan",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.641,
+"lon": 50.976
+},
+{
+"name": "ام التويم",
+"en": "Umm Al Tuwaim",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.641,
+"lon": 51.039
+},
+{
+"name": "روضة حمرة",
+"en": "Rawdat Humra",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.789,
+"lon": 51.049
+},
+{
+"name": "برقا حليمة",
+"en": "Barga Haleema",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.789,
+"lon": 50.964
+},
+{
+"name": "نقا ام قرن",
+"en": "Nega Umm Garn",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.789,
+"lon": 51.017
+},
+{
+"name": "ام المسام",
+"en": "Umm Al Masam",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.692,
+"lon": 50.997
+},
+{
+"name": "عقلة فيصل",
+"en": "Eglat Faisal",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.883,
+"lon": 50.875
+},
+{
+"name": "لمشاش",
+"en": "Lemshash",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.964,
+"lon": 50.933
+},
+{
+"name": "ام جرة",
+"en": "Umm Jarra",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.744,
+"lon": 51.092
+},
+{
+"name": "رياض المرخ",
+"en": "Reyad Al Markh",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.835,
+"lon": 51.028
+},
+{
+"name": "القلايل",
+"en": "Al Galayel",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.744,
+"lon": 50.964
+},
+{
+"name": "دوحة سلوى",
+"en": "Dohat Salwa",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.784,
+"lon": 50.865
+},
+{
+"name": "امهات المرخ",
+"en": "Ummahat Al Markh",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.835,
+"lon": 50.964
+},
+{
+"name": "لعريق",
+"en": "Learaig",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.837,
+"lon": 50.89
+},
+{
+"name": "غارب الثور",
+"en": "Ghareb Al Thawr",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.598,
+"lon": 51.041
+},
+{
+"name": "روضة الفرس",
+"en": "Rawdat Al Faras",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.598,
+"lon": 50.976
+},
+{
+"name": "برقا الخراز",
+"en": "Barga Al Kharaz",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.692,
+"lon": 50.865
+},
+{
+"name": "جو البنات",
+"en": "Jaww Al Banat",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.598,
+"lon": 51.089
+},
+{
+"name": "قيزان لعريق",
+"en": "Geezan Learaig",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.641,
+"lon": 50.9
+},
+{
+"name": "القراين",
+"en": "Al Garayen",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.692,
+"lon": 51.09
+},
+{
+"name": "سودا نثيل",
+"en": "Sawda Natheel",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.506,
+"lon": 51.087
+},
+{
+"name": "جو الخراز",
+"en": "Jaww Al Kharaz",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.559,
+"lon": 51.092
+},
+{
+"name": "جو السلامة",
+"en": "Jaww Al Salama",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.531,
+"lon": 50.997
+},
+{
+"name": "نقا الحرجة",
+"en": "Nega Al Harja",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.641,
+"lon": 51.087
+},
+{
+"name": "زبارة  لعريق",
+"en": "Zubarat Learaig",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.692,
+"lon": 50.918
+},
+{
+"name": "برقا الهامل",
+"en": "Barga Al Hamil",
+"level": 3,
+"parent": "بلدية الريان",
+"lat": 24.598,
+"lon": 50.912
+},
+{
+"name": "ام الغيلم",
+"en": "Umm Al Ghailam",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 25.996,
+"lon": 51.308
+},
+{
+"name": "واسط",
+"en": "Wasit",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 25.91,
+"lon": 51.295
+},
+{
+"name": "ابا العوسج",
+"en": "Abal Awsaj",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.004,
+"lon": 51.361
+},
+{
+"name": "سدرية الخيسة",
+"en": "Sidriyat Al Kheesa",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 25.913,
+"lon": 51.351
+},
+{
+"name": "الحاير الغربي",
+"en": "Al Hayer Al Gharbi",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.021,
+"lon": 51.266
+},
+{
+"name": "بو شلوط",
+"en": "Bu Shalloot",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.028,
+"lon": 51.312
+},
+{
+"name": "بو اقريطة",
+"en": "Bu Graita",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 25.96,
+"lon": 51.31
+},
+{
+"name": "امنيفة",
+"en": "Imneefa",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 25.961,
+"lon": 51.291
+},
+{
+"name": "فليحة",
+"en": "Feleeha",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.023,
+"lon": 51.347
+},
+{
+"name": "فويرط",
+"en": "Fuwairit",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.028,
+"lon": 51.365
+},
+{
+"name": "لجذيع",
+"en": "Lejthaya",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 25.959,
+"lon": 51.35
+},
+{
+"name": "الماردية",
+"en": "Al Mardiya",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 25.93,
+"lon": 51.291
+},
+{
+"name": "الجساسية",
+"en": "Al Jassasiya",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 25.943,
+"lon": 51.385
+},
+{
+"name": "الركي",
+"en": "Al Rekayy",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 25.962,
+"lon": 51.24
+},
+{
+"name": "بو بخورة",
+"en": "Bu Bukhoora",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 25.991,
+"lon": 51.265
+},
+{
+"name": "ام الضعة",
+"en": "Umm Al Daah",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.021,
+"lon": 51.233
+},
+{
+"name": "العب",
+"en": "Al Ebb",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 25.99,
+"lon": 51.23
+},
+{
+"name": "وعب الخراب",
+"en": "Waab Al Kharab",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 25.939,
+"lon": 51.323
+},
+{
+"name": "لحويلة",
+"en": "Lehwaila",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 25.942,
+"lon": 51.457
+},
+{
+"name": "روضة لقرطة",
+"en": "Rawdat Legreta",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 25.98,
+"lon": 51.278
+},
+{
+"name": "سباريت",
+"en": "Sebareet",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 25.902,
+"lon": 51.307
+},
+{
+"name": "الغشامية",
+"en": "Al Ghashamiya",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 25.975,
+"lon": 51.334
+},
+{
+"name": "عين سنان",
+"en": "Ain Snan",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.02,
+"lon": 51.331
+},
+{
+"name": "المرونة",
+"en": "Al Marroona",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.007,
+"lon": 51.384
+},
+{
+"name": "وادي الخيسة",
+"en": "Wadi Al Kheesa",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 25.916,
+"lon": 51.329
+},
+{
+"name": "الحاير الشرقي",
+"en": "Al Hayer Al Sharqi",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.019,
+"lon": 51.291
+},
+{
+"name": "ابا الظلوف",
+"en": "Aba Al Duloof",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.12,
+"lon": 51.177
+},
+{
+"name": "سدرية الهام",
+"en": "Sidriyat Al Hamm",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 25.906,
+"lon": 51.058
+},
+{
+"name": "ام لخصاف",
+"en": "Umm Lekhsaf",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 25.982,
+"lon": 51.153
+},
+{
+"name": "الغاف",
+"en": "Al Ghaf",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.004,
+"lon": 51.183
+},
+{
+"name": "الزبارة",
+"en": "Al Zubara",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 25.976,
+"lon": 51.03
+},
+{
+"name": "مروب",
+"en": "Merweb",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 25.879,
+"lon": 51.0
+},
+{
+"name": "لجذوعية",
+"en": "Lejthooiya",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 25.967,
+"lon": 51.204
+},
+{
+"name": "مسيكة",
+"en": "Mesaika",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 25.97,
+"lon": 51.12
+},
+{
+"name": "ام جدر",
+"en": "Umm Jader",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 25.871,
+"lon": 51.098
+},
+{
+"name": "الهام",
+"en": "Al Hamm",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 25.896,
+"lon": 51.023
+},
+{
+"name": "راس عشيرج",
+"en": "Ras Eshairij",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 25.948,
+"lon": 51.003
+},
+{
+"name": "العريش",
+"en": "Al Areesh",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.033,
+"lon": 51.06
+},
+{
+"name": "وادي الغصن",
+"en": "Wadi Al Ghesen",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 25.989,
+"lon": 51.094
+},
+{
+"name": "لعفاوية",
+"en": "Lafaweya",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 25.992,
+"lon": 51.169
+},
+{
+"name": "ام اغويفة",
+"en": "Umm Ghuwaifa",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.007,
+"lon": 51.205
+},
+{
+"name": "النعمان",
+"en": "Al Nuaman",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 25.866,
+"lon": 51.067
+},
+{
+"name": "لشا",
+"en": "Lesha",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 25.95,
+"lon": 51.076
+},
+{
+"name": "ام جاسم",
+"en": "Umm Jasim",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.063,
+"lon": 51.13
+},
+{
+"name": "مكين",
+"en": "Mekeen",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.05,
+"lon": 51.177
+},
+{
+"name": "الثغب",
+"en": "Al Thaghab",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.011,
+"lon": 51.118
+},
+{
+"name": "ام صباح",
+"en": "Umm Sabbah",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.094,
+"lon": 51.183
+},
+{
+"name": "لجميل",
+"en": "Lejmail",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.086,
+"lon": 51.146
+},
+{
+"name": "لخوير",
+"en": "Lekhwair",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.065,
+"lon": 51.102
+},
+{
+"name": "ام الصوف",
+"en": "Umm Al Soof",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.064,
+"lon": 51.206
+},
+{
+"name": "روضة اشريم",
+"en": "Rawdat Shraim",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 25.962,
+"lon": 51.177
+},
+{
+"name": "وادي الضبيعان",
+"en": "Wadi Al Debaian",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 25.945,
+"lon": 51.029
+},
+{
+"name": "عين محمد",
+"en": "Ain Mohammed",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 25.993,
+"lon": 51.063
+},
+{
+"name": "ابواب",
+"en": "Abwab",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 25.906,
+"lon": 51.098
+},
+{
+"name": "الغافة",
+"en": "Al Ghafa",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.029,
+"lon": 51.089
+},
+{
+"name": "الشحيمية",
+"en": "Al Shehaimiya",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 25.859,
+"lon": 50.974
+},
+{
+"name": "جري مشعا",
+"en": "Jery Masha",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.027,
+"lon": 51.145
+},
+{
+"name": "النافلة",
+"en": "Al Nafla",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.09,
+"lon": 51.231
+},
+{
+"name": "وادي الجاهلية",
+"en": "Wadi Al Jahiliya",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.08,
+"lon": 51.272
+},
+{
+"name": "الرويس",
+"en": "Al Ruwais",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.139,
+"lon": 51.215
+},
+{
+"name": "الغينة",
+"en": "Al Gheena",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.125,
+"lon": 51.278
+},
+{
+"name": "المملحة",
+"en": "Al Mamlaha",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.123,
+"lon": 51.316
+},
+{
+"name": "ابا الحوايا",
+"en": "Abal Hawaya",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.131,
+"lon": 51.248
+},
+{
+"name": "لمزرع",
+"en": "Lemzarra",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.093,
+"lon": 51.283
+},
+{
+"name": "الوعب",
+"en": "Al Waab",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.12,
+"lon": 51.232
+},
+{
+"name": "الريضان",
+"en": "Al Reedan",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.106,
+"lon": 51.241
+},
+{
+"name": "الثميد",
+"en": "Al Themaid",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.106,
+"lon": 51.302
+},
+{
+"name": "المفير",
+"en": "Al Mafyar",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.142,
+"lon": 51.274
+},
+{
+"name": "ام الحوايا",
+"en": "Umm Al Hawaya",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.061,
+"lon": 51.283
+},
+{
+"name": "التويم",
+"en": "Al Tuwaim",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.048,
+"lon": 51.238
+},
+{
+"name": "خاصومة",
+"en": "Khasooma",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.143,
+"lon": 51.242
+},
+{
+"name": "الخريجة",
+"en": "Al Khareeja",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.058,
+"lon": 51.343
+},
+{
+"name": "مدينة الشمال",
+"en": "Madinat Al Shamal",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.12,
+"lon": 51.21
+},
+{
+"name": "الشاهنية",
+"en": "Al Shahniya",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.097,
+"lon": 51.244
+},
+{
+"name": "الغارية",
+"en": "Al Ghariya",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.095,
+"lon": 51.343
+},
+{
+"name": "جري لحميدات",
+"en": "Jery Lehmaidat",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.076,
+"lon": 51.309
+},
+{
+"name": "بو بريكة",
+"en": "Bu Braika",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.111,
+"lon": 51.261
+},
+{
+"name": "جزيرة ركن",
+"en": "Jazeerat Reken",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.16,
+"lon": 51.258
+},
+{
+"name": "لقعابية",
+"en": "Legaabiya",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.066,
+"lon": 51.238
+},
+{
+"name": "عين صالح",
+"en": "Ain Saleh",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.061,
+"lon": 51.333
+},
+{
+"name": "جبل فويرط",
+"en": "Jabal Fuwairit",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.06,
+"lon": 51.36
+},
+{
+"name": "جري بو جفير",
+"en": "Jery Bu Jefeer",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.084,
+"lon": 51.314
+},
+{
+"name": "عذبة",
+"en": "Athba",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.06,
+"lon": 51.308
+},
+{
+"name": "بو عنز",
+"en": "Bu Anz",
+"level": 3,
+"parent": "بلدية الشمال",
+"lat": 26.098,
+"lon": 51.262
+},
+{
+"name": "الوكرة جنوب شرق",
+"en": "Al Wakra South East",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 25.098,
+"lon": 51.593
+},
+{
+"name": "الوكرة - المنطقة الصناعية",
+"en": "Al Wakra - Industrial Area",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 25.112,
+"lon": 51.574
+},
+{
+"name": "الوكرة",
+"en": "Al Wakra",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 25.163,
+"lon": 51.603
+},
+{
+"name": "الوكير",
+"en": "Al Wukair",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 25.154,
+"lon": 51.549
+},
+{
+"name": "بو الحميض",
+"en": "Bul Hemmaid",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 25.122,
+"lon": 51.507
+},
+{
+"name": "بو صلبة",
+"en": "Bu Sulba",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 25.093,
+"lon": 51.461
+},
+{
+"name": "المشاف",
+"en": "Al Meshaf",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 25.175,
+"lon": 51.568
+},
+{
+"name": "ام بشر",
+"en": "Umm Besher",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 25.201,
+"lon": 51.57
+},
+{
+"name": "معيذر الوكير",
+"en": "Muaither Al Wukair",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 25.121,
+"lon": 51.544
+},
+{
+"name": "وادي ابا الصليل",
+"en": "Wadi Aba Seleel",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 25.139,
+"lon": 51.447
+},
+{
+"name": "الركب 91",
+"en": "Al Rakb 91",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 25.085,
+"lon": 51.5
+},
+{
+"name": "عفجة معيذر",
+"en": "Afjat Muaither",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 25.091,
+"lon": 51.546
+},
+{
+"name": "بركة العوامر",
+"en": "Birkat Al Awamer",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 25.068,
+"lon": 51.472
+},
+{
+"name": "جري مصبح",
+"en": "Jery Musabbeh",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 25.184,
+"lon": 51.527
+},
+{
+"name": "النباه",
+"en": "Al Nebah",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 25.104,
+"lon": 51.522
+},
+{
+"name": "مسيعيد - المنطقة الحرة",
+"en": "Mesaieed - Free Zone",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 25.021,
+"lon": 51.607
+},
+{
+"name": "مسيعيد 92",
+"en": "Mesaieed 92",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 25.026,
+"lon": 51.539
+},
+{
+"name": "الركب 92",
+"en": "Al Rakb 92",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 25.076,
+"lon": 51.525
+},
+{
+"name": "سيلين",
+"en": "Sealine",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.889,
+"lon": 51.538
+},
+{
+"name": "مسيعيد 93",
+"en": "Mesaieed 93",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.94,
+"lon": 51.594
+},
+{
+"name": "نقيان مسيعيد",
+"en": "Negyan Mesaieed",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.932,
+"lon": 51.532
+},
+{
+"name": "عفجة سعدون",
+"en": "Afjat Saadoon",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.955,
+"lon": 51.492
+},
+{
+"name": "نقا المملحة",
+"en": "Nega Al Mamlaha",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.834,
+"lon": 51.49
+},
+{
+"name": "زرقا",
+"en": "Zarga",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.963,
+"lon": 51.396
+},
+{
+"name": "نقا السهلة",
+"en": "Nega Al Sahla",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.879,
+"lon": 51.342
+},
+{
+"name": "المرخية الجنوبية",
+"en": "Al Markhiya South",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.984,
+"lon": 51.449
+},
+{
+"name": "العفجة",
+"en": "Al Afja",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 25.005,
+"lon": 51.476
+},
+{
+"name": "خويتيم",
+"en": "Khuwaiteem",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 25.042,
+"lon": 51.495
+},
+{
+"name": "نقا الفقارة 94",
+"en": "Nega Al Fagara 94",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.788,
+"lon": 51.452
+},
+{
+"name": "المتفردات",
+"en": "Al Metfardat",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.879,
+"lon": 51.39
+},
+{
+"name": "لزيرق",
+"en": "Lezaireg",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.943,
+"lon": 51.437
+},
+{
+"name": "جبل مرمي",
+"en": "Jabal Marmi",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.927,
+"lon": 51.466
+},
+{
+"name": "شقرا",
+"en": "Shagra",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.834,
+"lon": 51.391
+},
+{
+"name": "نقا عطية",
+"en": "Nega Attiya",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.788,
+"lon": 51.39
+},
+{
+"name": "نقا ام اسلمة",
+"en": "Nega Umm Slema",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.788,
+"lon": 51.342
+},
+{
+"name": "لشيقر",
+"en": "Leshaiger",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.878,
+"lon": 51.471
+},
+{
+"name": "اغبي الضو",
+"en": "Eghbai Al Daww",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.927,
+"lon": 51.376
+},
+{
+"name": "هشيمية الخرارة",
+"en": "Hasheemiyat Al Kharrara",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.896,
+"lon": 51.208
+},
+{
+"name": "مصنع الرمل",
+"en": "Sand Plant",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.873,
+"lon": 51.127
+},
+{
+"name": "نقا بو بركة",
+"en": "Nega Bu Birka",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 25.035,
+"lon": 51.378
+},
+{
+"name": "السداري",
+"en": "Al Sidari",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.84,
+"lon": 51.163
+},
+{
+"name": "الديحة",
+"en": "Al Daiha",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.785,
+"lon": 51.142
+},
+{
+"name": "سويدات الورق",
+"en": "Swaidat Al Warag",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 25.083,
+"lon": 51.241
+},
+{
+"name": "اوجاب لخلاص",
+"en": "Awjab Lekhlas",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.744,
+"lon": 51.252
+},
+{
+"name": "نقا نايف",
+"en": "Nega Nayef",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.968,
+"lon": 51.297
+},
+{
+"name": "البعوضيات",
+"en": "Al Baoodiyat",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.959,
+"lon": 51.154
+},
+{
+"name": "غشام",
+"en": "Ghasham",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.841,
+"lon": 51.285
+},
+{
+"name": "بو جود",
+"en": "Bu Jood",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 25.057,
+"lon": 51.442
+},
+{
+"name": "نقا بو صاجات",
+"en": "Nega Bu Sajat",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.959,
+"lon": 51.339
+},
+{
+"name": "ام جولق",
+"en": "Umm Jawlag",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.96,
+"lon": 51.247
+},
+{
+"name": "لخبيب",
+"en": "Lekhbaib",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.933,
+"lon": 51.301
+},
+{
+"name": "الخرارة",
+"en": "Al Kharrara",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.892,
+"lon": 51.18
+},
+{
+"name": "نقا بو هجلة",
+"en": "Nega Bu Hajla",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.987,
+"lon": 51.374
+},
+{
+"name": "الفصل",
+"en": "Al Fasl",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.972,
+"lon": 51.195
+},
+{
+"name": "امات مغاطي",
+"en": "Ummat Maghati",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.786,
+"lon": 51.188
+},
+{
+"name": "ام الرمرام",
+"en": "Umm Al Rumram",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.748,
+"lon": 51.165
+},
+{
+"name": "النقيان",
+"en": "Al Nigyan",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 25.078,
+"lon": 51.385
+},
+{
+"name": "ام قرن",
+"en": "Umm Garn",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.841,
+"lon": 51.224
+},
+{
+"name": "مصيقرة",
+"en": "Mesaigra",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.93,
+"lon": 51.195
+},
+{
+"name": "وادي جلال",
+"en": "Wadi Jallal",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 25.023,
+"lon": 51.313
+},
+{
+"name": "نقا بو ضلوع",
+"en": "Nega Bu Dulooa",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.904,
+"lon": 51.285
+},
+{
+"name": "ترينة",
+"en": "Traina",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.785,
+"lon": 51.232
+},
+{
+"name": "المفيض",
+"en": "Al Mefeed",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.904,
+"lon": 51.242
+},
+{
+"name": "النهيدين",
+"en": "Al Nehaidain",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 25.025,
+"lon": 51.246
+},
+{
+"name": "لجخينية",
+"en": "Lejkhainiya",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.791,
+"lon": 51.285
+},
+{
+"name": "نقا بو قطبتين",
+"en": "Nega Bu Gutbetain",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 25.069,
+"lon": 51.299
+},
+{
+"name": "بو اطريفة",
+"en": "Bu Traifa",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.699,
+"lon": 51.189
+},
+{
+"name": "نقا الديحة",
+"en": "Nega Al Daiha",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.668,
+"lon": 51.404
+},
+{
+"name": "نقيان السادة",
+"en": "Negyan Al Sada",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.691,
+"lon": 51.362
+},
+{
+"name": "وادي ابا الغربان",
+"en": "Wadi Abal Gherban",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.731,
+"lon": 51.303
+},
+{
+"name": "لكبوع",
+"en": "Lekbooa",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.699,
+"lon": 51.142
+},
+{
+"name": "نقا الفقارة 98",
+"en": "Nega Al Fagara 98",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.734,
+"lon": 51.509
+},
+{
+"name": "جو لخرزة",
+"en": "Jaww Lekhreza",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.657,
+"lon": 51.142
+},
+{
+"name": "عقلة المناصير",
+"en": "Eglat Al Manaseer",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.568,
+"lon": 51.167
+},
+{
+"name": "المملحة",
+"en": "Al Mamlaha",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.657,
+"lon": 51.189
+},
+{
+"name": "راس المحارف",
+"en": "Ras Al Maharef",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.595,
+"lon": 51.386
+},
+{
+"name": "نقيان الردة",
+"en": "Negyan Al Radda",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.567,
+"lon": 51.35
+},
+{
+"name": "عامرة",
+"en": "Aamra",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.744,
+"lon": 51.362
+},
+{
+"name": "لخفوس",
+"en": "Lekhfoos",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.51,
+"lon": 51.279
+},
+{
+"name": "عقلة زويد",
+"en": "Eglat Zuwayyed",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.612,
+"lon": 51.167
+},
+{
+"name": "لقصيرة",
+"en": "Legsaira",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.699,
+"lon": 51.241
+},
+{
+"name": "خور لعديد",
+"en": "Khor Leadaid",
+"level": 3,
+"parent": "بلدية الوكرة",
+"lat": 24.631,
+"lon": 51.283
+},
+{
+"name": "الجسرة",
+"en": "Al Jasra",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.29,
+"lon": 51.534
+},
+{
+"name": "البدع 2",
+"en": "Al Bidda 2",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.291,
+"lon": 51.527
+},
+{
+"name": "مشيرب 3",
+"en": "Mushaireb 3",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.285,
+"lon": 51.528
+},
+{
+"name": "مشيرب 4",
+"en": "Mushaireb 4",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.282,
+"lon": 51.529
+},
+{
+"name": "براحة الجفيري",
+"en": "Barahat Al Jufairi",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.282,
+"lon": 51.534
+},
+{
+"name": "فريج الاصمخ",
+"en": "Fereej Al Asmakh",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.281,
+"lon": 51.534
+},
+{
+"name": "النجادة",
+"en": "Al Najada",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.285,
+"lon": 51.534
+},
+{
+"name": "الغانم العتيق 6",
+"en": "Old Al Ghanim 6",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.282,
+"lon": 51.538
+},
+{
+"name": "السوق",
+"en": "Al Souq",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.288,
+"lon": 51.538
+},
+{
+"name": "البدع 12",
+"en": "Al Bidda 12",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.293,
+"lon": 51.52
+},
+{
+"name": "وادي السيل 12",
+"en": "Wadi Al Sail 12",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.307,
+"lon": 51.511
+},
+{
+"name": "رميلة 12",
+"en": "Rumaila 12",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.298,
+"lon": 51.514
+},
+{
+"name": "مشيرب 13",
+"en": "Mushaireb 13",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.283,
+"lon": 51.521
+},
+{
+"name": "فريج عبد العزيز",
+"en": "Fereej Abdel Aziz",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.278,
+"lon": 51.524
+},
+{
+"name": "الدوحة الجديدة",
+"en": "Al Doha Al Jadeed",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.276,
+"lon": 51.534
+},
+{
+"name": "الغانم العتيق 16",
+"en": "Old Al Ghanim 16",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.279,
+"lon": 51.541
+},
+{
+"name": "الهتمي",
+"en": "Al Hitmi",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.284,
+"lon": 51.549
+},
+{
+"name": "الرفاع",
+"en": "Al Rufaa",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.284,
+"lon": 51.545
+},
+{
+"name": "اسلطة",
+"en": "Slata",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.287,
+"lon": 51.549
+},
+{
+"name": "المرقاب",
+"en": "Al Mirqab",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.288,
+"lon": 51.543
+},
+{
+"name": "ميناء الدوحة",
+"en": "Doha Port",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.3,
+"lon": 51.553
+},
+{
+"name": "وادي السيل 20",
+"en": "Wadi Al Sail 20",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.308,
+"lon": 51.502
+},
+{
+"name": "رميلة 21",
+"en": "Rumaila 21",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.295,
+"lon": 51.51
+},
+{
+"name": "فريج بن محمود 22",
+"en": "Fereej Bin Mahmoud 22",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.286,
+"lon": 51.512
+},
+{
+"name": "فريج بن محمود 23",
+"en": "Fereej Bin Mahmoud 23",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.278,
+"lon": 51.513
+},
+{
+"name": "روضة الخيل",
+"en": "Rawdat Al Khail",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.27,
+"lon": 51.52
+},
+{
+"name": "المنصورة",
+"en": "Al Mansoura",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.266,
+"lon": 51.532
+},
+{
+"name": "فريج بن درهم",
+"en": "Fereej Bin Derhem",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.271,
+"lon": 51.533
+},
+{
+"name": "نجمة",
+"en": "Najma",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.269,
+"lon": 51.544
+},
+{
+"name": "ام غويلينة",
+"en": "Umm Ghuwailina",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.275,
+"lon": 51.547
+},
+{
+"name": "راس بو عبود 29",
+"en": "Ras Bu Abboud 29",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.286,
+"lon": 51.576
+},
+{
+"name": "دحيل",
+"en": "Duhail",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.36,
+"lon": 51.464
+},
+{
+"name": "ام لخبا",
+"en": "Umm Lekhba",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.34,
+"lon": 51.471
+},
+{
+"name": "مدينة خليفة الشمالية",
+"en": "Madinat Khalifa North",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.327,
+"lon": 51.471
+},
+{
+"name": "دحل الحمام",
+"en": "Dahl Al Hamam",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.328,
+"lon": 51.48
+},
+{
+"name": "المرخية",
+"en": "Al Markhiya",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.326,
+"lon": 51.494
+},
+{
+"name": "مدينة خليفة الجنوبية",
+"en": "Madinat Khalifa South",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.314,
+"lon": 51.48
+},
+{
+"name": "فريج كليب",
+"en": "Fereej Kulaib",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.314,
+"lon": 51.492
+},
+{
+"name": "المسيلة",
+"en": "Al Messila",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.3,
+"lon": 51.482
+},
+{
+"name": "فريج بن عمران",
+"en": "Fereej Bin Omran",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.304,
+"lon": 51.496
+},
+{
+"name": "الهتمي الجديد",
+"en": "New Al Hitmi",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.297,
+"lon": 51.495
+},
+{
+"name": "مدينة حمد الطبية",
+"en": "Hamad Medical City",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.295,
+"lon": 51.503
+},
+{
+"name": "السد 38",
+"en": "Al Sadd 38",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.287,
+"lon": 51.492
+},
+{
+"name": "فريج النصر",
+"en": "Fereej Al Nasr",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.268,
+"lon": 51.497
+},
+{
+"name": "السد 39",
+"en": "Al Sadd 39",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.276,
+"lon": 51.498
+},
+{
+"name": "المرقاب الجديد",
+"en": "Al Mirqab Al Jadeed",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.271,
+"lon": 51.506
+},
+{
+"name": "اسلطة الجديدة",
+"en": "New Slata",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.263,
+"lon": 51.512
+},
+{
+"name": "نعيجة 41",
+"en": "Nuaija 41",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.258,
+"lon": 51.532
+},
+{
+"name": "الهلال",
+"en": "Al Hilal",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.26,
+"lon": 51.547
+},
+{
+"name": "نعيجة 43",
+"en": "Nuaija 43",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.246,
+"lon": 51.516
+},
+{
+"name": "المعمورة 43",
+"en": "Al Maamoura 43",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.25,
+"lon": 51.504
+},
+{
+"name": "نعيجة 44",
+"en": "Nuaija 44",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.245,
+"lon": 51.535
+},
+{
+"name": "المطار العتيق",
+"en": "Old Airport",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.251,
+"lon": 51.553
+},
+{
+"name": "الثمامة 46",
+"en": "Al Thumama 46",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.23,
+"lon": 51.54
+},
+{
+"name": "الثمامة 47",
+"en": "Al Thumama 47",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.236,
+"lon": 51.562
+},
+{
+"name": "مطار الدوحة الدولي",
+"en": "Doha International Airport",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.257,
+"lon": 51.572
+},
+{
+"name": "الخليفات",
+"en": "Al Khulaifat",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.285,
+"lon": 51.555
+},
+{
+"name": "راس بو عبود 28",
+"en": "Ras Bu Abboud 28",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.283,
+"lon": 51.564
+},
+{
+"name": "راس بو فنطاس",
+"en": "Ras Bu Funtas",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.216,
+"lon": 51.601
+},
+{
+"name": "جزيرة البنانا",
+"en": "Banana Island",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.295,
+"lon": 51.644
+},
+{
+"name": "مطار حمد الدولي",
+"en": "Hamad International Airport",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.27,
+"lon": 51.606
+},
+{
+"name": "الثمامة 50",
+"en": "Al Thumama 50",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.217,
+"lon": 51.56
+},
+{
+"name": "المنطقة الصناعية",
+"en": "Industrial Area",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.187,
+"lon": 51.436
+},
+{
+"name": "السوق المركزي",
+"en": "Wholesale Market",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.241,
+"lon": 51.481
+},
+{
+"name": "الدفنة 60",
+"en": "Al Dafna 60",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.311,
+"lon": 51.525
+},
+{
+"name": "القصار 61",
+"en": "Al Gassar 61",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.342,
+"lon": 51.552
+},
+{
+"name": "الدفنة 61",
+"en": "Al Dafna 61",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.325,
+"lon": 51.532
+},
+{
+"name": "لخوير",
+"en": "Lekhwair",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.314,
+"lon": 51.512
+},
+{
+"name": "عنيزة 63",
+"en": "Onaiza 63",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.324,
+"lon": 51.521
+},
+{
+"name": "لجبيلات",
+"en": "Lejbailat",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.32,
+"lon": 51.505
+},
+{
+"name": "عنيزة 65",
+"en": "Onaiza 65",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.33,
+"lon": 51.512
+},
+{
+"name": "القصار 66",
+"en": "Al Gassar 66",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.358,
+"lon": 51.528
+},
+{
+"name": "اللؤلؤة",
+"en": "The Pearl",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.368,
+"lon": 51.558
+},
+{
+"name": "عنيزة 66",
+"en": "Onaiza 66",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.343,
+"lon": 51.511
+},
+{
+"name": "لقطيفية",
+"en": "Legtaifiya",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.366,
+"lon": 51.517
+},
+{
+"name": "حزم المرخية",
+"en": "Hazm Al Markhiya",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.339,
+"lon": 51.493
+},
+{
+"name": "الطرفة",
+"en": "Al Tarfa",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.375,
+"lon": 51.489
+},
+{
+"name": "جريان نجيمة",
+"en": "Jeryan Nejaima",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.37,
+"lon": 51.475
+},
+{
+"name": "جليعة",
+"en": "Jelaiah",
+"level": 3,
+"parent": "بلدية الدوحه",
+"lat": 25.353,
+"lon": 51.49
+},
+{
+"name": "معيذر المشاف",
+"en": "Muaither Al Meshaf",
+"level": 3,
+"parent": "بلدية ام صلال",
+"lat": 25.422,
+"lon": 51.281
+},
+{
+"name": "وادي الوعب",
+"en": "Wadi Al Waab",
+"level": 3,
+"parent": "بلدية ام صلال",
+"lat": 25.527,
+"lon": 51.295
+},
+{
+"name": "بو ثيله",
+"en": "Bu Thaila",
+"level": 3,
+"parent": "بلدية ام صلال",
+"lat": 25.521,
+"lon": 51.318
+},
+{
+"name": "الفروش",
+"en": "Al Froosh",
+"level": 3,
+"parent": "بلدية ام صلال",
+"lat": 25.384,
+"lon": 51.39
+},
+{
+"name": "المزروعه",
+"en": "Al Mazrooah",
+"level": 3,
+"parent": "بلدية ام صلال",
+"lat": 25.445,
+"lon": 51.374
+},
+{
+"name": "الخريطيات",
+"en": "Al Kharaitiyat",
+"level": 3,
+"parent": "بلدية ام صلال",
+"lat": 25.382,
+"lon": 51.419
+},
+{
+"name": "بو فاس",
+"en": "Bu Fass",
+"level": 3,
+"parent": "بلدية ام صلال",
+"lat": 25.414,
+"lon": 51.318
+},
+{
+"name": "وادي العسكر",
+"en": "Wadi Al Askar",
+"level": 3,
+"parent": "بلدية ام صلال",
+"lat": 25.567,
+"lon": 51.273
+},
+{
+"name": "بو اقليلة",
+"en": "Bu Glaila",
+"level": 3,
+"parent": "بلدية ام صلال",
+"lat": 25.461,
+"lon": 51.288
+},
+{
+"name": "ابا الحيران",
+"en": "Abal Heeran",
+"level": 3,
+"parent": "بلدية ام صلال",
+"lat": 25.447,
+"lon": 51.326
+},
+{
+"name": "ابا النجم",
+"en": "Abal Najem",
+"level": 3,
+"parent": "بلدية ام صلال",
+"lat": 25.528,
+"lon": 51.366
+},
+{
+"name": "وادي المزروعه",
+"en": "Wadi Al Mazrooah",
+"level": 3,
+"parent": "بلدية ام صلال",
+"lat": 25.414,
+"lon": 51.38
+},
+{
+"name": "المصلبه",
+"en": "Al Masluba",
+"level": 3,
+"parent": "بلدية ام صلال",
+"lat": 25.483,
+"lon": 51.305
+},
+{
+"name": "ام عبيرية",
+"en": "Umm Ebairiya",
+"level": 3,
+"parent": "بلدية ام صلال",
+"lat": 25.485,
+"lon": 51.366
+},
+{
+"name": "ام العمد",
+"en": "Umm Al Amad",
+"level": 3,
+"parent": "بلدية ام صلال",
+"lat": 25.512,
+"lon": 51.395
+},
+{
+"name": "بو قرن",
+"en": "Bu Garn",
+"level": 3,
+"parent": "بلدية ام صلال",
+"lat": 25.425,
+"lon": 51.349
+},
+{
+"name": "جري خباب",
+"en": "Jery Khabbab",
+"level": 3,
+"parent": "بلدية ام صلال",
+"lat": 25.507,
+"lon": 51.364
+},
+{
+"name": "معيذر الدسم",
+"en": "Muaither Al Dasem",
+"level": 3,
+"parent": "بلدية ام صلال",
+"lat": 25.403,
+"lon": 51.282
+},
+{
+"name": "ام صلال محمد",
+"en": "Umm Slal Mohammed",
+"level": 3,
+"parent": "بلدية ام صلال",
+"lat": 25.417,
+"lon": 51.409
+},
+{
+"name": "الشفلحيه",
+"en": "Al Shefallahiya",
+"level": 3,
+"parent": "بلدية ام صلال",
+"lat": 25.544,
+"lon": 51.369
+},
+{
+"name": "ازغوى 71",
+"en": "Izghawa 71",
+"level": 3,
+"parent": "بلدية ام صلال",
+"lat": 25.358,
+"lon": 51.416
+},
+{
+"name": "صنيع لحميدي",
+"en": "Snay Lehmaidi",
+"level": 3,
+"parent": "بلدية ام صلال",
+"lat": 25.551,
+"lon": 51.4
+},
+{
+"name": "بو مرزاز",
+"en": "Bu Merzaz",
+"level": 3,
+"parent": "بلدية ام صلال",
+"lat": 25.449,
+"lon": 51.354
+},
+{
+"name": "ام اشهرين",
+"en": "Umm Shaharain",
+"level": 3,
+"parent": "بلدية ام صلال",
+"lat": 25.398,
+"lon": 51.339
+},
+{
+"name": "ام صلال علي",
+"en": "Umm Slal Ali",
+"level": 3,
+"parent": "بلدية ام صلال",
+"lat": 25.462,
+"lon": 51.397
+},
+{
+"name": "بو حصيه",
+"en": "Bu Hesayya",
+"level": 3,
+"parent": "بلدية ام صلال",
+"lat": 25.472,
+"lon": 51.366
+},
+{
+"name": "جري السمر",
+"en": "Jery Al Samur",
+"level": 3,
+"parent": "بلدية ام صلال",
+"lat": 25.409,
+"lon": 51.362
+},
+{
+"name": "بو فسيلة",
+"en": "Bu Fesseela",
+"level": 3,
+"parent": "بلدية ام صلال",
+"lat": 25.436,
+"lon": 51.396
+},
+{
+"name": "عطران",
+"en": "Atran",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.544,
+"lon": 51.241
+},
+{
+"name": "اسلمية بو جذيع",
+"en": "Slemiyet Bu Ejthaya",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.529,
+"lon": 51.098
+},
+{
+"name": "لعويجات",
+"en": "Leawaijat",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.442,
+"lon": 51.165
+},
+{
+"name": "النقيبات",
+"en": "Al Negaibat",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.481,
+"lon": 51.242
+},
+{
+"name": "راس بروق",
+"en": "Ras Broog",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.62,
+"lon": 50.838
+},
+{
+"name": "جري الظبي",
+"en": "Jery Al Dabi",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.473,
+"lon": 51.147
+},
+{
+"name": "جري بو عش",
+"en": "Jery Bu Esh",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.468,
+"lon": 51.103
+},
+{
+"name": "روضة الفرس",
+"en": "Rawdat Al Faras",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.434,
+"lon": 51.052
+},
+{
+"name": "لحصين",
+"en": "Lehsain",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.546,
+"lon": 50.939
+},
+{
+"name": "بو خيسة",
+"en": "Bu Kheesa",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.445,
+"lon": 51.128
+},
+{
+"name": "لبريثات",
+"en": "Lebraithat",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.468,
+"lon": 50.95
+},
+{
+"name": "امريبضات",
+"en": "Imraibdat",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.503,
+"lon": 51.133
+},
+{
+"name": "روضة العجلة",
+"en": "Rawdat Al Ejla",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.54,
+"lon": 51.022
+},
+{
+"name": "جري طلاع",
+"en": "Jery Tallaa",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.573,
+"lon": 51.023
+},
+{
+"name": "حينة الصلة",
+"en": "Heenat Al Silla",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.51,
+"lon": 51.239
+},
+{
+"name": "روضة خوزان",
+"en": "Rawdat Khawzan",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.482,
+"lon": 50.91
+},
+{
+"name": "بو ثغيب",
+"en": "Bu Thughaib",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.461,
+"lon": 51.081
+},
+{
+"name": "وادي بو جذيع",
+"en": "Wadi Bu Ejthaya",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.574,
+"lon": 51.096
+},
+{
+"name": "ابسيتين",
+"en": "Ebsaiteen",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.518,
+"lon": 50.952
+},
+{
+"name": "زكريت",
+"en": "Zekreet",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.47,
+"lon": 50.866
+},
+{
+"name": "اقريات العيد",
+"en": "Grayyat Al Eid",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.564,
+"lon": 51.133
+},
+{
+"name": "ام لقهاب الغربية",
+"en": "Umm Leghab West",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.498,
+"lon": 50.98
+},
+{
+"name": "ابا الحسك",
+"en": "Abal Hasak",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.518,
+"lon": 51.022
+},
+{
+"name": "حفيرات روضان",
+"en": "Hafeerat Rawdan",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.548,
+"lon": 51.097
+},
+{
+"name": "الدحيليات",
+"en": "Al Dehailiyat",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.487,
+"lon": 51.082
+},
+{
+"name": "لعطورية",
+"en": "Leatooriya",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.514,
+"lon": 51.198
+},
+{
+"name": "بو غميلة",
+"en": "Bu Ghameela",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.444,
+"lon": 51.002
+},
+{
+"name": "الصنيعات",
+"en": "Al Senaiat",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.531,
+"lon": 51.136
+},
+{
+"name": "لعقوريات",
+"en": "Leagooriyat",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.44,
+"lon": 51.091
+},
+{
+"name": "وادي خوزان",
+"en": "Wadi Khawzan",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.482,
+"lon": 50.995
+},
+{
+"name": "امهات الحاس",
+"en": "Ummahat Al Hass",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.57,
+"lon": 51.244
+},
+{
+"name": "روضة المنيلات",
+"en": "Rawdat Al Imnailat",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.505,
+"lon": 51.168
+},
+{
+"name": "بو حوية",
+"en": "Bu Haweyya",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.548,
+"lon": 50.981
+},
+{
+"name": "بروق",
+"en": "Broog",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.541,
+"lon": 50.824
+},
+{
+"name": "روضة الموضع",
+"en": "Rawdat Al Mawda",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.541,
+"lon": 51.052
+},
+{
+"name": "الصنع",
+"en": "Al Sena",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.564,
+"lon": 51.147
+},
+{
+"name": "وادي لسواق",
+"en": "Wadi Laswag",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.569,
+"lon": 51.202
+},
+{
+"name": "الرفيق",
+"en": "Al Refaig",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.524,
+"lon": 50.991
+},
+{
+"name": "ابا العوسج",
+"en": "Abal Awsaj",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.566,
+"lon": 51.06
+},
+{
+"name": "وعب سويلم",
+"en": "Waab Suwailem",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.572,
+"lon": 50.936
+},
+{
+"name": "ابا اربيات",
+"en": "Aba Erbayyat",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.504,
+"lon": 50.937
+},
+{
+"name": "وادي السلم",
+"en": "Wadi Al Salam",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.466,
+"lon": 51.18
+},
+{
+"name": "وادي صالح",
+"en": "Wadi Saleh",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.534,
+"lon": 51.169
+},
+{
+"name": "روضة الخناين",
+"en": "Rawdat Al Khanayen",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.505,
+"lon": 51.099
+},
+{
+"name": "ام ازريبيل",
+"en": "Umm Zraibeel",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.492,
+"lon": 51.026
+},
+{
+"name": "جري ربدان",
+"en": "Jery Rabdan",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.518,
+"lon": 51.059
+},
+{
+"name": "ام اثنيتين",
+"en": "Umm Ethnaitain",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.453,
+"lon": 51.042
+},
+{
+"name": "وعب النصلة",
+"en": "Waab Al Nasla",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.574,
+"lon": 50.974
+},
+{
+"name": "ام لعظام",
+"en": "Umm Leadam",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.474,
+"lon": 51.035
+},
+{
+"name": "عين ام الزبد",
+"en": "Ain Umm Al Zebad",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.657,
+"lon": 51.025
+},
+{
+"name": "ابا اربيات",
+"en": "Aba Erbayyat",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.61,
+"lon": 51.224
+},
+{
+"name": "روضة مضحوي",
+"en": "Rawdat Madhooy",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.723,
+"lon": 50.918
+},
+{
+"name": "بو سدره",
+"en": "Bu Sidra",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.731,
+"lon": 51.013
+},
+{
+"name": "خزنة ام الزبد",
+"en": "Khaznat Umm Al Zebad",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.675,
+"lon": 51.014
+},
+{
+"name": "الصخبريه",
+"en": "Al Sakhabriya",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.668,
+"lon": 50.945
+},
+{
+"name": "روضة المصلبه",
+"en": "Rawdat Al Masluba",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.663,
+"lon": 51.129
+},
+{
+"name": "لجمليه",
+"en": "Lijmiliya",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.622,
+"lon": 51.096
+},
+{
+"name": "اغباثة",
+"en": "Eghbatha",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.718,
+"lon": 50.953
+},
+{
+"name": "السمريه",
+"en": "Al Samriya",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.637,
+"lon": 51.164
+},
+{
+"name": "جليب فشاخ",
+"en": "Jeleeb Fashakh",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.615,
+"lon": 51.041
+},
+{
+"name": "ام دحل",
+"en": "Umm Dahal",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.661,
+"lon": 51.233
+},
+{
+"name": "جري الذيب",
+"en": "Jery Al Theeb",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.597,
+"lon": 51.189
+},
+{
+"name": "بو خرسعه",
+"en": "Bu Kharsaah",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.604,
+"lon": 51.249
+},
+{
+"name": "القاعيه",
+"en": "Al Gaeyya",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.674,
+"lon": 51.181
+},
+{
+"name": "المتبارقه",
+"en": "Al Metbarga",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.697,
+"lon": 50.914
+},
+{
+"name": "الهشيميه",
+"en": "Al Hasheemiya",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.697,
+"lon": 51.228
+},
+{
+"name": "امهات حيش",
+"en": "Ummhat Heesh",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.676,
+"lon": 51.249
+},
+{
+"name": "جري الحمره",
+"en": "Jery Al Hamra",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.661,
+"lon": 51.103
+},
+{
+"name": "النفايد",
+"en": "Al Nefayed",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.604,
+"lon": 50.956
+},
+{
+"name": "ام غويلينه",
+"en": "Umm Ghuwailina",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.6,
+"lon": 51.14
+},
+{
+"name": "ابا المشموم",
+"en": "Abal Mashmoom",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.716,
+"lon": 51.111
+},
+{
+"name": "الشكيكات",
+"en": "Al Shekaikat",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.602,
+"lon": 51.065
+},
+{
+"name": "قطنه",
+"en": "Getna",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.72,
+"lon": 51.079
+},
+{
+"name": "بو اصوي",
+"en": "Bu Swayy",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.702,
+"lon": 51.259
+},
+{
+"name": "جريان لجمليه",
+"en": "Jeryan Lijmiliya",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.659,
+"lon": 51.07
+},
+{
+"name": "وادي فشاخ",
+"en": "Wadi Fashakh",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.625,
+"lon": 51.014
+},
+{
+"name": "وادي اسلمة",
+"en": "Wadi Slema",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.672,
+"lon": 50.914
+},
+{
+"name": "ابا الجحازل",
+"en": "Abal Jahazel",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.697,
+"lon": 51.172
+},
+{
+"name": "وادي البحوث",
+"en": "Wadi Al Buhooth",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.586,
+"lon": 51.043
+},
+{
+"name": "راس ام حيش",
+"en": "Ras Umm Heesh",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.794,
+"lon": 50.936
+},
+{
+"name": "ام سدره",
+"en": "Umm Sidra",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.698,
+"lon": 50.947
+},
+{
+"name": "حزم البحوث",
+"en": "Hazem Al Buhooth",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.594,
+"lon": 51.008
+},
+{
+"name": "الغديريات",
+"en": "Al Ghadeeriyat",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.739,
+"lon": 51.1
+},
+{
+"name": "جري نزوه",
+"en": "Jery Nazwa",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.683,
+"lon": 51.218
+},
+{
+"name": "جري لوبرة",
+"en": "Jery Lubara",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.691,
+"lon": 51.075
+},
+{
+"name": "الحوافر",
+"en": "Al Hawafer",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.684,
+"lon": 51.116
+},
+{
+"name": "بنيدر خوصه",
+"en": "Ebnaider Khoosa",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.733,
+"lon": 50.958
+},
+{
+"name": "ابا القدوح",
+"en": "Abal Egdooh",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.668,
+"lon": 51.05
+},
+{
+"name": "روضة غره",
+"en": "Rawadat Gharra",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.706,
+"lon": 51.019
+},
+{
+"name": "سليمي البمبره",
+"en": "Selaimi Al Bambara",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.639,
+"lon": 51.241
+},
+{
+"name": "دوحة فشاخ",
+"en": "Dohat Fashakh",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.631,
+"lon": 50.967
+},
+{
+"name": "وادي مصعب",
+"en": "Wadi Masab",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.696,
+"lon": 51.007
+},
+{
+"name": "روضة الهجله",
+"en": "Rawdat Al Hajla",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.648,
+"lon": 50.921
+},
+{
+"name": "ابا السنيم",
+"en": "Aba Seneem",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.746,
+"lon": 50.928
+},
+{
+"name": "روضة الميه",
+"en": "Rawdat Al Mayya",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.7,
+"lon": 51.199
+},
+{
+"name": "لبصير",
+"en": "Lebsayyer",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.712,
+"lon": 51.054
+},
+{
+"name": "جري جفادق",
+"en": "Jery Jafadeg",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.702,
+"lon": 51.143
+},
+{
+"name": "الهداية",
+"en": "Al Haddaya",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.731,
+"lon": 50.988
+},
+{
+"name": "ام حيش",
+"en": "Umm Heesh",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.769,
+"lon": 50.933
+},
+{
+"name": "روضة الدبدبه",
+"en": "Rawdat Al Debdeba",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.68,
+"lon": 50.976
+},
+{
+"name": "وعب السميرة",
+"en": "Waab Al Smaira",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.759,
+"lon": 50.984
+},
+{
+"name": "المقطع",
+"en": "Al Magta",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.754,
+"lon": 50.959
+},
+{
+"name": "الشرايف",
+"en": "Al Sharayef",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.662,
+"lon": 50.977
+},
+{
+"name": "روضة الجريبه",
+"en": "Rawdat Al Jeraiba",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.624,
+"lon": 51.12
+},
+{
+"name": "حزم لجمليه",
+"en": "Hazem Lejmiliya",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.628,
+"lon": 51.055
+},
+{
+"name": "جري بو غانم",
+"en": "Jery Bu Ghanem",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.619,
+"lon": 51.212
+},
+{
+"name": "جري لطوار",
+"en": "Jery Letwar",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.756,
+"lon": 51.099
+},
+{
+"name": "السويحليه",
+"en": "Al Suwaihliya",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.76,
+"lon": 51.021
+},
+{
+"name": "اشليبدين",
+"en": "Ishlebdeen",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.761,
+"lon": 51.064
+},
+{
+"name": "جري بو عش",
+"en": "Jery Bu Esh",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.649,
+"lon": 51.205
+},
+{
+"name": "روضة مصعب",
+"en": "Rawdat Masab",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.708,
+"lon": 50.98
+},
+{
+"name": "لخريب",
+"en": "Lekhraib",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.432,
+"lon": 51.211
+},
+{
+"name": "ام اعنيق",
+"en": "Umm Enaig",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.407,
+"lon": 51.166
+},
+{
+"name": "الشكيكات",
+"en": "Al Shekaikat",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.325,
+"lon": 51.242
+},
+{
+"name": "السمرية",
+"en": "Al Samriya",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.46,
+"lon": 51.208
+},
+{
+"name": "لبصير",
+"en": "Lebsayyer",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.414,
+"lon": 51.194
+},
+{
+"name": "لوبرة",
+"en": "Lubara",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.357,
+"lon": 51.169
+},
+{
+"name": "الشيحانية",
+"en": "Al Sheehaniya",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.374,
+"lon": 51.222
+},
+{
+"name": "ابا الجحازل",
+"en": "Abal Jahazel",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.452,
+"lon": 51.254
+},
+{
+"name": "جري فاطمة",
+"en": "Jery Fatma",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.434,
+"lon": 51.245
+},
+{
+"name": "بو غولانة",
+"en": "Bu Ghawlana",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.338,
+"lon": 51.21
+},
+{
+"name": "لحسنية",
+"en": "Lehsiniya",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.335,
+"lon": 51.303
+},
+{
+"name": "ام دحيل",
+"en": "Umm Dehail",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.414,
+"lon": 51.142
+},
+{
+"name": "جري الصحرا",
+"en": "Jery Al Sahra",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.382,
+"lon": 51.161
+},
+{
+"name": "المعراض",
+"en": "Al Mearad",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.461,
+"lon": 51.226
+},
+{
+"name": "لبياتية",
+"en": "Lebyatiya",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.319,
+"lon": 51.153
+},
+{
+"name": "ام لقهاب",
+"en": "Umm Leghab",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.371,
+"lon": 51.287
+},
+{
+"name": "ام لخيا",
+"en": "Umm Lekhya",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.373,
+"lon": 51.185
+},
+{
+"name": "الرويضات",
+"en": "Al Ruwaidat",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.391,
+"lon": 51.14
+},
+{
+"name": "ام الطين",
+"en": "Umm Al Teen",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.313,
+"lon": 51.201
+},
+{
+"name": "ام لقرضي",
+"en": "Umm Legredi",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.324,
+"lon": 51.169
+},
+{
+"name": "ام اقدير",
+"en": "Umm Egdair",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.312,
+"lon": 51.306
+},
+{
+"name": "الدحيليات",
+"en": "Al Dehailiyat",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.329,
+"lon": 51.284
+},
+{
+"name": "النقيب",
+"en": "Al Negaib",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.412,
+"lon": 51.247
+},
+{
+"name": "لعبيري",
+"en": "Leabairi",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.245,
+"lon": 51.033
+},
+{
+"name": "الرويض",
+"en": "Al Ruwayyed",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.22,
+"lon": 51.132
+},
+{
+"name": "لعويجا",
+"en": "Leawaija",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.191,
+"lon": 51.216
+},
+{
+"name": "وادي لجمال الشمالي",
+"en": "Wadi Lejmal Al Shamali",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.199,
+"lon": 51.104
+},
+{
+"name": "ام الزبار الغربية",
+"en": "Umm Al Zubar West",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.18,
+"lon": 51.244
+},
+{
+"name": "ام المرخ",
+"en": "Umm Al Markh",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.174,
+"lon": 51.109
+},
+{
+"name": "بو صلة",
+"en": "Bu Silla",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.214,
+"lon": 51.242
+},
+{
+"name": "ام عبيرية",
+"en": "Umm Ebrairiya",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.213,
+"lon": 51.033
+},
+{
+"name": "بو قرن",
+"en": "Bu Garn",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.283,
+"lon": 51.146
+},
+{
+"name": "وادي السهلة",
+"en": "Wadi Al Sahala",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.198,
+"lon": 51.183
+},
+{
+"name": "السهلة الشمالية",
+"en": "Al Sahla Al Shamaliya",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.173,
+"lon": 51.147
+},
+{
+"name": "اسهلة المرخ",
+"en": "Iszhalat Al Markh",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.148,
+"lon": 51.149
+},
+{
+"name": "الغصن",
+"en": "Al Ghesen",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.271,
+"lon": 51.268
+},
+{
+"name": "روضة فضيل",
+"en": "Rawdat Fadeel",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.213,
+"lon": 51.068
+},
+{
+"name": "ابا الحسك",
+"en": "Abal Hasak",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.221,
+"lon": 51.155
+},
+{
+"name": "ام قرن",
+"en": "Umm Garn",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.155,
+"lon": 51.271
+},
+{
+"name": "ام غويلينة",
+"en": "Umm Ghuwailina",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.138,
+"lon": 51.193
+},
+{
+"name": "روضة الزمل",
+"en": "Rawdat Al Zamel",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.291,
+"lon": 51.256
+},
+{
+"name": "جري الرشا",
+"en": "Jery Al Rasha",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.182,
+"lon": 51.043
+},
+{
+"name": "وادي المجهولة",
+"en": "Wadi Al Majhoola",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.289,
+"lon": 51.176
+},
+{
+"name": "روضة اشميم",
+"en": "Rawdat Eshmaim",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.218,
+"lon": 51.173
+},
+{
+"name": "وادي لجمال الجنوبي",
+"en": "Wadi Lejmal Sl Janoobi",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.191,
+"lon": 51.132
+},
+{
+"name": "اوجاب لجعدة",
+"en": "Awjab Lejaada",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.283,
+"lon": 51.217
+},
+{
+"name": "مقارين ابن شويرب",
+"en": "Magareen Ibn Shuwaireb",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.179,
+"lon": 51.187
+},
+{
+"name": "ام حرملة",
+"en": "Umm Harmala",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.234,
+"lon": 51.102
+},
+{
+"name": "ام لبرك",
+"en": "Umm Lebrak",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.267,
+"lon": 51.18
+},
+{
+"name": "الخرسعة",
+"en": "Al Kharsaah",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.185,
+"lon": 51.226
+},
+{
+"name": "بيشة",
+"en": "Beesha",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.235,
+"lon": 51.288
+},
+{
+"name": "ام وشاح",
+"en": "Umm Wishah",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.179,
+"lon": 51.073
+},
+{
+"name": "المجمعة",
+"en": "Al Majmaah",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.243,
+"lon": 51.254
+},
+{
+"name": "ام الزبار الشرقية",
+"en": "Umm Al Zubar East",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.191,
+"lon": 51.275
+},
+{
+"name": "معيذر ام الزبار",
+"en": "Muaither Umm Al Zubar",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.196,
+"lon": 51.305
+},
+{
+"name": "روضة خارجة",
+"en": "Rawdat Kharja",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.25,
+"lon": 51.153
+},
+{
+"name": "روضة راشد",
+"en": "Rawdat Rashed",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.243,
+"lon": 51.214
+},
+{
+"name": "وادي السمرية",
+"en": "Wadi Al Samriya",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.196,
+"lon": 51.153
+},
+{
+"name": "ابا الرحيات",
+"en": "Abal Erhayyat",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.245,
+"lon": 51.061
+},
+{
+"name": "الهملة",
+"en": "Al Hamla",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.205,
+"lon": 50.794
+},
+{
+"name": "روضة الارنب",
+"en": "Rawdat Al Arnab",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.106,
+"lon": 50.965
+},
+{
+"name": "اجبيجب",
+"en": "Ejbaijeb",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.22,
+"lon": 50.868
+},
+{
+"name": "ام السويد",
+"en": "Umm Al Suwwaid",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.107,
+"lon": 50.998
+},
+{
+"name": "بو غولانة",
+"en": "Bu Ghawlana",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.158,
+"lon": 50.958
+},
+{
+"name": "روضة البراق",
+"en": "Rawdat Al Barrag",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.243,
+"lon": 50.993
+},
+{
+"name": "بو اطريفة",
+"en": "Bu Traifa",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.115,
+"lon": 50.818
+},
+{
+"name": "وادي الرشايدة",
+"en": "Wadi Al Rashaida",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.146,
+"lon": 50.993
+},
+{
+"name": "امهات عنز",
+"en": "Ummahat Anz",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.17,
+"lon": 50.918
+},
+{
+"name": "ام سمرة",
+"en": "Umm Samra",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.205,
+"lon": 50.986
+},
+{
+"name": "ام الضعيات",
+"en": "Umm Al Dayyat",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.118,
+"lon": 50.926
+},
+{
+"name": "الشبهانة",
+"en": "Al Shabhana",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.207,
+"lon": 50.926
+},
+{
+"name": "امهات اسليم",
+"en": "Ummahat Slaim",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.245,
+"lon": 50.884
+},
+{
+"name": "جري الخنجر",
+"en": "Jery Al Khanjar",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.189,
+"lon": 50.986
+},
+{
+"name": "ام باب",
+"en": "Umm Bab",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.172,
+"lon": 50.853
+},
+{
+"name": "روضة لبرثة",
+"en": "Rawdat Lebretha",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.235,
+"lon": 50.93
+},
+{
+"name": "ثنية الجمل",
+"en": "Thenyet Al Jamal",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.356,
+"lon": 51.112
+},
+{
+"name": "ام القراريص",
+"en": "Umm Al Gararees",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.374,
+"lon": 51.114
+},
+{
+"name": "السلمية",
+"en": "Al Slemiya",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.339,
+"lon": 50.967
+},
+{
+"name": "روضة مريغان",
+"en": "Rawdat Mraighan",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.402,
+"lon": 50.97
+},
+{
+"name": "السدري",
+"en": "Al Sidri",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.271,
+"lon": 51.002
+},
+{
+"name": "وادي المرخ",
+"en": "Wadi Al Markh",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.419,
+"lon": 51.008
+},
+{
+"name": "جر لعظام",
+"en": "Jarr Leadam",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.286,
+"lon": 51.045
+},
+{
+"name": "سماري جري طوق",
+"en": "Semari Jery Tawg",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.368,
+"lon": 50.987
+},
+{
+"name": "بو بريكة",
+"en": "Bu Braika",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.393,
+"lon": 51.115
+},
+{
+"name": "امليح",
+"en": "Imlaih",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.299,
+"lon": 51.109
+},
+{
+"name": "النهيدين",
+"en": "Al Nehaidain",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.321,
+"lon": 50.954
+},
+{
+"name": "وادي لمغدر",
+"en": "Wadi Lemghadar",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.307,
+"lon": 50.939
+},
+{
+"name": "السحمية",
+"en": "Al Sehameya",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.27,
+"lon": 51.1
+},
+{
+"name": "امهات صلال",
+"en": "Ummahat Slal",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.344,
+"lon": 51.086
+},
+{
+"name": "ام قرن",
+"en": "Umm Garn",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.311,
+"lon": 51.023
+},
+{
+"name": "ابا الهلايم",
+"en": "Abal Halayem",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.387,
+"lon": 51.041
+},
+{
+"name": "اوجاب السبر",
+"en": "Awjab Al Sabur",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.293,
+"lon": 50.948
+},
+{
+"name": "جري ابا صليلات",
+"en": "Jery Aba Slailat",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.362,
+"lon": 51.082
+},
+{
+"name": "امهات اصوي",
+"en": "Ummahat Swayy",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.342,
+"lon": 50.99
+},
+{
+"name": "الخرسعة",
+"en": "Al Kharsaah",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.277,
+"lon": 50.95
+},
+{
+"name": "حزم بو عوسجة",
+"en": "Hazem Bu Awseja",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.352,
+"lon": 51.024
+},
+{
+"name": "الثمامة",
+"en": "Al Thumama",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.347,
+"lon": 50.932
+},
+{
+"name": "ام ثمام",
+"en": "Umm Thumam",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.436,
+"lon": 50.98
+},
+{
+"name": "معيذر سدران",
+"en": "Muaither Sidran",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.31,
+"lon": 51.046
+},
+{
+"name": "لجهيمية",
+"en": "Lejhaimiya",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.341,
+"lon": 51.041
+},
+{
+"name": "جري طوق",
+"en": "Jery Tawg",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.38,
+"lon": 50.984
+},
+{
+"name": "ذرب",
+"en": "Tharb",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.439,
+"lon": 50.913
+},
+{
+"name": "روضة النفافيس",
+"en": "Rawdat Al Nefafees",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.407,
+"lon": 50.927
+},
+{
+"name": "المحترقة",
+"en": "Al Mehterga",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.412,
+"lon": 50.954
+},
+{
+"name": "لبرقة",
+"en": "Lebrega",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.45,
+"lon": 50.963
+},
+{
+"name": "الرويضات",
+"en": "Al Ruwaidat",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.271,
+"lon": 51.05
+},
+{
+"name": "ابا العصافير",
+"en": "Abal Asafeer",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.308,
+"lon": 50.976
+},
+{
+"name": "وادي ام الزبار",
+"en": "Wadi Umm Al Zubar",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.375,
+"lon": 50.938
+},
+{
+"name": "جو العكرش",
+"en": "Jaww Al Ekresh",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.326,
+"lon": 50.935
+},
+{
+"name": "الشليبدينات",
+"en": "Al Shelaibdeenat",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.326,
+"lon": 50.998
+},
+{
+"name": "وادي العكرش",
+"en": "Wadi Al Ekresh",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.346,
+"lon": 50.945
+},
+{
+"name": "ابا القراريص",
+"en": "Abal Gararees",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.382,
+"lon": 51.097
+},
+{
+"name": "جر خليل",
+"en": "Jarr Khaleel",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.285,
+"lon": 51.015
+},
+{
+"name": "لعوينة",
+"en": "Leawaina",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.447,
+"lon": 50.95
+},
+{
+"name": "بو غميلة",
+"en": "Bu Ghameela",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.331,
+"lon": 51.089
+},
+{
+"name": "السماري",
+"en": "Al Semari",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.339,
+"lon": 51.06
+},
+{
+"name": "الهشيمية",
+"en": "Al Hasheemiya",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.411,
+"lon": 51.032
+},
+{
+"name": "النصرانية",
+"en": "Al Nasraniya",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.403,
+"lon": 51.076
+},
+{
+"name": "عسيلة",
+"en": "Esaila",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.281,
+"lon": 50.931
+},
+{
+"name": "صنيع شقرا",
+"en": "Snay Shagra",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.417,
+"lon": 51.116
+},
+{
+"name": "ام طاقة",
+"en": "Umm Taga",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.291,
+"lon": 51.076
+},
+{
+"name": "لبهرية",
+"en": "Labhariya",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.285,
+"lon": 51.109
+},
+{
+"name": "ابا الخراسع",
+"en": "Abal Kharasa",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.292,
+"lon": 50.985
+},
+{
+"name": "جريان الصيحة",
+"en": "Jeryan Al Saiha",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.316,
+"lon": 51.109
+},
+{
+"name": "وادي ام الذياب",
+"en": "Wadi Umm Al Theyab",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.337,
+"lon": 51.112
+},
+{
+"name": "لوضيحية",
+"en": "Ludaihiya",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.369,
+"lon": 51.048
+},
+{
+"name": "ابا الحيات",
+"en": "Abal Hayyat",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.334,
+"lon": 51.023
+},
+{
+"name": "الشديدة",
+"en": "Al Shedeeda",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.316,
+"lon": 51.083
+},
+{
+"name": "الرويس الغربية",
+"en": "Al Ruwais West",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.435,
+"lon": 50.891
+},
+{
+"name": "ام وادي",
+"en": "Umm Wadi",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.415,
+"lon": 50.845
+},
+{
+"name": "برقا اعقيف",
+"en": "Barga Egaif",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.386,
+"lon": 50.87
+},
+{
+"name": "وادي امهلط",
+"en": "Wadi Imhalat",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.479,
+"lon": 50.817
+},
+{
+"name": "راس دخان",
+"en": "Ras Dukhan",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.507,
+"lon": 50.773
+},
+{
+"name": "جو البنات",
+"en": "Jaww Al Banat",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.306,
+"lon": 50.804
+},
+{
+"name": "جو الباب",
+"en": "Jaww Al Bab",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.28,
+"lon": 50.78
+},
+{
+"name": "روضة جراح",
+"en": "Rawdat Jarrah",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.446,
+"lon": 50.829
+},
+{
+"name": "دخان",
+"en": "Dukhan",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.422,
+"lon": 50.787
+},
+{
+"name": "الخطية الجديدة",
+"en": "New Al Khattiya",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.443,
+"lon": 50.867
+},
+{
+"name": "راس الغارية",
+"en": "Ras Al Ghariya",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.512,
+"lon": 50.799
+},
+{
+"name": "جو اسريع",
+"en": "Jaww Esrayya",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.276,
+"lon": 50.809
+},
+{
+"name": "عفجان",
+"en": "Afjan",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.295,
+"lon": 50.871
+},
+{
+"name": "الزغين",
+"en": "Al Zeghain",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.332,
+"lon": 50.869
+},
+{
+"name": "فحيحيل",
+"en": "Fehaiheel",
+"level": 3,
+"parent": "بلدية الشيحانية",
+"lat": 25.313,
+"lon": 50.78
+}
+]
+}

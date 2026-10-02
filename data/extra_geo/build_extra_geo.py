@@ -24,7 +24,9 @@ def C(name, lat, lon, districts=None):  # مدينة
     return (name, lat, lon, districts or [])
 
 
-GEO = {
+# قائمتي اليدوية — صارت "احتياطية": منها نكمّل الإحداثيات والأحياء المشهورة
+# الناقصة من القوائم المنشورة (المصدر الأساسي الآن — راجع merge_sources أدناه).
+MANUAL = {
     # ───────────────────────────── مصر ─────────────────────────────
     "EG": [
         ("محافظة القاهرة", [
@@ -475,6 +477,416 @@ GEO = {
     ],
 }
 
+
+# ═══════════════════════════ دمج القوائم المنشورة (المصدر الأساسي) ═══════════════════════════
+# المصادر محفوظة بمجلد sources/ (نسخ مختصرة) — التفاصيل والتراخيص بملف SOURCES.md.
+# القاعدة: الأسماء من القوائم المنشورة أولًا؛ قائمتي اليدوية تضيف فقط الأحياء/المدن
+# المشهورة اللي ما لها مقابل بالقوائم، وتكمّل الإحداثيات الناقصة أو غير الدقيقة.
+
+import math
+import re
+from statistics import mean
+
+SRC = Path(__file__).with_name("sources")
+
+_AR_DIACRITICS = re.compile(r"[ً-ْٰـ]")  # تشكيل + تطويل
+
+
+def clean(name: str) -> str:
+    """تنظيف شكلي للاسم المعروض: إزالة التطويل/التشكيل والمسافات الزائدة."""
+    return re.sub(r"\s+", " ", _AR_DIACRITICS.sub("", name or "")).strip()
+
+
+def norm(name: str) -> str:
+    """مفتاح مقارنة: يوحّد الهمزات والتاء المربوطة والياء، ويشيل «ال» و«مدينة» والمسافات —
+    حتى «منشية ناصر» و«منشأة ناصر»، أو «المحيصنة» و«محيصنة»، يُعتبرون نفس المكان."""
+    s = clean(name)
+    s = re.sub(r"\(.*?\)", " ", s)
+    for a, b in (("أ", "ا"), ("إ", "ا"), ("آ", "ا"), ("ة", "ه"), ("ى", "ي"), ("ؤ", "و"), ("ئ", "ي")):
+        s = s.replace(a, b)
+    words = [w for w in s.split() if w not in ("مدينه", "حي", "قسم", "مركز")]
+    words = [w[2:] if w.startswith("ال") and len(w) > 3 else w for w in words]
+    return "".join(words).replace("منشيه", "منشاه")
+
+
+def _src(name):
+    return json.loads((SRC / name).read_text(encoding="utf-8"))["data"]
+
+
+def _centroid(points):
+    pts = [(la, lo) for la, lo in points if la is not None]
+    return (round(mean(p[0] for p in pts), 5), round(mean(p[1] for p in pts), 5)) if pts else (None, None)
+
+
+def _manual_index(cc):
+    """{norm(اسم): (lat, lon)} لكل مدن وأحياء قائمتي اليدوية بالدولة."""
+    idx = {}
+    for _, cities in MANUAL[cc]:
+        for name, lat, lon, dists in cities:
+            idx.setdefault(norm(name), (lat, lon))
+            for dn, dla, dlo in dists:
+                idx.setdefault(norm(dn), (dla, dlo))
+    return idx
+
+
+def _manual_city(cc, city_name):
+    for _, cities in MANUAL[cc]:
+        for c in cities:
+            if c[0] == city_name:
+                return c
+    raise KeyError(city_name)
+
+
+def _oad_index(items, strip=()):
+    """{norm(اسم): (lat, lon)} من Open Admin Data — نتجاهل الإحداثيات المكررة لأكثر من
+    عنصرين (غالبًا مركز المحافظة وُضع للكل، مو موقع المنطقة الفعلي)."""
+    from collections import Counter
+    counts = Counter((x["lat"], x["lon"]) for x in items)
+    idx = {}
+    for x in items:
+        if x["lat"] is None or counts[(x["lat"], x["lon"])] > 2:
+            continue
+        n = clean(x["name"])
+        for w in strip:
+            n = re.sub(rf"(^|\s){w}(\s|$)", " ", n)
+        idx.setdefault(norm(n), (x["lat"], x["lon"]))
+    return idx
+
+
+def _merge_named(primary, extras, coord_sources, fallback):
+    """primary: أسماء القائمة المنشورة؛ extras: أسماء قائمتي (تُضاف لو ما لها مقابل).
+    يرجّع [(اسم، lat، lon)] بدون تكرار، مع أول إحداثيات متاحة من coord_sources.
+    لو نفس المكان موجود بالقائمتين بكتابة مختلفة قليلًا، نعرض الكتابة الأصح إملائيًا
+    (اللي فيها همزة: «إزكي» بدل «ازكي»)."""
+    extra_spelling = {norm(clean(e)): clean(e) for e in extras}
+    out, seen = [], set()
+    for name in list(primary) + list(extras):
+        name = clean(name)
+        key = norm(name)
+        if not name or key in seen:
+            continue
+        alt = extra_spelling.get(key)
+        if alt and any(ch in alt for ch in "أإآ") and not any(ch in name for ch in "أإآ"):
+            name = alt
+        seen.add(key)
+        lat = lon = None
+        for src in coord_sources:
+            if key in src:
+                lat, lon = src[key]
+                break
+        if lat is None:
+            lat, lon = fallback
+        out.append((name, lat, lon))
+    return out
+
+
+# ─────────────── مصر ───────────────
+EG_METROS = {"القاهرة", "الجيزة", "الإسكندرية", "بورسعيد", "السويس"}
+EG_ALIASES = {  # اسم بقائمتي ← نفس المكان بالقائمة المنشورة (حتى ما يتكرر)
+    "6 أكتوبر": "السادس من أكتوبر", "العاصمة الإدارية": "العاصمة الإدارية الجديدة",
+    "بولاق أبو العلا": "بولاق", "بحري": "الجمرك",
+    "أبو سمبل": "أبو سمبل السياحية", "الداخلة": "موط", "باريس": "باريس",
+    "أبو تشت": "أبو تشت", "المنشاة": "المنشأة", "جهينة": "جهينة الغربية", "ساقلتة": "ساقلته",
+    "القصاصين": "القصاصين الجديدة", "سمسطا": "سمسطا", "دسوق": "دسوق",
+}
+
+
+def _egypt():
+    data = _src("eg_areas.json")
+    govs = {g["id"]: g["name_ar"] for g in data["governorates"]}
+    by_gov = {}
+    for a in data["areas"]:
+        by_gov.setdefault(govs[a["governorate_id"]], []).append(a["name_ar"])
+
+    oad = _src("oad_eg.json")
+    oad_idx = _oad_index([x for x in oad if x["level"] == 2],
+                         strip=("قسم", "مركز", "أول", "اول", "ثان", "ثالث", "ثاني", "شرطة", "إدارة"))
+    oad_gov = {norm(x["name"]): (x["lat"], x["lon"]) for x in oad if x["level"] == 1}
+    man_idx = _manual_index("EG")
+    manual_regions = {r.replace("محافظة ", ""): cities for r, cities in MANUAL["EG"]}
+
+    regions = []
+    for gov, areas in by_gov.items():
+        manual_cities = manual_regions.get(gov, [])
+        alias_targets = {norm(v) for v in EG_ALIASES.values()}
+        gov_center = oad_gov.get(norm(gov)) or (manual_cities[0][1], manual_cities[0][2])
+        if gov in EG_METROS:
+            # مدينة وحدة لها أحياء (مثل الرياض بالسعودية)
+            mc = next((c for c in manual_cities if norm(c[0]) == norm(gov)), None)
+            center = (mc[1], mc[2]) if mc else gov_center
+            extras = [d[0] for d in (mc[3] if mc else []) if d[0] not in EG_ALIASES]
+            extras += [c[0] for c in manual_cities if c is not mc and c[0] not in EG_ALIASES]
+            dists = _merge_named([a for a in areas if norm(a) != norm(gov) or gov in ("بورسعيد", "السويس")],
+                                 extras, (man_idx, oad_idx), center)
+            # أماكن تتبع المحافظة إداريًا لكنها بعيدة جدًا عن المدينة (مثل الواحات البحرية
+            # بالجيزة، 290 كم) — تصير مدن مستقلة بدل ما تكون "أحياء" بالمدينة
+            near, far = [], []
+            dists = [(n, *COORDS["EG"].get(f"{gov}/{n}", (la, lo))) for n, la, lo in dists]
+            for d in dists:
+                km = math.hypot((d[1] - center[0]) * 111, (d[2] - center[1]) * 111 * math.cos(math.radians(center[0])))
+                (far if km > 100 else near).append(d)
+            regions.append((f"محافظة {gov}", [(gov, center[0], center[1], near)] + [(n, la, lo, []) for n, la, lo in far]))
+        else:
+            extras = [c[0] for c in manual_cities if c[0] not in EG_ALIASES]
+            cities = _merge_named(areas, extras, (man_idx, oad_idx), gov_center)
+            regions.append((f"محافظة {gov}", [(n, la, lo, []) for n, la, lo in cities]))
+    return regions
+
+
+# ─────────────── الكويت ───────────────
+def _kuwait():
+    items = _src("oad_kw.json")
+    areas = [x for x in items if x["level"] == 2]
+    gov_center = {x["name"]: (x["lat"], x["lon"]) for x in items if x["level"] == 1}
+
+    def base(n):
+        n = clean(n)
+        n = re.sub(r"^الاحمدي 2 - ", "", n)
+        n = re.sub(r"\s*\(\d+\)$", "", n)
+        n = re.sub(r"\s+\d+$", "", n)
+        n = re.sub(r"\s+[أابج]$", "", n)          # صباح السالم أ/ب/ج، الشويخ ب
+        return n
+
+    groups = {}
+    for x in areas:
+        if clean(x["name"]).startswith("جزيرة"):
+            continue
+        b = base(x["name"])
+        g = groups.setdefault(norm(b), {"name": b, "pts": [], "gov": x["parent"]})
+        g["pts"].append((x["lat"], x["lon"]))
+    oad_idx = {}
+    from collections import Counter
+    counts = Counter((x["lat"], x["lon"]) for x in areas)
+    for k, g in groups.items():
+        good = [p for p in g["pts"] if counts[p] <= 2]
+        oad_idx[k] = _centroid(good) if good else gov_center.get(g["gov"], (29.3759, 47.9774))
+
+    man = _manual_city("KW", "الكويت")
+    man_idx = _manual_index("KW")
+    dists = _merge_named([g["name"] for g in groups.values()], [d[0] for d in man[3]],
+                         (man_idx, oad_idx), (man[1], man[2]))
+    return [("الكويت", [("الكويت", man[1], man[2], dists)])]
+
+
+# ─────────────── البحرين ───────────────
+def _bahrain():
+    items = _src("oad_bh.json")
+    areas = [x for x in items if x["level"] == 2]
+    man = _manual_city("BH", "البحرين")
+    dists = _merge_named([x["name"] for x in areas], [d[0] for d in man[3]],
+                         (_manual_index("BH"), _oad_index(areas)), (man[1], man[2]))
+    return [("البحرين", [("البحرين", man[1], man[2], dists)])]
+
+
+# ─────────────── قطر ───────────────
+def _qatar():
+    items = _src("oad_qa.json")
+    oad_idx = _oad_index(items)
+    doha_areas = []
+    for x in items:
+        if x["parent"] != "بلدية الدوحه":
+            continue
+        n = re.sub(r"\s+\d+$", "", clean(x["name"]))
+        if any(w in n for w in ("مطار", "ميناء", "جزيرة", "السوق المركزي")):
+            continue
+        doha_areas.append(n)
+        oad_idx.setdefault(norm(n), (x["lat"], x["lon"]))
+    man_idx = _manual_index("QA")
+    region_name, man_cities = MANUAL["QA"][0]
+    out = []
+    for name, lat, lon, dists in man_cities:
+        if name == "الدوحة":
+            merged = _merge_named(doha_areas, [d[0] for d in dists], (oad_idx, man_idx), (lat, lon))
+            out.append((name, lat, lon, merged))
+        else:
+            out.append((name, lat, lon, []))
+    return [(region_name, out)]
+
+
+# ─────────────── عُمان ───────────────
+OM_EN = {
+    "Bid Bid": "بدبد", "Al Khabourah": "الخابورة", "A Rustaq": "الرستاق", "Al Masnaah": "المصنعة",
+    "Mahdha": "محضة", "Al Wafi": "الكامل والوافي", "Biddiya": "بدية", "Jalan Bani": "جعلان بني بو علي",
+    "Marbat": "مرباط", "Sudh": "سدح", "Al Khasab": "خصب", "Bukha": "بخا", "Diba": "دبا البيعة",
+    "Madha": "مدحاء", "A Seeb": "السيب", "Bausher": "بوشر", "Quriyat": "قريات",
+}
+OM_SKIP = {"Al Wusta", "Al Halaniyat Islands", "مسـقط", "مطرح", "A Seeb", "Bausher", "Al Wafi"}  # مسقط مدينة بأحياء
+
+
+def _oman():
+    items = _src("oad_om.json")
+    wil = [x for x in items if x["level"] == 2 and x["name"] not in OM_SKIP]
+    oad_idx = {}
+    by_gov = {}
+    for x in wil:
+        n = clean(OM_EN.get(x["name"], x["name"]))
+        oad_idx.setdefault(norm(n), (x["lat"], x["lon"]))
+        by_gov.setdefault(clean(x["parent"]), []).append(n)
+    man_idx = _manual_index("OM")
+    out = []
+    for region, cities in MANUAL["OM"]:
+        gov = region.replace("محافظة ", "")
+        extra_names = [c[0] for c in cities if not c[3]]
+        metro = [c for c in cities if c[3]]
+        merged = _merge_named(by_gov.get(gov, []), extra_names, (oad_idx, man_idx), (cities[0][1], cities[0][2]))
+        merged = [m for m in merged if all(norm(m[0]) != norm(c[0]) for c in metro)]
+        out.append((region, metro + [(n, la, lo, []) for n, la, lo in merged]))
+    return out
+
+
+# ─────────────── الإمارات ───────────────
+AE_EMIRATE = {"أبوظبى": "إمارة أبوظبي", "دبى": "إمارة دبي", "الشارقة": "إمارة الشارقة", "عجمان": "إمارة عجمان",
+              "أم القيوين": "إمارة أم القيوين", "رأس الخيمة": "إمارة رأس الخيمة", "الفجيرة": "إمارة الفجيرة"}
+AE_ABU_DHABI_DISTRICTS = {"مدينة خليفة", "مدينة محمد بن زايد", "مصفح", "الشامخة", "بني ياس",
+                          "مدينة بوابة أبوظبي", "مدينة مصدر", "مدينة شخبوط", "أبوظبي"}
+AE_SKIP = {"C مدينة خليفة", "أبو الأبيض"}
+DUBAI_DROP = {"حتا", "مطار دبي الدولي", "جزر العالم"}
+DUBAI_RENAME = {"مرسى دبي": "مرسى دبي (دبي مارينا)", "برج خليفة": "برج خليفة (داون تاون)"}
+DUBAI_ALIASES = {"دبي مارينا": "مرسى دبي", "وسط مدينة دبي (داون تاون)": "برج خليفة"}
+_ORDINALS = r"\s+(الأولى|الثانية|الثالثة|الرابعة|الخامسة|السادسة|الأول|الثاني|\d+)$"
+
+
+def _dubai_districts(manual_dists, center):
+    groups = {}
+    for c in _src("dubai_communities.json"):
+        name = clean(c["name"])
+        if name in DUBAI_DROP:
+            continue
+        b = re.sub(_ORDINALS, "", name)
+        b = DUBAI_RENAME.get(b, b)
+        groups.setdefault(b, []).append((c["lat"], c["lon"]))
+    idx = {norm(k): _centroid(v) for k, v in groups.items()}
+    extras = [d[0] for d in manual_dists if d[0] not in DUBAI_ALIASES]
+    return _merge_named(list(groups), extras, (idx, {norm(d[0]): (d[1], d[2]) for d in manual_dists}), center)
+
+
+def _uae():
+    items = _src("oad_ae.json")
+    cities = [x for x in items if x["level"] == 2 and clean(x["name"]) not in AE_SKIP]
+    oad_idx = _oad_index(cities)
+    by_em = {}
+    for x in cities:
+        by_em.setdefault(AE_EMIRATE.get(x["parent"], x["parent"]), []).append(clean(x["name"]))
+    man_idx = _manual_index("AE")
+    out = []
+    for region, man_cities in MANUAL["AE"]:
+        capital = man_cities[0]
+        new_cities = []
+        for name, lat, lon, dists in man_cities:
+            if name == "دبي":
+                new_cities.append((name, lat, lon, _dubai_districts(dists, (lat, lon))))
+            elif name == "أبوظبي":
+                extra = [n for n in by_em.get(region, []) if n in AE_ABU_DHABI_DISTRICTS and n != "أبوظبي"]
+                merged = _merge_named([d[0] for d in dists], extra, (man_idx, oad_idx), (lat, lon))
+                new_cities.append((name, lat, lon, merged))
+            else:
+                new_cities.append((name, lat, lon, []))
+        if region != "إمارة دبي":  # دبي: المدينة + حتا فقط (المدن الفرعية بالمصدر هي أحياء دبي نفسها)
+            existing = {norm(c[0]) for c in new_cities}
+            for n in by_em.get(region, []):
+                if n in AE_ABU_DHABI_DISTRICTS or norm(n) in existing:
+                    continue
+                la, lo = oad_idx.get(norm(n), (capital[1], capital[2]))
+                new_cities.append((n, la, lo, []))
+                existing.add(norm(n))
+        out.append((region, new_cities))
+    return out
+
+
+
+# إحداثيات تقريبية لأماكن ما لها إحداثيات خاصة فيها بالمصادر (كانت تاخذ مركز المدينة/المحافظة)
+COORDS = {
+    "EG": {
+        # الإسكندرية
+        "أمبروزو": (31.1890, 29.9000), "الأنفوشي": (31.2030, 29.8810), "الأزاريطة": (31.2040, 29.9060),
+        "باب شرق": (31.1990, 29.9120), "بولكلي": (31.2240, 29.9500), "الحضرة": (31.1990, 29.9300),
+        "المفروزة": (31.1630, 29.8650), "السيوف": (31.2420, 30.0010), "فلمينج": (31.2330, 29.9540),
+        "غيط العنب": (31.1780, 29.9020), "الناصرية": (31.1700, 29.8650), "شدس": (31.2290, 29.9600),
+        "سيدي كرير": (30.9850, 29.6200),
+        # القاهرة
+        "العتبة": (30.0525, 31.2460), "الدراسة": (30.0480, 31.2700), "عزبة النخل": (30.1430, 31.3220),
+        "حلمية الزيتون": (30.1120, 31.3140), "القطامية": (29.9900, 31.3950),
+        "العاصمة الإدارية الجديدة": (30.0200, 31.7600), "النزهة الجديدة": (30.1150, 31.3600),
+        "حدائق العاصمة": (30.0900, 31.7400), "هليوبوليس الجديدة": (30.1260, 31.6480),
+        # الجيزة
+        "السادس من أكتوبر": (29.9600, 30.9250), "أبو رواش": (30.0500, 31.0900), "بين السرايات": (30.0280, 31.2060),
+        "الباويطي": (28.3500, 28.8650), "حدائق أكتوبر": (29.9200, 31.0200), "الحرانية": (29.9580, 31.1580),
+        "كفر غطاطي": (29.9850, 31.1420), "منشأة البكاري": (30.0000, 31.1600), "منشأة القناطر": (30.1660, 31.0880),
+        "صفط اللبن": (30.0300, 31.1900), "أكتوبر الجديدة": (30.0200, 30.8300), "سفنكس الجديدة": (30.0600, 30.9200),
+        # بورسعيد / السويس
+        "حي غرب": (31.2600, 32.2950), "سلام مصر": (31.2300, 32.2400), "السويس/فيصل": (29.9800, 32.5300),
+        "مدينة الجلالة": (29.4500, 32.3800), "السويس الجديدة": (30.0300, 32.4500),
+        # مدن صغيرة
+        "أبو سمبل السياحية": (22.3370, 31.6250), "البصيلية": (24.9700, 32.8000), "الرديسية": (24.9100, 32.9300),
+        "السباعية": (25.1700, 32.6800), "كلابشة": (23.9600, 32.8600), "نصر النوبة": (24.3900, 32.9700),
+        "النوبارية": (30.6700, 30.0700), "النوبارية الجديدة": (30.7000, 30.1000), "رشيد الجديدة": (31.3800, 30.4600),
+        "الأباصيري": (29.1300, 31.0300), "مقبل": (29.0300, 31.0500), "الفشن الجديدة": (28.8300, 30.8300),
+        "الكردي": (31.2000, 31.5800), "المنصورة الجديدة": (31.4700, 31.3700),
+        "الروضة": (31.3500, 31.7100), "السرو": (31.2400, 31.6500), "عزبة البرج": (31.5040, 31.8380),
+        "كفر البطيخ": (31.3900, 31.7400), "ميت أبو غالب": (31.2700, 31.7300),
+        "الجامعة": (29.3200, 30.8400), "الحادقة": (29.3100, 30.8500), "السيالة": (29.3050, 30.8350),
+        "القصاصين الجديدة": (30.5600, 31.9300), "نفيشة": (30.5800, 32.2700), "القنطرة شرق": (30.8560, 32.3250),
+        "الإسماعيلية الجديدة": (30.6200, 32.2400),
+        "برج البرلس": (31.5900, 30.9900), "مصيف بلطيم": (31.5900, 31.1300), "سيدي غازي": (31.2000, 30.9600),
+        "البياضية": (25.6700, 32.6500), "القرنة": (25.7330, 32.6080), "الزينية": (25.8000, 32.7300),
+        "الأقصر الجديدة": (25.6400, 32.7100), "طيبة الجديدة": (25.7000, 32.7600), "إسنا الجديدة": (25.2600, 32.5900),
+        "النجيلة": (31.4200, 26.7000), "العلمين الجديدة": (30.9400, 28.7300), "رأس الحكمة الجديدة": (31.2100, 27.8600),
+        "أرض سلطان": (28.1200, 30.7300), "المدينة الفكرية": (28.0300, 30.9200), "ملوي الجديدة": (27.7400, 30.9000),
+        "بلاط": (25.5600, 29.2600), "موط": (25.4920, 28.9790),
+        "مسطرد": (30.1440, 31.2850), "العبور الجديدة": (30.2400, 31.5500),
+        "منشأة أبو عمر": (30.8800, 32.0300), "صان الحجر القبلية": (30.9770, 31.8790),
+    },
+    "AE": {
+        "العجبان": (24.5900, 55.2300), "الشويب": (24.1100, 55.6200), "دلما": (24.5000, 52.3100),
+        "حبشان": (23.8400, 53.6400), "مروح": (24.2900, 53.3100), "نهيل": (24.5200, 55.0800),
+        "سويحان": (24.4700, 55.3300), "مدينة مصدر": (24.4260, 54.6150),
+        "الحمرية": (25.4700, 55.5100), "الراعفة": (25.4900, 55.6100), "الراشدية": (25.5300, 55.6200),
+        "مسافي": (25.3000, 56.1600), "اذن": (25.6800, 55.8400), "الحمرانية": (25.6900, 55.7700), "القور": (25.3600, 56.0600),
+        "أعسمة": (25.2500, 56.0000), "الدقداقة": (25.7000, 55.8900), "الغيل": (25.4800, 55.8600),
+        "الحويلات": (25.5000, 56.0300), "وادي شحة": (25.6000, 56.1300),
+        "الحلاه": (25.2300, 56.3000), "قدفع": (25.4200, 56.3400), "وادي الغب": (25.0500, 56.2000),
+    },
+    "BH": {
+        "كرباباد": (26.2275, 50.5330), "عذاري": (26.2120, 50.5480), "الزنج": (26.2130, 50.5680),
+        "السلمانية": (26.2165, 50.5730), "حالة بوماهر": (26.2390, 50.6200), "بوشهري": (26.2600, 50.6100),
+        "المقشع": (26.2170, 50.5120), "بني جمرة": (26.2190, 50.4670), "كرزكان": (26.1300, 50.4800),
+        "دمستان": (26.1520, 50.4860), "جنوسان": (26.2290, 50.5060), "باربار": (26.2270, 50.4850),
+        "جزر حوار": (25.6500, 50.7800), "جو": (25.9830, 50.6080), "الدور": (25.9750, 50.6000),
+    },
+}
+
+# أسماء نشيلها: تكرار لنفس المكان بكتابة ثانية، أو جزر/مناطق غير مأهولة
+DROP = {
+    "EG": {"الباويطي", "موط"},
+    "KW": {"بوبيان", "المنتزه القومي", "ميناء عبدالله"},
+    "QA": {"بن محمود", "مدينة خليفة"},
+    "AE": {"واحة ليوا", "الرامس", "الزبارة"},
+}
+
+
+def _apply_fixes(cc, regions):
+    fix, drop = COORDS.get(cc, {}), DROP.get(cc, set())
+    out = []
+    for rn, cities in regions:
+        new_cities = []
+        for name, lat, lon, dists in cities:
+            if name in drop:
+                continue
+            lat, lon = fix.get(name, (lat, lon))
+            dists = [(n, *fix.get(f"{name}/{n}", fix.get(n, (la, lo)))) for n, la, lo in dists if n not in drop]
+            new_cities.append((name, lat, lon, dists))
+        out.append((rn, new_cities))
+    return out
+
+def merge_sources() -> dict:
+    raw = {
+        "EG": _egypt(), "AE": _uae(), "KW": _kuwait(),
+        "BH": _bahrain(), "QA": _qatar(), "OM": _oman(),
+    }
+    return {cc: _apply_fixes(cc, regions) for cc, regions in raw.items()}
+
+GEO = None  # تُبنى بـ merge_sources()
+
 # نطاقات المعرّفات بعيدة تمامًا عن معرّفات السعودية (مناطق 1-13، مدن ≤ 23642،
 # أحياء ~10^10) حتى ما يصير أي تعارض بنفس الجداول.
 REGION_BASE = 100_000
@@ -496,7 +908,7 @@ def build() -> dict:
         seen.add(key)
         return value
 
-    for cc, region_list in GEO.items():
+    for cc, region_list in merge_sources().items():
         for region_name, city_list in region_list:
             rid = add_id("r", REGION_BASE + _hid(cc, region_name) % 900_000)
             regions.append({"id": rid, "country": cc, "name": region_name})

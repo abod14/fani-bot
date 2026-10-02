@@ -1,0 +1,1365 @@
+{
+"_source": "Open Admin Data — CC-BY-4.0 — https://github.com/open-admin-data/kuwait-administrative-divisions",
+"data": [
+{
+"name": "الاحمدي",
+"en": "Al-Ahmadi",
+"level": 1,
+"parent": null,
+"lat": 28.895,
+"lon": 47.894
+},
+{
+"name": "الفروانية",
+"en": "Farwaniyah",
+"level": 1,
+"parent": null,
+"lat": 29.257,
+"lon": 47.939
+},
+{
+"name": "الجهراء",
+"en": "AL-Jahra",
+"level": 1,
+"parent": null,
+"lat": 29.538,
+"lon": 47.411
+},
+{
+"name": "العاصمة",
+"en": "Capital",
+"level": 1,
+"parent": null,
+"lat": 29.352,
+"lon": 47.957
+},
+{
+"name": "حولي",
+"en": "Hawally",
+"level": 1,
+"parent": null,
+"lat": 29.335,
+"lon": 48.042
+},
+{
+"name": "مبارك الكبير",
+"en": "Mubarak AL-Kabeer",
+"level": 1,
+"parent": null,
+"lat": 29.257,
+"lon": 48.059
+},
+{
+"name": "ابو حليفة",
+"en": "ABU- HALAIFA",
+"level": 2,
+"parent": "الاحمدي",
+"lat": 28.895,
+"lon": 47.894
+},
+{
+"name": "علي صباح السالم",
+"en": "ALI SABAH AL-SALEM",
+"level": 2,
+"parent": "الاحمدي",
+"lat": 28.964,
+"lon": 48.161
+},
+{
+"name": "فهد الاحمد",
+"en": "FAHAD Al AHMAD",
+"level": 2,
+"parent": "الاحمدي",
+"lat": 29.127,
+"lon": 48.104
+},
+{
+"name": "الاحمدي",
+"en": "AHMADI",
+"level": 2,
+"parent": "الاحمدي",
+"lat": 29.089,
+"lon": 48.061
+},
+{
+"name": "الاحمدي 2 - المنتزه القومي",
+"en": "AHMADI 2",
+"level": 2,
+"parent": "الاحمدي",
+"lat": 29.095,
+"lon": 48.066
+},
+{
+"name": "الاحمدي 2 - شرق الأحمدي",
+"en": "AHMADI 2 - EAST",
+"level": 2,
+"parent": "الاحمدي",
+"lat": 29.095,
+"lon": 48.066
+},
+{
+"name": "الاحمدي 2 - واره",
+"en": "AHMADI 2 - WARA",
+"level": 2,
+"parent": "الاحمدي",
+"lat": 28.895,
+"lon": 47.894
+},
+{
+"name": "الاحمدي 2 - الجعيدان",
+"en": "AHMADI 2 - ALJEIDAN",
+"level": 2,
+"parent": "الاحمدي",
+"lat": 28.895,
+"lon": 47.894
+},
+{
+"name": "الاحمدي 2 - المقوع",
+"en": "AHMADI 2 - AlMAQWA",
+"level": 2,
+"parent": "الاحمدي",
+"lat": 28.895,
+"lon": 47.894
+},
+{
+"name": "الاحمدي 2 - ميناء عبدالله",
+"en": "AHMADI 2 - \nMINA ABD ALLAH",
+"level": 2,
+"parent": "الاحمدي",
+"lat": 28.895,
+"lon": 47.894
+},
+{
+"name": "الاحمدي 2 - الجليعة",
+"en": "AHMADI 2 - \nAl-JULAIA'A",
+"level": 2,
+"parent": "الاحمدي",
+"lat": 28.895,
+"lon": 47.894
+},
+{
+"name": "الاحمدي 2 - بنيدر",
+"en": "AHMADI 2 - \nBNAIDER",
+"level": 2,
+"parent": "الاحمدي",
+"lat": 28.895,
+"lon": 47.894
+},
+{
+"name": "الاحمدي 2 - الخيران (1)",
+"en": "AHMADI 2 - \nAl KHIRAN (1)",
+"level": 2,
+"parent": "الاحمدي",
+"lat": 28.895,
+"lon": 47.894
+},
+{
+"name": "الاحمدي 2 - الخيران (2)",
+"en": "AHMADI 2 - \nAl KHIRAN (2)",
+"level": 2,
+"parent": "الاحمدي",
+"lat": 28.895,
+"lon": 47.894
+},
+{
+"name": "الاحمدي 2 - الخيران (3)",
+"en": "AHMADI 2 - \nAl KHIRAN (3)",
+"level": 2,
+"parent": "الاحمدي",
+"lat": 28.895,
+"lon": 47.894
+},
+{
+"name": "الاحمدي 2 - الخيران (4)",
+"en": "AHMADI 2 - \nAl KHIRAN (4)",
+"level": 2,
+"parent": "الاحمدي",
+"lat": 28.895,
+"lon": 47.894
+},
+{
+"name": "الاحمدي 2 - الخيران (5)",
+"en": "AHMADI 2 - \nAl KHIRAN (5)",
+"level": 2,
+"parent": "الاحمدي",
+"lat": 28.895,
+"lon": 47.894
+},
+{
+"name": "الظهر",
+"en": "DHAHAR",
+"level": 2,
+"parent": "الاحمدي",
+"lat": 29.171,
+"lon": 48.066
+},
+{
+"name": "الفحيحيل الصناعية",
+"en": "FAHAHEEL INDUTRIAL",
+"level": 2,
+"parent": "الاحمدي",
+"lat": 28.895,
+"lon": 47.894
+},
+{
+"name": "الفحيحيل",
+"en": "FAHAHEEL",
+"level": 2,
+"parent": "الاحمدي",
+"lat": 29.081,
+"lon": 48.128
+},
+{
+"name": "الفنطاس",
+"en": "FINTAS",
+"level": 2,
+"parent": "الاحمدي",
+"lat": 29.172,
+"lon": 48.118
+},
+{
+"name": "هدية",
+"en": "HADIYAH",
+"level": 2,
+"parent": "الاحمدي",
+"lat": 28.895,
+"lon": 47.894
+},
+{
+"name": "جابر العلي",
+"en": "JABER Al-ALI",
+"level": 2,
+"parent": "الاحمدي",
+"lat": 29.168,
+"lon": 48.083
+},
+{
+"name": "الخيران",
+"en": "KHAIRAN",
+"level": 2,
+"parent": "الاحمدي",
+"lat": 28.895,
+"lon": 47.894
+},
+{
+"name": "المهبولة",
+"en": "MAHBOULA",
+"level": 2,
+"parent": "الاحمدي",
+"lat": 29.149,
+"lon": 48.121
+},
+{
+"name": "المنقف",
+"en": "MANGAF",
+"level": 2,
+"parent": "الاحمدي",
+"lat": 29.106,
+"lon": 48.128
+},
+{
+"name": "المقوع",
+"en": "MAQWAA",
+"level": 2,
+"parent": "الاحمدي",
+"lat": 28.895,
+"lon": 47.894
+},
+{
+"name": "العقيلة",
+"en": "EQAILA",
+"level": 2,
+"parent": "الاحمدي",
+"lat": 29.171,
+"lon": 48.103
+},
+{
+"name": "الرقة",
+"en": "RIQQA",
+"level": 2,
+"parent": "الاحمدي",
+"lat": 29.147,
+"lon": 48.106
+},
+{
+"name": "صباح الاحمد البحرية",
+"en": "SABAH AL- AHMED SEA",
+"level": 2,
+"parent": "الاحمدي",
+"lat": 28.895,
+"lon": 47.894
+},
+{
+"name": "صباح الاحمد",
+"en": "SABAH AL-AHMED",
+"level": 2,
+"parent": "الاحمدي",
+"lat": 28.895,
+"lon": 47.894
+},
+{
+"name": "الصباحية",
+"en": "SABAHIYAH",
+"level": 2,
+"parent": "الاحمدي",
+"lat": 28.895,
+"lon": 47.894
+},
+{
+"name": "جنوب الصباحية",
+"en": "SOUTH SABAHIYAH",
+"level": 2,
+"parent": "الاحمدي",
+"lat": 28.895,
+"lon": 47.894
+},
+{
+"name": "الوفرة",
+"en": "WAFRA",
+"level": 2,
+"parent": "الاحمدي",
+"lat": 28.798,
+"lon": 47.918
+},
+{
+"name": "وارة",
+"en": "WARA",
+"level": 2,
+"parent": "الاحمدي",
+"lat": 28.997,
+"lon": 47.977
+},
+{
+"name": "الزور",
+"en": "ZOAR",
+"level": 2,
+"parent": "الاحمدي",
+"lat": 28.895,
+"lon": 47.894
+},
+{
+"name": "العبدلي",
+"en": "AL-ABDALI",
+"level": 2,
+"parent": "الجهراء",
+"lat": 30.083,
+"lon": 47.703
+},
+{
+"name": "المطلاع التجاري",
+"en": "AL - MUTLAA COMERCIAL",
+"level": 2,
+"parent": "الجهراء",
+"lat": 29.538,
+"lon": 47.411
+},
+{
+"name": "المطلاع",
+"en": "AL-MUTLA'A",
+"level": 2,
+"parent": "الجهراء",
+"lat": 29.538,
+"lon": 47.411
+},
+{
+"name": "المطلاع 2",
+"en": "AL - MUTLA'A 2",
+"level": 2,
+"parent": "الجهراء",
+"lat": 29.538,
+"lon": 47.411
+},
+{
+"name": "المطلاع 3",
+"en": "AL - MUTLA'A 3",
+"level": 2,
+"parent": "الجهراء",
+"lat": 29.538,
+"lon": 47.411
+},
+{
+"name": "المطلاع 4",
+"en": "AL - MUTLA'A 4",
+"level": 2,
+"parent": "الجهراء",
+"lat": 29.538,
+"lon": 47.411
+},
+{
+"name": "المطلاع 5",
+"en": "AL - MUTLA'A 5",
+"level": 2,
+"parent": "الجهراء",
+"lat": 29.538,
+"lon": 47.411
+},
+{
+"name": "المطلاع 6",
+"en": "AL - MUTLA'A 6",
+"level": 2,
+"parent": "الجهراء",
+"lat": 29.538,
+"lon": 47.411
+},
+{
+"name": "المطلاع 7",
+"en": "AL - MUTLA'A 7",
+"level": 2,
+"parent": "الجهراء",
+"lat": 29.538,
+"lon": 47.411
+},
+{
+"name": "المطلاع 8",
+"en": "AL - MUTLA'A 8",
+"level": 2,
+"parent": "الجهراء",
+"lat": 29.538,
+"lon": 47.411
+},
+{
+"name": "المطلاع 9",
+"en": "AL - MUTLA'A 9",
+"level": 2,
+"parent": "الجهراء",
+"lat": 29.538,
+"lon": 47.411
+},
+{
+"name": "المطلاع 10",
+"en": "AL - MUTLA'A 10",
+"level": 2,
+"parent": "الجهراء",
+"lat": 29.538,
+"lon": 47.411
+},
+{
+"name": "المطلاع 11",
+"en": "AL - MUTLA'A 11",
+"level": 2,
+"parent": "الجهراء",
+"lat": 29.538,
+"lon": 47.411
+},
+{
+"name": "المطلاع 12",
+"en": "AL - MUTLA'A 12",
+"level": 2,
+"parent": "الجهراء",
+"lat": 29.538,
+"lon": 47.411
+},
+{
+"name": "المطلاع 13",
+"en": "AL - MUTLA'A 13",
+"level": 2,
+"parent": "الجهراء",
+"lat": 29.538,
+"lon": 47.411
+},
+{
+"name": "الروضتين",
+"en": "AL - ROZATAIN",
+"level": 2,
+"parent": "الجهراء",
+"lat": 29.538,
+"lon": 47.411
+},
+{
+"name": "السالمي",
+"en": "AL - SALMI",
+"level": 2,
+"parent": "الجهراء",
+"lat": 29.099,
+"lon": 46.679
+},
+{
+"name": "الجهراء",
+"en": "AL-JAHRA",
+"level": 2,
+"parent": "الجهراء",
+"lat": 29.347,
+"lon": 47.672
+},
+{
+"name": "النعيم",
+"en": "AL-NAEEM",
+"level": 2,
+"parent": "الجهراء",
+"lat": 29.334,
+"lon": 47.688
+},
+{
+"name": "النسيم",
+"en": "AL-NASEEM",
+"level": 2,
+"parent": "الجهراء",
+"lat": 29.538,
+"lon": 47.411
+},
+{
+"name": "العيون",
+"en": "AL-OYOON",
+"level": 2,
+"parent": "الجهراء",
+"lat": 29.538,
+"lon": 47.411
+},
+{
+"name": "القصر",
+"en": "AL-QASER",
+"level": 2,
+"parent": "الجهراء",
+"lat": 29.538,
+"lon": 47.411
+},
+{
+"name": "الواحه",
+"en": "AL-WAHA",
+"level": 2,
+"parent": "الجهراء",
+"lat": 29.344,
+"lon": 47.664
+},
+{
+"name": "بوبيان",
+"en": "BUBYAN",
+"level": 2,
+"parent": "الجهراء",
+"lat": 29.861,
+"lon": 48.06
+},
+{
+"name": "جابر الاحمد",
+"en": "JABER AL-AHMED",
+"level": 2,
+"parent": "الجهراء",
+"lat": 28.933,
+"lon": 47.783
+},
+{
+"name": "سعد العبدالله",
+"en": "SAAD AL-ABDULLA",
+"level": 2,
+"parent": "الجهراء",
+"lat": 29.319,
+"lon": 47.719
+},
+{
+"name": "سعد العبدالله الجنوبي 1",
+"en": "SOUTH SAAD AL-ABDULLA 1",
+"level": 2,
+"parent": "الجهراء",
+"lat": 29.538,
+"lon": 47.411
+},
+{
+"name": "سعد العبدالله الجنوبي 2",
+"en": "SOUTH SAAD AL-ABDULLA 2",
+"level": 2,
+"parent": "الجهراء",
+"lat": 29.538,
+"lon": 47.411
+},
+{
+"name": "سعد العبدالله الجنوبي 3",
+"en": "SOUTH SAAD AL-ABDULLA 3",
+"level": 2,
+"parent": "الجهراء",
+"lat": 29.538,
+"lon": 47.411
+},
+{
+"name": "سعد العبدالله الجنوبي 4",
+"en": "SOUTH SAAD AL-ABDULLA 4",
+"level": 2,
+"parent": "الجهراء",
+"lat": 29.538,
+"lon": 47.411
+},
+{
+"name": "سعد العبدالله الجنوبي 5",
+"en": "SOUTH SAAD AL-ABDULLA 5",
+"level": 2,
+"parent": "الجهراء",
+"lat": 29.538,
+"lon": 47.411
+},
+{
+"name": "سعد العبدالله الجنوبي 6",
+"en": "SOUTH SAAD AL-ABDULLA 6",
+"level": 2,
+"parent": "الجهراء",
+"lat": 29.538,
+"lon": 47.411
+},
+{
+"name": "سعد العبدالله الجنوبي 7",
+"en": "SOUTH SAAD AL-ABDULLA 7",
+"level": 2,
+"parent": "الجهراء",
+"lat": 29.538,
+"lon": 47.411
+},
+{
+"name": "سعد العبدالله الجنوبي 8",
+"en": "SOUTH SAAD AL-ABDULLA 8",
+"level": 2,
+"parent": "الجهراء",
+"lat": 29.538,
+"lon": 47.411
+},
+{
+"name": "سعد العبدالله الجنوبي 9",
+"en": "SOUTH SAAD AL-ABDULLA 9",
+"level": 2,
+"parent": "الجهراء",
+"lat": 29.538,
+"lon": 47.411
+},
+{
+"name": "سعد العبدالله الجنوبي 10",
+"en": "SOUTH SAAD AL-ABDULLA 10",
+"level": 2,
+"parent": "الجهراء",
+"lat": 29.538,
+"lon": 47.411
+},
+{
+"name": "سعد العبدالله الجنوبي 11",
+"en": "SOUTH SAAD AL-ABDULLA 11",
+"level": 2,
+"parent": "الجهراء",
+"lat": 29.538,
+"lon": 47.411
+},
+{
+"name": "سعد العبدالله الجنوبي 12",
+"en": "SOUTH SAAD AL-ABDULLA 12",
+"level": 2,
+"parent": "الجهراء",
+"lat": 29.538,
+"lon": 47.411
+},
+{
+"name": "سعد العبدالله الجنوبي 13",
+"en": "SOUTH SAAD AL-ABDULLA 13",
+"level": 2,
+"parent": "الجهراء",
+"lat": 29.538,
+"lon": 47.411
+},
+{
+"name": "سعد العبدالله الجنوبي التجاري",
+"en": "SOUTH SAAD AL-ABDULLA COMERCIAL",
+"level": 2,
+"parent": "الجهراء",
+"lat": 29.538,
+"lon": 47.411
+},
+{
+"name": "الصليبية",
+"en": "SULAIBIAH",
+"level": 2,
+"parent": "الجهراء",
+"lat": 29.538,
+"lon": 47.411
+},
+{
+"name": "تيماء",
+"en": "TAIMA",
+"level": 2,
+"parent": "الجهراء",
+"lat": 29.328,
+"lon": 47.681
+},
+{
+"name": "ام العيش",
+"en": "UM  AL-AISH",
+"level": 2,
+"parent": "الجهراء",
+"lat": 29.538,
+"lon": 47.411
+},
+{
+"name": "وربة",
+"en": "WARBA",
+"level": 2,
+"parent": "الجهراء",
+"lat": 29.347,
+"lon": 47.672
+},
+{
+"name": "عبدالله السالم",
+"en": "ABDULLA Al-SALEM",
+"level": 2,
+"parent": "العاصمة",
+"lat": 29.368,
+"lon": 47.97
+},
+{
+"name": "الدوحه",
+"en": "AL-DOHA",
+"level": 2,
+"parent": "العاصمة",
+"lat": 29.373,
+"lon": 47.822
+},
+{
+"name": "بنيد القار",
+"en": "BNAID AL-GAR",
+"level": 2,
+"parent": "العاصمة",
+"lat": 29.374,
+"lon": 47.998
+},
+{
+"name": "الدعية",
+"en": "AL-DA'EYA",
+"level": 2,
+"parent": "العاصمة",
+"lat": 29.352,
+"lon": 47.957
+},
+{
+"name": "الدسمة",
+"en": "Al-DASMA",
+"level": 2,
+"parent": "العاصمة",
+"lat": 29.365,
+"lon": 48.002
+},
+{
+"name": "دسمان",
+"en": "DASMAN",
+"level": 2,
+"parent": "العاصمة",
+"lat": 29.387,
+"lon": 47.999
+},
+{
+"name": "العديلية",
+"en": "AL-EDAILIYAH",
+"level": 2,
+"parent": "العاصمة",
+"lat": 29.352,
+"lon": 47.957
+},
+{
+"name": "الفيحاء",
+"en": "AL-FAIHA'A",
+"level": 2,
+"parent": "العاصمة",
+"lat": 29.342,
+"lon": 47.983
+},
+{
+"name": "فيلكا",
+"en": "FAILAKA",
+"level": 2,
+"parent": "العاصمة",
+"lat": 29.434,
+"lon": 48.321
+},
+{
+"name": "جزيرة كبر",
+"en": "ISLANDs",
+"level": 2,
+"parent": "العاصمة",
+"lat": 29.352,
+"lon": 47.957
+},
+{
+"name": "جزيرة أم المرادم",
+"en": "",
+"level": 2,
+"parent": "العاصمة",
+"lat": 29.38,
+"lon": 47.973
+},
+{
+"name": "جزيرة قاروه",
+"en": "",
+"level": 2,
+"parent": "العاصمة",
+"lat": 29.38,
+"lon": 47.973
+},
+{
+"name": "جزيرة مسكان",
+"en": "",
+"level": 2,
+"parent": "العاصمة",
+"lat": 29.38,
+"lon": 47.973
+},
+{
+"name": "جزيرة عوهة",
+"en": "",
+"level": 2,
+"parent": "العاصمة",
+"lat": 29.38,
+"lon": 47.973
+},
+{
+"name": "كيفان",
+"en": "KAIFAN",
+"level": 2,
+"parent": "العاصمة",
+"lat": 29.341,
+"lon": 47.959
+},
+{
+"name": "الخالدية",
+"en": "AL-KHALDIYAH",
+"level": 2,
+"parent": "العاصمة",
+"lat": 29.352,
+"lon": 47.957
+},
+{
+"name": "المنصورية",
+"en": "AL-MANSOURIYAH",
+"level": 2,
+"parent": "العاصمة",
+"lat": 29.352,
+"lon": 47.957
+},
+{
+"name": "مرقاب",
+"en": "AL-MURGAB",
+"level": 2,
+"parent": "العاصمة",
+"lat": 29.352,
+"lon": 47.957
+},
+{
+"name": "النهضة",
+"en": "AL-NAHDHA",
+"level": 2,
+"parent": "العاصمة",
+"lat": 29.352,
+"lon": 47.957
+},
+{
+"name": "النزهة",
+"en": "Al-NUZHA",
+"level": 2,
+"parent": "العاصمة",
+"lat": 29.343,
+"lon": 47.992
+},
+{
+"name": "القادسية",
+"en": "AL-QADISIYAH",
+"level": 2,
+"parent": "العاصمة",
+"lat": 29.352,
+"lon": 47.957
+},
+{
+"name": "القيروان",
+"en": "Al-QAIRAWAN",
+"level": 2,
+"parent": "العاصمة",
+"lat": 29.352,
+"lon": 47.957
+},
+{
+"name": "قبلة",
+"en": "QUBLAH",
+"level": 2,
+"parent": "العاصمة",
+"lat": 29.352,
+"lon": 47.957
+},
+{
+"name": "غرناطة",
+"en": "QURNATA",
+"level": 2,
+"parent": "العاصمة",
+"lat": 29.352,
+"lon": 47.957
+},
+{
+"name": "قرطبة",
+"en": "QURTUBA",
+"level": 2,
+"parent": "العاصمة",
+"lat": 29.312,
+"lon": 47.987
+},
+{
+"name": "الروضة",
+"en": "AL-RAWDHAH",
+"level": 2,
+"parent": "العاصمة",
+"lat": 29.352,
+"lon": 47.957
+},
+{
+"name": "الصفاة",
+"en": "AL-SAFAT",
+"level": 2,
+"parent": "العاصمة",
+"lat": 29.371,
+"lon": 47.973
+},
+{
+"name": "الشامية",
+"en": "AL-SHAMIAH",
+"level": 2,
+"parent": "العاصمة",
+"lat": 29.352,
+"lon": 47.957
+},
+{
+"name": "الشرق",
+"en": "AL-SHARQ",
+"level": 2,
+"parent": "العاصمة",
+"lat": 29.379,
+"lon": 47.984
+},
+{
+"name": "الشويخ ب",
+"en": "AL-SHUWAIKH B",
+"level": 2,
+"parent": "العاصمة",
+"lat": 29.355,
+"lon": 47.942
+},
+{
+"name": "الشويخ الصناعية",
+"en": "AL-SHUWAIKH INDUSTRIAL",
+"level": 2,
+"parent": "العاصمة",
+"lat": 29.34,
+"lon": 47.94
+},
+{
+"name": "السوق الداخلي",
+"en": "AL-SOUK Al-DAKHILI",
+"level": 2,
+"parent": "العاصمة",
+"lat": 29.352,
+"lon": 47.957
+},
+{
+"name": "الصليبيخات",
+"en": "Al-SULAIBEKHAT",
+"level": 2,
+"parent": "العاصمة",
+"lat": 29.352,
+"lon": 47.957
+},
+{
+"name": "السره",
+"en": "Al-SURRA",
+"level": 2,
+"parent": "العاصمة",
+"lat": 29.314,
+"lon": 48.003
+},
+{
+"name": "ام صدة",
+"en": "UM SEDDAH",
+"level": 2,
+"parent": "العاصمة",
+"lat": 29.352,
+"lon": 47.957
+},
+{
+"name": "الوطية",
+"en": "AL-WATTEYAH",
+"level": 2,
+"parent": "العاصمة",
+"lat": 29.352,
+"lon": 47.957
+},
+{
+"name": "اليرموك",
+"en": "AL-YARMOUK",
+"level": 2,
+"parent": "العاصمة",
+"lat": 29.311,
+"lon": 47.971
+},
+{
+"name": "العارضية",
+"en": "AL-ARDHIYAH",
+"level": 2,
+"parent": "الفروانية",
+"lat": 29.257,
+"lon": 47.939
+},
+{
+"name": "عبدالله المبارك",
+"en": "ABDULLA AL- MUBARAK",
+"level": 2,
+"parent": "الفروانية",
+"lat": 29.257,
+"lon": 47.939
+},
+{
+"name": "ابرق خيطان",
+"en": "ABRAQ KHAITAN",
+"level": 2,
+"parent": "الفروانية",
+"lat": 29.257,
+"lon": 47.939
+},
+{
+"name": "الرحاب",
+"en": "AL-REHAB",
+"level": 2,
+"parent": "الفروانية",
+"lat": 29.288,
+"lon": 47.944
+},
+{
+"name": "الاندلس",
+"en": "AL-ANDALOUS",
+"level": 2,
+"parent": "الفروانية",
+"lat": 29.257,
+"lon": 47.939
+},
+{
+"name": "اشبيلية",
+"en": "ESHBILYA",
+"level": 2,
+"parent": "الفروانية",
+"lat": 29.257,
+"lon": 47.939
+},
+{
+"name": "الفروانية",
+"en": "AL-FARWANIYAH",
+"level": 2,
+"parent": "الفروانية",
+"lat": 29.22,
+"lon": 47.955
+},
+{
+"name": "الفردوس",
+"en": "AL-FIRDOUS",
+"level": 2,
+"parent": "الفروانية",
+"lat": 29.285,
+"lon": 47.874
+},
+{
+"name": "جليب الشيوخ",
+"en": "JELEEB AL-SHOYOUKH",
+"level": 2,
+"parent": "الفروانية",
+"lat": 29.257,
+"lon": 47.939
+},
+{
+"name": "كبد",
+"en": "KABD",
+"level": 2,
+"parent": "الفروانية",
+"lat": 29.211,
+"lon": 47.826
+},
+{
+"name": "العمرية",
+"en": "AL-OMARIYAH",
+"level": 2,
+"parent": "الفروانية",
+"lat": 29.257,
+"lon": 47.939
+},
+{
+"name": "الري",
+"en": "AL-RAI",
+"level": 2,
+"parent": "الفروانية",
+"lat": 29.315,
+"lon": 47.96
+},
+{
+"name": "الرقعي",
+"en": "AL-RIQQAE",
+"level": 2,
+"parent": "الفروانية",
+"lat": 29.257,
+"lon": 47.939
+},
+{
+"name": "صباح الناصر",
+"en": "SABAH AL-NASER",
+"level": 2,
+"parent": "الفروانية",
+"lat": 29.257,
+"lon": 47.939
+},
+{
+"name": "الشدادية",
+"en": "AL-SHEDADIAH",
+"level": 2,
+"parent": "الفروانية",
+"lat": 29.257,
+"lon": 47.939
+},
+{
+"name": "جنوب عبدالله المبارك",
+"en": "SOUTH ABDULLA AL-MUBARAK 2",
+"level": 2,
+"parent": "الفروانية",
+"lat": 29.257,
+"lon": 47.939
+},
+{
+"name": "خيطان الجنوبي",
+"en": "SOUTH KHAITAN",
+"level": 2,
+"parent": "الفروانية",
+"lat": 29.263,
+"lon": 47.98
+},
+{
+"name": "السلام",
+"en": "AL-SALAM",
+"level": 2,
+"parent": "حولي",
+"lat": 29.335,
+"lon": 48.042
+},
+{
+"name": "الشعب البحري",
+"en": "AL-SHA`AB AL-BAHREE",
+"level": 2,
+"parent": "حولي",
+"lat": 29.335,
+"lon": 48.042
+},
+{
+"name": "الشهداء",
+"en": "AL-SHUHADA",
+"level": 2,
+"parent": "حولي",
+"lat": 29.335,
+"lon": 48.042
+},
+{
+"name": "بيان",
+"en": "BAYAN",
+"level": 2,
+"parent": "حولي",
+"lat": 29.335,
+"lon": 48.012
+},
+{
+"name": "البدع",
+"en": "BIDDA",
+"level": 2,
+"parent": "حولي",
+"lat": 29.335,
+"lon": 48.042
+},
+{
+"name": "حولي",
+"en": "HAWALLY",
+"level": 2,
+"parent": "حولي",
+"lat": 29.344,
+"lon": 48.019
+},
+{
+"name": "حطين",
+"en": "HUTEEN",
+"level": 2,
+"parent": "حولي",
+"lat": 29.335,
+"lon": 48.042
+},
+{
+"name": "الجابرية",
+"en": "JABRIYAH",
+"level": 2,
+"parent": "حولي",
+"lat": 29.335,
+"lon": 48.042
+},
+{
+"name": "المدائن",
+"en": "MADAEN",
+"level": 2,
+"parent": "حولي",
+"lat": 29.335,
+"lon": 48.042
+},
+{
+"name": "مبارك العبدالله",
+"en": "MUBARAK AL-ABDULLA",
+"level": 2,
+"parent": "حولي",
+"lat": 29.335,
+"lon": 48.042
+},
+{
+"name": "مشرف",
+"en": "MUSHRIF",
+"level": 2,
+"parent": "حولي",
+"lat": 29.335,
+"lon": 48.042
+},
+{
+"name": "الراس",
+"en": "RAS",
+"level": 2,
+"parent": "حولي",
+"lat": 29.335,
+"lon": 48.042
+},
+{
+"name": "الرميثية",
+"en": "RUMAITHIYAH",
+"level": 2,
+"parent": "حولي",
+"lat": 29.335,
+"lon": 48.042
+},
+{
+"name": "السالمية",
+"en": "SALMIYAH",
+"level": 2,
+"parent": "حولي",
+"lat": 29.335,
+"lon": 48.042
+},
+{
+"name": "سلوى",
+"en": "SALWA",
+"level": 2,
+"parent": "حولي",
+"lat": 29.335,
+"lon": 48.042
+},
+{
+"name": "الشعب",
+"en": "SHA`AB",
+"level": 2,
+"parent": "حولي",
+"lat": 29.335,
+"lon": 48.042
+},
+{
+"name": "الصديق",
+"en": "SUDEEQ",
+"level": 2,
+"parent": "حولي",
+"lat": 29.335,
+"lon": 48.042
+},
+{
+"name": "الزهراء",
+"en": "ZAHRAA",
+"level": 2,
+"parent": "حولي",
+"lat": 29.335,
+"lon": 48.042
+},
+{
+"name": "أبو فطيرة",
+"en": "ABU - FATIRA",
+"level": 2,
+"parent": "مبارك الكبير",
+"lat": 29.198,
+"lon": 48.102
+},
+{
+"name": "أبو الحصانية",
+"en": "ABU-HASANIYA",
+"level": 2,
+"parent": "مبارك الكبير",
+"lat": 29.193,
+"lon": 48.115
+},
+{
+"name": "العدان",
+"en": "AL-ADDAN",
+"level": 2,
+"parent": "مبارك الكبير",
+"lat": 29.257,
+"lon": 48.059
+},
+{
+"name": "القرين",
+"en": "AL-QURAIN",
+"level": 2,
+"parent": "مبارك الكبير",
+"lat": 29.225,
+"lon": 48.073
+},
+{
+"name": "القصور",
+"en": "AL-QUSOOR",
+"level": 2,
+"parent": "مبارك الكبير",
+"lat": 29.212,
+"lon": 48.063
+},
+{
+"name": "الفنيطيس",
+"en": "FINAITEES",
+"level": 2,
+"parent": "مبارك الكبير",
+"lat": 29.257,
+"lon": 48.059
+},
+{
+"name": "المسايل",
+"en": "MESAYEL",
+"level": 2,
+"parent": "مبارك الكبير",
+"lat": 29.257,
+"lon": 48.059
+},
+{
+"name": "مبارك الكبير",
+"en": "MUBARAK AL-KABEER",
+"level": 2,
+"parent": "مبارك الكبير",
+"lat": 29.187,
+"lon": 48.083
+},
+{
+"name": "صباح السالم أ",
+"en": "SABAH AL-SALEM A",
+"level": 2,
+"parent": "مبارك الكبير",
+"lat": 29.255,
+"lon": 48.065
+},
+{
+"name": "صباح السالم ب",
+"en": "SABAH AL-SALEM B",
+"level": 2,
+"parent": "مبارك الكبير",
+"lat": 29.252,
+"lon": 48.09
+},
+{
+"name": "صباح السالم ج",
+"en": "SABAH AL-SALEM C",
+"level": 2,
+"parent": "مبارك الكبير",
+"lat": 29.255,
+"lon": 48.065
+},
+{
+"name": "صبحان",
+"en": "SABHAN",
+"level": 2,
+"parent": "مبارك الكبير",
+"lat": 29.23,
+"lon": 48.008
+}
+]
+}

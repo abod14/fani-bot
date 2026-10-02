@@ -1707,6 +1707,45 @@ def sync_extra_geo_from_json(geo_path):
             [(d["id"], d["city_id"], d["name"], d.get("lat"), d.get("lon")) for d in data["districts"]],
         )
 
+        # تنظيف: أي منطقة/مدينة/حي لدول التوسع اختفى من الملف (اسم تغيّر أو تكرار
+        # انشال) ينحذف — حتى ما يظهر مكرر بالقوائم. ما نلمس أبدًا السعودية، ولا أي
+        # حي/مدينة مربوط بفني مسجّل فعليًا (يبقى حتى ما تنكسر بياناته).
+        keep_d = {d["id"] for d in data["districts"]}
+        keep_c = {c["id"] for c in data["cities"]}
+        keep_r = {r["id"] for r in data["regions"]}
+        used_d = {r[0] for r in conn.execute("SELECT DISTINCT district_id FROM professional_districts").fetchall()}
+        used_c = {r[0] for r in conn.execute("SELECT DISTINCT city_id FROM professionals WHERE city_id IS NOT NULL").fetchall()}
+
+        stale_d = [
+            r["id"] for r in conn.execute(
+                "SELECT d.id FROM sa_districts d JOIN sa_cities c ON c.id = d.city_id WHERE c.country != 'SA'"
+            ).fetchall()
+            if r["id"] not in keep_d and r["id"] not in used_d
+        ]
+        for did in stale_d:
+            conn.execute("DELETE FROM sa_districts WHERE id = ?", (did,))
+
+        for r in conn.execute("SELECT id FROM sa_cities WHERE country != 'SA'").fetchall():
+            cid = r["id"]
+            if cid in keep_c or cid in used_c:
+                continue
+            if conn.execute("SELECT 1 FROM sa_districts WHERE city_id = ? LIMIT 1", (cid,)).fetchone():
+                continue
+            conn.execute("DELETE FROM sa_cities WHERE id = ?", (cid,))
+
+        for r in conn.execute("SELECT id FROM sa_regions WHERE country != 'SA'").fetchall():
+            if r["id"] in keep_r:
+                continue
+            if conn.execute("SELECT 1 FROM sa_cities WHERE region_id = ? LIMIT 1", (r["id"],)).fetchone():
+                continue
+            conn.execute("DELETE FROM sa_regions WHERE id = ?", (r["id"],))
+
+        # has_districts قد يتغير لمدينة بقيت فيها أحياء قديمة مربوطة بفنيين
+        conn.execute(
+            "UPDATE sa_cities SET has_districts = 1 WHERE country != 'SA' AND has_districts = 0 "
+            "AND id IN (SELECT DISTINCT city_id FROM sa_districts)"
+        )
+
 
 def _bulk_upsert(conn, table, columns, rows, chunk_size=100):
     """مثل _bulk_insert لكن يحدّث الصف لو المعرّف (id) موجود مسبقًا."""
