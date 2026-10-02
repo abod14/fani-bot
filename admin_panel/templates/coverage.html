@@ -1,7 +1,19 @@
 {% extends "base.html" %}
 {% block title %}مؤشرات التغطية — لوحة تحكم «فني»{% endblock %}
 {% block content %}
-<h1>مؤشرات التغطية — جاهزية المدن للإطلاق</h1>
+<h1>مؤشرات التغطية — جاهزية المدن للإطلاق — {{ country_label(selected_country) }}</h1>
+{% if is_super %}
+<form method="get" class="filters card">
+  <div class="field">
+    <label>الدولة</label>
+    <select name="country" onchange="this.form.submit()">
+      {% for c in all_countries %}
+      <option value="{{ c.code }}" {{ 'selected' if selected_country == c.code }}>{{ c.flag }} {{ c.name.ar }}</option>
+      {% endfor %}
+    </select>
+  </div>
+</form>
+{% endif %}
 <p class="muted">يحسب فقط الفنيين بحالة "نشط". مهنة تُعتبر "مغطّاة" بمدينة لما يوصل عدد الفنيين النشطين فيها لـ{{ ready_threshold }} فأكثر.</p>
 
 <div class="card">

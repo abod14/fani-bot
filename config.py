@@ -20,6 +20,10 @@ SAUDI_REGIONS_JSON_PATH = BASE_DIR / "data" / "saudi_geo" / "regions.json"
 SAUDI_CITIES_JSON_PATH = BASE_DIR / "data" / "saudi_geo" / "cities.json"
 SAUDI_DISTRICTS_JSON_PATH = BASE_DIR / "data" / "saudi_geo" / "districts.json"
 
+# مناطق/مدن/أحياء دول التوسع (مصر + الإمارات + الكويت + قطر + البحرين + عُمان) —
+# يُولَّد من data/extra_geo/build_extra_geo.py
+EXTRA_GEO_JSON_PATH = BASE_DIR / "data" / "extra_geo" / "geo.json"
+
 if not BOT_TOKEN:
     raise RuntimeError(
         "BOT_TOKEN غير موجود. أنشئ ملف .env (انسخ من .env.example) وضع فيه توكن البوت."

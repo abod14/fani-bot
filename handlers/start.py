@@ -19,8 +19,8 @@ LANG_CB_PREFIX = "set_lang:"
 def _language_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         [
-            [InlineKeyboardButton("🇸🇦 العربية", callback_data=f"{LANG_CB_PREFIX}ar")],
-            [InlineKeyboardButton("🇬🇧 English", callback_data=f"{LANG_CB_PREFIX}en")],
+            [InlineKeyboardButton("العربية", callback_data=f"{LANG_CB_PREFIX}ar")],
+            [InlineKeyboardButton("English", callback_data=f"{LANG_CB_PREFIX}en")],
             [InlineKeyboardButton("اردو", callback_data=f"{LANG_CB_PREFIX}ur")],
         ]
     )

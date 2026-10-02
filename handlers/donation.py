@@ -11,6 +11,7 @@ import asyncio
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, LabeledPrice, Update
 from telegram.ext import CallbackQueryHandler, ContextTypes, MessageHandler, filters
 
+import countries
 import db
 import i18n
 import tap_client
@@ -49,14 +50,14 @@ def _amount_keyboard(lang: str) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(buttons)
 
 
-def _method_keyboard(sar: int, lang: str) -> InlineKeyboardMarkup:
+def _method_keyboard(sar: int, lang: str, country: str | None = None) -> InlineKeyboardMarkup:
     stars = _stars_for_sar(sar)
-    return InlineKeyboardMarkup(
-        [
-            [InlineKeyboardButton(i18n.t("donate_tap_btn", lang, sar=sar), callback_data=f"{CB_DONATE_TAP_PREFIX}{sar}")],
-            [InlineKeyboardButton(i18n.t("donate_stars_btn", lang, stars=stars), callback_data=f"{CB_DONATE_STARS_PREFIX}{sar}")],
-        ]
-    )
+    rows = []
+    # Tap بالريال للسعودية فقط — عملاء باقي الدول نجوم تلغرام فقط
+    if countries.tap_available(country):
+        rows.append([InlineKeyboardButton(i18n.t("donate_tap_btn", lang, sar=sar), callback_data=f"{CB_DONATE_TAP_PREFIX}{sar}")])
+    rows.append([InlineKeyboardButton(i18n.t("donate_stars_btn", lang, stars=stars), callback_data=f"{CB_DONATE_STARS_PREFIX}{sar}")])
+    return InlineKeyboardMarkup(rows)
 
 
 async def maybe_prompt_donation(context: ContextTypes.DEFAULT_TYPE, customer_telegram_id: int, lang: str):
@@ -83,7 +84,10 @@ async def choose_donation_amount(update: Update, context: ContextTypes.DEFAULT_T
     query = update.callback_query
     await query.answer()
     sar = int(query.data.split(":", 1)[1])
-    await query.edit_message_text(i18n.t("donate_method_prompt", lang, sar=sar), reply_markup=_method_keyboard(sar, lang))
+    country = await asyncio.to_thread(db.get_user_country, update.effective_user.id)
+    await query.edit_message_text(
+        i18n.t("donate_method_prompt", lang, sar=sar), reply_markup=_method_keyboard(sar, lang, country)
+    )
 
 
 async def dismiss_donation(update: Update, context: ContextTypes.DEFAULT_TYPE):

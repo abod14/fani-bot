@@ -34,6 +34,7 @@
   <thead>
     <tr>
       <th>الفني</th>
+      <th>الدولة</th>
       <th>المهنة</th>
       <th>الطريقة</th>
       <th>المبلغ</th>
@@ -47,6 +48,7 @@
     {% for pay in payments %}
     <tr>
       <td><a href="{{ url_for('professional_detail', professional_id=pay.professional_id) }}">{{ pay.full_name }}</a></td>
+      <td>{{ country_label(pay.country or 'SA') }}</td>
       <td>{{ pay.profession_name }}</td>
       <td>{{ 'Tap' if pay.method == 'tap' else 'Telegram Stars' }}</td>
       <td>{{ pay.amount }}</td>

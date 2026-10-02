@@ -26,6 +26,17 @@
       <input type="number" step="1" min="0" name="free_contacts_limit" value="{{ settings.free_contacts_limit }}" required>
     </div>
     <br>
+    <div class="field">
+      <label>الدول المفتوحة بالبوت (للتسجيل والبحث)</label>
+      {% for c in all_countries %}
+      <label style="font-weight: normal;">
+        <input type="checkbox" name="country_{{ c.code }}" value="1"
+               {{ 'checked' if c.code in enabled_countries }} {{ 'disabled checked' if c.code == 'SA' }}>
+        {{ c.flag }} {{ c.name.ar }}{% if c.code == 'SA' %} (دائمًا مفتوحة){% else %} — الدفع بالنجوم فقط{% endif %}
+      </label>
+      {% endfor %}
+    </div>
+    <br>
     <button type="submit">حفظ الإعدادات</button>
   </form>
 </div>

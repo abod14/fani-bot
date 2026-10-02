@@ -27,6 +27,7 @@ from telegram.ext import (
 )
 
 import config
+import countries
 import db
 import i18n
 import professions_repo as professions
@@ -34,6 +35,7 @@ import professions_repo as professions
 (
     CHANNEL_GATE,
     NAME,
+    COUNTRY,
     REGION,
     CITY,
     NEIGHBORHOOD,
@@ -45,7 +47,7 @@ import professions_repo as professions
     CITY_SCOPE,
     SERVICES,
     CONFIRM,
-) = range(13)
+) = range(14)
 
 CITY_WIDE_YES_CB = "reg_citywide_yes"
 CITY_WIDE_NO_CB = "reg_citywide_no"
@@ -87,6 +89,8 @@ async def _is_subscribed_to_channel(context: ContextTypes.DEFAULT_TYPE, user_id:
         return True
 
 BACK_TO_REGIONS_CB = "reg_back_regions"
+COUNTRY_CB_PREFIX = "reg_country:"
+CHANGE_COUNTRY_CB = "reg_change_country"
 DISTRICT_TOGGLE_CB_PREFIX = "reg_dist_toggle:"
 DISTRICTS_DONE_CB = "reg_dist_done"
 HAS_WHATSAPP_YES_CB = "reg_has_wa_yes"
@@ -104,7 +108,7 @@ MAX_DISTRICTS = 5  # قرار نهائي: الفني يختار حي واحد ع
 WHATSAPP_RE = re.compile(r"^\+?[0-9]{8,15}$")
 
 
-def _normalize_sa_whatsapp(number: str) -> str | None:
+def _normalize_sa_whatsapp(number: str) -> str | None:  # للتوافق — الاستخدام الفعلي الآن countries.normalize_phone
     """يطبّع رقم الجوال لصيغة دولية موحّدة (+9665XXXXXXXX) مهما كانت الصيغة اللي
     كتبها الفني (0501234567 / 501234567 / 9665012345667 / +966501234567).
 
@@ -135,16 +139,38 @@ def _lang(context: ContextTypes.DEFAULT_TYPE) -> str:
 
 # ─────────────────────────── أزرار المنطقة/المدينة/الحي ───────────────────────────
 
-def _region_keyboard() -> InlineKeyboardMarkup:
+def _country_keyboard(codes: list[str], lang: str) -> InlineKeyboardMarkup:
     buttons, row = [], []
-    for r in db.list_sa_regions():
-        row.append(InlineKeyboardButton(r["name"], callback_data=f"reg_region:{r['id']}"))
+    for code in codes:
+        row.append(InlineKeyboardButton(countries.label(code, lang), callback_data=f"{COUNTRY_CB_PREFIX}{code}"))
         if len(row) == 2:
             buttons.append(row)
             row = []
     if row:
         buttons.append(row)
     return InlineKeyboardMarkup(buttons)
+
+
+def _region_keyboard(country: str = countries.DEFAULT_COUNTRY, lang: str = "ar") -> InlineKeyboardMarkup:
+    buttons, row = [], []
+    for r in db.list_sa_regions(country):
+        row.append(InlineKeyboardButton(r["name"], callback_data=f"reg_region:{r['id']}"))
+        if len(row) == 2:
+            buttons.append(row)
+            row = []
+    if row:
+        buttons.append(row)
+    if len(countries.enabled_codes()) > 1:
+        buttons.append([InlineKeyboardButton(i18n.t("change_country_btn", lang), callback_data=CHANGE_COUNTRY_CB)])
+    return InlineKeyboardMarkup(buttons)
+
+
+def _city_back_cb(ud: dict) -> str | None:
+    """زر الرجوع تحت قائمة المدن: للمناطق عادةً — لكن لو الدولة فيها منطقة وحدة بس
+    (الكويت/البحرين/قطر) ما فيه قائمة مناطق نرجع لها، فنرجع لاختيار الدولة."""
+    if ud.get("region_count", 2) > 1:
+        return BACK_TO_REGIONS_CB
+    return CHANGE_COUNTRY_CB if len(countries.enabled_codes()) > 1 else None
 
 
 def _paginated_keyboard(items: list[dict], page: int, item_cb_prefix: str, page_cb_prefix: str, extra_rows: list = None):
@@ -176,11 +202,18 @@ def _paginated_keyboard(items: list[dict], page: int, item_cb_prefix: str, page_
     return InlineKeyboardMarkup(buttons)
 
 
-def _city_keyboard(region_id: int, page: int, lang: str) -> InlineKeyboardMarkup:
+def _back_row(back_cb: str | None, lang: str) -> list:
+    if back_cb == BACK_TO_REGIONS_CB:
+        return [[InlineKeyboardButton(i18n.t("back_to_regions_btn", lang), callback_data=BACK_TO_REGIONS_CB)]]
+    if back_cb == CHANGE_COUNTRY_CB:
+        return [[InlineKeyboardButton(i18n.t("change_country_btn", lang), callback_data=CHANGE_COUNTRY_CB)]]
+    return []
+
+
+def _city_keyboard(region_id: int, page: int, lang: str, back_cb: str | None = BACK_TO_REGIONS_CB) -> InlineKeyboardMarkup:
     cities = db.list_sa_major_cities_by_region(region_id)
     return _paginated_keyboard(
-        cities, page, "reg_city:", "reg_city_page:",
-        extra_rows=[[InlineKeyboardButton(i18n.t("back_to_regions_btn", lang), callback_data=BACK_TO_REGIONS_CB)]],
+        cities, page, "reg_city:", "reg_city_page:", extra_rows=_back_row(back_cb, lang),
     )
 
 
@@ -303,9 +336,10 @@ def _summary_text(ud: dict, lang: str) -> str:
     else:
         neighborhoods_text = ud.get("neighborhood") or i18n.t("not_specified", lang)
     wa_label = i18n.t("wa_label_yes", lang) if ud.get("has_whatsapp", True) else i18n.t("wa_label_no", lang)
+    city_text = f"{ud['city']}، {countries.name(ud.get('country'), lang)}"
     body = i18n.t(
         "reg_summary_body", lang,
-        name=ud["full_name"], city=ud["city"], districts=neighborhoods_text,
+        name=ud["full_name"], city=city_text, districts=neighborhoods_text,
         contact=ud["whatsapp_number"], wa_label=wa_label,
         telegram=ud.get("telegram_contact_number") or i18n.t("not_available", lang),
         profession=ud["profession_name"], services=services_text,
@@ -383,36 +417,117 @@ async def got_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(i18n.t("reg_name_short", lang))
         return NAME
     context.user_data["full_name"] = name
-    await update.message.reply_text(i18n.t("reg_ask_region", lang), reply_markup=_region_keyboard())
-    return REGION
+    text, markup, state = await _location_step(context, lang)
+    await update.message.reply_text(text, reply_markup=markup)
+    return state
 
 
 # ─────────────────────────── الخطوة 2: المنطقة → المدينة → الحي ───────────────────────────
+
+async def _location_step(context: ContextTypes.DEFAULT_TYPE, lang: str, country: str | None = None,
+                         region_id: int | None = None):
+    """يرجّع (نص، أزرار، الحالة التالية) لخطوة الموقع التالية: الدولة ← المنطقة ←
+    المدينة ← الأحياء — مع تخطي تلقائي لأي خطوة فيها خيار واحد بس (مثلًا الكويت:
+    منطقة وحدة ومدينة وحدة، فيروح الفني مباشرة لاختيار مناطقه)."""
+    ud = context.user_data
+    if region_id is None:
+        if country is None:
+            enabled = await asyncio.to_thread(countries.enabled_codes)
+            if len(enabled) != 1:
+                return i18n.t("ask_country", lang), _country_keyboard(enabled, lang), COUNTRY
+            country = enabled[0]
+        ud["country"] = country
+        regions = await asyncio.to_thread(db.list_sa_regions, country)
+        ud["region_count"] = len(regions)
+        if len(regions) != 1:
+            markup = await asyncio.to_thread(_region_keyboard, country, lang)
+            return i18n.t("reg_ask_region", lang), markup, REGION
+        region_id = regions[0]["id"]
+
+    region = await asyncio.to_thread(db.get_sa_region_by_id, region_id)
+    if not region:
+        markup = await asyncio.to_thread(_region_keyboard, ud.get("country", countries.DEFAULT_COUNTRY), lang)
+        return i18n.t("unknown_option", lang), markup, REGION
+    ud["region_id"] = region_id
+    ud["country"] = region.get("country") or ud.get("country") or countries.DEFAULT_COUNTRY
+
+    cities = await asyncio.to_thread(db.list_sa_major_cities_by_region, region_id)
+    if len(cities) == 1:
+        return _city_step(context, lang, cities[0])
+    markup = await asyncio.to_thread(_city_keyboard, region_id, 0, lang, _city_back_cb(ud))
+    return i18n.t("reg_region_selected", lang, region=region["name"]), markup, CITY
+
+
+def _city_step(context: ContextTypes.DEFAULT_TYPE, lang: str, city: dict):
+    """بعد تحديد المدينة: لو لها أحياء → اختيار الأحياء (1-5) زي السعودية؛ لو بدون
+    أحياء (أغلب مدن مصر/الخليج الصغيرة) → الفني يغطي المدينة كاملة تلقائيًا ونروح
+    مباشرة لرقم التواصل."""
+    ud = context.user_data
+    ud["city_id"] = city["id"]
+    ud["city"] = city["name"]
+    ud["city_has_districts"] = bool(city.get("has_districts"))
+    if city.get("country"):
+        ud["country"] = city["country"]
+    ud["district_page"] = 0
+    ud["selected_district_ids"] = []
+
+    if ud["city_has_districts"]:
+        ud["covers_whole_city"] = False
+        return (
+            i18n.t("reg_district_step", lang, city=city["name"], max=MAX_DISTRICTS),
+            _district_keyboard(city["id"], page=0, selected_ids=set(), lang=lang),
+            NEIGHBORHOOD,
+        )
+
+    ud["covers_whole_city"] = True
+    ud["district_ids"] = []
+    ud["neighborhood"] = None
+    text = i18n.t("reg_city_whole_selected", lang, city=city["name"]) + "\n\n" + _contact_prompt(context)
+    return text, None, WHATSAPP
+
+
+async def choose_country(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    lang = _lang(context)
+    query = update.callback_query
+    await query.answer()
+    code = query.data.split(":", 1)[1]
+    enabled = await asyncio.to_thread(countries.enabled_codes)
+    if code not in enabled:
+        await query.edit_message_text(i18n.t("ask_country", lang), reply_markup=_country_keyboard(enabled, lang))
+        return COUNTRY
+    await asyncio.to_thread(db.set_user_country, update.effective_user.id, code)
+    text, markup, state = await _location_step(context, lang, country=code)
+    await query.edit_message_text(text, reply_markup=markup)
+    return state
+
+
+async def change_country(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    lang = _lang(context)
+    query = update.callback_query
+    await query.answer()
+    text, markup, state = await _location_step(context, lang)
+    await query.edit_message_text(text, reply_markup=markup)
+    return state
+
 
 async def choose_region(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = _lang(context)
     query = update.callback_query
     await query.answer()
     region_id = int(query.data.split(":", 1)[1])
-    region = await asyncio.to_thread(db.get_sa_region_by_id, region_id)
-    if not region:
-        await query.edit_message_text(i18n.t("unknown_option", lang), reply_markup=_region_keyboard())
-        return REGION
-
-    context.user_data["region_id"] = region_id
-    await query.edit_message_text(
-        i18n.t("reg_region_selected", lang, region=region["name"]),
-        reply_markup=_city_keyboard(region_id, page=0, lang=lang),
-    )
-    return CITY
+    text, markup, state = await _location_step(context, lang, region_id=region_id)
+    await query.edit_message_text(text, reply_markup=markup)
+    return state
 
 
 async def back_to_regions(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = _lang(context)
     query = update.callback_query
     await query.answer()
-    await query.edit_message_text(i18n.t("reg_ask_region", lang), reply_markup=_region_keyboard())
-    return REGION
+    country = context.user_data.get("country")
+    text, markup, state = await _location_step(context, lang, country=country)
+    await query.edit_message_text(text, reply_markup=markup)
+    return state
 
 
 async def city_text_search(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -420,15 +535,17 @@ async def city_text_search(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = _lang(context)
     region_id = context.user_data.get("region_id")
     if not region_id:
-        await update.message.reply_text(i18n.t("reg_ask_region", lang), reply_markup=_region_keyboard())
-        return REGION
+        text, markup, state = await _location_step(context, lang, country=context.user_data.get("country"))
+        await update.message.reply_text(text, reply_markup=markup)
+        return state
 
+    back_cb = _city_back_cb(context.user_data)
     query_text = update.message.text.strip()
     matches = await asyncio.to_thread(db.search_sa_major_cities, region_id, query_text)
     if not matches:
         await update.message.reply_text(
             i18n.t("reg_city_not_found", lang),
-            reply_markup=_city_keyboard(region_id, page=0, lang=lang),
+            reply_markup=_city_keyboard(region_id, page=0, lang=lang, back_cb=back_cb),
         )
         return CITY
 
@@ -440,7 +557,7 @@ async def city_text_search(update: Update, context: ContextTypes.DEFAULT_TYPE):
             row = []
     if row:
         buttons.append(row)
-    buttons.append([InlineKeyboardButton(i18n.t("back_to_regions_btn", lang), callback_data=BACK_TO_REGIONS_CB)])
+    buttons.extend(_back_row(back_cb, lang))
 
     await update.message.reply_text(i18n.t("matched_results", lang), reply_markup=InlineKeyboardMarkup(buttons))
     return CITY
@@ -452,7 +569,9 @@ async def city_page_nav(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await query.answer()
     page = int(query.data.split(":", 1)[1])
     region_id = context.user_data["region_id"]
-    await query.edit_message_reply_markup(reply_markup=_city_keyboard(region_id, page, lang))
+    await query.edit_message_reply_markup(
+        reply_markup=_city_keyboard(region_id, page, lang, _city_back_cb(context.user_data))
+    )
     return CITY
 
 
@@ -466,15 +585,9 @@ async def choose_city(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.edit_message_text(i18n.t("unknown_option", lang))
         return CITY
 
-    context.user_data["city_id"] = city_id
-    context.user_data["city"] = city["name"]
-    context.user_data["district_page"] = 0
-    context.user_data["selected_district_ids"] = []
-    await query.edit_message_text(
-        i18n.t("reg_district_step", lang, city=city["name"], max=MAX_DISTRICTS),
-        reply_markup=_district_keyboard(city_id, page=0, selected_ids=set(), lang=lang),
-    )
-    return NEIGHBORHOOD
+    text, markup, state = _city_step(context, lang, city)
+    await query.edit_message_text(text, reply_markup=markup)
+    return state
 
 
 async def district_page_nav(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -574,8 +687,16 @@ async def districts_done(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return await _ask_whatsapp(query.message, context)
 
 
+def _contact_prompt(context: ContextTypes.DEFAULT_TYPE, invalid: bool = False) -> str:
+    lang = _lang(context)
+    code = context.user_data.get("country") or countries.DEFAULT_COUNTRY
+    c = countries.get(code)
+    key = "reg_invalid_number_country" if invalid else "reg_ask_contact_number_country"
+    return i18n.t(key, lang, country=countries.name(code, lang), example=c["example"])
+
+
 async def _ask_whatsapp(message, context: ContextTypes.DEFAULT_TYPE):
-    await message.reply_text(i18n.t("reg_ask_contact_number", _lang(context)))
+    await message.reply_text(_contact_prompt(context))
     return WHATSAPP
 
 
@@ -583,13 +704,14 @@ async def _ask_whatsapp(message, context: ContextTypes.DEFAULT_TYPE):
 
 async def got_whatsapp(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = _lang(context)
-    raw = update.message.text.strip().replace(" ", "")
-    if not WHATSAPP_RE.match(raw):
-        await update.message.reply_text(i18n.t("reg_invalid_number", lang))
-        return WHATSAPP
-    normalized = _normalize_sa_whatsapp(raw)
+    raw = update.message.text.strip().replace(" ", "").replace("-", "")
+    normalized = None
+    if WHATSAPP_RE.match(raw):
+        normalized = countries.normalize_phone(
+            raw, context.user_data.get("country") or countries.DEFAULT_COUNTRY
+        )
     if not normalized:
-        await update.message.reply_text(i18n.t("reg_invalid_number", lang))
+        await update.message.reply_text(_contact_prompt(context, invalid=True))
         return WHATSAPP
     context.user_data["whatsapp_number"] = normalized
 
@@ -678,7 +800,10 @@ async def choose_profession(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # مهنة نادرة (علّمها الأدمن من لوحة التحكم) — نعرض خيار تغطية المدينة كاملة
     # بدل الاكتفاء بالأحياء اللي اختارها الفني قبل شوي (حد أقصى 5)، لأن قلة
     # عدد الفنيين بهذي المهنة تخليهم يختفون عن عملاء بأحياء ثانية بنفس المدينة.
-    if profession.get("allow_city_wide"):
+    # (مدينة بدون أحياء = الفني أصلًا يغطيها كاملة، فما نسأله)
+    if not context.user_data.get("city_has_districts", True):
+        context.user_data["covers_whole_city"] = True
+    elif profession.get("allow_city_wide"):
         await query.edit_message_text(
             i18n.t("reg_city_wide_prompt", lang, city=context.user_data.get("city", "")),
             reply_markup=_city_scope_keyboard(lang),
@@ -814,6 +939,8 @@ async def confirm_yes(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "services": ud.get("services", []),
             "covers_whole_city": ud.get("covers_whole_city", False),
             "source": ud.get("source", "unknown"),
+            "country": ud.get("country") or countries.DEFAULT_COUNTRY,
+            "city_id": ud.get("city_id"),
         },
     )
 
@@ -887,9 +1014,14 @@ def build_register_conversation() -> ConversationHandler:
         states={
             CHANNEL_GATE: [CallbackQueryHandler(channel_check, pattern=f"^{CHANNEL_CHECK_CB}$")],
             NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, got_name)],
-            REGION: [CallbackQueryHandler(choose_region, pattern="^reg_region:")],
+            COUNTRY: [CallbackQueryHandler(choose_country, pattern=f"^{COUNTRY_CB_PREFIX}")],
+            REGION: [
+                CallbackQueryHandler(choose_region, pattern="^reg_region:"),
+                CallbackQueryHandler(change_country, pattern=f"^{CHANGE_COUNTRY_CB}$"),
+            ],
             CITY: [
                 CallbackQueryHandler(choose_city, pattern="^reg_city:"),
+                CallbackQueryHandler(change_country, pattern=f"^{CHANGE_COUNTRY_CB}$"),
                 CallbackQueryHandler(city_page_nav, pattern="^reg_city_page:"),
                 CallbackQueryHandler(back_to_regions, pattern=f"^{BACK_TO_REGIONS_CB}$"),
                 MessageHandler(filters.TEXT & ~filters.COMMAND, city_text_search),

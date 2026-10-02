@@ -13,10 +13,14 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import io
+import os
+import shutil
 
-from flask import Flask, Response, flash, redirect, render_template, request, session, url_for
+from flask import Flask, Response, abort, flash, redirect, render_template, request, session, url_for
+from werkzeug.security import check_password_hash, generate_password_hash
 
 import config
+import countries
 import db
 import professions_repo
 
@@ -42,6 +46,11 @@ db.seed_saudi_geo_if_empty(
 
 # ─────────────────────────── تسجيل الدخول ───────────────────────────
 
+# صلاحيتان:
+#   super   — المدير العام (بيانات الدخول من ملف .env): كل شي.
+#   country — مدير دولة (يُضاف من صفحة «المدراء»): يشوف ويدير فنيي دولته فقط، بدون
+#             تنزيل إكسل، ولا إعدادات عامة، ولا تعديل المهن، ولا المدفوعات، ولا المدراء.
+
 def login_required(view):
     @functools.wraps(view)
     def wrapped(*args, **kwargs):
@@ -51,16 +60,72 @@ def login_required(view):
     return wrapped
 
 
+def is_super() -> bool:
+    return session.get("role", "super") == "super"
+
+
+def super_required(view):
+    """صفحات للمدير العام فقط — مدير الدولة يرجع للرئيسية مع تنبيه."""
+    @functools.wraps(view)
+    @login_required
+    def wrapped(*args, **kwargs):
+        if not is_super():
+            flash("هذي الصفحة متاحة للمدير العام فقط.", "error")
+            return redirect(url_for("dashboard"))
+        return view(*args, **kwargs)
+    return wrapped
+
+
+def scope_country() -> str | None:
+    """الدولة اللي تنحصر فيها البيانات: مدير الدولة دائمًا دولته (ما يقدر يغيّرها)،
+    والمدير العام حسب فلتر ?country= (فاضي = كل الدول)."""
+    if not is_super():
+        return session.get("country")
+    code = (request.args.get("country") or "").upper()
+    return code if countries.get(code) else None
+
+
+def _professional_or_404(professional_id: int):
+    """يجيب الفني ويتأكد إن المستخدم الحالي له صلاحية عليه (مدير الدولة: دولته فقط)."""
+    p = db.get_professional_by_id(professional_id)
+    if not p:
+        return None
+    if not is_super() and (p.get("country") or "SA") != session.get("country"):
+        abort(403)
+    return p
+
+
+@app.context_processor
+def inject_role():
+    return {
+        "is_super": is_super() if session.get("logged_in") else False,
+        "manager_country": session.get("country"),
+        "country_label": countries.label,
+        "all_countries": countries.COUNTRIES,
+    }
+
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        username = request.form.get("username", "")
+        username = request.form.get("username", "").strip()
         password = request.form.get("password", "")
+        next_url = request.args.get("next")
         if username == config.ADMIN_PANEL_USERNAME and password == config.ADMIN_PANEL_PASSWORD:
+            session.clear()
             session["logged_in"] = True
+            session["role"] = "super"
             flash("تم تسجيل الدخول بنجاح.", "success")
-            next_url = request.args.get("next")
             return redirect(next_url or url_for("dashboard"))
+        manager = db.get_admin_user_by_username(username)
+        if manager and check_password_hash(manager["password_hash"], password):
+            session.clear()
+            session["logged_in"] = True
+            session["role"] = "country"
+            session["country"] = manager["country"]
+            session["username"] = manager["username"]
+            flash(f"أهلًا {manager['username']} — مدير {countries.label(manager['country'])}.", "success")
+            return redirect(url_for("dashboard"))
         flash("اسم المستخدم أو كلمة المرور غير صحيحة.", "error")
     return render_template("login.html")
 
@@ -77,8 +142,87 @@ def logout():
 @app.route("/")
 @login_required
 def dashboard():
-    stats = db.get_admin_stats()
-    return render_template("dashboard.html", stats=stats, active_page="dashboard")
+    country = scope_country()
+    stats = db.get_admin_stats(country=country)
+    health = _server_health() if is_super() else None
+    return render_template(
+        "dashboard.html", stats=stats, health=health, selected_country=country, active_page="dashboard"
+    )
+
+
+# ─────────────────────────── صحة السيرفر (للمدير العام) ───────────────────────────
+# حدود الألوان: أخضر = مرتاح، أصفر = قربت (خطط للترقية)، أحمر = رقّ الآن.
+PEAK_USERS_YELLOW, PEAK_USERS_RED = 30, 50       # مستخدمين بنفس الدقيقة
+RAM_YELLOW, RAM_RED = 75, 90                      # ٪ ذاكرة مستخدمة
+DISK_YELLOW, DISK_RED = 80, 90                    # ٪ مساحة مستخدمة
+CPU_YELLOW, CPU_RED = 0.7, 1.0                    # متوسط الحمل لكل نواة
+DB_YELLOW_MB, DB_RED_MB = 2048, 5120              # حجم قاعدة البيانات
+
+_LEVEL_ORDER = {"green": 0, "yellow": 1, "red": 2}
+
+
+def _level(value, yellow, red) -> str:
+    if value is None:
+        return "green"
+    return "red" if value >= red else ("yellow" if value >= yellow else "green")
+
+
+def _server_health() -> dict:
+    items = []
+
+    # الحمل على المعالج (متوسط آخر 5 دقائق ÷ عدد الأنوية)
+    try:
+        load5 = os.getloadavg()[1]
+        cores = os.cpu_count() or 1
+        per_core = load5 / cores
+        items.append({"label": "المعالج (CPU)", "value": f"{per_core * 100:.0f}٪ (أنوية: {cores})",
+                      "level": _level(per_core, CPU_YELLOW, CPU_RED)})
+    except (OSError, AttributeError):
+        pass
+
+    # الذاكرة (من /proc/meminfo — بدون أي مكتبة إضافية)
+    try:
+        info = {}
+        with open("/proc/meminfo", encoding="utf-8") as f:
+            for line in f:
+                k, v = line.split(":", 1)
+                info[k] = int(v.strip().split()[0])  # kB
+        total, avail = info["MemTotal"], info.get("MemAvailable", info.get("MemFree", 0))
+        used_pct = (total - avail) * 100 / total
+        items.append({"label": "الذاكرة (RAM)", "value": f"{used_pct:.0f}٪ من {total / 1024 / 1024:.1f} GB",
+                      "level": _level(used_pct, RAM_YELLOW, RAM_RED)})
+    except (OSError, KeyError, ValueError, ZeroDivisionError):
+        pass
+
+    # المساحة
+    try:
+        du = shutil.disk_usage(str(config.DB_PATH.parent))
+        disk_pct = du.used * 100 / du.total
+        items.append({"label": "المساحة (Disk)", "value": f"{disk_pct:.0f}٪ من {du.total / 1024 ** 3:.0f} GB",
+                      "level": _level(disk_pct, DISK_YELLOW, DISK_RED)})
+    except OSError:
+        pass
+
+    # حجم قاعدة البيانات
+    try:
+        size_mb = sum(
+            os.path.getsize(f"{config.DB_PATH}{suffix}")
+            for suffix in ("", "-wal") if os.path.exists(f"{config.DB_PATH}{suffix}")
+        ) / 1024 / 1024
+        items.append({"label": "حجم قاعدة البيانات", "value": f"{size_mb:.1f} MB",
+                      "level": _level(size_mb, DB_YELLOW_MB, DB_RED_MB)})
+    except OSError:
+        pass
+
+    peaks = db.activity_peaks()
+    items.append({"label": "أعلى مستخدمين بنفس الدقيقة (آخر يوم)", "value": str(peaks["peak_day"]),
+                  "level": _level(peaks["peak_day"], PEAK_USERS_YELLOW, PEAK_USERS_RED)})
+    items.append({"label": "أعلى مستخدمين بنفس الدقيقة (آخر أسبوع)", "value": str(peaks["peak_week"]),
+                  "level": _level(peaks["peak_week"], PEAK_USERS_YELLOW, PEAK_USERS_RED)})
+    items.append({"label": "رسائل وضغطات آخر ساعة", "value": str(peaks["updates_last_hour"]), "level": "green"})
+
+    overall = max((i["level"] for i in items), key=lambda lv: _LEVEL_ORDER[lv], default="green")
+    return {"items": items, "overall": overall, "has_activity": peaks["has_data"]}
 
 
 # ─────────────────────────── الفنيون ───────────────────────────
@@ -107,18 +251,23 @@ def professionals_list():
     elif subscribed_raw == "no":
         subscribed = False
 
+    country = scope_country()
     total_count = db.admin_count_professionals(
-        status=status, city=city, profession_id=profession_id, subscribed=subscribed, query=query
+        status=status, city=city, profession_id=profession_id, subscribed=subscribed, query=query,
+        country=country,
     )
     total_pages = max(1, (total_count + PAGE_SIZE - 1) // PAGE_SIZE)
     page = min(page, total_pages)
 
     professionals = db.admin_list_professionals(
         status=status, city=city, profession_id=profession_id, subscribed=subscribed, query=query,
-        limit=PAGE_SIZE, offset=(page - 1) * PAGE_SIZE,
+        country=country, limit=PAGE_SIZE, offset=(page - 1) * PAGE_SIZE,
     )
 
-    filters = {"status": status, "city": city, "profession_id": profession_id, "subscribed": subscribed_raw, "q": query}
+    filters = {
+        "status": status, "city": city, "profession_id": profession_id, "subscribed": subscribed_raw, "q": query,
+        "country": country if is_super() else None,
+    }
     filters_qs = {k: v for k, v in filters.items() if v}
 
     return render_template(
@@ -129,7 +278,7 @@ def professionals_list():
         total_pages=total_pages,
         filters=filters,
         filters_qs=filters_qs,
-        cities=db.admin_list_cities(),
+        cities=db.admin_list_cities(country),
         profession_options=_profession_options(),
         status_labels=db.STATUS_LABELS_AR,
         active_page="professionals",
@@ -137,7 +286,7 @@ def professionals_list():
 
 
 @app.route("/professionals/export.xlsx")
-@login_required
+@super_required
 def professionals_export():
     """تنزيل قائمة الفنيين (بنفس فلاتر صفحة الفنيون الحالية إن وُجدت) كملف إكسل."""
     try:
@@ -159,12 +308,14 @@ def professionals_export():
     elif subscribed_raw == "no":
         subscribed = False
 
+    country = scope_country()
     total_count = db.admin_count_professionals(
-        status=status, city=city, profession_id=profession_id, subscribed=subscribed, query=query
+        status=status, city=city, profession_id=profession_id, subscribed=subscribed, query=query,
+        country=country,
     )
     professionals = db.admin_list_professionals(
         status=status, city=city, profession_id=profession_id, subscribed=subscribed, query=query,
-        limit=max(total_count, 1), offset=0,
+        country=country, limit=max(total_count, 1), offset=0,
     )
 
     wb = openpyxl.Workbook()
@@ -174,8 +325,8 @@ def professionals_export():
 
     headers = [
         "الاسم", "رقم الواتساب", "رقم تواصل تيليجرام", "المهنة", "المجال",
-        "المدينة", "الحي", "الحالة", "مشترك", "تاريخ انتهاء الاشتراك",
-        "فرص مجانية مستخدمة", "تاريخ التسجيل",
+        "الدولة", "المدينة", "الحي", "الحالة", "مشترك", "تاريخ انتهاء الاشتراك",
+        "فرص مجانية مستخدمة", "مصدر التسجيل", "تاريخ التسجيل",
     ]
     ws.append(headers)
     for cell in ws[1]:
@@ -189,12 +340,14 @@ def professionals_export():
             p["telegram_contact_number"] or "",
             p["profession_name"],
             p["domain_name"],
+            countries.name(p.get("country") or "SA"),
             p["city"],
-            p["neighborhood"] or "",
+            p["neighborhood"] or ("المدينة كاملة" if p.get("covers_whole_city") else ""),
             db.STATUS_LABELS_AR.get(p["status"], p["status"]),
             "نعم" if p["is_subscribed"] else "لا",
             (p["subscription_expires_at"] or "")[:10],
             p["free_contacts_used"],
+            p.get("source") or "unknown",
             (p["created_at"] or "")[:16],
         ])
 
@@ -225,7 +378,7 @@ def professionals_export():
 @app.route("/professionals/<int:professional_id>")
 @login_required
 def professional_detail(professional_id):
-    p = db.get_professional_by_id(professional_id)
+    p = _professional_or_404(professional_id)
     if not p:
         flash("الفني غير موجود.", "error")
         return redirect(url_for("professionals_list"))
@@ -237,6 +390,9 @@ def professional_detail(professional_id):
 @app.route("/professionals/<int:professional_id>/status", methods=["POST"])
 @login_required
 def professional_set_status(professional_id):
+    if not _professional_or_404(professional_id):
+        flash("الفني غير موجود.", "error")
+        return redirect(url_for("professionals_list"))
     new_status = request.form.get("status")
     if new_status not in (db.STATUS_PENDING, db.STATUS_ACTIVE, db.STATUS_REJECTED):
         flash("حالة غير معروفة.", "error")
@@ -250,6 +406,9 @@ def professional_set_status(professional_id):
 @app.route("/professionals/<int:professional_id>/edit", methods=["POST"])
 @login_required
 def professional_edit(professional_id):
+    if not _professional_or_404(professional_id):
+        flash("الفني غير موجود.", "error")
+        return redirect(url_for("professionals_list"))
     db.admin_update_professional(
         professional_id,
         full_name=request.form.get("full_name") or None,
@@ -266,6 +425,9 @@ def professional_edit(professional_id):
 @app.route("/professionals/<int:professional_id>/subscription", methods=["POST"])
 @login_required
 def professional_subscription(professional_id):
+    if not _professional_or_404(professional_id):
+        flash("الفني غير موجود.", "error")
+        return redirect(url_for("professionals_list"))
     action = request.form.get("action")
     expires_at = request.form.get("expires_at") or None
     if action == "activate":
@@ -280,6 +442,9 @@ def professional_subscription(professional_id):
 @app.route("/professionals/<int:professional_id>/reset-free-contacts", methods=["POST"])
 @login_required
 def professional_reset_free(professional_id):
+    if not _professional_or_404(professional_id):
+        flash("الفني غير موجود.", "error")
+        return redirect(url_for("professionals_list"))
     db.admin_reset_free_contacts(professional_id)
     flash("تم تصفير عداد الفرص المجانية.", "success")
     return redirect(url_for("professional_detail", professional_id=professional_id))
@@ -288,6 +453,9 @@ def professional_reset_free(professional_id):
 @app.route("/professionals/<int:professional_id>/delete", methods=["POST"])
 @login_required
 def professional_delete(professional_id):
+    if not _professional_or_404(professional_id):
+        flash("الفني غير موجود.", "error")
+        return redirect(url_for("professionals_list"))
     db.admin_delete_professional(professional_id)
     flash("تم حذف الفني نهائيًا.", "success")
     return redirect(url_for("professionals_list"))
@@ -303,8 +471,10 @@ COVERAGE_READY_THRESHOLD = 3
 @app.route("/coverage")
 @login_required
 def coverage_page():
-    summary = db.admin_coverage_summary()
-    matrix_rows = db.admin_coverage_matrix()
+    # مدن الدول المختلفة ممكن تتشابه أسماؤها، فالتغطية دائمًا لدولة وحدة (الافتراضي السعودية)
+    country = scope_country() or countries.DEFAULT_COUNTRY
+    summary = db.admin_coverage_summary(country)
+    matrix_rows = db.admin_coverage_matrix(country)
 
     # counts[profession_id][city] = عدد الفنيين النشطين
     counts: dict[str, dict[str, int]] = {}
@@ -335,6 +505,7 @@ def coverage_page():
         total_professions=total_professions,
         ready_counts=ready_counts,
         ready_threshold=COVERAGE_READY_THRESHOLD,
+        selected_country=country,
         active_page="coverage",
     )
 
@@ -342,7 +513,7 @@ def coverage_page():
 # ─────────────────────────── الاشتراكات والمدفوعات ───────────────────────────
 
 @app.route("/payments")
-@login_required
+@super_required
 def payments_list():
     status = request.args.get("status") or None
     method = request.args.get("method") or None
@@ -380,30 +551,70 @@ SETTINGS_DEFAULTS = {
 
 
 @app.route("/settings", methods=["GET", "POST"])
-@login_required
+@super_required
 def settings_page():
     if request.method == "POST":
         for key in SETTINGS_DEFAULTS:
             value = request.form.get(key)
             if value:
                 db.set_setting(key, value)
+        enabled = [code for code in countries.ALL_CODES if request.form.get(f"country_{code}") == "1"]
+        if countries.DEFAULT_COUNTRY not in enabled:
+            enabled.insert(0, countries.DEFAULT_COUNTRY)
+        db.set_setting("enabled_countries", ",".join(enabled))
         flash("تم حفظ الإعدادات — تنعكس فورًا على البوت.", "success")
         return redirect(url_for("settings_page"))
 
     current = {key: db.get_setting(key, default) for key, default in SETTINGS_DEFAULTS.items()}
-    return render_template("settings.html", settings=current, active_page="settings")
+    return render_template(
+        "settings.html", settings=current, enabled_countries=countries.enabled_codes(), active_page="settings"
+    )
+
+
+# ─────────────────────────── مدراء الدول ───────────────────────────
+
+@app.route("/admins", methods=["GET", "POST"])
+@super_required
+def admins_page():
+    if request.method == "POST":
+        action = request.form.get("action")
+        if action == "add":
+            username = request.form.get("username", "").strip()
+            password = request.form.get("password", "")
+            country = (request.form.get("country") or "").upper()
+            if not username or len(password) < 6 or not countries.get(country):
+                flash("اكتب اسم مستخدم، وكلمة مرور 6 أحرف على الأقل، واختر الدولة.", "error")
+            elif username == config.ADMIN_PANEL_USERNAME:
+                flash("هذا الاسم محجوز للمدير العام — اختر اسم ثاني.", "error")
+            elif db.create_admin_user(username, generate_password_hash(password), country):
+                flash(f"تمت إضافة المدير «{username}» لـ {countries.label(country)}.", "success")
+            else:
+                flash("اسم المستخدم مستخدم مسبقًا.", "error")
+        elif action == "password":
+            password = request.form.get("password", "")
+            if len(password) < 6:
+                flash("كلمة المرور لازم تكون 6 أحرف على الأقل.", "error")
+            else:
+                db.update_admin_user_password(int(request.form["user_id"]), generate_password_hash(password))
+                flash("تم تغيير كلمة المرور.", "success")
+        elif action == "delete":
+            db.delete_admin_user(int(request.form["user_id"]))
+            flash("تم حذف المدير.", "success")
+        return redirect(url_for("admins_page"))
+
+    return render_template("admins.html", admins=db.list_admin_users(), active_page="admins")
 
 
 # ─────────────────────────── إدارة المهن والمجالات ───────────────────────────
 
 @app.route("/professions")
-@login_required
+@super_required
 def professions_page():
     return render_template("professions.html", domains=_profession_options(), active_page="professions")
 
 
 @app.route("/professions/domains/add", methods=["POST"])
-@login_required
+@super_required
 def domain_add():
     name = request.form.get("name", "").strip()
     if name:
@@ -413,7 +624,7 @@ def domain_add():
 
 
 @app.route("/professions/domains/<domain_id>/rename", methods=["POST"])
-@login_required
+@super_required
 def domain_rename(domain_id):
     name = request.form.get("name", "").strip()
     if name:
@@ -423,7 +634,7 @@ def domain_rename(domain_id):
 
 
 @app.route("/professions/domains/<domain_id>/delete", methods=["POST"])
-@login_required
+@super_required
 def domain_delete(domain_id):
     if db.delete_domain(domain_id):
         flash("تم حذف المجال.", "success")
@@ -437,7 +648,7 @@ def _parse_services(raw: str) -> list:
 
 
 @app.route("/professions/domains/<domain_id>/professions/add", methods=["POST"])
-@login_required
+@super_required
 def profession_add(domain_id):
     name = request.form.get("name", "").strip()
     isco_code = request.form.get("isco_code", "").strip() or None
@@ -449,7 +660,7 @@ def profession_add(domain_id):
 
 
 @app.route("/professions/<profession_id>/edit", methods=["GET", "POST"])
-@login_required
+@super_required
 def profession_edit_page(profession_id):
     prof = db.get_profession_by_id(profession_id)
     if not prof:
@@ -479,7 +690,7 @@ def profession_edit_page(profession_id):
 
 
 @app.route("/professions/<profession_id>/delete", methods=["POST"])
-@login_required
+@super_required
 def profession_delete(profession_id):
     if db.delete_profession(profession_id):
         flash("تم حذف المهنة.", "success")

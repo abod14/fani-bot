@@ -398,6 +398,67 @@ def init_db():
             "CREATE INDEX IF NOT EXISTS idx_prof_districts_district ON professional_districts (district_id)"
         )
 
+        # ─────────────────────────── تعدد الدول (السعودية + مصر + الخليج) ───────────────────────────
+        # نفس جداول sa_regions/sa_cities/sa_districts تشيل كل الدول، مع عمود country
+        # (الافتراضي 'SA' — كل البيانات والتسجيلات القديمة سعودية).
+        for table in ("sa_regions", "sa_cities"):
+            cols = {row["name"] for row in conn.execute(f"PRAGMA table_info({table})").fetchall()}
+            if "country" not in cols:
+                conn.execute(f"ALTER TABLE {table} ADD COLUMN country TEXT NOT NULL DEFAULT 'SA'")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_sa_regions_country ON sa_regions (country)")
+
+        prof_cols2 = {row["name"] for row in conn.execute("PRAGMA table_info(professionals)").fetchall()}
+        if "country" not in prof_cols2:
+            conn.execute("ALTER TABLE professionals ADD COLUMN country TEXT NOT NULL DEFAULT 'SA'")
+        if "city_id" not in prof_cols2:
+            # معرّف المدينة الرسمي — البحث يطابق عليه بدل اسم المدينة النصي (أسماء
+            # تتكرر بين الدول/المحافظات، مثل «المطرية» بالقاهرة والدقهلية).
+            conn.execute("ALTER TABLE professionals ADD COLUMN city_id INTEGER")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_professionals_country ON professionals (country)")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_professionals_city_id ON professionals (city_id)")
+
+        log_cols = {row["name"] for row in conn.execute("PRAGMA table_info(search_log)").fetchall()}
+        if "country" not in log_cols:
+            conn.execute("ALTER TABLE search_log ADD COLUMN country TEXT NOT NULL DEFAULT 'SA'")
+
+        # آخر دولة اختارها المستخدم (عميل أو فني) — حتى ما نسأله عنها كل مرة يبحث.
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS user_countries (
+                telegram_user_id INTEGER PRIMARY KEY,
+                country TEXT NOT NULL
+            )
+            """
+        )
+
+        # ─────────────────────────── مدراء لوحة التحكم (حسب الدولة) ───────────────────────────
+        # المدير العام (أنت) يبقى من ملف .env دائمًا. هذا الجدول لمدراء الدول (مثل مدير
+        # مصر): يشوف فنيي دولته فقط، بدون تنزيل إكسل ولا إعدادات عامة ولا تعديل مهن.
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS admin_users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT NOT NULL UNIQUE,
+                password_hash TEXT NOT NULL,
+                country TEXT NOT NULL,
+                created_at TEXT NOT NULL
+            )
+            """
+        )
+
+        # ─────────────────────────── نشاط البوت (لمربع صحة السيرفر) ───────────────────────────
+        # صف واحد لكل دقيقة فيها نشاط: عدد المستخدمين المختلفين وعدد الرسائل/الضغطات —
+        # يُكتب مرة وحدة بالدقيقة (مو مع كل ضغطة)، فما له أي ثقل على البوت.
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS activity_minutes (
+                minute TEXT PRIMARY KEY,
+                users INTEGER NOT NULL,
+                updates INTEGER NOT NULL
+            )
+            """
+        )
+
 
 def _now_iso():
     return datetime.now(timezone.utc).isoformat()
@@ -423,8 +484,9 @@ def create_registration(data: dict) -> int:
                 telegram_user_id, full_name, city, neighborhood,
                 whatsapp_number, has_whatsapp, telegram_contact_number,
                 domain_name, profession_id, profession_name,
-                services_json, status, created_at, covers_whole_city, source
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                services_json, status, created_at, covers_whole_city, source,
+                country, city_id
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 data["telegram_user_id"],
@@ -442,6 +504,8 @@ def create_registration(data: dict) -> int:
                 _now_iso(),
                 1 if data.get("covers_whole_city") else 0,
                 (data.get("source") or "unknown").strip()[:30] or "unknown",
+                data.get("country") or "SA",
+                data.get("city_id"),
             ),
         )
         professional_id = cur.lastrowid
@@ -484,9 +548,24 @@ def set_status(row_id: int, status: str):
         )
 
 
+def _city_condition(conn, city: str, city_id: int | None):
+    """شرط مطابقة المدينة لاستعلامات البحث. مع city_id (الحالة الطبيعية الآن):
+    مطابقة دقيقة على المعرّف، + توافق مع تسجيلات قديمة ما فيها city_id (سعودية
+    كلها) عبر الاسم بنفس الدولة فقط — حتى ما يطلع فني من دولة ثانية بسبب تشابه
+    أسماء المدن. بدون city_id: السلوك القديم (مطابقة نصية على الاسم)."""
+    if city_id:
+        row = conn.execute("SELECT country FROM sa_cities WHERE id = ?", (city_id,)).fetchone()
+        country = row["country"] if row else "SA"
+        return (
+            "(city_id = ? OR (city_id IS NULL AND country = ? AND city LIKE ?))",
+            [city_id, country, f"%{city.strip()}%"],
+        )
+    return "city LIKE ?", [f"%{city.strip()}%"]
+
+
 def search_active_professional_ids(
     profession_id: str, city: str, neighborhood: str | list[str] | None, district_id: int | list[int] | None = None,
-    service: str | list[str] | None = None,
+    service: str | list[str] | None = None, city_id: int | None = None,
 ):
     """
     بحث العميل: مهنة (تطابق تام) + مدينة (تطابق تقريبي) + حي (اختياري، تطابق تقريبي)
@@ -507,13 +586,14 @@ def search_active_professional_ids(
     """
     free_limit = int(get_setting("free_contacts_limit", str(FREE_CONTACTS_LIMIT)))
     with get_conn() as conn:
+        city_sql, city_params = _city_condition(conn, city, city_id)
         where = [
             "status = ?",
             "profession_id = ?",
-            "city LIKE ?",
+            city_sql,
             "(free_contacts_used < ? OR is_subscribed = 1)",
         ]
-        params = [STATUS_ACTIVE, profession_id, f"%{city.strip()}%", free_limit]
+        params = [STATUS_ACTIVE, profession_id, *city_params, free_limit]
 
         if district_id:
             # اختيار متعدد للأحياء (منطق "أو" — يكفي تطابق حي وحد من المُعلَّمة).
@@ -575,7 +655,8 @@ NUDGE_COOLDOWN_HOURS = 6
 
 
 def find_subscription_missed_professionals(
-    profession_id: str, city: str, neighborhood: str | list[str] | None, district_id: int | list[int] | None = None
+    profession_id: str, city: str, neighborhood: str | list[str] | None, district_id: int | list[int] | None = None,
+    city_id: int | None = None,
 ):
     """يرجّع الفنيين اللي كانوا سيظهرون بهذا البحث (نفس المهنة/المدينة/الحي) لولا
     إنهم خلّصوا فرصهم المجانية ولا يوجد لهم اشتراك فعّال — نستخدمها لتنبيههم إن فيه
@@ -583,10 +664,11 @@ def find_subscription_missed_professionals(
     NUDGE_COOLDOWN_HOURS ساعات حتى ما نزعجه."""
     free_limit = int(get_setting("free_contacts_limit", str(FREE_CONTACTS_LIMIT)))
     with get_conn() as conn:
+        city_sql, city_params = _city_condition(conn, city, city_id)
         where = [
             "status = ?",
             "profession_id = ?",
-            "city LIKE ?",
+            city_sql,
             "is_subscribed = 0",
             "free_contacts_used >= ?",
             "(last_search_nudge_at IS NULL OR last_search_nudge_at < ?)",
@@ -594,7 +676,7 @@ def find_subscription_missed_professionals(
         cooldown_cutoff = (
             datetime.now(timezone.utc) - timedelta(hours=NUDGE_COOLDOWN_HOURS)
         ).isoformat()
-        params = [STATUS_ACTIVE, profession_id, f"%{city.strip()}%", free_limit, cooldown_cutoff]
+        params = [STATUS_ACTIVE, profession_id, *city_params, free_limit, cooldown_cutoff]
 
         if district_id:
             district_ids = [district_id] if isinstance(district_id, int) else list(district_id)
@@ -833,17 +915,19 @@ def set_setting(key: str, value: str):
 # ─────────────────────────── سجل البحث ───────────────────────────
 
 def log_search(customer_telegram_id: int, profession_id: str, profession_name: str,
-                city: str, neighborhood: str | None, results_count: int):
+                city: str, neighborhood: str | None, results_count: int, country: str = "SA"):
+    if isinstance(neighborhood, list):
+        neighborhood = "، ".join(neighborhood)
     with get_conn() as conn:
         conn.execute(
             """
             INSERT INTO search_log
                 (customer_telegram_id, profession_id, profession_name, city,
-                 neighborhood, results_count, searched_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+                 neighborhood, results_count, searched_at, country)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (customer_telegram_id, profession_id, profession_name, city,
-             neighborhood, results_count, _now_iso()),
+             neighborhood, results_count, _now_iso(), country or "SA"),
         )
 
 
@@ -978,6 +1062,28 @@ def set_user_language(telegram_user_id: int, language: str):
         )
 
 
+def get_user_country(telegram_user_id: int) -> str | None:
+    """آخر دولة اختارها المستخدم (أو None لو ما اختار بعد)."""
+    with get_conn() as conn:
+        row = conn.execute(
+            "SELECT country FROM user_countries WHERE telegram_user_id = ?", (telegram_user_id,)
+        ).fetchone()
+        return row["country"] if row else None
+
+
+def set_user_country(telegram_user_id: int, country: str):
+    # جدول مستقل عن user_languages عمدًا — الإضافة هناك تعتبر المستخدم "اختار لغته"
+    # وتدخل بعدد المستخدمين بالإحصائيات، وهذا مو المقصود هنا.
+    with get_conn() as conn:
+        conn.execute(
+            """
+            INSERT INTO user_countries (telegram_user_id, country) VALUES (?, ?)
+            ON CONFLICT (telegram_user_id) DO UPDATE SET country = excluded.country
+            """,
+            (telegram_user_id, country),
+        )
+
+
 # ─────────────────────────── إدارة المهن (CRUD للوحة التحكم) ───────────────────────────
 
 def list_domains():
@@ -1091,6 +1197,7 @@ def admin_list_professionals(
     profession_id: str | None = None,
     subscribed: bool | None = None,
     query: str | None = None,
+    country: str | None = None,
     limit: int = 50,
     offset: int = 0,
 ):
@@ -1114,6 +1221,9 @@ def admin_list_professionals(
         where.append("(full_name LIKE ? OR whatsapp_number LIKE ? OR telegram_contact_number LIKE ?)")
         like = f"%{query.strip()}%"
         params.extend([like, like, like])
+    if country:
+        where.append("country = ?")
+        params.append(country)
 
     where_sql = f"WHERE {' AND '.join(where)}" if where else ""
 
@@ -1136,6 +1246,7 @@ def admin_count_professionals(
     profession_id: str | None = None,
     subscribed: bool | None = None,
     query: str | None = None,
+    country: str | None = None,
 ) -> int:
     """نفس فلاتر admin_list_professionals، لكن يرجّع العدد الكلي (لأجل ترقيم الصفحات)."""
     where = []
@@ -1157,6 +1268,9 @@ def admin_count_professionals(
         where.append("(full_name LIKE ? OR whatsapp_number LIKE ? OR telegram_contact_number LIKE ?)")
         like = f"%{query.strip()}%"
         params.extend([like, like, like])
+    if country:
+        where.append("country = ?")
+        params.append(country)
 
     where_sql = f"WHERE {' AND '.join(where)}" if where else ""
 
@@ -1166,16 +1280,19 @@ def admin_count_professionals(
         ).fetchone()[0]
 
 
-def admin_list_cities() -> list[str]:
+def admin_list_cities(country: str | None = None) -> list[str]:
     """مدن مميزة موجودة فعليًا بجدول الفنيين — تُستخدم كخيارات فلترة جاهزة باللوحة."""
     with get_conn() as conn:
-        rows = conn.execute(
-            "SELECT DISTINCT city FROM professionals ORDER BY city"
-        ).fetchall()
+        if country:
+            rows = conn.execute(
+                "SELECT DISTINCT city FROM professionals WHERE country = ? ORDER BY city", (country,)
+            ).fetchall()
+        else:
+            rows = conn.execute("SELECT DISTINCT city FROM professionals ORDER BY city").fetchall()
         return [r["city"] for r in rows]
 
 
-def admin_coverage_summary() -> list[dict]:
+def admin_coverage_summary(country: str | None = None) -> list[dict]:
     """ملخص جاهزية كل مدينة للإطلاق: عدد الفنيين النشطين فيها، وعدد المهن
     المختلفة اللي عندها فني نشط واحد على الأقل. تُستخدم بصفحة "مؤشرات التغطية"
     باللوحة لمعرفة أي مدينة جاهزة تُفتح للعملاء وأيهم ناقصة فنيين."""
@@ -1186,16 +1303,16 @@ def admin_coverage_summary() -> list[dict]:
                    COUNT(*) AS total_active,
                    COUNT(DISTINCT profession_id) AS distinct_professions
             FROM professionals
-            WHERE status = ?
+            WHERE status = ? AND (? IS NULL OR country = ?)
             GROUP BY city
             ORDER BY total_active DESC
             """,
-            (STATUS_ACTIVE,),
+            (STATUS_ACTIVE, country, country),
         ).fetchall()
         return [dict(r) for r in rows]
 
 
-def admin_coverage_matrix() -> list[dict]:
+def admin_coverage_matrix(country: str | None = None) -> list[dict]:
     """عدد الفنيين النشطين لكل (مدينة × مهنة) — المادة الخام لجدول التغطية
     التفصيلي (صفوف = مهن، أعمدة = مدن) بصفحة "مؤشرات التغطية"."""
     with get_conn() as conn:
@@ -1203,10 +1320,10 @@ def admin_coverage_matrix() -> list[dict]:
             """
             SELECT city, profession_id, COUNT(*) AS cnt
             FROM professionals
-            WHERE status = ?
+            WHERE status = ? AND (? IS NULL OR country = ?)
             GROUP BY city, profession_id
             """,
-            (STATUS_ACTIVE,),
+            (STATUS_ACTIVE, country, country),
         ).fetchall()
         return [dict(r) for r in rows]
 
@@ -1307,6 +1424,7 @@ def delete_all_user_data(telegram_user_id: int):
         conn.execute("DELETE FROM search_log WHERE customer_telegram_id = ?", (telegram_user_id,))
         conn.execute("DELETE FROM contact_clicks WHERE customer_telegram_id = ?", (telegram_user_id,))
         conn.execute("DELETE FROM user_languages WHERE telegram_user_id = ?", (telegram_user_id,))
+        conn.execute("DELETE FROM user_countries WHERE telegram_user_id = ?", (telegram_user_id,))
 
 
 def admin_list_payments(
@@ -1329,7 +1447,7 @@ def admin_list_payments(
     with get_conn() as conn:
         rows = conn.execute(
             f"""
-            SELECT sp.*, p.full_name, p.profession_name, p.whatsapp_number
+            SELECT sp.*, p.full_name, p.profession_name, p.whatsapp_number, p.country
             FROM subscription_payments sp
             JOIN professionals p ON p.id = sp.professional_id
             {where_sql}
@@ -1367,36 +1485,55 @@ def _parse_amount_sar(amount_text: str) -> float:
         return 0.0
 
 
-def get_admin_stats() -> dict:
+def get_admin_stats(country: str | None = None) -> dict:
     """إحصائيات عامة للوحة الرئيسية: أعداد الفنيين بكل حالة، التواصلات، الإيرادات،
-    وأكثر المهن والمدن طلبًا."""
+    وأكثر المهن والمدن طلبًا. country (اختياري) يحصر كل الأرقام بدولة وحدة —
+    يُستخدم لمدير الدولة، والمدير العام يقدر يفلتر فيه أيضًا."""
+    # شرط دولة جاهز لإعادة الاستخدام: (? IS NULL OR country = ?) يرجع كل شي لو country فاضي
+    cflag = (country, country)
     with get_conn() as conn:
         # إجمالي المستخدمين اللي دخلوا البوت وسووا /start ولو مرة (كل مستخدم
-        # يُسجَّل بجدول user_languages أول ما يختار لغته، فهذا يعطي عدد فعلي
-        # لكل من "دخل" البوت — فنيين وعملاء مع بعض، بدون تكرار).
-        total_users = conn.execute(
-            "SELECT COUNT(*) FROM user_languages"
-        ).fetchone()[0]
+        # يُسجَّل بجدول user_languages أول ما يختار لغته). لمدير الدولة: من اختاروا
+        # دولته (بالبحث أو التسجيل) — أقرب تقدير متاح لمستخدمي دولة معيّنة.
+        if country:
+            total_users = conn.execute(
+                "SELECT COUNT(*) FROM user_countries WHERE country = ?", (country,)
+            ).fetchone()[0]
+        else:
+            total_users = conn.execute("SELECT COUNT(*) FROM user_languages").fetchone()[0]
 
         status_counts = {
             row["status"]: row["c"]
             for row in conn.execute(
-                "SELECT status, COUNT(*) AS c FROM professionals GROUP BY status"
+                "SELECT status, COUNT(*) AS c FROM professionals "
+                "WHERE (? IS NULL OR country = ?) GROUP BY status",
+                cflag,
             ).fetchall()
         }
         total_professionals = sum(status_counts.values())
         subscribed_count = conn.execute(
-            "SELECT COUNT(*) FROM professionals WHERE is_subscribed = 1"
+            "SELECT COUNT(*) FROM professionals WHERE is_subscribed = 1 AND (? IS NULL OR country = ?)",
+            cflag,
         ).fetchone()[0]
         total_contact_clicks = conn.execute(
-            "SELECT COUNT(*) FROM contact_clicks"
+            """
+            SELECT COUNT(*) FROM contact_clicks cc
+            JOIN professionals p ON p.id = cc.professional_id
+            WHERE (? IS NULL OR p.country = ?)
+            """,
+            cflag,
         ).fetchone()[0]
         total_searches = conn.execute(
-            "SELECT COUNT(*) FROM search_log"
+            "SELECT COUNT(*) FROM search_log WHERE (? IS NULL OR country = ?)", cflag
         ).fetchone()[0]
 
         paid_payments = conn.execute(
-            "SELECT method, amount FROM subscription_payments WHERE status = 'paid'"
+            """
+            SELECT sp.method, sp.amount FROM subscription_payments sp
+            JOIN professionals p ON p.id = sp.professional_id
+            WHERE sp.status = 'paid' AND (? IS NULL OR p.country = ?)
+            """,
+            cflag,
         ).fetchall()
         revenue_sar = sum(_parse_amount_sar(r["amount"]) for r in paid_payments if r["method"] == "tap")
         stars_paid_count = sum(1 for r in paid_payments if r["method"] == "stars")
@@ -1404,21 +1541,31 @@ def get_admin_stats() -> dict:
         top_professions = conn.execute(
             """
             SELECT profession_name, COUNT(*) AS c FROM search_log
+            WHERE (? IS NULL OR country = ?)
             GROUP BY profession_name ORDER BY c DESC LIMIT 5
-            """
+            """,
+            cflag,
         ).fetchall()
         top_cities = conn.execute(
             """
             SELECT city, COUNT(*) AS c FROM search_log
+            WHERE (? IS NULL OR country = ?)
             GROUP BY city ORDER BY c DESC LIMIT 5
-            """
+            """,
+            cflag,
         ).fetchall()
 
         source_counts = conn.execute(
             """
             SELECT source, COUNT(*) AS c FROM professionals
+            WHERE (? IS NULL OR country = ?)
             GROUP BY source ORDER BY c DESC
-            """
+            """,
+            cflag,
+        ).fetchall()
+
+        country_counts = conn.execute(
+            "SELECT country, COUNT(*) AS c FROM professionals GROUP BY country ORDER BY c DESC"
         ).fetchall()
 
         return {
@@ -1433,6 +1580,7 @@ def get_admin_stats() -> dict:
             "top_professions": [dict(r) for r in top_professions],
             "top_cities": [dict(r) for r in top_cities],
             "source_counts": [dict(r) for r in source_counts],
+            "country_counts": [dict(r) for r in country_counts],
         }
 
 
@@ -1530,9 +1678,85 @@ def sync_saudi_geo_from_json(regions_path, cities_path, districts_path):
             )
 
 
-def list_sa_regions():
+def sync_extra_geo_from_json(geo_path):
+    """يزامن (UPSERT) بيانات دول التوسع (مصر + الخليج) من data/extra_geo/geo.json
+    لنفس جداول المناطق/المدن/الأحياء، مع عمود country. لا يحذف شي — فقط يضيف/يحدّث.
+    المدن بدون أحياء (has_districts=0) تُعرض عادي، والفني فيها يغطي المدينة كاملة."""
+    import json as _json
+
+    with open(geo_path, encoding="utf-8") as f:
+        data = _json.load(f)
+
+    cities_with_districts = {d["city_id"] for d in data["districts"]}
+
     with get_conn() as conn:
-        rows = conn.execute("SELECT * FROM sa_regions ORDER BY name").fetchall()
+        _bulk_upsert(
+            conn, "sa_regions", ["id", "name", "country"],
+            [(r["id"], r["name"], r["country"]) for r in data["regions"]],
+        )
+        _bulk_upsert(
+            conn, "sa_cities", ["id", "region_id", "name", "has_districts", "lat", "lon", "country"],
+            [
+                (c["id"], c["region_id"], c["name"], 1 if c["id"] in cities_with_districts else 0,
+                 c.get("lat"), c.get("lon"), c["country"])
+                for c in data["cities"]
+            ],
+        )
+        _bulk_upsert(
+            conn, "sa_districts", ["id", "city_id", "name", "lat", "lon"],
+            [(d["id"], d["city_id"], d["name"], d.get("lat"), d.get("lon")) for d in data["districts"]],
+        )
+
+
+def _bulk_upsert(conn, table, columns, rows, chunk_size=100):
+    """مثل _bulk_insert لكن يحدّث الصف لو المعرّف (id) موجود مسبقًا."""
+    if not rows:
+        return
+    col_list = ", ".join(columns)
+    row_placeholder = "(" + ", ".join(["?"] * len(columns)) + ")"
+    update_sql = ", ".join(f"{c} = excluded.{c}" for c in columns if c != "id")
+    for i in range(0, len(rows), chunk_size):
+        chunk = rows[i : i + chunk_size]
+        values_sql = ", ".join([row_placeholder] * len(chunk))
+        flat_params = [v for row in chunk for v in row]
+        conn.execute(
+            f"INSERT INTO {table} ({col_list}) VALUES {values_sql} "
+            f"ON CONFLICT(id) DO UPDATE SET {update_sql}",
+            flat_params,
+        )
+
+
+def backfill_professional_city_ids():
+    """يربط تسجيلات الفنيين القديمة (قبل تعدد الدول، كلها سعودية) بمعرّف مدينتها
+    الرسمي من اسم المدينة — حتى يطابقهم البحث الجديد (بالمعرّف) بدقة. آمن للتكرار
+    بكل تشغيل: يلمس فقط الصفوف اللي city_id فيها فاضي."""
+    with get_conn() as conn:
+        conn.execute(
+            """
+            UPDATE professionals
+            SET city_id = (
+                SELECT c.id FROM sa_cities c
+                WHERE c.name = professionals.city AND c.country = professionals.country
+                ORDER BY c.has_districts DESC
+                LIMIT 1
+            )
+            WHERE city_id IS NULL
+            """
+        )
+
+
+def _listed_city_sql(alias: str = "") -> str:
+    """المدن اللي تُعرض للاختيار: بالسعودية فقط المدن الكبرى (عندها أحياء رسمية) —
+    نفس السلوك القديم؛ بباقي الدول كل المدن (أغلبها بدون أحياء = تغطية المدينة كاملة)."""
+    p = f"{alias}." if alias else ""
+    return f"({p}has_districts = 1 OR {p}country != 'SA')"
+
+
+def list_sa_regions(country: str = "SA"):
+    with get_conn() as conn:
+        rows = conn.execute(
+            "SELECT * FROM sa_regions WHERE country = ? ORDER BY name", (country,)
+        ).fetchall()
         return [dict(r) for r in rows]
 
 
@@ -1546,7 +1770,7 @@ def list_sa_major_cities_by_region(region_id: int):
     """المدن «الكبرى» بمنطقة معيّنة (اللي عندها بيانات أحياء فعلية) — تُعرض كأزرار أولًا."""
     with get_conn() as conn:
         rows = conn.execute(
-            "SELECT * FROM sa_cities WHERE region_id = ? AND has_districts = 1 ORDER BY name",
+            f"SELECT * FROM sa_cities WHERE region_id = ? AND {_listed_city_sql()} ORDER BY name",
             (region_id,),
         ).fetchall()
         return [dict(r) for r in rows]
@@ -1573,9 +1797,9 @@ def search_sa_major_cities(region_id: int, query: str, limit: int = 8):
     معيّنة — نفس تقييد لوحة الأزرار بالضبط: بدون مراكز صغيرة ولا قرى."""
     with get_conn() as conn:
         rows = conn.execute(
-            """
+            f"""
             SELECT * FROM sa_cities
-            WHERE region_id = ? AND has_districts = 1 AND name LIKE ?
+            WHERE region_id = ? AND {_listed_city_sql()} AND name LIKE ?
             ORDER BY name
             LIMIT ?
             """,
@@ -1677,15 +1901,18 @@ def find_nearest_sa_district_by_coords(city_id: int, lat: float, lon: float):
     return candidates[0]
 
 
-def find_nearest_sa_city_and_district_by_coords(lat: float, lon: float):
+def find_nearest_sa_city_and_district_by_coords(lat: float, lon: float, countries: list[str] | None = None):
     """يرجّع (أقرب مدينة رسمية، أقرب حي فيها أو None) لإحداثيات موقع شاركه العميل
     — يُستخدم لتحديد المدينة والحي معًا بضغطة وحدة، بدل التصفح اليدوي الكامل
-    (منطقة ← مدينة ← حي). يقتصر على المدن الرسمية (has_districts=1) نفس قائمة
-    الاختيار اليدوي، حتى النتيجة تطابق نفس الخيارات المتاحة أصلًا."""
+    (منطقة ← مدينة ← حي). يقتصر على نفس المدن المعروضة بالاختيار اليدوي، وعلى
+    الدول المفعّلة فقط (countries) لو حُددت — الموقع نفسه يحدد الدولة تلقائيًا."""
     with get_conn() as conn:
-        rows = conn.execute(
-            "SELECT * FROM sa_cities WHERE lat IS NOT NULL AND has_districts = 1"
-        ).fetchall()
+        query = f"SELECT * FROM sa_cities WHERE lat IS NOT NULL AND {_listed_city_sql()}"
+        params: list = []
+        if countries:
+            query += f" AND country IN ({','.join('?' for _ in countries)})"
+            params.extend(countries)
+        rows = conn.execute(query, params).fetchall()
 
     candidates = [dict(r) for r in rows]
     if not candidates:
@@ -1710,8 +1937,9 @@ def nearest_sa_cities(city_id: int, exclude_ids: list[int], limit: int = 3):
 
     with get_conn() as conn:
         placeholders = ",".join("?" for _ in exclude_ids) if exclude_ids else None
-        query = "SELECT * FROM sa_cities WHERE lat IS NOT NULL"
-        params = []
+        # نفس الدولة فقط — ما نقترح على عميل بالكويت مدينة سعودية لأنها "أقرب".
+        query = f"SELECT * FROM sa_cities WHERE lat IS NOT NULL AND country = ? AND {_listed_city_sql()}"
+        params = [origin.get("country") or "SA"]
         if placeholders:
             query += f" AND id NOT IN ({placeholders})"
             params.extend(exclude_ids)
@@ -1724,3 +1952,79 @@ def nearest_sa_cities(city_id: int, exclude_ids: list[int], limit: int = 3):
 
     candidates.sort(key=dist)
     return candidates[:limit]
+
+
+# ─────────────────────────── مدراء الدول (لوحة التحكم) ───────────────────────────
+
+def list_admin_users():
+    with get_conn() as conn:
+        rows = conn.execute("SELECT id, username, country, created_at FROM admin_users ORDER BY country, username").fetchall()
+        return [dict(r) for r in rows]
+
+
+def get_admin_user_by_username(username: str):
+    with get_conn() as conn:
+        row = conn.execute("SELECT * FROM admin_users WHERE username = ?", (username,)).fetchone()
+        return dict(row) if row else None
+
+
+def create_admin_user(username: str, password_hash: str, country: str) -> bool:
+    """يرجّع False لو اسم المستخدم مستخدم مسبقًا."""
+    with get_conn() as conn:
+        exists = conn.execute("SELECT 1 FROM admin_users WHERE username = ?", (username,)).fetchone()
+        if exists:
+            return False
+        conn.execute(
+            "INSERT INTO admin_users (username, password_hash, country, created_at) VALUES (?, ?, ?, ?)",
+            (username, password_hash, country, _now_iso()),
+        )
+        return True
+
+
+def update_admin_user_password(user_id: int, password_hash: str):
+    with get_conn() as conn:
+        conn.execute("UPDATE admin_users SET password_hash = ? WHERE id = ?", (password_hash, user_id))
+
+
+def delete_admin_user(user_id: int):
+    with get_conn() as conn:
+        conn.execute("DELETE FROM admin_users WHERE id = ?", (user_id,))
+
+
+# ─────────────────────────── نشاط البوت (مربع صحة السيرفر) ───────────────────────────
+
+def record_activity_minute(minute: str, users: int, updates: int):
+    """يحفظ ملخص دقيقة وحدة (عدد المستخدمين المختلفين + عدد الرسائل/الضغطات). لو
+    نفس الدقيقة انكتبت قبل (نادر — مثلًا إعادة تشغيل بنفس الدقيقة) ناخذ الأكبر."""
+    with get_conn() as conn:
+        conn.execute(
+            """
+            INSERT INTO activity_minutes (minute, users, updates) VALUES (?, ?, ?)
+            ON CONFLICT(minute) DO UPDATE SET
+                users = MAX(users, excluded.users), updates = MAX(updates, excluded.updates)
+            """,
+            (minute, users, updates),
+        )
+        # تنظيف تلقائي: نحتفظ بآخر 30 يوم فقط (حجم تافه، لكن ما نخليه يكبر للأبد)
+        cutoff = (datetime.now(timezone.utc) - timedelta(days=30)).strftime("%Y-%m-%dT%H:%M")
+        conn.execute("DELETE FROM activity_minutes WHERE minute < ?", (cutoff,))
+
+
+def activity_peaks() -> dict:
+    """أعلى عدد مستخدمين بنفس الدقيقة خلال آخر يوم وآخر أسبوع، + نشاط آخر ساعة."""
+    now = datetime.now(timezone.utc)
+    fmt = "%Y-%m-%dT%H:%M"
+    day = (now - timedelta(days=1)).strftime(fmt)
+    week = (now - timedelta(days=7)).strftime(fmt)
+    hour = (now - timedelta(hours=1)).strftime(fmt)
+    with get_conn() as conn:
+        def one(sql, params):
+            row = conn.execute(sql, params).fetchone()
+            return (row[0] or 0) if row else 0
+
+        return {
+            "peak_day": one("SELECT MAX(users) FROM activity_minutes WHERE minute >= ?", (day,)),
+            "peak_week": one("SELECT MAX(users) FROM activity_minutes WHERE minute >= ?", (week,)),
+            "updates_last_hour": one("SELECT SUM(updates) FROM activity_minutes WHERE minute >= ?", (hour,)),
+            "has_data": one("SELECT COUNT(*) FROM activity_minutes", ()) > 0,
+        }

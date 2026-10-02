@@ -5,6 +5,7 @@ import asyncio
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import CallbackQueryHandler, ContextTypes
 
+import countries
 import db
 from config import ADMIN_TELEGRAM_ID
 
@@ -31,6 +32,7 @@ async def notify_admin_new_registration(context: ContextTypes.DEFAULT_TYPE, row_
     text = (
         "✅ فني جديد سجّل وتفعّل تلقائيًا (بدون مراجعة)\n\n"
         f"الاسم: {p['full_name']}\n"
+        f"الدولة: {countries.label(p.get('country') or 'SA')}\n"
         f"المدينة: {p['city']}\n"
         f"الحي: {p['neighborhood'] or 'لم يُحدد'}\n"
         f"رقم التواصل: {p['whatsapp_number']} ({'واتساب ✅' if p.get('has_whatsapp', 1) else 'اتصال فقط بدون واتساب 📞'})\n"

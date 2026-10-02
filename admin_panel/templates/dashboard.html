@@ -1,7 +1,46 @@
 {% extends "base.html" %}
 {% block title %}الرئيسية — لوحة تحكم «فني»{% endblock %}
 {% block content %}
-<h1>نظرة عامة</h1>
+<h1>نظرة عامة{% if selected_country %} — {{ country_label(selected_country) }}{% endif %}</h1>
+
+{% if is_super %}
+<form method="get" class="filters card">
+  <div class="field">
+    <label>عرض الإحصائيات لـ</label>
+    <select name="country" onchange="this.form.submit()">
+      <option value="">كل الدول</option>
+      {% for c in all_countries %}
+      <option value="{{ c.code }}" {{ 'selected' if selected_country == c.code }}>{{ c.flag }} {{ c.name.ar }}</option>
+      {% endfor %}
+    </select>
+  </div>
+</form>
+
+{% if health %}
+<div class="card health-box health-{{ health.overall }}">
+  <h2>
+    صحة السيرفر:
+    {% if health.overall == 'green' %}🟢 مرتاح — ما تحتاج ترقية
+    {% elif health.overall == 'yellow' %}🟡 قرّب — خطّط للترقية قريبًا
+    {% else %}🔴 مضغوط — رقِّ السيرفر الآن{% endif %}
+  </h2>
+  <table>
+    <tbody>
+      {% for item in health["items"] %}
+      <tr>
+        <td>{{ '🟢' if item.level == 'green' else ('🟡' if item.level == 'yellow' else '🔴') }} {{ item.label }}</td>
+        <td><strong>{{ item.value }}</strong></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <p class="muted">
+    الأهم: «أعلى مستخدمين بنفس الدقيقة» — حتى 30 مرتاح، 30–50 خطّط للترقية، فوق 50 رقِّ.
+    {% if not health.has_activity %}(عدّاد المستخدمين يبدأ يسجّل من أول دقيقة بعد التحديث.){% endif %}
+  </p>
+</div>
+{% endif %}
+{% endif %}
 
 <div class="stats-grid">
   <div class="stat-box">
@@ -36,6 +75,7 @@
     <div class="num">{{ stats.total_searches }}</div>
     <div class="label">عمليات بحث</div>
   </div>
+  {% if is_super %}
   <div class="stat-box">
     <div class="num">{{ "%.0f"|format(stats.revenue_sar) }} ﷼</div>
     <div class="label">إيرادات Tap (مدفوعة)</div>
@@ -44,7 +84,26 @@
     <div class="num">{{ stats.stars_paid_count }}</div>
     <div class="label">اشتراكات مدفوعة عبر Stars</div>
   </div>
+  {% endif %}
 </div>
+
+{% if is_super and not selected_country %}
+<div class="card">
+  <h2>الفنيون حسب الدولة</h2>
+  {% if stats.country_counts %}
+  <table>
+    <thead><tr><th>الدولة</th><th>عدد الفنيين</th></tr></thead>
+    <tbody>
+      {% for row in stats.country_counts %}
+      <tr><td>{{ country_label(row.country) }}</td><td>{{ row.c }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">لا يوجد فنيون بعد.</p>
+  {% endif %}
+</div>
+{% endif %}
 
 <div class="card">
   <h2>أكثر المهن طلبًا (من سجل البحث)</h2>

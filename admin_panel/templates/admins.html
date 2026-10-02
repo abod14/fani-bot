@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}المدراء — لوحة تحكم «فني»{% endblock %}
+{% block content %}
+<h1>مدراء الدول</h1>
+<p class="muted">
+  مدير الدولة يدخل بنفس رابط اللوحة باسم المستخدم وكلمة المرور اللي تحددها هنا، ويشوف فنيي دولته فقط
+  (القائمة، التفاصيل، التغطية، الإحصائيات). ما يقدر: ينزّل إكسل، يغيّر الإعدادات، يعدّل المهن، يشوف المدفوعات، أو يضيف مدراء.
+</p>
+
+<div class="card">
+  <h2>إضافة مدير دولة</h2>
+  <form method="post" class="filters">
+    <input type="hidden" name="action" value="add">
+    <div class="field">
+      <label>اسم المستخدم</label>
+      <input type="text" name="username" required placeholder="مثال: egypt">
+    </div>
+    <div class="field">
+      <label>كلمة المرور (6 أحرف على الأقل)</label>
+      <input type="text" name="password" required minlength="6">
+    </div>
+    <div class="field">
+      <label>الدولة</label>
+      <select name="country" required>
+        {% for c in all_countries %}
+        <option value="{{ c.code }}" {{ 'selected' if c.code == 'EG' }}>{{ c.flag }} {{ c.name.ar }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="field">
+      <button type="submit" class="success">إضافة</button>
+    </div>
+  </form>
+</div>
+
+<div class="card">
+  <h2>المدراء الحاليون</h2>
+  {% if admins %}
+  <table>
+    <thead><tr><th>اسم المستخدم</th><th>الدولة</th><th>تاريخ الإضافة</th><th>تغيير كلمة المرور</th><th>حذف</th></tr></thead>
+    <tbody>
+      {% for a in admins %}
+      <tr>
+        <td><strong>{{ a.username }}</strong></td>
+        <td>{{ country_label(a.country) }}</td>
+        <td>{{ a.created_at[:10] }}</td>
+        <td>
+          <form method="post" class="inline-form">
+            <input type="hidden" name="action" value="password">
+            <input type="hidden" name="user_id" value="{{ a.id }}">
+            <input type="text" name="password" minlength="6" placeholder="كلمة مرور جديدة" required>
+            <button type="submit" class="secondary">تغيير</button>
+          </form>
+        </td>
+        <td>
+          <form method="post" class="inline-form" onsubmit="return confirm('حذف المدير «{{ a.username }}»؟');">
+            <input type="hidden" name="action" value="delete">
+            <input type="hidden" name="user_id" value="{{ a.id }}">
+            <button type="submit" class="danger">حذف</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">ما فيه مدراء دول بعد.</p>
+  {% endif %}
+</div>
+{% endblock %}

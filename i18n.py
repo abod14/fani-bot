@@ -148,6 +148,38 @@ TEXTS: dict[str, dict[str, str]] = {
         "en": "Send your contact number (with country code), example:\n+966501234567",
         "ur": "اپنا رابطہ نمبر (ملکی کوڈ سمیت) بھیجیں، مثال:\n+966501234567",
     },
+    # ─────────────────────────── تعدد الدول ───────────────────────────
+    "ask_country": {
+        "ar": "اختر الدولة 🌍:",
+        "en": "Choose your country 🌍:",
+        "ur": "اپنا ملک منتخب کریں 🌍:",
+    },
+    "change_country_btn": {
+        "ar": "🌍 تغيير الدولة",
+        "en": "🌍 Change country",
+        "ur": "🌍 ملک تبدیل کریں",
+    },
+    "reg_ask_contact_number_country": {
+        "ar": "أرسل رقم جوالك للتواصل ({country})، مثال:\n{example}",
+        "en": "Send your contact mobile number ({country}), example:\n{example}",
+        "ur": "رابطے کے لیے اپنا موبائل نمبر بھیجیں ({country})، مثال:\n{example}",
+    },
+    "reg_invalid_number_country": {
+        "ar": "رقم غير صحيح. أرسل رقم جوال صحيح ({country})، مثال:\n{example}",
+        "en": "Invalid number. Send a valid mobile number ({country}), example:\n{example}",
+        "ur": "غلط نمبر۔ درست موبائل نمبر بھیجیں ({country})، مثال:\n{example}",
+    },
+    "reg_city_whole_selected": {
+        "ar": "المدينة: {city} ✅\nتغطيتك: المدينة كاملة 🌍",
+        "en": "City: {city} ✅\nYour coverage: the whole city 🌍",
+        "ur": "شہر: {city} ✅\nآپ کی کوریج: پورا شہر 🌍",
+    },
+    "sub_stars_only_note": {
+        "ar": "الدفع في دولتك متاح حاليًا عبر نجوم تلغرام ⭐ فقط.",
+        "en": "Payment in your country is currently available via Telegram Stars ⭐ only.",
+        "ur": "آپ کے ملک میں ادائیگی فی الحال صرف ٹیلیگرام اسٹارز ⭐ کے ذریعے دستیاب ہے۔",
+    },
+
     "reg_invalid_number": {
         "ar": "رقم غير صحيح. أرسل الرقم مع رمز الدولة، مثال:\n+966501234567",
         "en": "Invalid number. Send it with the country code, example:\n+966501234567",

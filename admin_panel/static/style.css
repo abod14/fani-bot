@@ -273,3 +273,10 @@ button.success:hover, .btn.success:hover {
 .prof-row:last-child {
   border-bottom: none;
 }
+
+
+/* ─── مربع صحة السيرفر ─── */
+.health-box { border-right: 6px solid #10b981; }
+.health-box.health-yellow { border-right-color: #f59e0b; background: #fffbeb; }
+.health-box.health-red { border-right-color: #ef4444; background: #fef2f2; }
+.health-box table td:last-child { text-align: left; }

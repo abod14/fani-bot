@@ -31,6 +31,7 @@ from telegram.ext import (
     filters,
 )
 
+import countries
 import db
 import i18n
 import professions_repo as professions
@@ -68,6 +69,9 @@ LOCATION_NEARBY_COUNT = 3  # + الحي المكتشف نفسه = 4 خيارات
 
 GEO_PAGE_SIZE = 8
 
+COUNTRY_CB_PREFIX = "srch_country:"
+CHANGE_COUNTRY_CB = "srch_change_country"
+
 
 def _lang(context: ContextTypes.DEFAULT_TYPE) -> str:
     return context.user_data.get("lang", "ar")
@@ -83,16 +87,46 @@ def _neighborhood_display(neighborhood) -> str:
     return "، ".join(neighborhood)
 
 
-def _region_keyboard() -> InlineKeyboardMarkup:
+def _country_keyboard(codes: list[str], lang: str) -> InlineKeyboardMarkup:
     buttons, row = [], []
-    for r in db.list_sa_regions():
-        row.append(InlineKeyboardButton(r["name"], callback_data=f"srch_region:{r['id']}"))
+    for code in codes:
+        row.append(InlineKeyboardButton(countries.label(code, lang), callback_data=f"{COUNTRY_CB_PREFIX}{code}"))
         if len(row) == 2:
             buttons.append(row)
             row = []
     if row:
         buttons.append(row)
     return InlineKeyboardMarkup(buttons)
+
+
+def _region_keyboard(country: str = countries.DEFAULT_COUNTRY, lang: str = "ar") -> InlineKeyboardMarkup:
+    buttons, row = [], []
+    for r in db.list_sa_regions(country):
+        row.append(InlineKeyboardButton(r["name"], callback_data=f"srch_region:{r['id']}"))
+        if len(row) == 2:
+            buttons.append(row)
+            row = []
+    if row:
+        buttons.append(row)
+    if len(countries.enabled_codes()) > 1:
+        buttons.append([InlineKeyboardButton(i18n.t("change_country_btn", lang), callback_data=CHANGE_COUNTRY_CB)])
+    return InlineKeyboardMarkup(buttons)
+
+
+def _city_back_cb(ud: dict) -> str | None:
+    """زر الرجوع تحت قائمة المدن: للمناطق عادةً، أو لاختيار الدولة لو الدولة فيها
+    منطقة وحدة بس (ما فيه قائمة مناطق نرجع لها)."""
+    if ud.get("region_count", 2) > 1:
+        return BACK_TO_REGIONS_CB
+    return CHANGE_COUNTRY_CB if len(countries.enabled_codes()) > 1 else None
+
+
+def _back_row(back_cb: str | None, lang: str) -> list:
+    if back_cb == BACK_TO_REGIONS_CB:
+        return [[InlineKeyboardButton(i18n.t("back_to_regions_btn", lang), callback_data=BACK_TO_REGIONS_CB)]]
+    if back_cb == CHANGE_COUNTRY_CB:
+        return [[InlineKeyboardButton(i18n.t("change_country_btn", lang), callback_data=CHANGE_COUNTRY_CB)]]
+    return []
 
 
 def _paginated_keyboard(items: list[dict], page: int, item_cb_prefix: str, page_cb_prefix: str, extra_rows: list = None):
@@ -123,11 +157,10 @@ def _paginated_keyboard(items: list[dict], page: int, item_cb_prefix: str, page_
     return InlineKeyboardMarkup(buttons)
 
 
-def _city_keyboard(region_id: int, page: int, lang: str) -> InlineKeyboardMarkup:
+def _city_keyboard(region_id: int, page: int, lang: str, back_cb: str | None = BACK_TO_REGIONS_CB) -> InlineKeyboardMarkup:
     cities = db.list_sa_major_cities_by_region(region_id)
     return _paginated_keyboard(
-        cities, page, "srch_city:", "srch_city_page:",
-        extra_rows=[[InlineKeyboardButton(i18n.t("back_to_regions_btn", lang), callback_data=BACK_TO_REGIONS_CB)]],
+        cities, page, "srch_city:", "srch_city_page:", extra_rows=_back_row(back_cb, lang),
     )
 
 
@@ -453,32 +486,114 @@ async def skip_subservice(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return SEARCH_REGION
 
 
-# ─────────────────────────── الخطوة 2: المنطقة → المدينة → الحي ───────────────────────────
+# ─────────────────────────── الخطوة 2: الدولة → المنطقة → المدينة → الحي ───────────────────────────
+
+async def _resolve_country(context: ContextTypes.DEFAULT_TYPE, user_id: int) -> str | None:
+    """الدولة الحالية للبحث: من نفس الجلسة، أو آخر دولة اختارها المستخدم سابقًا،
+    أو تلقائيًا لو فيه دولة وحدة مفعّلة. None = لازم نسأله."""
+    enabled = await asyncio.to_thread(countries.enabled_codes)
+    for code in (context.user_data.get("country"), await asyncio.to_thread(db.get_user_country, user_id)):
+        if code and code in enabled:
+            return code
+    return enabled[0] if len(enabled) == 1 else None
+
+
+async def _render(message, edit: bool, text: str, markup, state):
+    if edit:
+        await message.edit_text(text, reply_markup=markup)
+    else:
+        await message.reply_text(text, reply_markup=markup)
+    return state
+
+
+async def _advance_location(message, context: ContextTypes.DEFAULT_TYPE, user_id: int, *, edit: bool,
+                            country: str | None = None, region_id: int | None = None, city: dict | None = None):
+    """يعرض خطوة الموقع اليدوية التالية (الدولة ← المنطقة ← المدينة ← الحي) ويرجّع
+    حالة المحادثة المناسبة — مع تخطي تلقائي لأي خطوة فيها خيار واحد بس (الكويت/
+    البحرين: منطقة ومدينة وحدة → مباشرة للأحياء). مدينة بدون أحياء → بحث فوري
+    بالمدينة كاملة."""
+    lang = _lang(context)
+    ud = context.user_data
+
+    if city is None:
+        if region_id is None:
+            if country is None:
+                country = await _resolve_country(context, user_id)
+            if country is None:
+                enabled = await asyncio.to_thread(countries.enabled_codes)
+                return await _render(message, edit, i18n.t("ask_country", lang),
+                                     _country_keyboard(enabled, lang), SEARCH_REGION)
+            ud["country"] = country
+            regions = await asyncio.to_thread(db.list_sa_regions, country)
+            ud["region_count"] = len(regions)
+            if len(regions) != 1:
+                markup = await asyncio.to_thread(_region_keyboard, country, lang)
+                return await _render(message, edit, i18n.t("reg_ask_region", lang), markup, SEARCH_REGION)
+            region_id = regions[0]["id"]
+
+        region = await asyncio.to_thread(db.get_sa_region_by_id, region_id)
+        if not region:
+            return await _advance_location(message, context, user_id, edit=edit, country=ud.get("country"))
+        ud["region_id"] = region_id
+        ud["country"] = region.get("country") or ud.get("country")
+        cities = await asyncio.to_thread(db.list_sa_major_cities_by_region, region_id)
+        if len(cities) != 1:
+            markup = await asyncio.to_thread(_city_keyboard, region_id, 0, lang, _city_back_cb(ud))
+            return await _render(message, edit, i18n.t("reg_region_selected", lang, region=region["name"]),
+                                 markup, SEARCH_CITY)
+        city = cities[0]
+
+    ud["city_id"] = city["id"]
+    ud["city"] = city["name"]
+    if city.get("country"):
+        ud["country"] = city["country"]
+    ud.setdefault("tried_city_ids", []).append(city["id"])
+
+    if city.get("has_districts"):
+        return await _render(message, edit, i18n.t("srch_city_step", lang, city=city["name"]),
+                             _district_keyboard(city["id"], page=0, lang=lang), SEARCH_NEIGHBORHOOD)
+
+    # مدينة بدون أحياء — كل فنييها يغطّونها كاملة، فنبحث مباشرة بالمدينة
+    ud["neighborhood"] = None
+    ud["district_id"] = None
+    return await _run_search(message, context, is_edit=edit, customer_telegram_id=user_id)
+
+
+async def choose_search_country(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    code = query.data.split(":", 1)[1]
+    enabled = await asyncio.to_thread(countries.enabled_codes)
+    if code not in enabled:
+        code = None
+    else:
+        await asyncio.to_thread(db.set_user_country, update.effective_user.id, code)
+    return await _advance_location(query.message, context, update.effective_user.id, edit=True, country=code)
+
+
+async def search_change_country(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    lang = _lang(context)
+    query = update.callback_query
+    await query.answer()
+    enabled = await asyncio.to_thread(countries.enabled_codes)
+    await query.edit_message_text(i18n.t("ask_country", lang), reply_markup=_country_keyboard(enabled, lang))
+    return SEARCH_REGION
+
 
 async def choose_search_region(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = _lang(context)
     query = update.callback_query
     await query.answer()
     region_id = int(query.data.split(":", 1)[1])
-    region = await asyncio.to_thread(db.get_sa_region_by_id, region_id)
-    if not region:
-        await query.edit_message_text(i18n.t("unknown_option", lang), reply_markup=_region_keyboard())
-        return SEARCH_REGION
-
-    context.user_data["region_id"] = region_id
-    await query.edit_message_text(
-        i18n.t("reg_region_selected", lang, region=region["name"]),
-        reply_markup=_city_keyboard(region_id, page=0, lang=lang),
-    )
-    return SEARCH_CITY
+    return await _advance_location(query.message, context, update.effective_user.id, edit=True, region_id=region_id)
 
 
 async def back_to_search_regions(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    lang = _lang(context)
     query = update.callback_query
     await query.answer()
-    await query.edit_message_text(i18n.t("reg_ask_region", lang), reply_markup=_region_keyboard())
-    return SEARCH_REGION
+    return await _advance_location(
+        query.message, context, update.effective_user.id, edit=True, country=context.user_data.get("country")
+    )
 
 
 async def region_text_router(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -486,11 +601,7 @@ async def region_text_router(update: Update, context: ContextTypes.DEFAULT_TYPE)
     نص آخر كتبه العميل بالغلط — يوديه لنفس المسار اليدوي المعتاد (لوحة المناطق
     الشفافة). لوحة المفاتيح الحقيقية one_time_keyboard فتختفي تلقائيًا بمجرد
     إرسال أي رد."""
-    lang = _lang(context)
-    await update.message.reply_text(
-        i18n.t("reg_ask_region", lang), reply_markup=_region_keyboard()
-    )
-    return SEARCH_REGION
+    return await _advance_location(update.message, context, update.effective_user.id, edit=False)
 
 
 async def receive_early_location(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -501,21 +612,23 @@ async def receive_early_location(update: Update, context: ContextTypes.DEFAULT_T
     قبل ما يبدأ البحث فعليًا."""
     lang = _lang(context)
     loc = update.message.location
+    enabled = await asyncio.to_thread(countries.enabled_codes)
     result = await asyncio.to_thread(
-        db.find_nearest_sa_city_and_district_by_coords, loc.latitude, loc.longitude
+        db.find_nearest_sa_city_and_district_by_coords, loc.latitude, loc.longitude, enabled
     )
     await update.message.reply_text(
         i18n.t("srch_location_received", lang), reply_markup=ReplyKeyboardRemove()
     )
 
     if not result or not result[0]:
-        await update.message.reply_text(
-            i18n.t("srch_location_no_match", lang), reply_markup=_region_keyboard()
-        )
-        return SEARCH_REGION
+        await update.message.reply_text(i18n.t("srch_location_no_match", lang))
+        return await _advance_location(update.message, context, update.effective_user.id, edit=False)
 
     city, district = result
     ud = context.user_data
+    if city.get("country"):
+        ud["country"] = city["country"]
+        await asyncio.to_thread(db.set_user_country, update.effective_user.id, city["country"])
     ud["pending_city_id"] = city["id"]
     ud["pending_city_name"] = city["name"]
 
@@ -563,8 +676,7 @@ async def confirm_early_location(update: Update, context: ContextTypes.DEFAULT_T
     city_name = ud.pop("pending_city_name", None)
 
     if not city_id:
-        await query.edit_message_text(i18n.t("unknown_option", lang), reply_markup=_region_keyboard())
-        return SEARCH_REGION
+        return await _advance_location(query.message, context, update.effective_user.id, edit=True)
 
     ud["city_id"] = city_id
     ud["city"] = city_name
@@ -620,8 +732,7 @@ async def confirm_location_selection(update: Update, context: ContextTypes.DEFAU
     ud.pop("pending_detected_district_id", None)
 
     if not city_id:
-        await query.edit_message_text(i18n.t("unknown_option", lang), reply_markup=_region_keyboard())
-        return SEARCH_REGION
+        return await _advance_location(query.message, context, update.effective_user.id, edit=True)
 
     names = [choices[str(did)] for did in selected_ids if str(did) in choices]
 
@@ -649,8 +760,7 @@ async def confirm_location_all_city(update: Update, context: ContextTypes.DEFAUL
     ud.pop("loc_selected_ids", None)
 
     if not city_id:
-        await query.edit_message_text(i18n.t("unknown_option", lang), reply_markup=_region_keyboard())
-        return SEARCH_REGION
+        return await _advance_location(query.message, context, update.effective_user.id, edit=True)
 
     ud["city_id"] = city_id
     ud["city"] = city_name
@@ -673,8 +783,7 @@ async def reject_early_location(update: Update, context: ContextTypes.DEFAULT_TY
         "loc_choice_map", "loc_selected_ids",
     ):
         context.user_data.pop(key, None)
-    await query.edit_message_text(i18n.t("reg_ask_region", lang), reply_markup=_region_keyboard())
-    return SEARCH_REGION
+    return await _advance_location(query.message, context, update.effective_user.id, edit=True)
 
 
 async def search_city_page_nav(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -683,7 +792,9 @@ async def search_city_page_nav(update: Update, context: ContextTypes.DEFAULT_TYP
     await query.answer()
     page = int(query.data.split(":", 1)[1])
     region_id = context.user_data["region_id"]
-    await query.edit_message_reply_markup(reply_markup=_city_keyboard(region_id, page, lang))
+    await query.edit_message_reply_markup(
+        reply_markup=_city_keyboard(region_id, page, lang, _city_back_cb(context.user_data))
+    )
     return SEARCH_CITY
 
 
@@ -699,15 +810,7 @@ async def choose_search_city(update: Update, context: ContextTypes.DEFAULT_TYPE)
     if not city:
         await query.edit_message_text(i18n.t("unknown_option", lang))
         return SEARCH_CITY
-
-    context.user_data["city_id"] = city_id
-    context.user_data["city"] = city["name"]
-    context.user_data.setdefault("tried_city_ids", []).append(city_id)
-    await query.edit_message_text(
-        i18n.t("srch_city_step", lang, city=city["name"]),
-        reply_markup=_district_keyboard(city_id, page=0, lang=lang),
-    )
-    return SEARCH_NEIGHBORHOOD
+    return await _advance_location(query.message, context, update.effective_user.id, edit=True, city=city)
 
 
 async def city_text_search(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -715,15 +818,15 @@ async def city_text_search(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = _lang(context)
     region_id = context.user_data.get("region_id")
     if not region_id:
-        await update.message.reply_text(i18n.t("reg_ask_region", lang), reply_markup=_region_keyboard())
-        return SEARCH_REGION
+        return await _advance_location(update.message, context, update.effective_user.id, edit=False)
 
+    back_cb = _city_back_cb(context.user_data)
     query_text = update.message.text.strip()
     matches = await asyncio.to_thread(db.search_sa_major_cities, region_id, query_text)
     if not matches:
         await update.message.reply_text(
             i18n.t("reg_city_not_found", lang),
-            reply_markup=_city_keyboard(region_id, page=0, lang=lang),
+            reply_markup=_city_keyboard(region_id, page=0, lang=lang, back_cb=back_cb),
         )
         return SEARCH_CITY
 
@@ -735,7 +838,7 @@ async def city_text_search(update: Update, context: ContextTypes.DEFAULT_TYPE):
             row = []
     if row:
         buttons.append(row)
-    buttons.append([InlineKeyboardButton(i18n.t("back_to_regions_btn", lang), callback_data=BACK_TO_REGIONS_CB)])
+    buttons.extend(_back_row(back_cb, lang))
 
     await update.message.reply_text(i18n.t("matched_results", lang), reply_markup=InlineKeyboardMarkup(buttons))
     return SEARCH_CITY
@@ -820,16 +923,19 @@ RESULTS_PAGE_SIZE = 5
 
 async def _run_search(message, context: ContextTypes.DEFAULT_TYPE, is_edit: bool, customer_telegram_id: int):
     ud = context.user_data
+    city_row = await asyncio.to_thread(db.get_sa_city_by_id, ud["city_id"]) if ud.get("city_id") else None
+    country = (city_row or {}).get("country") or ud.get("country") or countries.DEFAULT_COUNTRY
+    ud["country"] = country
     result_ids = await asyncio.to_thread(
         db.search_active_professional_ids, ud["profession_id"], ud["city"], ud.get("neighborhood"),
-        ud.get("district_id"), ud.get("service_filter"),
+        ud.get("district_id"), ud.get("service_filter"), ud.get("city_id"),
     )
     ud["result_ids"] = result_ids
     ud["shown_count"] = 0
 
     await asyncio.to_thread(
         db.log_search, customer_telegram_id, ud["profession_id"], ud["profession_name"],
-        ud["city"], ud.get("neighborhood"), len(result_ids),
+        ud["city"], ud.get("neighborhood"), len(result_ids), country,
     )
 
     # نبّه (عبر البوت بتلغرام) أي فني كان سيظهر بهذا البحث لولا إنه خلّص فرصه
@@ -842,7 +948,7 @@ async def _run_search(message, context: ContextTypes.DEFAULT_TYPE, is_edit: bool
 async def _notify_missed_professionals(context: ContextTypes.DEFAULT_TYPE, ud: dict):
     missed = await asyncio.to_thread(
         db.find_subscription_missed_professionals,
-        ud["profession_id"], ud["city"], ud.get("neighborhood"), ud.get("district_id"),
+        ud["profession_id"], ud["city"], ud.get("neighborhood"), ud.get("district_id"), ud.get("city_id"),
     )
     if not missed:
         return
@@ -1034,8 +1140,7 @@ async def manual_district_pick(update: Update, context: ContextTypes.DEFAULT_TYP
     await query.answer()
     city_id = context.user_data.get("city_id")
     if not city_id:
-        await query.edit_message_text(i18n.t("reg_ask_region", lang), reply_markup=_region_keyboard())
-        return SEARCH_REGION
+        return await _advance_location(query.message, context, update.effective_user.id, edit=True)
 
     await query.edit_message_text(
         i18n.t("srch_city_step", lang, city=context.user_data.get("city", "")),
@@ -1047,11 +1152,11 @@ async def manual_district_pick(update: Update, context: ContextTypes.DEFAULT_TYP
 async def manual_region_pick(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """العميل ما يبي أحد المدن المقترحة (المجاورة) ولا يبي ينهي البحث — يرجّعه
     لبداية الاختيار اليدوي الكامل (المنطقة) عشان يختار مدينة ثانية كليًا."""
-    lang = _lang(context)
     query = update.callback_query
     await query.answer()
-    await query.edit_message_text(i18n.t("reg_ask_region", lang), reply_markup=_region_keyboard())
-    return SEARCH_REGION
+    return await _advance_location(
+        query.message, context, update.effective_user.id, edit=True, country=context.user_data.get("country")
+    )
 
 
 async def end_search_results(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -1186,12 +1291,15 @@ def build_search_conversation() -> ConversationHandler:
                 CallbackQueryHandler(reject_early_location, pattern=f"^{REJECT_LOCATION_CB}$"),
                 CallbackQueryHandler(end_search_results, pattern=f"^{END_SEARCH_CB}$"),
                 CallbackQueryHandler(choose_search_region, pattern="^srch_region:"),
+                CallbackQueryHandler(choose_search_country, pattern=f"^{COUNTRY_CB_PREFIX}"),
+                CallbackQueryHandler(search_change_country, pattern=f"^{CHANGE_COUNTRY_CB}$"),
                 MessageHandler(filters.TEXT & ~filters.COMMAND, region_text_router),
             ],
             SEARCH_CITY: [
                 CallbackQueryHandler(choose_search_city, pattern="^srch_city:"),
                 CallbackQueryHandler(search_city_page_nav, pattern="^srch_city_page:"),
                 CallbackQueryHandler(back_to_search_regions, pattern=f"^{BACK_TO_REGIONS_CB}$"),
+                CallbackQueryHandler(search_change_country, pattern=f"^{CHANGE_COUNTRY_CB}$"),
                 MessageHandler(filters.TEXT & ~filters.COMMAND, city_text_search),
             ],
             SEARCH_NEIGHBORHOOD: [
