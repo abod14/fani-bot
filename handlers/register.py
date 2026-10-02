@@ -42,9 +42,22 @@ import professions_repo as professions
     TELEGRAM_CONTACT,
     DOMAIN,
     PROFESSION,
+    CITY_SCOPE,
     SERVICES,
     CONFIRM,
-) = range(12)
+) = range(13)
+
+CITY_WIDE_YES_CB = "reg_citywide_yes"
+CITY_WIDE_NO_CB = "reg_citywide_no"
+
+
+def _city_scope_keyboard(lang: str) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        [
+            [InlineKeyboardButton(i18n.t("reg_city_wide_yes_btn", lang), callback_data=CITY_WIDE_YES_CB)],
+            [InlineKeyboardButton(i18n.t("reg_city_wide_no_btn", lang), callback_data=CITY_WIDE_NO_CB)],
+        ]
+    )
 
 CHANNEL_CHECK_CB = "reg_channel_check"
 
@@ -285,7 +298,10 @@ def _services_keyboard(services: list[str], selected: set[str], lang: str) -> In
 def _summary_text(ud: dict, lang: str) -> str:
     services = ud.get("services") or []
     services_text = "، ".join(services) if services else i18n.t("no_services", lang)
-    neighborhoods_text = ud.get("neighborhood") or i18n.t("not_specified", lang)
+    if ud.get("covers_whole_city"):
+        neighborhoods_text = i18n.t("reg_summary_whole_city", lang)
+    else:
+        neighborhoods_text = ud.get("neighborhood") or i18n.t("not_specified", lang)
     wa_label = i18n.t("wa_label_yes", lang) if ud.get("has_whatsapp", True) else i18n.t("wa_label_no", lang)
     body = i18n.t(
         "reg_summary_body", lang,
@@ -652,11 +668,37 @@ async def choose_profession(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data["profession_name"] = profession["name"]
     context.user_data["available_services"] = profession["services"]
     context.user_data["services"] = []
+    context.user_data["covers_whole_city"] = False
 
-    if profession["services"]:
+    # مهنة نادرة (علّمها الأدمن من لوحة التحكم) — نعرض خيار تغطية المدينة كاملة
+    # بدل الاكتفاء بالأحياء اللي اختارها الفني قبل شوي (حد أقصى 5)، لأن قلة
+    # عدد الفنيين بهذي المهنة تخليهم يختفون عن عملاء بأحياء ثانية بنفس المدينة.
+    if profession.get("allow_city_wide"):
         await query.edit_message_text(
-            i18n.t("reg_services_prompt", lang, profession=profession["name"]),
-            reply_markup=_services_keyboard(profession["services"], set(), lang),
+            i18n.t("reg_city_wide_prompt", lang, city=context.user_data.get("city", "")),
+            reply_markup=_city_scope_keyboard(lang),
+        )
+        return CITY_SCOPE
+
+    return await _proceed_after_profession(query, context, lang)
+
+
+async def choose_city_scope(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    lang = _lang(context)
+    query = update.callback_query
+    await query.answer()
+    context.user_data["covers_whole_city"] = query.data == CITY_WIDE_YES_CB
+    return await _proceed_after_profession(query, context, lang)
+
+
+async def _proceed_after_profession(query, context: ContextTypes.DEFAULT_TYPE, lang: str):
+    """بعد تحديد المهنة (ونطاق التغطية لو مهنة نادرة)، يكمل لخطوة الخدمات الفرعية
+    لو موجودة، وإلا يروح مباشرة لشاشة المراجعة النهائية."""
+    available_services = context.user_data.get("available_services", [])
+    if available_services:
+        await query.edit_message_text(
+            i18n.t("reg_services_prompt", lang, profession=context.user_data["profession_name"]),
+            reply_markup=_services_keyboard(available_services, set(), lang),
         )
         return SERVICES
 
@@ -762,6 +804,7 @@ async def confirm_yes(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "profession_id": ud["profession_id"],
             "profession_name": ud["profession_name"],
             "services": ud.get("services", []),
+            "covers_whole_city": ud.get("covers_whole_city", False),
         },
     )
 
@@ -858,6 +901,9 @@ def build_register_conversation() -> ConversationHandler:
             PROFESSION: [
                 CallbackQueryHandler(choose_profession, pattern="^reg_prof:"),
                 CallbackQueryHandler(profession_list_noop, pattern=f"^{PROFESSION_NOOP_CB}$"),
+            ],
+            CITY_SCOPE: [
+                CallbackQueryHandler(choose_city_scope, pattern=f"^{CITY_WIDE_YES_CB}$|^{CITY_WIDE_NO_CB}$"),
             ],
             SERVICES: [
                 CallbackQueryHandler(services_done, pattern=f"^{SERVICES_DONE_CB}$"),

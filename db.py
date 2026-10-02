@@ -189,6 +189,13 @@ def init_db():
             conn.execute(
                 "ALTER TABLE professionals ADD COLUMN last_search_nudge_at TEXT"
             )
+        if "covers_whole_city" not in existing_columns:
+            # للمهن النادرة (معلّمة allow_city_wide بجدول professions): الفني يختار
+            # يغطي المدينة كاملة بدل حصر نفسه بـ5 أحياء — يظهر بكل بحث بالمدينة
+            # بغض النظر عن الحي اللي يبحث منه العميل.
+            conn.execute(
+                "ALTER TABLE professionals ADD COLUMN covers_whole_city INTEGER NOT NULL DEFAULT 0"
+            )
 
         # فهرس يسرّع بحث العميل: مهنة + مدينة + حي على الفنيين النشطين، مرتّب بالتناوب
         conn.execute(
@@ -308,6 +315,15 @@ def init_db():
             if "name_ur" not in cols:
                 conn.execute(f"ALTER TABLE {table} ADD COLUMN name_ur TEXT")
 
+        prof_cols = {row["name"] for row in conn.execute("PRAGMA table_info(professions)").fetchall()}
+        if "allow_city_wide" not in prof_cols:
+            # مهن نادرة (أدمن يفعّلها يدويًا من لوحة التحكم) — تتيح للفني يختار
+            # يغطي المدينة كاملة بدل حصر نفسه بـ5 أحياء بس، لأن قلة عددهم تخليهم
+            # يختفون عن عملاء كثير لو حصروا نفسهم بأحياء محددة.
+            conn.execute(
+                "ALTER TABLE professions ADD COLUMN allow_city_wide INTEGER NOT NULL DEFAULT 0"
+            )
+
         # تفضيل لغة كل مستخدم (عميل أو فني) — مستقل عن التسجيل كفني، ينطبق على أي
         # شخص يتفاعل مع البوت. العربي هو الافتراضي لمن لم يختر بعد.
         conn.execute(
@@ -401,8 +417,8 @@ def create_registration(data: dict) -> int:
                 telegram_user_id, full_name, city, neighborhood,
                 whatsapp_number, has_whatsapp, telegram_contact_number,
                 domain_name, profession_id, profession_name,
-                services_json, status, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                services_json, status, created_at, covers_whole_city
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 data["telegram_user_id"],
@@ -418,6 +434,7 @@ def create_registration(data: dict) -> int:
                 json.dumps(data.get("services", []), ensure_ascii=False),
                 STATUS_ACTIVE,
                 _now_iso(),
+                1 if data.get("covers_whole_city") else 0,
             ),
         )
         professional_id = cur.lastrowid
@@ -501,7 +518,8 @@ def search_active_professional_ids(
             placeholders = ",".join("?" for _ in district_ids)
             name_conditions = " OR ".join(["neighborhood LIKE ?"] * len(neighborhood_names)) or "0"
             where.append(
-                f"(id IN (SELECT professional_id FROM professional_districts WHERE district_id IN ({placeholders})) "
+                f"(covers_whole_city = 1 "
+                f"OR id IN (SELECT professional_id FROM professional_districts WHERE district_id IN ({placeholders})) "
                 f"OR (id NOT IN (SELECT professional_id FROM professional_districts) AND ({name_conditions})))"
             )
             params.extend(district_ids)
@@ -511,7 +529,7 @@ def search_active_professional_ids(
             # توافق مع بيانات/بحث قديم بالنص الحر (بدون district_id محدد)
             names = [neighborhood] if isinstance(neighborhood, str) else neighborhood
             name_conditions = " OR ".join(["neighborhood LIKE ?"] * len(names))
-            where.append(f"({name_conditions})")
+            where.append(f"(covers_whole_city = 1 OR {name_conditions})")
             for n in names:
                 params.append(f"%{n.strip()}%")
 
@@ -577,7 +595,8 @@ def find_subscription_missed_professionals(
             placeholders = ",".join("?" for _ in district_ids)
             name_conditions = " OR ".join(["neighborhood LIKE ?"] * len(neighborhood_names)) or "0"
             where.append(
-                f"(id IN (SELECT professional_id FROM professional_districts WHERE district_id IN ({placeholders})) "
+                f"(covers_whole_city = 1 "
+                f"OR id IN (SELECT professional_id FROM professional_districts WHERE district_id IN ({placeholders})) "
                 f"OR (id NOT IN (SELECT professional_id FROM professional_districts) AND ({name_conditions})))"
             )
             params.extend(district_ids)
@@ -586,7 +605,7 @@ def find_subscription_missed_professionals(
         elif neighborhood:
             names = [neighborhood] if isinstance(neighborhood, str) else neighborhood
             name_conditions = " OR ".join(["neighborhood LIKE ?"] * len(names))
-            where.append(f"({name_conditions})")
+            where.append(f"(covers_whole_city = 1 OR {name_conditions})")
             for n in names:
                 params.append(f"%{n.strip()}%")
 
@@ -1028,12 +1047,21 @@ def create_profession(domain_id: str, name: str, isco_code: str | None, services
         return new_id
 
 
-def update_profession(profession_id: str, name: str, isco_code: str | None, services: list[str]):
+def update_profession(
+    profession_id: str, name: str, isco_code: str | None, services: list[str],
+    allow_city_wide: bool | None = None,
+):
     with get_conn() as conn:
-        conn.execute(
-            "UPDATE professions SET name = ?, isco_code = ?, services_json = ? WHERE id = ?",
-            (name, isco_code, json.dumps(services, ensure_ascii=False), profession_id),
-        )
+        if allow_city_wide is None:
+            conn.execute(
+                "UPDATE professions SET name = ?, isco_code = ?, services_json = ? WHERE id = ?",
+                (name, isco_code, json.dumps(services, ensure_ascii=False), profession_id),
+            )
+        else:
+            conn.execute(
+                "UPDATE professions SET name = ?, isco_code = ?, services_json = ?, allow_city_wide = ? WHERE id = ?",
+                (name, isco_code, json.dumps(services, ensure_ascii=False), 1 if allow_city_wide else 0, profession_id),
+            )
 
 
 def delete_profession(profession_id: str) -> bool:

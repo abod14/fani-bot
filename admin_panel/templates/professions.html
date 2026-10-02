@@ -34,6 +34,7 @@
     <div>
       <strong>{{ prof.name }}</strong>
       {% if prof.isco_code %}<span class="muted">— ISCO {{ prof.isco_code }}</span>{% endif %}
+      {% if prof.allow_city_wide %}<span class="badge sub-yes">🌍 يسمح بتغطية المدينة كاملة</span>{% endif %}
       {% if prof.services %}<div class="muted">الخدمات: {{ prof.services|join('، ') }}</div>{% endif %}
     </div>
     <div>

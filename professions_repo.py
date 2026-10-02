@@ -32,6 +32,7 @@ def _profession_dict(row: dict, lang: str = "ar") -> dict:
         "isco_code": row.get("isco_code"),
         "status": row.get("status"),
         "services": json.loads(row["services_json"]) if row.get("services_json") else [],
+        "allow_city_wide": bool(row.get("allow_city_wide")),
     }
 
 

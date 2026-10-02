@@ -21,6 +21,13 @@
       <input type="text" name="services" value="{{ profession.services|join('، ') }}">
     </div>
     <br>
+    <div class="field">
+      <label>
+        <input type="checkbox" name="allow_city_wide" value="1" {{ 'checked' if profession.allow_city_wide }}>
+        مهنة نادرة — تسمح للفني يختار تغطية المدينة كاملة بدل حصره بـ٥ أحياء
+      </label>
+    </div>
+    <br>
     <button type="submit">حفظ التعديلات</button>
   </form>
 </div>

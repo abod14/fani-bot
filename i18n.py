@@ -253,6 +253,26 @@ TEXTS: dict[str, dict[str, str]] = {
         "en": "Name: {name}\nCity: {city}\nDistricts: {districts}\nContact number: {contact} ({wa_label})\nTelegram: {telegram}\nProfession: {profession}\nServices: {services}",
         "ur": "نام: {name}\nشہر: {city}\nعلاقے: {districts}\nرابطہ نمبر: {contact} ({wa_label})\nٹیلیگرام: {telegram}\nپیشہ: {profession}\nخدمات: {services}",
     },
+    "reg_city_wide_prompt": {
+        "ar": "مهنتك من المهن اللي تحتاج تغطية أوسع 🌍\n\nتحب تغطي كل مدينة {city} (بدل الأحياء اللي اخترتها بس)؟ كذا تظهر لأي عميل يبحث من أي حي بالمدينة.",
+        "en": "Your profession needs wider coverage 🌍\n\nWould you like to cover all of {city} (instead of just the districts you picked)? This way you'll show up for customers searching from any district in the city.",
+        "ur": "آپ کے پیشے کو زیادہ کوریج کی ضرورت ہے 🌍\n\nکیا آپ پورے {city} کو کور کرنا چاہتے ہیں (صرف منتخب علاقوں کی بجائے)؟",
+    },
+    "reg_city_wide_yes_btn": {
+        "ar": "🌍 نعم، المدينة كاملة",
+        "en": "🌍 Yes, the whole city",
+        "ur": "🌍 جی ہاں، پورا شہر",
+    },
+    "reg_city_wide_no_btn": {
+        "ar": "📍 لا، نفس الأحياء اللي اخترتها",
+        "en": "📍 No, just the districts I picked",
+        "ur": "📍 نہیں، صرف منتخب علاقے",
+    },
+    "reg_summary_whole_city": {
+        "ar": "المدينة كاملة 🌍",
+        "en": "The whole city 🌍",
+        "ur": "پورا شہر 🌍",
+    },
     "not_specified": {
         "ar": "لم يُحدد", "en": "Not specified", "ur": "غیر متعین",
     },

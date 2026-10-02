@@ -460,8 +460,9 @@ def profession_edit_page(profession_id):
         name = request.form.get("name", "").strip()
         isco_code = request.form.get("isco_code", "").strip() or None
         services = _parse_services(request.form.get("services", ""))
+        allow_city_wide = request.form.get("allow_city_wide") == "1"
         if name:
-            db.update_profession(profession_id, name, isco_code, services)
+            db.update_profession(profession_id, name, isco_code, services, allow_city_wide=allow_city_wide)
             flash("تم حفظ تعديلات المهنة.", "success")
             return redirect(url_for("professions_page"))
         flash("اسم المهنة مطلوب.", "error")
@@ -472,6 +473,7 @@ def profession_edit_page(profession_id):
         "name": prof["name"],
         "isco_code": prof.get("isco_code"),
         "services": _json.loads(prof["services_json"]) if prof.get("services_json") else [],
+        "allow_city_wide": bool(prof.get("allow_city_wide")),
     }
     return render_template("profession_edit.html", profession=prof_view, active_page="professions")
 
