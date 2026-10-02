@@ -196,6 +196,12 @@ def init_db():
             conn.execute(
                 "ALTER TABLE professionals ADD COLUMN covers_whole_city INTEGER NOT NULL DEFAULT 0"
             )
+        if "source" not in existing_columns:
+            # مصدر وصول الفني للبوت (واتساب/فيسبوك/سناب/تيك توك...) — يُلتقط من
+            # الوسم بعد ?start= برابط التسجيل، لمعرفة أي قناة تسويق فعّالة أكثر.
+            conn.execute(
+                "ALTER TABLE professionals ADD COLUMN source TEXT NOT NULL DEFAULT 'unknown'"
+            )
 
         # فهرس يسرّع بحث العميل: مهنة + مدينة + حي على الفنيين النشطين، مرتّب بالتناوب
         conn.execute(
@@ -417,8 +423,8 @@ def create_registration(data: dict) -> int:
                 telegram_user_id, full_name, city, neighborhood,
                 whatsapp_number, has_whatsapp, telegram_contact_number,
                 domain_name, profession_id, profession_name,
-                services_json, status, created_at, covers_whole_city
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                services_json, status, created_at, covers_whole_city, source
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 data["telegram_user_id"],
@@ -435,6 +441,7 @@ def create_registration(data: dict) -> int:
                 STATUS_ACTIVE,
                 _now_iso(),
                 1 if data.get("covers_whole_city") else 0,
+                (data.get("source") or "unknown").strip()[:30] or "unknown",
             ),
         )
         professional_id = cur.lastrowid
@@ -1407,6 +1414,13 @@ def get_admin_stats() -> dict:
             """
         ).fetchall()
 
+        source_counts = conn.execute(
+            """
+            SELECT source, COUNT(*) AS c FROM professionals
+            GROUP BY source ORDER BY c DESC
+            """
+        ).fetchall()
+
         return {
             "total_users": total_users,
             "status_counts": status_counts,
@@ -1418,6 +1432,7 @@ def get_admin_stats() -> dict:
             "stars_paid_count": stars_paid_count,
             "top_professions": [dict(r) for r in top_professions],
             "top_cities": [dict(r) for r in top_cities],
+            "source_counts": [dict(r) for r in source_counts],
         }
 
 

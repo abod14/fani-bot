@@ -326,7 +326,12 @@ def _confirm_keyboard(lang: str) -> InlineKeyboardMarkup:
 # ─────────────────────────── الخطوة 1: الاسم ───────────────────────────
 
 async def register_entry(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    # نحافظ على وسم المصدر (لو محفوظ من /start برابط فيه ?start=...) قبل ما نمسح
+    # user_data بالكامل، حتى نقدر نربطه بالتسجيل لو أكمل الفني.
+    source = context.user_data.get("source")
     context.user_data.clear()
+    if source:
+        context.user_data["source"] = source
     lang = await asyncio.to_thread(db.get_user_language, update.effective_user.id)
     context.user_data["lang"] = lang
     target = update.message or update.callback_query.message
@@ -763,8 +768,11 @@ async def confirm_edit_all(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = _lang(context)
     query = update.callback_query
     await query.answer()
+    source = context.user_data.get("source")
     context.user_data.clear()
     context.user_data["lang"] = lang
+    if source:
+        context.user_data["source"] = source
     await query.edit_message_text(i18n.t("reg_restart", lang))
     return NAME
 
@@ -805,6 +813,7 @@ async def confirm_yes(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "profession_name": ud["profession_name"],
             "services": ud.get("services", []),
             "covers_whole_city": ud.get("covers_whole_city", False),
+            "source": ud.get("source", "unknown"),
         },
     )
 

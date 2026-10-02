@@ -73,6 +73,12 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data.clear()
     user_id = update.effective_user.id
 
+    # لو الرابط كان فيه وسم مصدر (مثل ?start=facebook)، نحفظه هنا عشان نعرف
+    # لاحقًا (عند إتمام التسجيل) من وين جا هذا الفني — يبقى بـ user_data حتى
+    # لو مر بخطوة اختيار اللغة أولًا.
+    if context.args:
+        context.user_data["source"] = context.args[0].strip().lower()[:30]
+
     if not await asyncio.to_thread(db.has_chosen_language, user_id):
         await update.message.reply_text(i18n.t("lang_prompt"), reply_markup=_language_keyboard())
         return

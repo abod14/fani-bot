@@ -77,4 +77,21 @@
   <p class="muted">لا يوجد بيانات بحث بعد.</p>
   {% endif %}
 </div>
+
+<div class="card">
+  <h2>مصادر تسجيل الفنيين (من روابط ?start=)</h2>
+  {% if stats.source_counts %}
+  <table>
+    <thead><tr><th>المصدر</th><th>عدد الفنيين</th></tr></thead>
+    <tbody>
+      {% for row in stats.source_counts %}
+      <tr><td>{{ row.source }}</td><td>{{ row.c }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <p class="muted">"unknown" = فنيين سجلوا بدون رابط مميّز (أو دخلوا البوت مباشرة بدون ?start=).</p>
+  {% else %}
+  <p class="muted">لا يوجد بيانات بعد.</p>
+  {% endif %}
+</div>
 {% endblock %}
