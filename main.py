@@ -43,6 +43,12 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# مكتبة httpx تكتب سطر INFO لكل طلب لتلغرام (كل ثواني)، والرابط فيه توكن البوت كامل —
+# فيظهر التوكن بالسجلات (journalctl). نرفع مستواها لـ WARNING: الأخطاء تبقى تنكتب،
+# والسطور الروتينية (ومعها التوكن) تختفي. ما يأثر على عمل البوت إطلاقًا.
+logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger("httpcore").setLevel(logging.WARNING)
+
 # "pre_checkout_query" ضروري لدفع نجوم تلغرام (Stars): تلغرام يرسل طلب تأكيد قبل
 # إتمام الدفع، ولو ما وصل للبوت (لأنه مو ضمن القائمة) الدفع يفشل بعد ثواني.
 ALLOWED_UPDATES = ["message", "callback_query", "pre_checkout_query"]
