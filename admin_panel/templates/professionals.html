@@ -91,7 +91,7 @@
       <td><a href="{{ url_for('professional_detail', professional_id=p.id) }}">{{ p.full_name }}</a></td>
       {% if is_super %}<td>{{ country_label(p.country or 'SA') }}</td>{% endif %}
       <td>{{ p.city }}{% if p.covers_whole_city %} / المدينة كاملة 🌍{% elif p.neighborhood %} / {{ p.neighborhood }}{% endif %}</td>
-      <td>{{ p.profession_name }}</td>
+      <td>{{ p.profession_name }}{% if p.profession2_name %} • {{ p.profession2_name }}{% endif %}</td>
       <td><span class="badge {{ p.status }}">{{ status_labels.get(p.status, p.status) }}</span></td>
       <td>
         {% if p.is_subscribed %}

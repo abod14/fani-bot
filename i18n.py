@@ -148,6 +148,33 @@ TEXTS: dict[str, dict[str, str]] = {
         "en": "Send your contact number (with country code), example:\n+966501234567",
         "ur": "اپنا رابطہ نمبر (ملکی کوڈ سمیت) بھیجیں، مثال:\n+966501234567",
     },
+    # ─────────────────────────── مهنة ثانية / المدينة كاملة ───────────────────────────
+    "reg_second_prof_prompt": {
+        "ar": "مهنتك: {profession} ✅\n\nتشتغل بمهنة ثانية؟ تقدر تضيف مهنة ثانية وحدة (اختياري)، وتظهر للعملاء بالمهنتين.",
+        "en": "Your profession: {profession} ✅\n\nDo you work in a second profession? You can add one more (optional) and appear to customers under both.",
+        "ur": "آپ کا پیشہ: {profession} ✅\n\nکیا آپ دوسرا پیشہ بھی کرتے ہیں؟ آپ ایک اور پیشہ شامل کر سکتے ہیں (اختیاری) اور دونوں میں نظر آئیں گے۔",
+    },
+    "reg_add_second_btn": {"ar": "➕ أضيف مهنة ثانية", "en": "➕ Add a second profession", "ur": "➕ دوسرا پیشہ شامل کریں"},
+    "reg_no_second_btn": {"ar": "لا، أكمل ✅", "en": "No, continue ✅", "ur": "نہیں، آگے بڑھیں ✅"},
+    "reg_skip_second_btn": {"ar": "⏭️ بدون مهنة ثانية", "en": "⏭️ No second profession", "ur": "⏭️ دوسرا پیشہ نہیں"},
+    "reg_pick_second_prof": {
+        "ar": "اختر مهنتك الثانية:",
+        "en": "Choose your second profession:",
+        "ur": "اپنا دوسرا پیشہ منتخب کریں:",
+    },
+    "reg_whole_city_btn": {"ar": "🌍 أغطي المدينة كاملة", "en": "🌍 I cover the whole city", "ur": "🌍 میں پورے شہر میں کام کرتا ہوں"},
+    "reg_rare_whole_city_hint": {
+        "ar": "🌍 مهنتك من المهن المطلوبة على مستوى المدينة — تقدر تضغط «أغطي المدينة كاملة» وتظهر لأي عميل بالمدينة، أو تختار أحياء محددة.",
+        "en": "🌍 Your profession can cover the whole city — tap \"I cover the whole city\" to appear to any customer in the city, or pick specific districts.",
+        "ur": "🌍 آپ کا پیشہ پورے شہر کا احاطہ کر سکتا ہے — \"میں پورے شہر میں کام کرتا ہوں\" دبائیں یا مخصوص علاقے منتخب کریں۔",
+    },
+    "reg_reselect_districts_note": {
+        "ar": "ℹ️ خيار «المدينة كاملة» متاح للمهن النادرة فقط — اختر أحياءك من جديد:",
+        "en": "ℹ️ \"Whole city\" is only available for rare professions — please pick your districts again:",
+        "ur": "ℹ️ \"پورا شہر\" صرف نایاب پیشوں کے لیے ہے — براہ کرم اپنے علاقے دوبارہ منتخب کریں:",
+    },
+    "reg_contact_saved": {"ar": "تم ✅", "en": "Done ✅", "ur": "ہو گیا ✅"},
+
     # ─────────────────────────── دعوة الزملاء ───────────────────────────
     "menu_invite": {
         "ar": "🎁 ادعُ زملاءك واكسب فرص مجانية",
@@ -295,9 +322,9 @@ TEXTS: dict[str, dict[str, str]] = {
         "ur": "شعبہ: {domain}\n\nاپنا پیشہ منتخب کریں:",
     },
     "reg_profession_prompt": {
-        "ar": "تمام ✅ اختر مهنتك من القائمة (مقسّمة حسب المجال):",
-        "en": "Great ✅ Choose your profession from the list (grouped by field):",
-        "ur": "ٹھیک ہے ✅ فہرست سے اپنا پیشہ منتخب کریں (شعبے کے مطابق تقسیم شدہ):",
+        "ar": "اختر مهنتك من القائمة (مقسّمة حسب المجال):",
+        "en": "Choose your profession from the list (grouped by field):",
+        "ur": "فہرست سے اپنا پیشہ منتخب کریں (شعبے کے مطابق تقسیم شدہ):",
     },
     "reg_all_professions_list": {
         "ar": "كل المهن المتاحة:",
@@ -389,9 +416,9 @@ TEXTS: dict[str, dict[str, str]] = {
         "ur": "◀️ پیشوں کی فہرست پر واپس جائیں",
     },
     "reg_already_registered": {
-        "ar": "أنت مسجّل بالفعل بمهنة «{profession}» بهذا الحساب.\n\nيسمح بتسجيل مهنة واحدة فقط لكل رقم. إذا كنت تريد تسجيل مهنة أخرى، استخدم جوالًا/حساب تلغرام مختلف.\n\nلتعديل بياناتك الحالية تواصل مع الدعم.",
-        "en": "You're already registered with the profession \"{profession}\" on this account.\n\nOnly one profession is allowed per number. If you want to register another profession, use a different phone/Telegram account.\n\nTo edit your current details, contact support.",
-        "ur": "آپ پہلے ہی اس اکاؤنٹ پر پیشہ \"{profession}\" کے ساتھ رجسٹرڈ ہیں۔\n\nہر نمبر کے لیے صرف ایک پیشے کی رجسٹریشن کی اجازت ہے۔ اگر آپ دوسرا پیشہ رجسٹر کرنا چاہتے ہیں تو مختلف موبائل/ٹیلیگرام اکاؤنٹ استعمال کریں۔\n\nموجودہ تفصیلات میں ترمیم کے لیے سپورٹ سے رابطہ کریں۔",
+        "ar": "أنت مسجّل بالفعل بهذا الحساب ({profession}).\n\nلتعديل بياناتك أو مهنك تواصل مع الدعم.",
+        "en": "You're already registered on this account ({profession}).\n\nTo edit your details or professions, contact support.",
+        "ur": "آپ پہلے ہی اس اکاؤنٹ پر رجسٹرڈ ہیں ({profession})۔\n\nتفصیلات یا پیشوں میں ترمیم کے لیے سپورٹ سے رابطہ کریں۔",
     },
     "reg_card_preview_intro": {
         "ar": "👀 هذي بطاقتك اللي بيشوفها العميل بالضبط لما يبحث عن مهنتك:",

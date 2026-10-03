@@ -45,7 +45,7 @@ async def _build_welcome_message(user_id: int, lang: str):
     if existing:
         status_label = i18n.t(f"status_{existing['status']}", lang)
         text = i18n.t("welcome", lang) + i18n.t(
-            "status_line", lang, profession=existing["profession_name"], status=status_label
+            "status_line", lang, profession=db.profession_display(existing), status=status_label
         )
         if existing["status"] == db.STATUS_ACTIVE and not existing["is_subscribed"]:
             free_limit = int(await asyncio.to_thread(

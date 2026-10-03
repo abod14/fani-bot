@@ -6,7 +6,7 @@
 
 <div class="card">
   <h2>الحالة</h2>
-  <p class="muted">المهنة: {{ p.profession_name }} ({{ p.domain_name }})</p>
+  <p class="muted">المهنة: {{ p.profession_name }} ({{ p.domain_name }}){% if p.profession2_name %} • المهنة الثانية: {{ p.profession2_name }}{% endif %}</p>
   <p class="muted">الدولة: {{ country_label(p.country or 'SA') }}{% if p.covers_whole_city %} — يغطي المدينة كاملة 🌍{% endif %} — مصدر التسجيل: {{ p.source or 'unknown' }}</p>
   <form method="post" action="{{ url_for('professional_set_status', professional_id=p.id) }}">
     <input type="hidden" name="next" value="{{ url_for('professional_detail', professional_id=p.id) }}">

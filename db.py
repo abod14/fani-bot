@@ -414,6 +414,12 @@ def init_db():
             # معرّف المدينة الرسمي — البحث يطابق عليه بدل اسم المدينة النصي (أسماء
             # تتكرر بين الدول/المحافظات، مثل «المطرية» بالقاهرة والدقهلية).
             conn.execute("ALTER TABLE professionals ADD COLUMN city_id INTEGER")
+        if "profession2_id" not in prof_cols2:
+            # مهنة ثانية اختيارية (حد أقصى مهنتين لكل فني). عدّاد الظهور times_shown
+            # مشترك بين المهنتين — فالظهور الكلي يبقى عادل مقارنة بصاحب المهنة الواحدة.
+            conn.execute("ALTER TABLE professionals ADD COLUMN profession2_id TEXT")
+            conn.execute("ALTER TABLE professionals ADD COLUMN profession2_name TEXT")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_professionals_prof2 ON professionals (profession2_id)")
         if "bonus_contacts" not in prof_cols2:
             # فرص مجانية إضافية خاصة بالفني (مكافآت دعوة الزملاء) — تنضاف على الحد العام
             conn.execute("ALTER TABLE professionals ADD COLUMN bonus_contacts INTEGER NOT NULL DEFAULT 0")
@@ -507,8 +513,8 @@ def create_registration(data: dict) -> int:
                 whatsapp_number, has_whatsapp, telegram_contact_number,
                 domain_name, profession_id, profession_name,
                 services_json, status, created_at, covers_whole_city, source,
-                country, city_id, referred_by
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                country, city_id, referred_by, profession2_id, profession2_name
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 data["telegram_user_id"],
@@ -529,6 +535,8 @@ def create_registration(data: dict) -> int:
                 data.get("country") or "SA",
                 data.get("city_id"),
                 data.get("referred_by"),
+                data.get("profession2_id") or None,
+                data.get("profession2_name") or None,
             ),
         )
         professional_id = cur.lastrowid
@@ -612,11 +620,11 @@ def search_active_professional_ids(
         city_sql, city_params = _city_condition(conn, city, city_id)
         where = [
             "status = ?",
-            "profession_id = ?",
+            "(profession_id = ? OR profession2_id = ?)",
             city_sql,
             "(free_contacts_used < ? + bonus_contacts OR is_subscribed = 1)",
         ]
-        params = [STATUS_ACTIVE, profession_id, *city_params, free_limit]
+        params = [STATUS_ACTIVE, profession_id, profession_id, *city_params, free_limit]
 
         if district_id:
             # اختيار متعدد للأحياء (منطق "أو" — يكفي تطابق حي وحد من المُعلَّمة).
@@ -690,7 +698,7 @@ def find_subscription_missed_professionals(
         city_sql, city_params = _city_condition(conn, city, city_id)
         where = [
             "status = ?",
-            "profession_id = ?",
+            "(profession_id = ? OR profession2_id = ?)",
             city_sql,
             "is_subscribed = 0",
             "free_contacts_used >= ? + bonus_contacts",
@@ -699,7 +707,7 @@ def find_subscription_missed_professionals(
         cooldown_cutoff = (
             datetime.now(timezone.utc) - timedelta(hours=NUDGE_COOLDOWN_HOURS)
         ).isoformat()
-        params = [STATUS_ACTIVE, profession_id, *city_params, free_limit, cooldown_cutoff]
+        params = [STATUS_ACTIVE, profession_id, profession_id, *city_params, free_limit, cooldown_cutoff]
 
         if district_id:
             district_ids = [district_id] if isinstance(district_id, int) else list(district_id)
@@ -1204,7 +1212,8 @@ def delete_profession(profession_id: str) -> bool:
     """يحذف المهنة فقط لو ما فيه فنيين مسجّلين عليها حاليًا (حماية من كسر بيانات موجودة)."""
     with get_conn() as conn:
         count = conn.execute(
-            "SELECT COUNT(*) FROM professionals WHERE profession_id = ?", (profession_id,)
+            "SELECT COUNT(*) FROM professionals WHERE profession_id = ? OR profession2_id = ?",
+            (profession_id, profession_id),
         ).fetchone()[0]
         if count > 0:
             return False
@@ -1235,8 +1244,8 @@ def admin_list_professionals(
         where.append("city LIKE ?")
         params.append(f"%{city.strip()}%")
     if profession_id:
-        where.append("profession_id = ?")
-        params.append(profession_id)
+        where.append("(profession_id = ? OR profession2_id = ?)")
+        params.extend([profession_id, profession_id])
     if subscribed is not None:
         where.append("is_subscribed = ?")
         params.append(1 if subscribed else 0)
@@ -1282,8 +1291,8 @@ def admin_count_professionals(
         where.append("city LIKE ?")
         params.append(f"%{city.strip()}%")
     if profession_id:
-        where.append("profession_id = ?")
-        params.append(profession_id)
+        where.append("(profession_id = ? OR profession2_id = ?)")
+        params.extend([profession_id, profession_id])
     if subscribed is not None:
         where.append("is_subscribed = ?")
         params.append(1 if subscribed else 0)
@@ -1322,15 +1331,22 @@ def admin_coverage_summary(country: str | None = None) -> list[dict]:
     with get_conn() as conn:
         rows = conn.execute(
             """
-            SELECT city,
+            SELECT p.city,
                    COUNT(*) AS total_active,
-                   COUNT(DISTINCT profession_id) AS distinct_professions
-            FROM professionals
-            WHERE status = ? AND (? IS NULL OR country = ?)
-            GROUP BY city
+                   (SELECT COUNT(DISTINCT pid) FROM (
+                        SELECT profession_id AS pid FROM professionals
+                        WHERE status = ? AND city = p.city AND (? IS NULL OR country = ?)
+                        UNION
+                        SELECT profession2_id FROM professionals
+                        WHERE status = ? AND city = p.city AND profession2_id IS NOT NULL
+                              AND (? IS NULL OR country = ?)
+                   )) AS distinct_professions
+            FROM professionals p
+            WHERE p.status = ? AND (? IS NULL OR p.country = ?)
+            GROUP BY p.city
             ORDER BY total_active DESC
             """,
-            (STATUS_ACTIVE, country, country),
+            (STATUS_ACTIVE, country, country, STATUS_ACTIVE, country, country, STATUS_ACTIVE, country, country),
         ).fetchall()
         return [dict(r) for r in rows]
 
@@ -1341,12 +1357,16 @@ def admin_coverage_matrix(country: str | None = None) -> list[dict]:
     with get_conn() as conn:
         rows = conn.execute(
             """
-            SELECT city, profession_id, COUNT(*) AS cnt
-            FROM professionals
-            WHERE status = ? AND (? IS NULL OR country = ?)
+            SELECT city, profession_id, COUNT(*) AS cnt FROM (
+                SELECT city, profession_id FROM professionals
+                WHERE status = ? AND (? IS NULL OR country = ?)
+                UNION ALL
+                SELECT city, profession2_id FROM professionals
+                WHERE status = ? AND profession2_id IS NOT NULL AND (? IS NULL OR country = ?)
+            )
             GROUP BY city, profession_id
             """,
-            (STATUS_ACTIVE, country, country),
+            (STATUS_ACTIVE, country, country, STATUS_ACTIVE, country, country),
         ).fetchall()
         return [dict(r) for r in rows]
 
@@ -2162,3 +2182,9 @@ def admin_top_referrers(country: str | None = None, limit: int = 10) -> list[dic
             (country, country, limit),
         ).fetchall()
         return [dict(r) for r in rows]
+
+
+def profession_display(p: dict) -> str:
+    """اسم المهنة للعرض — المهنتين مع بعض لو الفني عنده مهنة ثانية: «سباك • كهربائي»."""
+    second = p.get("profession2_name")
+    return f"{p['profession_name']} • {second}" if second else p["profession_name"]

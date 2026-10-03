@@ -339,7 +339,7 @@ def professionals_export():
             p["full_name"],
             p["whatsapp_number"],
             p["telegram_contact_number"] or "",
-            p["profession_name"],
+            db.profession_display(p),
             p["domain_name"],
             countries.name(p.get("country") or "SA"),
             p["city"],

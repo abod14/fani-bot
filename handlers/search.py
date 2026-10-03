@@ -343,7 +343,7 @@ def _professional_card_text(p: dict) -> str:
         location = p["city"] + (f" — {p['neighborhood']}" if p["neighborhood"] else "")
     lines = [
         f"👷 {p['full_name']}",
-        f"🛠️ {p['profession_name']}",
+        f"🛠️ {db.profession_display(p)}",
     ]
     services = p.get("services")
     if services is None and p.get("services_json"):
@@ -1202,7 +1202,10 @@ async def whatsapp_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await query.answer()
 
     if p.get("has_whatsapp", 1):
-        prefill = i18n.t("srch_wa_prefill_text", lang, profession=p["profession_name"])
+        # الرسالة الجاهزة تذكر المهنة اللي بحث عنها العميل (لو الفني عنده مهنتين)
+        searched = context.user_data.get("profession_id")
+        prof_name = p["profession2_name"] if searched and searched == p.get("profession2_id") else p["profession_name"]
+        prefill = i18n.t("srch_wa_prefill_text", lang, profession=prof_name)
         open_wa_keyboard = InlineKeyboardMarkup(
             [[InlineKeyboardButton(
                 i18n.t("srch_open_wa_btn", lang), url=_wa_link(p["whatsapp_number"], prefill)

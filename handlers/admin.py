@@ -38,7 +38,7 @@ async def notify_admin_new_registration(context: ContextTypes.DEFAULT_TYPE, row_
         f"رقم التواصل: {p['whatsapp_number']} ({'واتساب ✅' if p.get('has_whatsapp', 1) else 'اتصال فقط بدون واتساب 📞'})\n"
         f"حساب التلغرام: {p['telegram_contact_number'] or 'غير متاح'}\n"
         f"المجال: {p['domain_name']}\n"
-        f"المهنة: {p['profession_name']}\n"
+        f"المهنة: {db.profession_display(p)}\n"
         f"الخدمات: {services}"
     )
 

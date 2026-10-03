@@ -44,10 +44,15 @@ import professions_repo as professions
     TELEGRAM_CONTACT,
     DOMAIN,
     PROFESSION,
-    CITY_SCOPE,
+    CITY_SCOPE,  # لم تعد مستخدمة (صار خيار «المدينة كاملة» داخل شاشة الأحياء) — باقية للتوافق
     SERVICES,
     CONFIRM,
-) = range(14)
+    SECOND_PROF,
+) = range(15)
+
+ADD_SECOND_CB = "reg_add_second"
+NO_SECOND_CB = "reg_no_second"
+WHOLE_CITY_CB = "reg_whole_city"
 
 CITY_WIDE_YES_CB = "reg_citywide_yes"
 CITY_WIDE_NO_CB = "reg_citywide_no"
@@ -217,14 +222,18 @@ def _city_keyboard(region_id: int, page: int, lang: str, back_cb: str | None = B
     )
 
 
-def _district_keyboard(city_id: int, page: int, selected_ids: set[int], lang: str) -> InlineKeyboardMarkup:
-    """لوحة اختيار متعدد للأحياء (من 1 إلى 5 كحد أقصى)، مع صفحات وعلامة ✅ للمختار."""
+def _district_keyboard(city_id: int, page: int, selected_ids: set[int], lang: str,
+                      allow_whole: bool = False) -> InlineKeyboardMarkup:
+    """لوحة اختيار متعدد للأحياء (من 1 إلى 5 كحد أقصى)، مع صفحات وعلامة ✅ للمختار.
+    allow_whole: مهنة نادرة — زر «أغطي المدينة كاملة» أول القائمة بدل اختيار أحياء."""
     districts = db.list_sa_districts_by_city(city_id)
     total = len(districts)
     start = page * GEO_PAGE_SIZE
     page_items = districts[start:start + GEO_PAGE_SIZE]
 
     buttons, row = [], []
+    if allow_whole:
+        buttons.append([InlineKeyboardButton(i18n.t("reg_whole_city_btn", lang), callback_data=WHOLE_CITY_CB)])
     for d in page_items:
         mark = "✅ " if d["id"] in selected_ids else "▫️ "
         row.append(InlineKeyboardButton(mark + d["name"], callback_data=f"{DISTRICT_TOGGLE_CB_PREFIX}{d['id']}"))
@@ -288,7 +297,7 @@ def _profession_keyboard(domain_id: str, lang: str) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(buttons)
 
 
-def _profession_list_grouped_keyboard(lang: str) -> InlineKeyboardMarkup:
+def _profession_list_grouped_keyboard(lang: str, exclude: str | None = None, skip_btn: bool = False) -> InlineKeyboardMarkup:
     """كل المهن (أيًا كان عددها الحالي) بلوحة واحدة مسطّحة مقسّمة تحت عناوين
     مجالاتها (أقسامها) — نفس فكرة القائمة المسطّحة اللي بنيناها لخطوة بحث
     العميل (_profession_list_keyboard بـ search.py)، مع فرق واحد: هنا نضيف قبل
@@ -296,8 +305,10 @@ def _profession_list_grouped_keyboard(lang: str) -> InlineKeyboardMarkup:
     يوضّح للفني القسم اللي تنتمي له المهن التالية، بدل ما يضطر يختار المجال أولاً
     بخطوة منفصلة كما كان سابقًا."""
     buttons = []
+    if skip_btn:
+        buttons.append([InlineKeyboardButton(i18n.t("reg_skip_second_btn", lang), callback_data=NO_SECOND_CB)])
     for d in professions.get_domains(lang):
-        profs = professions.get_professions_by_domain(d["id"], lang)
+        profs = [p for p in professions.get_professions_by_domain(d["id"], lang) if p["id"] != exclude]
         if not profs:
             continue
         buttons.append([InlineKeyboardButton(f"── {d['name']} ──", callback_data=PROFESSION_NOOP_CB)])
@@ -332,8 +343,20 @@ def _services_keyboard(services: list[str], selected: set[str], lang: str) -> In
     return InlineKeyboardMarkup(buttons)
 
 
+def _professions_text(ud: dict) -> str:
+    return f"{ud['profession_name']} • {ud['profession2_name']}" if ud.get("profession2_name") else ud["profession_name"]
+
+
+def _all_services(ud: dict) -> list:
+    out = []
+    for s_ in (ud.get("services") or []) + (ud.get("services2") or []):
+        if s_ not in out:
+            out.append(s_)
+    return out
+
+
 def _summary_text(ud: dict, lang: str) -> str:
-    services = ud.get("services") or []
+    services = _all_services(ud)
     services_text = "، ".join(services) if services else i18n.t("no_services", lang)
     if ud.get("covers_whole_city"):
         neighborhoods_text = i18n.t("reg_summary_whole_city", lang)
@@ -346,7 +369,7 @@ def _summary_text(ud: dict, lang: str) -> str:
         name=ud["full_name"], city=city_text, districts=neighborhoods_text,
         contact=ud["whatsapp_number"], wa_label=wa_label,
         telegram=ud.get("telegram_contact_number") or i18n.t("not_available", lang),
-        profession=ud["profession_name"], services=services_text,
+        profession=_professions_text(ud), services=services_text,
     )
     return i18n.t("reg_summary_title", lang) + "\n\n" + body
 
@@ -380,7 +403,7 @@ async def register_entry(update: Update, context: ContextTypes.DEFAULT_TYPE):
     existing = await asyncio.to_thread(db.get_professional_by_telegram_id, update.effective_user.id)
     if existing and existing["status"] != db.STATUS_REJECTED:
         await target.reply_text(
-            i18n.t("reg_already_registered", lang, profession=existing["profession_name"])
+            i18n.t("reg_already_registered", lang, profession=db.profession_display(existing))
         )
         return ConversationHandler.END
 
@@ -420,9 +443,12 @@ async def got_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(i18n.t("reg_name_short", lang))
         return NAME
     context.user_data["full_name"] = name
-    text, markup, state = await _location_step(context, lang)
-    await update.message.reply_text(text, reply_markup=markup)
-    return state
+    # الترتيب الجديد: المهنة قبل الموقع — عشان لو مهنته نادرة نعرض له «المدينة كاملة»
+    # مباشرة بشاشة الأحياء بدل ما يختار أحياء وبعدين ينسأل.
+    context.user_data["picking"] = 1
+    keyboard = await asyncio.to_thread(_profession_list_grouped_keyboard, lang)
+    await update.message.reply_text(i18n.t("reg_profession_prompt", lang), reply_markup=keyboard)
+    return PROFESSION
 
 
 # ─────────────────────────── الخطوة 2: المنطقة → المدينة → الحي ───────────────────────────
@@ -461,6 +487,11 @@ async def _location_step(context: ContextTypes.DEFAULT_TYPE, lang: str, country:
     return i18n.t("reg_region_selected", lang, region=region["name"]), markup, CITY
 
 
+def _any_rare(ud: dict) -> bool:
+    """هل وحدة من مهن الفني (الأولى أو الثانية) مهنة نادرة يسمح لها الأدمن بتغطية المدينة كاملة."""
+    return bool(ud.get("p1_rare") or ud.get("p2_rare"))
+
+
 def _city_step(context: ContextTypes.DEFAULT_TYPE, lang: str, city: dict):
     """بعد تحديد المدينة: لو لها أحياء → اختيار الأحياء (1-5) زي السعودية؛ لو بدون
     أحياء (أغلب مدن مصر/الخليج الصغيرة) → الفني يغطي المدينة كاملة تلقائيًا ونروح
@@ -476,9 +507,12 @@ def _city_step(context: ContextTypes.DEFAULT_TYPE, lang: str, city: dict):
 
     if ud["city_has_districts"]:
         ud["covers_whole_city"] = False
+        text = i18n.t("reg_district_step", lang, city=city["name"], max=MAX_DISTRICTS)
+        if _any_rare(ud):
+            text += "\n\n" + i18n.t("reg_rare_whole_city_hint", lang)
         return (
-            i18n.t("reg_district_step", lang, city=city["name"], max=MAX_DISTRICTS),
-            _district_keyboard(city["id"], page=0, selected_ids=set(), lang=lang),
+            text,
+            _district_keyboard(city["id"], page=0, selected_ids=set(), lang=lang, allow_whole=_any_rare(ud)),
             NEIGHBORHOOD,
         )
 
@@ -601,7 +635,7 @@ async def district_page_nav(update: Update, context: ContextTypes.DEFAULT_TYPE):
     city_id = context.user_data["city_id"]
     context.user_data["district_page"] = page
     selected = set(context.user_data.get("selected_district_ids", []))
-    await query.edit_message_reply_markup(reply_markup=_district_keyboard(city_id, page, selected, lang))
+    await query.edit_message_reply_markup(reply_markup=_district_keyboard(city_id, page, selected, lang, allow_whole=_any_rare(context.user_data)))
     return NEIGHBORHOOD
 
 
@@ -621,12 +655,15 @@ async def district_text_search(update: Update, context: ContextTypes.DEFAULT_TYP
         await update.message.reply_text(
             i18n.t("reg_district_not_found", lang),
             reply_markup=_district_keyboard(
-                city_id, page=context.user_data.get("district_page", 0), selected_ids=selected, lang=lang
+                city_id, page=context.user_data.get("district_page", 0), selected_ids=selected, lang=lang,
+                allow_whole=_any_rare(context.user_data),
             ),
         )
         return NEIGHBORHOOD
 
     buttons, row = [], []
+    if _any_rare(context.user_data):
+        buttons.append([InlineKeyboardButton(i18n.t("reg_whole_city_btn", lang), callback_data=WHOLE_CITY_CB)])
     for d in matches:
         mark = "✅ " if d["id"] in selected else "▫️ "
         row.append(InlineKeyboardButton(mark + d["name"], callback_data=f"{DISTRICT_TOGGLE_CB_PREFIX}{d['id']}"))
@@ -669,7 +706,7 @@ async def toggle_district(update: Update, context: ContextTypes.DEFAULT_TYPE):
     city_id = context.user_data["city_id"]
     page = context.user_data.get("district_page", 0)
     await query.edit_message_reply_markup(
-        reply_markup=_district_keyboard(city_id, page, set(selected), lang)
+        reply_markup=_district_keyboard(city_id, page, set(selected), lang, allow_whole=_any_rare(context.user_data))
     )
     return NEIGHBORHOOD
 
@@ -689,6 +726,32 @@ async def districts_done(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     context.user_data["district_ids"] = [d["id"] for d in chosen]
     context.user_data["neighborhood"] = "، ".join(d["name"] for d in chosen)
+    context.user_data["covers_whole_city"] = False
+    return await _after_location(query, context)
+
+
+async def choose_whole_city(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """مهنة نادرة: الفني يغطي المدينة كاملة بدل اختيار أحياء محددة."""
+    query = update.callback_query
+    if not _any_rare(context.user_data):
+        await query.answer()
+        return NEIGHBORHOOD
+    await query.answer()
+    ud = context.user_data
+    ud["covers_whole_city"] = True
+    ud["district_ids"] = []
+    ud["neighborhood"] = None
+    ud["selected_district_ids"] = []
+    return await _after_location(query, context)
+
+
+async def _after_location(query, context: ContextTypes.DEFAULT_TYPE):
+    """بعد الأحياء: عادةً نكمل لرقم التواصل؛ لكن لو جاي من «تعديل المهنة» (البيانات
+    كاملة أصلًا) نرجع مباشرة لشاشة المراجعة."""
+    lang = _lang(context)
+    if context.user_data.pop("return_to_summary", False):
+        await query.edit_message_text(_summary_text(context.user_data, lang), reply_markup=_confirm_keyboard(lang))
+        return CONFIRM
     return await _ask_whatsapp(query.message, context)
 
 
@@ -761,15 +824,9 @@ async def got_telegram_contact(update: Update, context: ContextTypes.DEFAULT_TYP
         return TELEGRAM_CONTACT
 
     context.user_data["telegram_contact_number"] = contact.phone_number
-    await update.message.reply_text(
-        i18n.t("reg_profession_prompt", lang),
-        reply_markup=ReplyKeyboardRemove(),
-    )
-    keyboard = await asyncio.to_thread(_profession_list_grouped_keyboard, lang)
-    await update.message.reply_text(
-        i18n.t("reg_all_professions_list", lang), reply_markup=keyboard
-    )
-    return PROFESSION
+    await update.message.reply_text(i18n.t("reg_contact_saved", lang), reply_markup=ReplyKeyboardRemove())
+    await update.message.reply_text(_summary_text(context.user_data, lang), reply_markup=_confirm_keyboard(lang))
+    return CONFIRM
 
 
 # ─────────────────────────── الخطوة 3 (بديل): المهنة (كل المهن مع أقسامها) ───────────────────────────
@@ -782,67 +839,114 @@ async def profession_list_noop(update: Update, context: ContextTypes.DEFAULT_TYP
 
 
 async def choose_profession(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """اختيار المهنة الأولى أو الثانية (حسب ud["picking"])."""
     lang = _lang(context)
     query = update.callback_query
     await query.answer()
+    ud = context.user_data
+    picking = ud.get("picking", 1)
     profession_id = query.data.split(":", 1)[1]
     domain, profession = await asyncio.to_thread(professions.get_profession, profession_id, lang)
-    if not profession:
-        keyboard = await asyncio.to_thread(_profession_list_grouped_keyboard, lang)
-        await query.edit_message_text(
-            i18n.t("unknown_option", lang), reply_markup=keyboard
+    if not profession or (picking == 2 and profession_id == ud.get("profession_id")):
+        keyboard = await asyncio.to_thread(
+            _profession_list_grouped_keyboard, lang,
+            ud.get("profession_id") if picking == 2 else None, picking == 2,
         )
+        await query.edit_message_text(i18n.t("unknown_option", lang), reply_markup=keyboard)
         return PROFESSION
 
-    context.user_data["domain_id"] = domain["id"] if domain else None
-    context.user_data["domain_name"] = domain["name"] if domain else ""
-    context.user_data["profession_id"] = profession_id
-    context.user_data["profession_name"] = profession["name"]
-    context.user_data["available_services"] = profession["services"]
-    context.user_data["services"] = []
-    context.user_data["covers_whole_city"] = False
+    if picking == 1:
+        ud["domain_id"] = domain["id"] if domain else None
+        ud["domain_name"] = domain["name"] if domain else ""
+        ud["profession_id"] = profession_id
+        ud["profession_name"] = profession["name"]
+        ud["services"] = []
+        ud["p1_rare"] = bool(profession.get("allow_city_wide"))
+    else:
+        ud["profession2_id"] = profession_id
+        ud["profession2_name"] = profession["name"]
+        ud["services2"] = []
+        ud["p2_rare"] = bool(profession.get("allow_city_wide"))
+    ud["available_services"] = profession["services"]
 
-    # مهنة نادرة (علّمها الأدمن من لوحة التحكم) — نعرض خيار تغطية المدينة كاملة
-    # بدل الاكتفاء بالأحياء اللي اختارها الفني قبل شوي (حد أقصى 5)، لأن قلة
-    # عدد الفنيين بهذي المهنة تخليهم يختفون عن عملاء بأحياء ثانية بنفس المدينة.
-    # (مدينة بدون أحياء = الفني أصلًا يغطيها كاملة، فما نسأله)
-    if not context.user_data.get("city_has_districts", True):
-        context.user_data["covers_whole_city"] = True
-    elif profession.get("allow_city_wide"):
+    if profession["services"]:
         await query.edit_message_text(
-            i18n.t("reg_city_wide_prompt", lang, city=context.user_data.get("city", "")),
-            reply_markup=_city_scope_keyboard(lang),
+            i18n.t("reg_services_prompt", lang, profession=profession["name"]),
+            reply_markup=_services_keyboard(profession["services"], set(), lang),
         )
-        return CITY_SCOPE
+        return SERVICES
+    return await _after_services(query, context)
 
-    return await _proceed_after_profession(query, context, lang)
+
+async def _after_services(query, context: ContextTypes.DEFAULT_TYPE):
+    """بعد المهنة الأولى: نسأل عن مهنة ثانية (اختياري). بعد الثانية: نكمل للموقع."""
+    lang = _lang(context)
+    if context.user_data.get("picking", 1) == 1:
+        keyboard = InlineKeyboardMarkup(
+            [
+                [InlineKeyboardButton(i18n.t("reg_add_second_btn", lang), callback_data=ADD_SECOND_CB)],
+                [InlineKeyboardButton(i18n.t("reg_no_second_btn", lang), callback_data=NO_SECOND_CB)],
+            ]
+        )
+        await query.edit_message_text(
+            i18n.t("reg_second_prof_prompt", lang, profession=context.user_data["profession_name"]),
+            reply_markup=keyboard,
+        )
+        return SECOND_PROF
+    return await _after_professions(query, context)
 
 
-async def choose_city_scope(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def add_second_profession(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = _lang(context)
     query = update.callback_query
     await query.answer()
-    context.user_data["covers_whole_city"] = query.data == CITY_WIDE_YES_CB
-    return await _proceed_after_profession(query, context, lang)
+    context.user_data["picking"] = 2
+    keyboard = await asyncio.to_thread(
+        _profession_list_grouped_keyboard, lang, context.user_data.get("profession_id"), True
+    )
+    await query.edit_message_text(i18n.t("reg_pick_second_prof", lang), reply_markup=keyboard)
+    return PROFESSION
 
 
-async def _proceed_after_profession(query, context: ContextTypes.DEFAULT_TYPE, lang: str):
-    """بعد تحديد المهنة (ونطاق التغطية لو مهنة نادرة)، يكمل لخطوة الخدمات الفرعية
-    لو موجودة، وإلا يروح مباشرة لشاشة المراجعة النهائية."""
-    available_services = context.user_data.get("available_services", [])
-    if available_services:
-        await query.edit_message_text(
-            i18n.t("reg_services_prompt", lang, profession=context.user_data["profession_name"]),
-            reply_markup=_services_keyboard(available_services, set(), lang),
-        )
-        return SERVICES
-
-    # لا توجد خدمات فرعية — نروح مباشرة لشاشة المراجعة
-    await query.edit_message_text(_summary_text(context.user_data, lang), reply_markup=_confirm_keyboard(lang))
-    return CONFIRM
+async def no_second_profession(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    ud = context.user_data
+    for k in ("profession2_id", "profession2_name", "services2", "p2_rare"):
+        ud.pop(k, None)
+    return await _after_professions(query, context)
 
 
-# ─────────────────────────── الخطوة 5: الخدمات الفرعية ───────────────────────────
+async def _after_professions(query, context: ContextTypes.DEFAULT_TYPE):
+    """خلصت المهن: تسجيل جديد → خطوة الموقع. تعديل المهنة من شاشة المراجعة → نرجع
+    للمراجعة، إلا لو كان مختار «المدينة كاملة» ومهنه الجديدة مو نادرة (والمدينة لها
+    أحياء) — وقتها لازم يختار أحياءه من جديد."""
+    lang = _lang(context)
+    ud = context.user_data
+    if ud.pop("editing_profession", False) and ud.get("city_id"):
+        if ud.get("covers_whole_city") and ud.get("city_has_districts") and not _any_rare(ud):
+            ud["return_to_summary"] = True
+            ud["selected_district_ids"] = []
+            ud["district_page"] = 0
+            await query.edit_message_text(
+                i18n.t("reg_reselect_districts_note", lang) + "\n\n"
+                + i18n.t("reg_district_step", lang, city=ud["city"], max=MAX_DISTRICTS),
+                reply_markup=_district_keyboard(ud["city_id"], 0, set(), lang),
+            )
+            return NEIGHBORHOOD
+        await query.edit_message_text(_summary_text(ud, lang), reply_markup=_confirm_keyboard(lang))
+        return CONFIRM
+
+    text, markup, state = await _location_step(context, lang)
+    await query.edit_message_text(text, reply_markup=markup)
+    return state
+
+
+# ─────────────────────────── الخدمات الفرعية ───────────────────────────
+
+def _services_key(context) -> str:
+    return "services2" if context.user_data.get("picking", 1) == 2 else "services"
+
 
 async def toggle_service(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = _lang(context)
@@ -854,12 +958,13 @@ async def toggle_service(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except (ValueError, IndexError):
         await query.answer()
         return SERVICES
-    selected = set(context.user_data.get("services", []))
+    key = _services_key(context)
+    selected = set(context.user_data.get(key, []))
     if service in selected:
         selected.discard(service)
     else:
         selected.add(service)
-    context.user_data["services"] = list(selected)
+    context.user_data[key] = list(selected)
     await query.answer()
 
     await query.edit_message_reply_markup(
@@ -869,11 +974,9 @@ async def toggle_service(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def services_done(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    lang = _lang(context)
     query = update.callback_query
     await query.answer()
-    await query.edit_message_text(_summary_text(context.user_data, lang), reply_markup=_confirm_keyboard(lang))
-    return CONFIRM
+    return await _after_services(query, context)
 
 
 # ─────────────────────────── الخطوة 6-7: المراجعة والتأكيد ───────────────────────────
@@ -885,11 +988,13 @@ async def confirm_edit(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = _lang(context)
     query = update.callback_query
     await query.answer()
+    ud = context.user_data
+    ud["editing_profession"] = True
+    ud["picking"] = 1
+    for k in ("profession2_id", "profession2_name", "services2", "p2_rare"):
+        ud.pop(k, None)
     keyboard = await asyncio.to_thread(_profession_list_grouped_keyboard, lang)
-    await query.edit_message_text(
-        i18n.t("reg_edit_profession_note", lang),
-        reply_markup=keyboard,
-    )
+    await query.edit_message_text(i18n.t("reg_profession_prompt", lang), reply_markup=keyboard)
     return PROFESSION
 
 
@@ -912,9 +1017,13 @@ async def back_to_profession_from_services(update: Update, context: ContextTypes
     lang = _lang(context)
     query = update.callback_query
     await query.answer()
-    keyboard = await asyncio.to_thread(_profession_list_grouped_keyboard, lang)
+    ud = context.user_data
+    picking2 = ud.get("picking", 1) == 2
+    keyboard = await asyncio.to_thread(
+        _profession_list_grouped_keyboard, lang, ud.get("profession_id") if picking2 else None, picking2
+    )
     await query.edit_message_text(
-        i18n.t("reg_all_professions_list", lang),
+        i18n.t("reg_pick_second_prof" if picking2 else "reg_profession_prompt", lang),
         reply_markup=keyboard,
     )
     return PROFESSION
@@ -940,7 +1049,9 @@ async def confirm_yes(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "domain_name": ud["domain_name"],
             "profession_id": ud["profession_id"],
             "profession_name": ud["profession_name"],
-            "services": ud.get("services", []),
+            "services": _all_services(ud),
+            "profession2_id": ud.get("profession2_id"),
+            "profession2_name": ud.get("profession2_name"),
             "covers_whole_city": ud.get("covers_whole_city", False),
             "source": ud.get("source", "unknown"),
             "country": ud.get("country") or countries.DEFAULT_COUNTRY,
@@ -1038,6 +1149,7 @@ def build_register_conversation() -> ConversationHandler:
             ],
             NEIGHBORHOOD: [
                 CallbackQueryHandler(districts_done, pattern=f"^{DISTRICTS_DONE_CB}$"),
+                CallbackQueryHandler(choose_whole_city, pattern=f"^{WHOLE_CITY_CB}$"),
                 CallbackQueryHandler(change_country, pattern=f"^{CHANGE_COUNTRY_CB}$"),
                 CallbackQueryHandler(toggle_district, pattern=f"^{DISTRICT_TOGGLE_CB_PREFIX}"),
                 CallbackQueryHandler(district_page_nav, pattern="^reg_dist_page:"),
@@ -1053,9 +1165,11 @@ def build_register_conversation() -> ConversationHandler:
             PROFESSION: [
                 CallbackQueryHandler(choose_profession, pattern="^reg_prof:"),
                 CallbackQueryHandler(profession_list_noop, pattern=f"^{PROFESSION_NOOP_CB}$"),
+                CallbackQueryHandler(no_second_profession, pattern=f"^{NO_SECOND_CB}$"),
             ],
-            CITY_SCOPE: [
-                CallbackQueryHandler(choose_city_scope, pattern=f"^{CITY_WIDE_YES_CB}$|^{CITY_WIDE_NO_CB}$"),
+            SECOND_PROF: [
+                CallbackQueryHandler(add_second_profession, pattern=f"^{ADD_SECOND_CB}$"),
+                CallbackQueryHandler(no_second_profession, pattern=f"^{NO_SECOND_CB}$"),
             ],
             SERVICES: [
                 CallbackQueryHandler(services_done, pattern=f"^{SERVICES_DONE_CB}$"),
