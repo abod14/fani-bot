@@ -279,30 +279,35 @@ def _subservice_keyboard(services: list[str], selected: set[str], lang: str) -> 
 def _contact_button(p: dict, lang: str, customer_id: int | None = None, searched_profession_id=None) -> InlineKeyboardMarkup:
     """أزرار التواصل مع الفني — واتساب وتلغرام متقابلين بصف واحد.
 
-    لو رابط السيرفر العام مضبوط (PUBLIC_BASE_URL): الزر رابط مباشر يفتح واتساب/تلغرام
-    بضغطة وحدة (يمر على /c/ بلوحة التحكم اللي تسجّل الضغطة ثم تحوّل) — والرقم ما
-    يظهر بالبطاقة أبدًا. غير ذلك: الطريقة القديمة (زر يرسل رسالة فيها زر الفتح)."""
-    direct = contact_links.enabled() and customer_id
-    slot = 2 if searched_profession_id and searched_profession_id == p.get("profession2_id") else 1
+    أول ضغطة (callback) تحسب التواصل من فرص الفني، ثم نبدّل نفس الزر بالبطاقة إلى زر
+    «افتح واتساب/تلغرام» برابط wa.me / t.me مباشر — تلغرام يفتحها فورًا بدون أي صفحة
+    وسيطة (بخلاف رابط سيرفر خارجي اللي يفتح بالمتصفح الداخلي بالآيفون أولًا). الرقم ما
+    يظهر بالبطاقة أبدًا. (customer_id/searched_profession_id باقيين للتوافق.)"""
     row = []
     if p.get("has_whatsapp", 1):
-        if direct:
-            row.append(InlineKeyboardButton(
-                i18n.t("srch_contact_wa_btn", lang), url=contact_links.build_url(p["id"], customer_id, "w", slot)
-            ))
-        else:
-            row.append(InlineKeyboardButton(i18n.t("srch_contact_wa_btn", lang), callback_data=f"srch_wa:{p['id']}"))
+        row.append(InlineKeyboardButton(i18n.t("srch_contact_wa_btn", lang), callback_data=f"srch_wa:{p['id']}"))
     if p.get("telegram_contact_number"):
-        if direct:
-            row.append(InlineKeyboardButton(
-                i18n.t("srch_contact_tg_btn", lang), url=contact_links.build_url(p["id"], customer_id, "t", slot)
-            ))
-        else:
-            row.append(InlineKeyboardButton(i18n.t("srch_contact_tg_btn", lang), callback_data=f"srch_tg:{p['id']}"))
+        row.append(InlineKeyboardButton(i18n.t("srch_contact_tg_btn", lang), callback_data=f"srch_tg:{p['id']}"))
     if not row:
         # لا واتساب ولا رقم تلغرام مسجّل — رقم للاتصال المباشر فقط (يظهر بعد الضغط)
         row.append(InlineKeyboardButton(i18n.t("srch_contact_show_btn", lang), callback_data=f"srch_wa:{p['id']}"))
     return InlineKeyboardMarkup([row])
+
+
+async def _swap_to_open_button(query, open_btn: InlineKeyboardButton) -> bool:
+    """يبدّل زر التواصل اللي ضغطه العميل (بنفس البطاقة) بزر فتح مباشر. يرجّع False لو
+    ما قدرنا نعدّل البطاقة (نرسل حينها رسالة فيها الزر كاحتياط)."""
+    markup = query.message.reply_markup if query.message else None
+    if not markup:
+        return False
+    rows = []
+    for r in markup.inline_keyboard:
+        rows.append([open_btn if getattr(b, "callback_data", None) == query.data else b for b in r])
+    try:
+        await query.message.edit_reply_markup(reply_markup=InlineKeyboardMarkup(rows))
+        return True
+    except Exception:
+        return False
 
 
 # بناء الروابط نُقل لـ contact_links.py (تحتاجه لوحة التحكم أيضًا لصفحة التحويل)
@@ -1188,15 +1193,14 @@ async def whatsapp_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
         searched = context.user_data.get("profession_id")
         prof_name = p["profession2_name"] if searched and searched == p.get("profession2_id") else p["profession_name"]
         prefill = i18n.t("srch_wa_prefill_text", lang, profession=prof_name)
-        open_wa_keyboard = InlineKeyboardMarkup(
-            [[InlineKeyboardButton(
-                i18n.t("srch_open_wa_btn", lang), url=_wa_link(p["whatsapp_number"], prefill, p.get("country"))
-            )]]
+        open_btn = InlineKeyboardButton(
+            i18n.t("srch_open_wa_btn", lang), url=_wa_link(p["whatsapp_number"], prefill, p.get("country"))
         )
-        await query.message.reply_text(
-            i18n.t("srch_wa_open_text", lang, name=p["full_name"]),
-            reply_markup=open_wa_keyboard,
-        )
+        if not await _swap_to_open_button(query, open_btn):
+            await query.message.reply_text(
+                i18n.t("srch_wa_open_text", lang, name=p["full_name"]),
+                reply_markup=InlineKeyboardMarkup([[open_btn]]),
+            )
     else:
         # هذا الرقم بدون واتساب — نعرض رقم الاتصال المباشر فقط. تلغرام له زر
         # مستقل بنفس البطاقة (srch_tg) لو الفني مسجّل رقمه في تلغرام.
@@ -1222,13 +1226,12 @@ async def telegram_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await query.answer()
 
     number = p["telegram_contact_number"]
-    open_tg_keyboard = InlineKeyboardMarkup(
-        [[InlineKeyboardButton(i18n.t("srch_open_tg_btn", lang), url=_tg_link(number, p.get("country")))]]
-    )
-    await query.message.reply_text(
-        i18n.t("srch_tg_open_text", lang, name=p["full_name"]),
-        reply_markup=open_tg_keyboard,
-    )
+    open_btn = InlineKeyboardButton(i18n.t("srch_open_tg_btn", lang), url=_tg_link(number, p.get("country")))
+    if not await _swap_to_open_button(query, open_btn):
+        await query.message.reply_text(
+            i18n.t("srch_tg_open_text", lang, name=p["full_name"]),
+            reply_markup=InlineKeyboardMarkup([[open_btn]]),
+        )
 
     if counted:
         await donation.maybe_prompt_donation(context, update.effective_user.id, lang)
