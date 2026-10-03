@@ -2026,8 +2026,20 @@ def find_nearest_sa_city_and_district_by_coords(lat: float, lon: float, countrie
 
     candidates.sort(key=dist)
     nearest_city = candidates[0]
-    nearest_district = find_nearest_sa_district_by_coords(nearest_city["id"], lat, lon)
-    return nearest_city, nearest_district
+
+    # مركز المدينة وحده يخدع بأطراف المدن الكبيرة: حي الملقا (الرياض) أقرب لمركز الدرعية
+    # منه لمركز الرياض. لذا نقارن أقرب «حي» ضمن أقرب عدة مدن، ونختار مدينة ذلك الحي —
+    # إلا لو مركز أقرب مدينة نفسه أقرب من أي حي (مدينة/قرية صغيرة بدون أحياء).
+    best = None
+    for city in candidates[:6]:
+        d = find_nearest_sa_district_by_coords(city["id"], lat, lon)
+        if d:
+            dd = _approx_dist_sq(d["lat"], d["lon"], lat, lon)
+            if best is None or dd < best[0]:
+                best = (dd, city, d)
+    if best and best[0] <= dist(nearest_city):
+        return best[1], best[2]
+    return nearest_city, find_nearest_sa_district_by_coords(nearest_city["id"], lat, lon)
 
 
 def nearest_sa_cities(city_id: int, exclude_ids: list[int], limit: int = 3):

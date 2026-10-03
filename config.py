@@ -42,6 +42,15 @@ ADMIN_TELEGRAM_ID = int(ADMIN_TELEGRAM_ID)
 # اللي تسجّل الضغطة ثم تحوّل). لو فاضي: الطريقة القديمة (رسالة ثانية فيها زر الفتح).
 PUBLIC_BASE_URL = os.environ.get("PUBLIC_BASE_URL", "").strip()
 
+# ───────────────────────── بوت واتساب (تجريبي) ─────────────────────────
+# من صفحة WhatsApp ← API Setup بتطبيق ميتا. يُكتبون بملف .env عبر whatsapp_bot/setup.sh.
+WA_TOKEN = os.environ.get("WA_TOKEN", "").strip()
+WA_PHONE_NUMBER_ID = os.environ.get("WA_PHONE_NUMBER_ID", "").strip()
+WA_VERIFY_TOKEN = os.environ.get("WA_VERIFY_TOKEN", "").strip()
+WA_APP_SECRET = os.environ.get("WA_APP_SECRET", "").strip()  # اختياري: للتحقق من توقيع رسائل ميتا
+WA_GRAPH_VERSION = os.environ.get("WA_GRAPH_VERSION", "v23.0").strip()
+WA_PORT = int(os.environ.get("WA_PORT", "5070"))
+
 # ───────────────────────── قناة تلغرام المرتبطة بالبوت ─────────────────────────
 # يوزر القناة (بدون @) — تُستخدم للتحقق من اشتراك الفني قبل إكمال التسجيل، ولزر
 # "قناتنا" بقائمة البداية. لازم تضيف البوت كـ"مشرف" (Admin) داخل هذي القناة حتى
