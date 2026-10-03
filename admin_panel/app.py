@@ -407,16 +407,30 @@ def professional_set_status(professional_id):
 @app.route("/professionals/<int:professional_id>/edit", methods=["POST"])
 @login_required
 def professional_edit(professional_id):
-    if not _professional_or_404(professional_id):
+    p = _professional_or_404(professional_id)
+    if not p:
         flash("الفني غير موجود.", "error")
         return redirect(url_for("professionals_list"))
+
+    # نرتّب الأرقام لصيغة دولية حسب دولة الفني (مثل 01012345678 ← +201012345678) —
+    # بدونه رابط واتساب للعميل يطلع على رقم غلط. رقم ما ينفهم → نرفضه وما نحفظه.
+    country = p.get("country") or countries.DEFAULT_COUNTRY
+    wa_raw = (request.form.get("whatsapp_number") or "").strip()
+    tg_raw = (request.form.get("telegram_contact_number") or "").strip()
+    wa = countries.normalize_phone(wa_raw, country) if wa_raw else None
+    if wa_raw and not wa:
+        c = countries.get(country)
+        flash(f"رقم الواتساب غير صحيح لـ{countries.name(country)} — مثال صحيح: {c['example']}", "error")
+        return redirect(url_for("professional_detail", professional_id=professional_id))
+    tg = (countries.normalize_phone(tg_raw, country) or tg_raw) if tg_raw else ""
+
     db.admin_update_professional(
         professional_id,
         full_name=request.form.get("full_name") or None,
         city=request.form.get("city") or None,
         neighborhood=request.form.get("neighborhood") or "",
-        whatsapp_number=request.form.get("whatsapp_number") or None,
-        telegram_contact_number=request.form.get("telegram_contact_number") or "",
+        whatsapp_number=wa,
+        telegram_contact_number=tg,
         has_whatsapp=request.form.get("has_whatsapp") == "1",
     )
     flash("تم حفظ بيانات الفني.", "success")

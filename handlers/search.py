@@ -290,7 +290,27 @@ def _contact_button(p: dict, lang: str) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup([row])
 
 
-def _wa_link(number: str, text: str | None = None) -> str:
+def _intl_digits(number: str, country: str | None) -> str:
+    """الرقم بصيغة دولية (أرقام فقط بدون +) حسب دولة الفني — يعالج الأرقام المحلية
+    المكتوبة يدويًا (مثل 01012345678 لمصر أو 51234567 للكويت)، بدل ما نفترض
+    السعودية لأي رقم محلي (كان يطلع رابط واتساب على رقم غلط لفنيين خارج السعودية)."""
+    import re as _re
+
+    normalized = countries.normalize_phone(number, country or countries.DEFAULT_COUNTRY)
+    if normalized:
+        return normalized.lstrip("+")
+    # رقم ما يطابق صيغة الدولة — نرجع للمنطق القديم (توافق مع تسجيلات سعودية قديمة)
+    digits = _re.sub(r"\D", "", number)
+    if digits.startswith("00"):
+        digits = digits[2:]
+    if digits.startswith("0") and not digits.startswith("966"):
+        digits = "966" + digits[1:]
+    elif not digits.startswith("966") and len(digits) == 9 and digits.startswith("5"):
+        digits = "966" + digits
+    return digits
+
+
+def _wa_link(number: str, text: str | None = None, country: str | None = None) -> str:
     """يبني رابط واتساب دائمًا برقم دولي كامل برمز الدولة. بعض التسجيلات القديمة
     (قبل إصلاح التطبيع بخطوة التسجيل) قد يكون رقمها محفوظًا بصيغة محلية بدون رمز
     الدولة (05xxxxxxxx) — لو تركناه كما هو، واتساب نفسه يفتح لكنه يقول للعميل إن
@@ -300,36 +320,19 @@ def _wa_link(number: str, text: str | None = None) -> str:
     text (اختياري): رسالة جاهزة تُدرج تلقائيًا بحقل الكتابة بواتساب (wa.me يدعم
     ?text=)، نستخدمها عشان الفني يعرف إن العميل جاله عبر بوت «فني» — يشجّعه على
     الاشتراك لما يشوف إن البوت يجيبه عملاء فعليين."""
-    import re as _re
     from urllib.parse import quote as _quote
 
-    digits = _re.sub(r"\D", "", number)
-    if digits.startswith("00"):
-        digits = digits[2:]
-    if digits.startswith("0") and not digits.startswith("966"):
-        digits = "966" + digits[1:]
-    elif not digits.startswith("966") and len(digits) == 9 and digits.startswith("5"):
-        digits = "966" + digits
-    link = f"https://wa.me/{digits}"
+    link = f"https://wa.me/{_intl_digits(number, country)}"
     if text:
         link += f"?text={_quote(text)}"
     return link
 
 
-def _tg_link(number: str) -> str:
+def _tg_link(number: str, country: str | None = None) -> str:
     """نفس منطق تطبيع الرقم المستخدم بواتساب، لكن لبناء رابط تلغرام (t.me/+الرقم).
     يفتح هذا الرابط محادثة مباشرة لو كان الرقم مسجّلًا بتلغرام وخصوصية الفني
     تسمح بذلك (الإعداد الافتراضي "الجميع")؛ غير ذلك يفتح صفحة بحث عن الرقم."""
-    import re as _re
-
-    digits = _re.sub(r"\D", "", number)
-    if digits.startswith("00"):
-        digits = digits[2:]
-    if digits.startswith("0") and not digits.startswith("966"):
-        digits = "966" + digits[1:]
-    elif not digits.startswith("966") and len(digits) == 9 and digits.startswith("5"):
-        digits = "966" + digits
-    return f"https://t.me/+{digits}"
+    return f"https://t.me/+{_intl_digits(number, country)}"
 
 
 def _professional_card_text(p: dict) -> str:
@@ -1208,7 +1211,7 @@ async def whatsapp_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
         prefill = i18n.t("srch_wa_prefill_text", lang, profession=prof_name)
         open_wa_keyboard = InlineKeyboardMarkup(
             [[InlineKeyboardButton(
-                i18n.t("srch_open_wa_btn", lang), url=_wa_link(p["whatsapp_number"], prefill)
+                i18n.t("srch_open_wa_btn", lang), url=_wa_link(p["whatsapp_number"], prefill, p.get("country"))
             )]]
         )
         await query.message.reply_text(
@@ -1240,7 +1243,7 @@ async def telegram_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     number = p["telegram_contact_number"]
     open_tg_keyboard = InlineKeyboardMarkup(
-        [[InlineKeyboardButton(i18n.t("srch_open_tg_btn", lang), url=_tg_link(number))]]
+        [[InlineKeyboardButton(i18n.t("srch_open_tg_btn", lang), url=_tg_link(number, p.get("country")))]]
     )
     await query.message.reply_text(
         i18n.t("srch_tg_number_text", lang, name=p["full_name"], number=number),
