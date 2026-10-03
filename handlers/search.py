@@ -530,7 +530,7 @@ async def _advance_location(message, context: ContextTypes.DEFAULT_TYPE, user_id
                 country = await _resolve_country(context, user_id)
             if country is None:
                 enabled = await asyncio.to_thread(countries.enabled_codes)
-                return await _render(message, edit, i18n.t("ask_country", lang),
+                return await _render(message, edit, i18n.t("srch_ask_country", lang),
                                      _country_keyboard(enabled, lang), SEARCH_REGION)
             ud["country"] = country
             regions = await asyncio.to_thread(db.list_sa_regions, country)
@@ -585,7 +585,7 @@ async def search_change_country(update: Update, context: ContextTypes.DEFAULT_TY
     query = update.callback_query
     await query.answer()
     enabled = await asyncio.to_thread(countries.enabled_codes)
-    await query.edit_message_text(i18n.t("ask_country", lang), reply_markup=_country_keyboard(enabled, lang))
+    await query.edit_message_text(i18n.t("srch_ask_country", lang), reply_markup=_country_keyboard(enabled, lang))
     return SEARCH_REGION
 
 

@@ -437,7 +437,7 @@ async def _location_step(context: ContextTypes.DEFAULT_TYPE, lang: str, country:
         if country is None:
             enabled = await asyncio.to_thread(countries.enabled_codes)
             if len(enabled) != 1:
-                return i18n.t("ask_country", lang), _country_keyboard(enabled, lang), COUNTRY
+                return i18n.t("reg_ask_country_work", lang), _country_keyboard(enabled, lang), COUNTRY
             country = enabled[0]
         ud["country"] = country
         regions = await asyncio.to_thread(db.list_sa_regions, country)
@@ -496,7 +496,7 @@ async def choose_country(update: Update, context: ContextTypes.DEFAULT_TYPE):
     code = query.data.split(":", 1)[1]
     enabled = await asyncio.to_thread(countries.enabled_codes)
     if code not in enabled:
-        await query.edit_message_text(i18n.t("ask_country", lang), reply_markup=_country_keyboard(enabled, lang))
+        await query.edit_message_text(i18n.t("reg_ask_country_work", lang), reply_markup=_country_keyboard(enabled, lang))
         return COUNTRY
     await asyncio.to_thread(db.set_user_country, update.effective_user.id, code)
     text, markup, state = await _location_step(context, lang, country=code)

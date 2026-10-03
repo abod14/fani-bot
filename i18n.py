@@ -193,6 +193,16 @@ TEXTS: dict[str, dict[str, str]] = {
         "en": "Choose your country 🌍:",
         "ur": "اپنا ملک منتخب کریں 🌍:",
     },
+    "reg_ask_country_work": {
+        "ar": "🌍 اختر الدولة اللي تشتغل فيها حاليًا (مكان عملك، مو جنسيتك):",
+        "en": "🌍 Choose the country where you currently work (your work location, not your nationality):",
+        "ur": "🌍 وہ ملک منتخب کریں جہاں آپ اس وقت کام کرتے ہیں (کام کی جگہ، شہریت نہیں):",
+    },
+    "srch_ask_country": {
+        "ar": "🌍 اختر الدولة اللي تبحث فيها عن فني:",
+        "en": "🌍 Choose the country where you need a professional:",
+        "ur": "🌍 وہ ملک منتخب کریں جہاں آپ کو کاریگر چاہیے:",
+    },
     "change_country_btn": {
         "ar": "🌍 تغيير الدولة",
         "en": "🌍 Change country",
