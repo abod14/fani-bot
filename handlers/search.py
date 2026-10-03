@@ -336,7 +336,11 @@ def _professional_card_text(p: dict) -> str:
     """نص بطاقة الفني كما يشاهدها العميل عند البحث — يشمل مهنته وتخصصاته حتى يفهم
     العميل نطاق خدماته من أول نظرة. نفس هذي الدالة تُستخدم كمعاينة للفني نفسه فور
     التسجيل (register.py) عشان يشوف بطاقته بالضبط قبل ما يستقبل أي طلب."""
-    location = p["city"] + (f" — {p['neighborhood']}" if p["neighborhood"] else "")
+    # فني يغطي المدينة كاملة: نكتب ذلك صراحة بدل أحياء قديمة ممكن يكون اختارها قبل
+    if p.get("covers_whole_city"):
+        location = f"{p['city']} — المدينة كاملة 🌍"
+    else:
+        location = p["city"] + (f" — {p['neighborhood']}" if p["neighborhood"] else "")
     lines = [
         f"👷 {p['full_name']}",
         f"🛠️ {p['profession_name']}",

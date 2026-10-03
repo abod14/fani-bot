@@ -343,7 +343,7 @@ def professionals_export():
             p["domain_name"],
             countries.name(p.get("country") or "SA"),
             p["city"],
-            p["neighborhood"] or ("المدينة كاملة" if p.get("covers_whole_city") else ""),
+            "المدينة كاملة" if p.get("covers_whole_city") else (p["neighborhood"] or ""),
             db.STATUS_LABELS_AR.get(p["status"], p["status"]),
             "نعم" if p["is_subscribed"] else "لا",
             (p["subscription_expires_at"] or "")[:10],
