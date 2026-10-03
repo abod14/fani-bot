@@ -138,6 +138,28 @@
 </div>
 
 <div class="card">
+  <h2>🎁 أكثر الفنيين دعوةً لزملائهم</h2>
+  {% if top_referrers %}
+  <table>
+    <thead><tr><th>الفني</th><th>المهنة</th><th>المدينة</th><th>عدد من دعاهم</th><th>فرص كسبها</th></tr></thead>
+    <tbody>
+      {% for r in top_referrers %}
+      <tr>
+        <td><a href="{{ url_for('professional_detail', professional_id=r.id) }}">{{ r.full_name }}</a></td>
+        <td>{{ r.profession_name }}</td>
+        <td>{{ r.city }}{% if is_super %} — {{ country_label(r.country or 'SA') }}{% endif %}</td>
+        <td><strong>{{ r.invited }}</strong></td>
+        <td>{{ r.bonus }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">ما فيه دعوات بعد — كل فني يسجّل يوصله رابط دعوة خاص فيه تلقائيًا.</p>
+  {% endif %}
+</div>
+
+<div class="card">
   <h2>مصادر تسجيل الفنيين (من روابط ?start=)</h2>
   {% if stats.source_counts %}
   <table>

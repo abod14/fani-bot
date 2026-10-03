@@ -148,6 +148,45 @@ TEXTS: dict[str, dict[str, str]] = {
         "en": "Send your contact number (with country code), example:\n+966501234567",
         "ur": "اپنا رابطہ نمبر (ملکی کوڈ سمیت) بھیجیں، مثال:\n+966501234567",
     },
+    # ─────────────────────────── دعوة الزملاء ───────────────────────────
+    "menu_invite": {
+        "ar": "🎁 ادعُ زملاءك واكسب فرص مجانية",
+        "en": "🎁 Invite colleagues & earn free contacts",
+        "ur": "🎁 ساتھیوں کو مدعو کریں اور مفت مواقع حاصل کریں",
+    },
+    "ref_invite_msg": {
+        "ar": "🎁 ادعُ زملاءك في المهنة!\nكل فني يسجّل من رابطك تاخذ {bonus} فرص مجانية إضافية.\n\nرابطك الخاص:\n{link}\n\nاضغط زر المشاركة وأرسله لزملائك أو لقروب مهنتك 👇",
+        "en": "🎁 Invite your fellow professionals!\nFor every professional who registers through your link, you get {bonus} extra free contacts.\n\nYour personal link:\n{link}\n\nTap a share button and send it to colleagues or your trade group 👇",
+        "ur": "🎁 اپنے ہم پیشہ ساتھیوں کو مدعو کریں!\nآپ کے لنک سے رجسٹر ہونے والے ہر کاریگر پر آپ کو {bonus} اضافی مفت مواقع ملیں گے۔\n\nآپ کا خاص لنک:\n{link}\n\nشیئر بٹن دبائیں اور ساتھیوں یا اپنے گروپ کو بھیجیں 👇",
+    },
+    "ref_stats_line": {
+        "ar": "حتى الآن: دعوت {count} فني وكسبت {earned} فرصة مجانية 👏",
+        "en": "So far: you invited {count} professionals and earned {earned} free contacts 👏",
+        "ur": "اب تک: آپ نے {count} کاریگر مدعو کیے اور {earned} مفت مواقع حاصل کیے 👏",
+    },
+    "ref_share_wa_btn": {"ar": "📤 شارك عبر واتساب", "en": "📤 Share via WhatsApp", "ur": "📤 واٹس ایپ پر شیئر کریں"},
+    "ref_share_tg_btn": {"ar": "📤 شارك عبر تلغرام", "en": "📤 Share via Telegram", "ur": "📤 ٹیلیگرام پر شیئر کریں"},
+    "ref_share_text": {
+        "ar": "السلام عليكم 👋 سجّلت في بوت «فني» على تلغرام — يوصلك العملاء مباشرة على الواتساب، بدون عمولة، والتسجيل مجاني الآن. سجّل من هنا:\n{link}",
+        "en": "Hi 👋 I registered on the «Fani» Telegram bot — customers reach you directly on WhatsApp, no commission, and registration is free now. Register here:\n{link}",
+        "ur": "السلام علیکم 👋 میں نے ٹیلیگرام پر «فنی» بوٹ میں رجسٹر کیا — گاہک براہِ راست واٹس ایپ پر رابطہ کرتے ہیں، کوئی کمیشن نہیں، اور رجسٹریشن ابھی مفت ہے۔ یہاں سے رجسٹر کریں:\n{link}",
+    },
+    "ref_share_text_short": {
+        "ar": "سجّل معي في بوت «فني» — يوصلك العملاء على الواتساب بدون عمولة، والتسجيل مجاني الآن 👷‍♂️",
+        "en": "Join me on «Fani» — customers reach you on WhatsApp, no commission, free registration now 👷‍♂️",
+        "ur": "«فنی» میں میرے ساتھ شامل ہوں — گاہک واٹس ایپ پر رابطہ کرتے ہیں، کوئی کمیشن نہیں 👷‍♂️",
+    },
+    "ref_credited_notice": {
+        "ar": "🎉 زميلك {name} ({profession}) سجّل من رابطك!\nأضفنا لك {bonus} فرص مجانية إضافية.\nمجموع دعواتك: {count}",
+        "en": "🎉 Your colleague {name} ({profession}) registered through your link!\nWe added {bonus} extra free contacts to your account.\nTotal invites: {count}",
+        "ur": "🎉 آپ کے ساتھی {name} ({profession}) نے آپ کے لنک سے رجسٹر کیا!\nہم نے آپ کو {bonus} اضافی مفت مواقع دیے۔\nکل دعوتیں: {count}",
+    },
+    "ref_not_registered": {
+        "ar": "رابط الدعوة متاح للفنيين المسجّلين — سجّل أولًا عبر /register",
+        "en": "Invite links are for registered professionals — register first via /register",
+        "ur": "دعوتی لنک رجسٹرڈ کاریگروں کے لیے ہے — پہلے /register سے رجسٹر کریں",
+    },
+
     # ─────────────────────────── تعدد الدول ───────────────────────────
     "ask_country": {
         "ar": "اختر الدولة 🌍:",

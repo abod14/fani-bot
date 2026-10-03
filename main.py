@@ -24,6 +24,7 @@ from config import (
 from handlers.admin import build_admin_handler
 from handlers.donation import build_donation_handlers
 from handlers.privacy import build_privacy_handlers
+from handlers.referral import build_referral_handlers
 from handlers.register import build_register_conversation
 from handlers.search import (
     build_search_conversation,
@@ -128,6 +129,8 @@ def main():
     for handler in build_privacy_handlers():
         app.add_handler(handler)
     for handler in build_language_handlers():
+        app.add_handler(handler)
+    for handler in build_referral_handlers():
         app.add_handler(handler)
 
     # مهمة دورية: فحص الاشتراكات المنتهية وتنبيه الفنيين تلقائيًا بتلغرام (كل ساعة).

@@ -366,10 +366,9 @@ def _confirm_keyboard(lang: str) -> InlineKeyboardMarkup:
 async def register_entry(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # نحافظ على وسم المصدر (لو محفوظ من /start برابط فيه ?start=...) قبل ما نمسح
     # user_data بالكامل، حتى نقدر نربطه بالتسجيل لو أكمل الفني.
-    source = context.user_data.get("source")
+    kept = {k: context.user_data[k] for k in ("source", "referrer_id") if k in context.user_data}
     context.user_data.clear()
-    if source:
-        context.user_data["source"] = source
+    context.user_data.update(kept)
     lang = await asyncio.to_thread(db.get_user_language, update.effective_user.id)
     context.user_data["lang"] = lang
     target = update.message or update.callback_query.message
@@ -899,11 +898,10 @@ async def confirm_edit_all(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = _lang(context)
     query = update.callback_query
     await query.answer()
-    source = context.user_data.get("source")
+    kept = {k: context.user_data[k] for k in ("source", "referrer_id") if k in context.user_data}
     context.user_data.clear()
     context.user_data["lang"] = lang
-    if source:
-        context.user_data["source"] = source
+    context.user_data.update(kept)
     await query.edit_message_text(i18n.t("reg_restart", lang))
     return NAME
 
@@ -947,6 +945,7 @@ async def confirm_yes(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "source": ud.get("source", "unknown"),
             "country": ud.get("country") or countries.DEFAULT_COUNTRY,
             "city_id": ud.get("city_id"),
+            "referred_by": ud.get("referrer_id"),
         },
     )
 
@@ -971,6 +970,11 @@ async def confirm_yes(update: Update, context: ContextTypes.DEFAULT_TYPE):
     from handlers.admin import notify_admin_new_registration
 
     await notify_admin_new_registration(context, row_id)
+
+    # دعوة الزملاء: نحتسب الدعوة للداعي (لو جاء من رابط دعوة) ونعطي الفني الجديد رابطه الخاص
+    from handlers import referral
+
+    await referral.after_registration(context, query.message, row_id, lang)
 
     context.user_data.clear()
     return ConversationHandler.END

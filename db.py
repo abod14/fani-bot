@@ -414,6 +414,12 @@ def init_db():
             # معرّف المدينة الرسمي — البحث يطابق عليه بدل اسم المدينة النصي (أسماء
             # تتكرر بين الدول/المحافظات، مثل «المطرية» بالقاهرة والدقهلية).
             conn.execute("ALTER TABLE professionals ADD COLUMN city_id INTEGER")
+        if "bonus_contacts" not in prof_cols2:
+            # فرص مجانية إضافية خاصة بالفني (مكافآت دعوة الزملاء) — تنضاف على الحد العام
+            conn.execute("ALTER TABLE professionals ADD COLUMN bonus_contacts INTEGER NOT NULL DEFAULT 0")
+        if "referred_by" not in prof_cols2:
+            # معرّف الفني اللي دعا هذا الفني (من رابط ?start=ref_<id>)
+            conn.execute("ALTER TABLE professionals ADD COLUMN referred_by INTEGER")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_professionals_country ON professionals (country)")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_professionals_city_id ON professionals (city_id)")
 
@@ -430,6 +436,22 @@ def init_db():
             )
             """
         )
+
+        # ─────────────────────────── دعوة الزملاء ───────────────────────────
+        # سجل دائم لكل حساب تلغرام انحسبت دعوته — مفتاحه حساب المدعو، فما ينحسب نفس
+        # الشخص مرتين حتى لو حذف تسجيله وسجّل من جديد.
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS referral_credits (
+                referred_telegram_id INTEGER PRIMARY KEY,
+                referrer_id INTEGER NOT NULL,
+                referred_professional_id INTEGER,
+                bonus INTEGER NOT NULL,
+                created_at TEXT NOT NULL
+            )
+            """
+        )
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_referral_referrer ON referral_credits (referrer_id)")
 
         # ─────────────────────────── مدراء لوحة التحكم (حسب الدولة) ───────────────────────────
         # المدير العام (أنت) يبقى من ملف .env دائمًا. هذا الجدول لمدراء الدول (مثل مدير
@@ -485,8 +507,8 @@ def create_registration(data: dict) -> int:
                 whatsapp_number, has_whatsapp, telegram_contact_number,
                 domain_name, profession_id, profession_name,
                 services_json, status, created_at, covers_whole_city, source,
-                country, city_id
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                country, city_id, referred_by
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 data["telegram_user_id"],
@@ -506,6 +528,7 @@ def create_registration(data: dict) -> int:
                 (data.get("source") or "unknown").strip()[:30] or "unknown",
                 data.get("country") or "SA",
                 data.get("city_id"),
+                data.get("referred_by"),
             ),
         )
         professional_id = cur.lastrowid
@@ -591,7 +614,7 @@ def search_active_professional_ids(
             "status = ?",
             "profession_id = ?",
             city_sql,
-            "(free_contacts_used < ? OR is_subscribed = 1)",
+            "(free_contacts_used < ? + bonus_contacts OR is_subscribed = 1)",
         ]
         params = [STATUS_ACTIVE, profession_id, *city_params, free_limit]
 
@@ -670,7 +693,7 @@ def find_subscription_missed_professionals(
             "profession_id = ?",
             city_sql,
             "is_subscribed = 0",
-            "free_contacts_used >= ?",
+            "free_contacts_used >= ? + bonus_contacts",
             "(last_search_nudge_at IS NULL OR last_search_nudge_at < ?)",
         ]
         cooldown_cutoff = (
@@ -1420,6 +1443,8 @@ def delete_all_user_data(telegram_user_id: int):
             conn.execute("DELETE FROM contact_clicks WHERE professional_id = ?", (pid,))
             conn.execute("DELETE FROM subscription_payments WHERE professional_id = ?", (pid,))
             conn.execute("DELETE FROM professional_districts WHERE professional_id = ?", (pid,))
+            conn.execute("DELETE FROM referral_credits WHERE referrer_id = ?", (pid,))
+        conn.execute("DELETE FROM referral_credits WHERE referred_telegram_id = ?", (telegram_user_id,))
         conn.execute("DELETE FROM professionals WHERE telegram_user_id = ?", (telegram_user_id,))
         conn.execute("DELETE FROM search_log WHERE customer_telegram_id = ?", (telegram_user_id,))
         conn.execute("DELETE FROM contact_clicks WHERE customer_telegram_id = ?", (telegram_user_id,))
@@ -2067,3 +2092,73 @@ def activity_peaks() -> dict:
             "updates_last_hour": one("SELECT SUM(updates) FROM activity_minutes WHERE minute >= ?", (hour,)),
             "has_data": one("SELECT COUNT(*) FROM activity_minutes", ()) > 0,
         }
+
+
+# ─────────────────────────── دعوة الزملاء ───────────────────────────
+
+REFERRAL_BONUS_DEFAULT = 3
+
+
+def credit_referral(new_professional_id: int):
+    """يُستدعى بعد اكتمال تسجيل فني جديد: لو جاء من رابط دعوة فني ثاني، يضيف للداعي
+    فرص مجانية إضافية (إعداد referral_bonus) ويرجّع (الداعي، المكافأة) لإرسال إشعار له.
+    يرجّع None لو ما فيه دعوة صالحة. الحماية: ما يدعو نفسه، والداعي لازم يكون مسجّل
+    وغير مرفوض، وكل حساب تلغرام ينحسب مرة وحدة فقط للأبد."""
+    bonus = int(get_setting("referral_bonus", str(REFERRAL_BONUS_DEFAULT)))
+    with get_conn() as conn:
+        new = conn.execute(
+            "SELECT id, telegram_user_id, referred_by FROM professionals WHERE id = ?", (new_professional_id,)
+        ).fetchone()
+        if not new or not new["referred_by"]:
+            return None
+        referrer = conn.execute(
+            "SELECT * FROM professionals WHERE id = ?", (new["referred_by"],)
+        ).fetchone()
+        if (
+            not referrer
+            or referrer["telegram_user_id"] == new["telegram_user_id"]
+            or referrer["status"] == STATUS_REJECTED
+        ):
+            return None
+        already = conn.execute(
+            "SELECT 1 FROM referral_credits WHERE referred_telegram_id = ?", (new["telegram_user_id"],)
+        ).fetchone()
+        if already:
+            return None
+        conn.execute(
+            "INSERT INTO referral_credits (referred_telegram_id, referrer_id, referred_professional_id, bonus, created_at) "
+            "VALUES (?, ?, ?, ?, ?)",
+            (new["telegram_user_id"], referrer["id"], new["id"], bonus, _now_iso()),
+        )
+        if bonus > 0:
+            conn.execute(
+                "UPDATE professionals SET bonus_contacts = bonus_contacts + ? WHERE id = ?", (bonus, referrer["id"])
+            )
+        return dict(referrer), bonus
+
+
+def referral_stats(professional_id: int) -> dict:
+    with get_conn() as conn:
+        row = conn.execute(
+            "SELECT COUNT(*) AS n, COALESCE(SUM(bonus), 0) AS b FROM referral_credits WHERE referrer_id = ?",
+            (professional_id,),
+        ).fetchone()
+        return {"count": row["n"], "bonus": row["b"]}
+
+
+def admin_top_referrers(country: str | None = None, limit: int = 10) -> list[dict]:
+    with get_conn() as conn:
+        rows = conn.execute(
+            """
+            SELECT p.id, p.full_name, p.profession_name, p.city, p.country,
+                   COUNT(r.referred_telegram_id) AS invited, COALESCE(SUM(r.bonus), 0) AS bonus
+            FROM referral_credits r
+            JOIN professionals p ON p.id = r.referrer_id
+            WHERE (? IS NULL OR p.country = ?)
+            GROUP BY p.id
+            ORDER BY invited DESC
+            LIMIT ?
+            """,
+            (country, country, limit),
+        ).fetchall()
+        return [dict(r) for r in rows]

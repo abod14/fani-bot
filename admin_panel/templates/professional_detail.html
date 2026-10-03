@@ -57,7 +57,7 @@
       <span class="badge sub-no">غير مشترك</span>
     {% endif %}
   </p>
-  <p class="muted">استخدم {{ p.free_contacts_used }} من الفرص المجانية.</p>
+  <p class="muted">استخدم {{ p.free_contacts_used }} من الفرص المجانية.{% if p.bonus_contacts %} (عنده {{ p.bonus_contacts }} فرصة إضافية من دعوة زملائه 🎁){% endif %}</p>
 
   <form method="post" action="{{ url_for('professional_subscription', professional_id=p.id) }}">
     <div class="field">

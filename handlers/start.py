@@ -10,6 +10,7 @@ from telegram.ext import CallbackQueryHandler, CommandHandler, ContextTypes
 import config
 import db
 import i18n
+from handlers import referral
 
 CB_START_SEARCH = "start_search"
 CB_START_REGISTER = "start_register"
@@ -26,12 +27,14 @@ def _language_keyboard() -> InlineKeyboardMarkup:
     )
 
 
-def _main_menu_keyboard(lang: str, show_register: bool = True) -> InlineKeyboardMarkup:
+def _main_menu_keyboard(lang: str, show_register: bool = True, show_invite: bool = False) -> InlineKeyboardMarkup:
     buttons = [[InlineKeyboardButton(i18n.t("menu_search", lang), callback_data=CB_START_SEARCH)]]
     if show_register:
         buttons.append(
             [InlineKeyboardButton(i18n.t("menu_register", lang), callback_data=CB_START_REGISTER)]
         )
+    if show_invite:
+        buttons.append([InlineKeyboardButton(i18n.t("menu_invite", lang), callback_data=referral.CB_INVITE)])
     buttons.append([InlineKeyboardButton(i18n.t("menu_channel", lang), url=config.CHANNEL_URL)])
     return InlineKeyboardMarkup(buttons)
 
@@ -48,8 +51,10 @@ async def _build_welcome_message(user_id: int, lang: str):
             free_limit = int(await asyncio.to_thread(
                 db.get_setting, "free_contacts_limit", str(db.FREE_CONTACTS_LIMIT)
             ))
+            # الحد الشخصي = الحد العام + أي فرص إضافية كسبها من دعوة زملائه
             text += i18n.t(
-                "free_contacts_line", lang, used=existing["free_contacts_used"], limit=free_limit
+                "free_contacts_line", lang, used=existing["free_contacts_used"],
+                limit=free_limit + (existing.get("bonus_contacts") or 0),
             )
         elif existing["status"] == db.STATUS_ACTIVE and existing["is_subscribed"]:
             text += i18n.t("subscribed_line", lang)
@@ -57,8 +62,13 @@ async def _build_welcome_message(user_id: int, lang: str):
         # كثير مستخدمين (وحتى أثناء اختبار البوت) يلخبطهم ظهور حالة تسجيلهم
         # كفني ويظنون إنه خطأ يمنعهم من البحث. هذا التنبيه لأي حساب مسجّل،
         # مو حل خاص بحساب معيّن.
+        stats = await asyncio.to_thread(db.referral_stats, existing["id"])
+        if stats["count"]:
+            text += "\n\n" + i18n.t("ref_stats_line", lang, count=stats["count"], earned=stats["bonus"])
         text += i18n.t("dual_role_hint", lang)
-        keyboard = _main_menu_keyboard(lang, show_register=False)
+        keyboard = _main_menu_keyboard(
+            lang, show_register=False, show_invite=existing["status"] != db.STATUS_REJECTED
+        )
     else:
         text = i18n.t("welcome", lang)
         keyboard = _main_menu_keyboard(lang, show_register=True)
@@ -77,7 +87,15 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # لاحقًا (عند إتمام التسجيل) من وين جا هذا الفني — يبقى بـ user_data حتى
     # لو مر بخطوة اختيار اللغة أولًا.
     if context.args:
-        context.user_data["source"] = context.args[0].strip().lower()[:30]
+        arg = context.args[0].strip().lower()[:30]
+        referrer_id = referral.parse_ref(arg)
+        if referrer_id:
+            # رابط دعوة من فني (ref_<رقمه>) — نحفظ الداعي، والمصدر "referral" (مو رقم
+            # كل فني، حتى تبقى إحصائية المصادر مرتّبة)
+            context.user_data["referrer_id"] = referrer_id
+            context.user_data["source"] = "referral"
+        else:
+            context.user_data["source"] = arg
 
     if not await asyncio.to_thread(db.has_chosen_language, user_id):
         await update.message.reply_text(i18n.t("lang_prompt"), reply_markup=_language_keyboard())
