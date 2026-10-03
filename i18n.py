@@ -194,7 +194,7 @@ TEXTS: dict[str, dict[str, str]] = {
         "ur": "اپنا ملک منتخب کریں 🌍:",
     },
     "reg_ask_country_work": {
-        "ar": "🌍 اختر الدولة اللي تشتغل فيها حاليًا:",
+        "ar": "🌍 اختر الدولة التي تعمل فيها حاليًا:",
         "en": "🌍 Choose the country where you currently work:",
         "ur": "🌍 وہ ملک منتخب کریں جہاں آپ اس وقت کام کرتے ہیں:",
     },
