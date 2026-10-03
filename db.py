@@ -773,6 +773,25 @@ def mark_shown(professional_ids: list[int]):
         )
 
 
+CONTACT_DEDUPE_HOURS = 24
+
+
+def register_contact(professional_id: int, customer_telegram_id: int) -> bool:
+    """يسجّل تواصل عميل مع فني ويخصم فرصة مجانية — إلا لو نفس العميل تواصل مع نفس
+    الفني خلال آخر 24 ساعة (ضغطة مكررة على نفس الزر ما تخصم فرصة ثانية من الفني).
+    يرجّع True لو انحسبت كتواصل جديد."""
+    since = (datetime.now(timezone.utc) - timedelta(hours=CONTACT_DEDUPE_HOURS)).isoformat()
+    with get_conn() as conn:
+        dup = conn.execute(
+            "SELECT 1 FROM contact_clicks WHERE professional_id = ? AND customer_telegram_id = ? AND clicked_at >= ? LIMIT 1",
+            (professional_id, customer_telegram_id, since),
+        ).fetchone()
+    if dup:
+        return False
+    log_contact_click(professional_id, customer_telegram_id)
+    return True
+
+
 def log_contact_click(professional_id: int, customer_telegram_id: int) -> int:
     """يسجّل ضغطة 'تواصل واتساب' ويزيد عداد الفرص المجانية المستخدمة، ويرجّع العدد الجديد."""
     with get_conn() as conn:

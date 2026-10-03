@@ -725,6 +725,80 @@ def profession_delete(profession_id):
     return redirect(url_for("professions_page"))
 
 
+# ─────────────────────────── تحويل أزرار التواصل (عام، بدون تسجيل دخول) ───────────────────────────
+# زر «تواصل عبر واتساب/تلغرام» ببطاقة الفني يفتح هذا الرابط: نسجّل التواصل (لحساب فرص
+# الفني المجانية) ثم نحوّل العميل فورًا لواتساب/تلغرام — ضغطة وحدة، والرقم ما يظهر
+# بالبطاقة. الرمز موقّع (contact_links) فمحد يقدر يصنع رابط لفني ثاني أو عميل ثاني.
+
+import contact_links  # noqa: E402
+import i18n  # noqa: E402
+
+
+def _bot_link_page(lang: str, status: int = 410):
+    rtl = lang in ("ar", "ur")
+    html = f"""<!doctype html><html lang="{lang}" dir="{'rtl' if rtl else 'ltr'}"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>فني</title>
+<style>body{{font-family:system-ui,Tahoma,sans-serif;background:#0B1626;color:#fff;display:flex;min-height:100vh;
+align-items:center;justify-content:center;margin:0;padding:24px;text-align:center}}
+a{{display:inline-block;margin-top:22px;background:#2EC4B6;color:#0B1626;padding:14px 28px;border-radius:999px;
+font-weight:700;text-decoration:none}}</style></head><body><div><div style="font-size:48px">🛠️</div>
+<p style="font-size:19px;line-height:1.7;max-width:420px">{i18n.t("link_expired_page", lang)}</p>
+<a href="https://t.me/FanniServiceBot">{i18n.t("link_back_to_bot", lang)}</a></div></body></html>"""
+    return Response(html, status=status, mimetype="text/html")
+
+
+def _maybe_donation_prompt(customer_id: int, lang: str):
+    """نفس رسالة الدعم الاختيارية اللي كان البوت يرسلها كل 10 تواصلات — ترسل بالخلفية
+    حتى ما يتأخر تحويل العميل لواتساب. أي فشل هنا ما يأثر على التحويل."""
+    try:
+        from handlers import donation
+        count = db.count_contact_clicks_by_customer(customer_id)
+        if count == 0 or count % donation.DONATE_EVERY_N_CONTACTS != 0:
+            return
+        import asyncio
+        import threading
+
+        from telegram import Bot
+
+        async def _send():
+            async with Bot(config.BOT_TOKEN) as bot:
+                await bot.send_message(
+                    chat_id=customer_id,
+                    text=i18n.t("donate_prompt", lang, count=count),
+                    reply_markup=donation._amount_keyboard(lang),
+                )
+
+        threading.Thread(target=lambda: asyncio.run(_send()), daemon=True).start()
+    except Exception:
+        app.logger.exception("donation prompt failed")
+
+
+@app.route("/c/<token>")
+def contact_redirect(token):
+    data = contact_links.parse_token(token)
+    if not data:
+        return _bot_link_page("ar")
+    cid = data["customer_id"]
+    lang = db.get_user_language(cid) or "ar"
+    p = db.get_professional_by_id(data["professional_id"])
+    if not p or p.get("status") == db.STATUS_REJECTED:
+        return _bot_link_page(lang)
+
+    if data["channel"] == "w" and p.get("has_whatsapp", 1):
+        prefill = i18n.t("srch_wa_prefill_text", lang, profession=contact_links.profession_for_slot(p, data["prof_slot"]))
+        target = contact_links.wa_link(p["whatsapp_number"], prefill, p.get("country"))
+    elif data["channel"] == "t" and p.get("telegram_contact_number"):
+        target = contact_links.tg_link(p["telegram_contact_number"], p.get("country"))
+    else:
+        return _bot_link_page(lang)
+
+    if db.register_contact(p["id"], cid):
+        _maybe_donation_prompt(cid, lang)
+    resp = redirect(target, code=302)
+    resp.headers["Cache-Control"] = "no-store"
+    return resp
+
+
 if __name__ == "__main__":
     import os as _os
 

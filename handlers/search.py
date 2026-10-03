@@ -31,6 +31,7 @@ from telegram.ext import (
     filters,
 )
 
+import contact_links
 import countries
 import db
 import i18n
@@ -275,64 +276,39 @@ def _subservice_keyboard(services: list[str], selected: set[str], lang: str) -> 
 
 
 
-def _contact_button(p: dict, lang: str) -> InlineKeyboardMarkup:
-    """أزرار التواصل مع الفني — واتساب وتلغرام يظهران متقابلين بجانب بعض بصف واحد
-    (كل زر بعلامة تطبيقه) لما يكون الرقمان متوفرين، حتى يختار العميل القناة
-    التي تناسبه مباشرة من نتائج البحث."""
+def _contact_button(p: dict, lang: str, customer_id: int | None = None, searched_profession_id=None) -> InlineKeyboardMarkup:
+    """أزرار التواصل مع الفني — واتساب وتلغرام متقابلين بصف واحد.
+
+    لو رابط السيرفر العام مضبوط (PUBLIC_BASE_URL): الزر رابط مباشر يفتح واتساب/تلغرام
+    بضغطة وحدة (يمر على /c/ بلوحة التحكم اللي تسجّل الضغطة ثم تحوّل) — والرقم ما
+    يظهر بالبطاقة أبدًا. غير ذلك: الطريقة القديمة (زر يرسل رسالة فيها زر الفتح)."""
+    direct = contact_links.enabled() and customer_id
+    slot = 2 if searched_profession_id and searched_profession_id == p.get("profession2_id") else 1
     row = []
     if p.get("has_whatsapp", 1):
-        row.append(InlineKeyboardButton(i18n.t("srch_contact_wa_btn", lang), callback_data=f"srch_wa:{p['id']}"))
+        if direct:
+            row.append(InlineKeyboardButton(
+                i18n.t("srch_contact_wa_btn", lang), url=contact_links.build_url(p["id"], customer_id, "w", slot)
+            ))
+        else:
+            row.append(InlineKeyboardButton(i18n.t("srch_contact_wa_btn", lang), callback_data=f"srch_wa:{p['id']}"))
     if p.get("telegram_contact_number"):
-        row.append(InlineKeyboardButton(i18n.t("srch_contact_tg_btn", lang), callback_data=f"srch_tg:{p['id']}"))
+        if direct:
+            row.append(InlineKeyboardButton(
+                i18n.t("srch_contact_tg_btn", lang), url=contact_links.build_url(p["id"], customer_id, "t", slot)
+            ))
+        else:
+            row.append(InlineKeyboardButton(i18n.t("srch_contact_tg_btn", lang), callback_data=f"srch_tg:{p['id']}"))
     if not row:
-        # لا واتساب ولا رقم تلغرام مسجّل — نعرض الرقم للاتصال المباشر فقط
+        # لا واتساب ولا رقم تلغرام مسجّل — رقم للاتصال المباشر فقط (يظهر بعد الضغط)
         row.append(InlineKeyboardButton(i18n.t("srch_contact_show_btn", lang), callback_data=f"srch_wa:{p['id']}"))
     return InlineKeyboardMarkup([row])
 
 
-def _intl_digits(number: str, country: str | None) -> str:
-    """الرقم بصيغة دولية (أرقام فقط بدون +) حسب دولة الفني — يعالج الأرقام المحلية
-    المكتوبة يدويًا (مثل 01012345678 لمصر أو 51234567 للكويت)، بدل ما نفترض
-    السعودية لأي رقم محلي (كان يطلع رابط واتساب على رقم غلط لفنيين خارج السعودية)."""
-    import re as _re
-
-    normalized = countries.normalize_phone(number, country or countries.DEFAULT_COUNTRY)
-    if normalized:
-        return normalized.lstrip("+")
-    # رقم ما يطابق صيغة الدولة — نرجع للمنطق القديم (توافق مع تسجيلات سعودية قديمة)
-    digits = _re.sub(r"\D", "", number)
-    if digits.startswith("00"):
-        digits = digits[2:]
-    if digits.startswith("0") and not digits.startswith("966"):
-        digits = "966" + digits[1:]
-    elif not digits.startswith("966") and len(digits) == 9 and digits.startswith("5"):
-        digits = "966" + digits
-    return digits
-
-
-def _wa_link(number: str, text: str | None = None, country: str | None = None) -> str:
-    """يبني رابط واتساب دائمًا برقم دولي كامل برمز الدولة. بعض التسجيلات القديمة
-    (قبل إصلاح التطبيع بخطوة التسجيل) قد يكون رقمها محفوظًا بصيغة محلية بدون رمز
-    الدولة (05xxxxxxxx) — لو تركناه كما هو، واتساب نفسه يفتح لكنه يقول للعميل إن
-    الفني ليس عنده حساب (لأن الرقم دوليًا غير صحيح)، رغم إن الفني فعليًا عنده
-    واتساب على نفس الرقم. لذا نطبّعه هنا أيضًا كطبقة حماية إضافية.
-
-    text (اختياري): رسالة جاهزة تُدرج تلقائيًا بحقل الكتابة بواتساب (wa.me يدعم
-    ?text=)، نستخدمها عشان الفني يعرف إن العميل جاله عبر بوت «فني» — يشجّعه على
-    الاشتراك لما يشوف إن البوت يجيبه عملاء فعليين."""
-    from urllib.parse import quote as _quote
-
-    link = f"https://wa.me/{_intl_digits(number, country)}"
-    if text:
-        link += f"?text={_quote(text)}"
-    return link
-
-
-def _tg_link(number: str, country: str | None = None) -> str:
-    """نفس منطق تطبيع الرقم المستخدم بواتساب، لكن لبناء رابط تلغرام (t.me/+الرقم).
-    يفتح هذا الرابط محادثة مباشرة لو كان الرقم مسجّلًا بتلغرام وخصوصية الفني
-    تسمح بذلك (الإعداد الافتراضي "الجميع")؛ غير ذلك يفتح صفحة بحث عن الرقم."""
-    return f"https://t.me/+{_intl_digits(number, country)}"
+# بناء الروابط نُقل لـ contact_links.py (تحتاجه لوحة التحكم أيضًا لصفحة التحويل)
+_intl_digits = contact_links.intl_digits
+_wa_link = contact_links.wa_link
+_tg_link = contact_links.tg_link
 
 
 def _professional_card_text(p: dict) -> str:
@@ -1026,7 +1002,10 @@ async def _show_results_page(message, context: ContextTypes.DEFAULT_TYPE, is_edi
     results = await asyncio.to_thread(db.get_professionals_by_ids, page_ids)
 
     for p in results:
-        await message.reply_text(_professional_card_text(p), reply_markup=_contact_button(p, lang))
+        await message.reply_text(
+            _professional_card_text(p),
+            reply_markup=_contact_button(p, lang, message.chat_id, ud.get("profession_id")),
+        )
 
     # نحدّث "آخر ظهور" فقط لمن ظهرت بطاقته فعليًا — أساس عدالة التناوب.
     # نسويها هنا (بعد إرسال هذه الصفحة) لأن القائمة نفسها (result_ids) ثابتة بالذاكرة
@@ -1201,7 +1180,7 @@ async def whatsapp_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.answer(i18n.t("srch_professional_gone", lang), show_alert=True)
         return
 
-    await asyncio.to_thread(db.log_contact_click, professional_id, update.effective_user.id)
+    counted = await asyncio.to_thread(db.register_contact, professional_id, update.effective_user.id)
     await query.answer()
 
     if p.get("has_whatsapp", 1):
@@ -1215,7 +1194,7 @@ async def whatsapp_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )]]
         )
         await query.message.reply_text(
-            i18n.t("srch_wa_number_text", lang, name=p["full_name"], number=p["whatsapp_number"]),
+            i18n.t("srch_wa_open_text", lang, name=p["full_name"]),
             reply_markup=open_wa_keyboard,
         )
     else:
@@ -1225,7 +1204,8 @@ async def whatsapp_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
             i18n.t("srch_no_wa_text", lang, name=p["full_name"], number=p["whatsapp_number"])
         )
 
-    await donation.maybe_prompt_donation(context, update.effective_user.id, lang)
+    if counted:
+        await donation.maybe_prompt_donation(context, update.effective_user.id, lang)
 
 
 async def telegram_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -1238,7 +1218,7 @@ async def telegram_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.answer(i18n.t("srch_professional_gone", lang), show_alert=True)
         return
 
-    await asyncio.to_thread(db.log_contact_click, professional_id, update.effective_user.id)
+    counted = await asyncio.to_thread(db.register_contact, professional_id, update.effective_user.id)
     await query.answer()
 
     number = p["telegram_contact_number"]
@@ -1246,11 +1226,12 @@ async def telegram_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
         [[InlineKeyboardButton(i18n.t("srch_open_tg_btn", lang), url=_tg_link(number, p.get("country")))]]
     )
     await query.message.reply_text(
-        i18n.t("srch_tg_number_text", lang, name=p["full_name"], number=number),
+        i18n.t("srch_tg_open_text", lang, name=p["full_name"]),
         reply_markup=open_tg_keyboard,
     )
 
-    await donation.maybe_prompt_donation(context, update.effective_user.id, lang)
+    if counted:
+        await donation.maybe_prompt_donation(context, update.effective_user.id, lang)
 
 
 # ─────────────────────────── إلغاء ───────────────────────────

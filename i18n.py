@@ -737,6 +737,26 @@ TEXTS: dict[str, dict[str, str]] = {
         "en": "✈️ Open Telegram now",
         "ur": "✈️ ابھی ٹیلیگرام کھولیں",
     },
+    "srch_wa_open_text": {
+        "ar": "اضغط الزر لفتح محادثة واتساب مع {name} 👇",
+        "en": "Tap the button to open a WhatsApp chat with {name} 👇",
+        "ur": "{name} کے ساتھ واٹس ایپ چیٹ کھولنے کے لیے بٹن دبائیں 👇",
+    },
+    "srch_tg_open_text": {
+        "ar": "اضغط الزر لفتح محادثة تلغرام مع {name} 👇",
+        "en": "Tap the button to open a Telegram chat with {name} 👇",
+        "ur": "{name} کے ساتھ ٹیلیگرام چیٹ کھولنے کے لیے بٹن دبائیں 👇",
+    },
+    "link_expired_page": {
+        "ar": "انتهت صلاحية هذا الرابط أو أن الفني لم يعد متاحًا. ابحث من جديد في بوت «فني».",
+        "en": "This link has expired or the professional is no longer available. Search again in the Fani bot.",
+        "ur": "یہ لنک ختم ہو چکا ہے یا کاریگر اب دستیاب نہیں۔ فنی بوٹ میں دوبارہ تلاش کریں۔",
+    },
+    "link_back_to_bot": {
+        "ar": "العودة إلى البوت",
+        "en": "Back to the bot",
+        "ur": "بوٹ پر واپس جائیں",
+    },
     "srch_tg_number_text": {
         "ar": "رقم {name} على تلغرام: {number}\nلو الرابط ما فتح المحادثة مباشرة، احفظ الرقم في جهات الاتصال وابحث عنه داخل تلغرام.",
         "en": "{name}'s Telegram number: {number}\nIf the link doesn't open the chat directly, save the number in your contacts and search for it inside Telegram.",
