@@ -503,6 +503,14 @@ def coverage_page():
         domains.append({"id": d["id"], "name": d["name"], "professions": profs})
         total_professions += len(profs)
 
+    # فلتر المدينة: القائمة فيها بس المدن اللي فيها فنيين نشطين فعلًا بهالدولة
+    all_cities = [row["city"] for row in summary]
+    selected_city = request.args.get("city") or None
+    if selected_city not in all_cities:
+        selected_city = None
+    if selected_city:
+        summary = [row for row in summary if row["city"] == selected_city]
+
     # عدد المهن "الجاهزة" (وصلت الحد الأدنى) لكل مدينة — لحساب نسبة الجاهزية
     cities = [row["city"] for row in summary]
     ready_counts = {city: 0 for city in cities}
@@ -521,6 +529,8 @@ def coverage_page():
         ready_counts=ready_counts,
         ready_threshold=COVERAGE_READY_THRESHOLD,
         selected_country=country,
+        all_cities=all_cities,
+        selected_city=selected_city,
         active_page="coverage",
     )
 

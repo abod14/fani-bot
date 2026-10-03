@@ -2,17 +2,62 @@
 {% block title %}مؤشرات التغطية — لوحة تحكم «فني»{% endblock %}
 {% block content %}
 <h1>مؤشرات التغطية — جاهزية المدن للإطلاق — {{ country_label(selected_country) }}</h1>
-{% if is_super %}
-<form method="get" class="filters card">
+<form method="get" class="filters card" id="coverage-filters">
+  {% if is_super %}
   <div class="field">
     <label>الدولة</label>
-    <select name="country" onchange="this.form.submit()">
+    <select name="country" onchange="this.form.city.value=''; this.form.submit()">
       {% for c in all_countries %}
       <option value="{{ c.code }}" {{ 'selected' if selected_country == c.code }}>{{ c.flag }} {{ c.name.ar }}</option>
       {% endfor %}
     </select>
   </div>
+  {% endif %}
+  <div class="field">
+    <label>المدينة (المدن اللي فيها فنيين فقط)</label>
+    <select name="city" onchange="this.form.submit()">
+      <option value="">كل المدن ({{ all_cities|length }})</option>
+      {% for c in all_cities %}
+      <option value="{{ c }}" {{ 'selected' if selected_city == c }}>{{ c }}</option>
+      {% endfor %}
+    </select>
+  </div>
 </form>
+
+{% if selected_city %}
+{% set ns = namespace(ready=0, some=0, none=0) %}
+{% for domain in domains %}{% for p in domain.professions %}
+  {% set cnt = counts.get(p.id, {}).get(selected_city, 0) %}
+  {% if cnt >= ready_threshold %}{% set ns.ready = ns.ready + 1 %}{% elif cnt > 0 %}{% set ns.some = ns.some + 1 %}{% else %}{% set ns.none = ns.none + 1 %}{% endif %}
+{% endfor %}{% endfor %}
+<div class="stats-grid">
+  <div class="stat-box"><div class="num">{{ summary[0].total_active if summary else 0 }}</div><div class="label">فنيين نشطين في {{ selected_city }}</div></div>
+  <div class="stat-box"><div class="num">{{ ns.ready }}</div><div class="label">مهن مغطّاة (≥{{ ready_threshold }})</div></div>
+  <div class="stat-box"><div class="num">{{ ns.some }}</div><div class="label">مهن فيها أقل من {{ ready_threshold }}</div></div>
+  <div class="stat-box"><div class="num">{{ ns.none }}</div><div class="label">مهن ما فيها ولا فني</div></div>
+</div>
+
+<div class="card">
+  <h2>تفصيل {{ selected_city }} — كل مهنة كم فني</h2>
+  <table>
+    <thead><tr><th>المهنة</th><th>عدد الفنيين النشطين</th><th>الحالة</th></tr></thead>
+    <tbody>
+    {% for domain in domains %}
+      {% if domain.professions %}
+      <tr class="domain-row"><td colspan="3"><strong>── {{ domain.name }} ──</strong></td></tr>
+      {% for p in domain.professions %}
+      {% set cnt = counts.get(p.id, {}).get(selected_city, 0) %}
+      <tr>
+        <td>{{ p.name }}</td>
+        <td class="{{ 'coverage-ready' if cnt >= ready_threshold else ('coverage-some' if cnt > 0 else 'coverage-none') }}">{{ cnt if cnt > 0 else '—' }}</td>
+        <td>{% if cnt >= ready_threshold %}✅ مغطّاة{% elif cnt > 0 %}🟡 تحتاج {{ ready_threshold - cnt }} زيادة{% else %}⬜ ناقصة{% endif %}</td>
+      </tr>
+      {% endfor %}
+      {% endif %}
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
 {% endif %}
 <p class="muted">يحسب فقط الفنيين بحالة "نشط". مهنة تُعتبر "مغطّاة" بمدينة لما يوصل عدد الفنيين النشطين فيها لـ{{ ready_threshold }} فأكثر.</p>
 
@@ -50,6 +95,7 @@
 {% endif %}
 </div>
 
+{% if not selected_city %}
 <h2>تفصيل كامل: عدد الفنيين لكل مهنة بكل مدينة</h2>
 <div class="card" style="overflow-x: auto;">
 {% if cities %}
@@ -87,4 +133,5 @@
 <p class="muted">ما فيه بيانات بعد لعرض الجدول التفصيلي.</p>
 {% endif %}
 </div>
+{% endif %}
 {% endblock %}
