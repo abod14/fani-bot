@@ -517,7 +517,11 @@ EXTRA_PROFESSIONS = [
     ("p69", "d2", "فني ستالايت وكاميرات", ["تركيب دش", "برمجة رسيفر", "كاميرات مراقبة", "انتركم وجرس", "شبكات واي فاي"]),
     ("p70", "d2", "صيانة غسالات صحون", ["عدم التصريف", "تسريب ماء", "ما تسخّن", "تركيب غسالة صحون", "تغيير قطع"]),
     ("p71", "d2", "صيانة أفران", ["أفران غاز", "أفران كهرباء", "أفران مدمجة (بلت إن)", "تركيب فرن", "تغيير قطع وحساسات"]),
+    ("p72", "d1", "نجار مسلح (بناء)", ["نجارة القواعد والأعمدة", "نجارة الأسقف والصبّات", "تركيب الشدات الخشبية", "فك الشدات"]),
 ]
+
+# مهن تغيّر اسمها (توضيح للعميل) — نحدّث الاسم المحفوظ ببطاقات الفنيين المسجلين عليها
+RENAMED_PROFESSION_IDS = ("p5", "p26", "p63", "p64")
 
 
 def ensure_extra_professions():
@@ -538,6 +542,14 @@ def ensure_extra_professions():
                     (pid, domain_id, name, json.dumps(services, ensure_ascii=False), max_order + 1),
                 )
             conn.execute("INSERT OR REPLACE INTO settings (key, value) VALUES (?, '1')", (flag,))
+        marks = ",".join("?" * len(RENAMED_PROFESSION_IDS))
+        for id_col, name_col in (("profession_id", "profession_name"), ("profession2_id", "profession2_name")):
+            conn.execute(
+                f"UPDATE professionals SET {name_col} = (SELECT name FROM professions WHERE id = {id_col}) "
+                f"WHERE {id_col} IN ({marks}) AND EXISTS (SELECT 1 FROM professions WHERE id = {id_col}) "
+                f"AND {name_col} != (SELECT name FROM professions WHERE id = {id_col})",
+                RENAMED_PROFESSION_IDS,
+            )
 
 
 def get_profession_demand(days: int = 30) -> dict:

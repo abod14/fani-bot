@@ -125,4 +125,5 @@ PROFESSION_TRANSLATIONS = {
     "p69": {"en": "Satellite & CCTV Technician", "ur": "ڈش اور سی سی ٹی وی ٹیکنیشن"},
     "p70": {"en": "Dishwasher Repair", "ur": "ڈش واشر مرمت"},
     "p71": {"en": "Oven Repair", "ur": "اوون مرمت"},
+    "p72": {"en": "Formwork Carpenter", "ur": "شٹرنگ کارپینٹر"},
 }
