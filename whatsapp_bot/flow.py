@@ -103,6 +103,9 @@ RESET_WORDS = {norm(w) for w in [
 ]}
 
 
+DISAPPEAR_TIP = "🧹 تبي تنمسح المحادثة تلقائيًا؟ اضغط اسم المحادثة فوق ← «الرسائل المؤقتة» ← 24 ساعة"
+END_WORDS = {norm(w) for w in ["إنهاء", "انهاء", "انهي", "إنهاء المحادثة", "end"]}
+
 DELETE_WORDS = {norm(w) for w in ["حذف بياناتي", "احذف بياناتي", "delete my data"]}
 
 
@@ -155,6 +158,9 @@ def _dispatch(api, wa_id, name, msg, state, data):
         body = (msg.get("text") or {}).get("body", "")
         if norm(body) in DELETE_WORDS:
             return _delete_my_data(api, wa_id)
+        if norm(body) in END_WORDS:
+            api.text(wa_id, f"تم إنهاء المحادثة 👋 شكرًا لاستخدامك «فنّي».\n\n{DISAPPEAR_TIP}\n\nاكتب 0 بأي وقت لبحث جديد.")
+            return None, {}
         if state is None or norm(body) in RESET_WORDS:
             return _welcome(api, wa_id, name)
         if (state or "").startswith("r_"):
@@ -235,7 +241,7 @@ def _welcome(api, wa_id, name):
         f"{hi}\nمعك «فنّي» 🛠️ نوصلك بأقرب فني: سبّاك، كهربائي، تكييف، نجّار، وأكثر من 60 مهنة "
         "في السعودية ومصر ودول الخليج.\n\nوش تبي تسوي؟",
         [("m:search", "🔍 ابحث عن فني"), ("m:pro", "🛠️ أنا فني")],
-        footer="اكتب 0 بأي وقت للرجوع للقائمة",
+        footer="0 للقائمة • «إنهاء» لإنهاء المحادثة",
     )
     return "menu", {}
 
@@ -515,7 +521,7 @@ def _contact(api, wa_id, pid, call_only, state, data):
         or data.get("pname") or p.get("profession_name")
     prefill = i18n.t("srch_wa_prefill_text", "ar", profession=prof_name)
     url = contact_links.wa_link(p["whatsapp_number"], prefill, p.get("country"))
-    api.cta_url(wa_id, f"{card}\n\nاضغط الزر لفتح المحادثة معه 👇", "💬 فتح المحادثة", url,
+    api.cta_url(wa_id, f"{card}\n\nاضغط الزر لفتح المحادثة معه 👇\n\n{DISAPPEAR_TIP}", "💬 فتح المحادثة", url,
                 footer="تقدر ترجع للقائمة وتختار فني ثاني")
     return state or "results", data
 
