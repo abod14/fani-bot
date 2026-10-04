@@ -67,6 +67,16 @@ def on_text(api, wa_id, state, data, body):
     if state == "r_prof":
         return _match_profession(api, wa_id, body, data)
     if state == "r_dist":
+        b = (body or "").strip()
+        if b in WHOLE_CITY_WORDS or _flow().norm(b) in {_flow().norm(w) for w in WHOLE_CITY_WORDS}:
+            if r.get("wide"):
+                r["whole"] = True
+                return _confirm(api, wa_id, data)
+            api.text(wa_id, f"🌍 خيار «المدينة كاملة» للمهن النادرة بس. اكتب أرقام أحيائك (حتى {MAX_DISTRICTS}) من القائمة 👆")
+            return "r_dist", data
+        picked = _pick_district_numbers(api, wa_id, data, body)
+        if picked:
+            return picked
         return _match_district(api, wa_id, body, data)
     if state in ("r_loc", "r_locok"):
         api.location_request(wa_id, "📍 شارك موقعك من الزر تحت (أو 📎 ← الموقع) عشان نحدد مدينتك وأحياءك.")
@@ -220,7 +230,7 @@ def on_location(api, wa_id, data, lat, lon):
     city, district = res
     r.update(city_id=city["id"], city=city["name"], country=city.get("country") or "SA",
              origin=district["id"] if district else None, has_d=bool(city.get("has_districts") and district),
-             chosen=[], shown=[])
+             chosen=[], shown=[], lat=lat, lon=lon)
     api.buttons(wa_id, f"📍 موقعك: {countries.name(r['country'], 'ar')} / {city['name']}\nصحيح؟",
                 [("R:locok", "✅ نعم صحيح"), ("R:locno", "❌ لا، أعيد")])
     return "r_locok", data
@@ -274,6 +284,75 @@ def _ask_districts(api, wa_id, data, new_page=False):
     return "r_dist", data
 
 
+MAX_DISTRICTS = 5   # نفس حد تلغرام
+WHOLE_CITY_WORDS = ("#", "＃", "كل المدينة", "المدينة كاملة", "كامل المدينة", "كل المدينه")
+
+
+def _numbered_districts(r) -> list[int]:
+    """كل أحياء المدينة، الأقرب لموقع الفني أول (عشان أحياؤه تطلع فوق)."""
+    ds = db.list_sa_districts_by_city(r["city_id"])
+    lat, lon = r.get("lat"), r.get("lon")
+    if lat is not None:
+        with_c = [d for d in ds if d.get("lat") is not None]
+        no_c = [d for d in ds if d.get("lat") is None]
+        with_c.sort(key=lambda d: db._approx_dist_sq(d["lat"], d["lon"], lat, lon))
+        ds = with_c + no_c
+    return [d["id"] for d in ds]
+
+
+def _ask_districts_numbered(api, wa_id, data):
+    """رسالة وحدة فيها أحياء المدينة مرقمة، والفني يرد بأرقام أحيائه (حتى 5) برسالة وحدة.
+    أوفر بكثير من الضغط حي حي (كل ضغطة = رد من البوت = تكلفة)."""
+    r = data["r"]
+    ids = _numbered_districts(r)
+    r["dlist"] = ids
+    names = {d["id"]: d["name"] for d in db.list_sa_districts_by_city(r["city_id"])}
+    lines = [f"{i}. {names[did]}" for i, did in enumerate(ids, 1)]
+    whole = f"\n\n🌍 تخدم {r['city']} كاملة؟ اكتب *#* بس." if r.get("wide") else ""
+    head = (f"📍 أحياء {r['city']} (الأقرب لموقعك أول) 👇\n"
+            f"اكتب *أرقام* الأحياء اللي تشتغل فيها — حتى {MAX_DISTRICTS} أحياء، كل رقم بسطر، مثل:\n1\n4\n9{whole}\n")
+    chunks, cur = [], head
+    for ln in lines:
+        if len(cur) + len(ln) + 1 > 3900:
+            chunks.append(cur)
+            cur = ""
+        cur += "\n" + ln
+    chunks.append(cur + f"\n\n✍️ اكتب أرقام أحيائك (حتى {MAX_DISTRICTS}).")
+    for c in chunks:
+        api.text(wa_id, c.strip())
+    return "r_dist", data
+
+
+def _pick_district_numbers(api, wa_id, data, text) -> tuple | None:
+    """يرجع (state, data) لو الرسالة فيها أرقام، وإلا None."""
+    from whatsapp_bot import top
+    r = data["r"]
+    t = (text or "").translate(top._AR_DIGITS)
+    nums = [int(x) for x in re.findall(r"\d+", t)]
+    if not nums or not r.get("dlist"):
+        return None
+    ids, bad = [], []
+    for n in nums:
+        if 1 <= n <= len(r["dlist"]):
+            did = r["dlist"][n - 1]
+            if did not in ids:
+                ids.append(did)
+        else:
+            bad.append(n)
+    if not ids:
+        api.text(wa_id, f"الأرقام مو موجودة بالقائمة 🤔 اكتب أرقام من 1 إلى {len(r['dlist'])}.")
+        return "r_dist", data
+    note = ""
+    if len(ids) > MAX_DISTRICTS:
+        ids = ids[:MAX_DISTRICTS]
+        note += f"ℹ️ الحد {MAX_DISTRICTS} أحياء — أخذنا أول {MAX_DISTRICTS}.\n"
+    if bad:
+        note += "ℹ️ تجاهلنا أرقام مو موجودة: " + "، ".join(map(str, bad)) + "\n"
+    r["chosen"] = ids
+    r["whole"] = False
+    return _confirm(api, wa_id, data, note)
+
+
 def _match_district(api, wa_id, text, data):
     r = data["r"]
     q = re.sub(r"^\s*حي\s+", "", (text or "").strip())
@@ -300,7 +379,7 @@ def _add_district(api, wa_id, data, did):
 
 # ─────────────────────────── المراجعة والحفظ ───────────────────────────
 
-def _confirm(api, wa_id, data):
+def _confirm(api, wa_id, data, note=""):
     r = data["r"]
     if r.get("whole") or not r.get("has_d"):
         where = f"{r['city']} — المدينة كاملة 🌍"
@@ -310,10 +389,12 @@ def _confirm(api, wa_id, data):
     services = "، ".join(r.get("services") or []) or "—"
     api.buttons(
         wa_id,
-        "راجع بياناتك قبل التسجيل 👇\n\n"
+        f"{note}راجع بياناتك قبل التسجيل 👇\n\n"
         f"👷 {r['name']}\n🛠️ {r['pname']}\n📋 {services}\n📍 {countries.name(r['country'], 'ar')} / {where}\n"
         f"📱 رقم التواصل للعملاء: +{_digits(wa_id)}",
-        [("R:ok", "✅ تأكيد التسجيل"), ("R:redo", "✏️ أبدأ من جديد")],
+        [("R:ok", "✅ تأكيد التسجيل")]
+        + ([("R:dedit", "📍 تعديل الأحياء")] if r.get("has_d") else [])
+        + [("R:redo", "✏️ أبدأ من جديد")],
     )
     return "r_confirm", data
 
@@ -414,8 +495,13 @@ def on_choice(api, wa_id, rid, state, data):
         return _ask_location(api, wa_id, data)
     if act == "locok":
         if r.get("has_d"):
-            r["page_ids"] = []
-            return _ask_districts(api, wa_id, data, new_page=True)
+            r["chosen"], r["whole"] = [], False
+            return _ask_districts_numbered(api, wa_id, data)
+        return _confirm(api, wa_id, data)
+    if act == "dedit":
+        if r.get("has_d"):
+            r["chosen"], r["whole"] = [], False
+            return _ask_districts_numbered(api, wa_id, data)
         return _confirm(api, wa_id, data)
     if act == "d":
         return _add_district(api, wa_id, data, int(p[1]))
