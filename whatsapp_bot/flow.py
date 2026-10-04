@@ -28,7 +28,7 @@ def _now_minute() -> int:
     return int(time.time() // 60)
 LIST_PAGE = 8          # عناصر كل صفحة بالقوائم الطويلة (+ صفّي التنقل = 10، حد واتساب)
 SESSION_TTL = timedelta(hours=3)          # احتياطي لأي حالة ثانية
-SEARCH_STEP_TTL = timedelta(minutes=30)   # بحث ما خلص (مهنة/موقع/حي) وتأخر → يبدأ من جديد
+SEARCH_STEP_TTL = timedelta(minutes=1)    # بحث ما خلص (مهنة/موقع/حي) وتأخر دقيقة → يبدأ من جديد (طلب المالك)
 RESULTS_TTL = timedelta(hours=24)         # بعد ظهور النتائج: صالحة يوم كامل («عرض المزيد» والتواصل)
 REG_STEP_TTL = timedelta(hours=2)         # تسجيل فني ما خلص
 
