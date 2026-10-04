@@ -99,3 +99,18 @@ def tg_link(number: str, country: str | None = None) -> str:
 
 def profession_for_slot(p: dict, slot: int) -> str:
     return (p.get("profession2_name") if slot == 2 and p.get("profession2_name") else p["profession_name"])
+
+
+# ─────────────── رابط ربط حساب فني واتساب بتلغرام (t.me/FanniServiceBot?start=wl_<id>_<sig>) ───────────────
+
+def link_token(professional_id: int) -> str:
+    sig = hmac.new(_key(), f"wl:{professional_id}".encode(), hashlib.sha256).hexdigest()[:10]
+    return f"wl_{professional_id}_{sig}"
+
+
+def parse_link_token(token: str) -> int | None:
+    m = re.fullmatch(r"wl_(\d+)_([0-9a-f]{10})", (token or "").strip().lower())
+    if not m:
+        return None
+    pid = int(m.group(1))
+    return pid if hmac.compare_digest(link_token(pid), m.group(0)) else None

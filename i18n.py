@@ -737,6 +737,31 @@ TEXTS: dict[str, dict[str, str]] = {
         "en": "✈️ Open Telegram now",
         "ur": "✈️ ابھی ٹیلیگرام کھولیں",
     },
+    "wa_link_ok": {
+        "ar": "✅ تم ربط حسابك في واتساب بتلغرام! توصلك هنا تنبيهات العملاء مجانًا، وتقدر تدير حسابك واشتراكك من هنا.",
+        "en": "✅ Your WhatsApp account is now linked to Telegram! You'll get customer alerts here for free and can manage your account and subscription here.",
+        "ur": "✅ آپ کا واٹس ایپ اکاؤنٹ ٹیلیگرام سے جڑ گیا! گاہکوں کی اطلاعات یہاں مفت ملیں گی اور آپ اپنا اکاؤنٹ یہاں سے سنبھال سکتے ہیں۔",
+    },
+    "wa_link_already": {
+        "ar": "حسابك مربوط بتلغرام أصلًا ✅",
+        "en": "Your account is already linked to Telegram ✅",
+        "ur": "آپ کا اکاؤنٹ پہلے سے ٹیلیگرام سے جڑا ہوا ہے ✅",
+    },
+    "wa_link_linked_other": {
+        "ar": "⚠️ هذا التسجيل مربوط بحساب تلغرام ثاني.",
+        "en": "⚠️ This registration is linked to another Telegram account.",
+        "ur": "⚠️ یہ رجسٹریشن کسی دوسرے ٹیلیگرام اکاؤنٹ سے جڑی ہے۔",
+    },
+    "wa_link_tg_has_account": {
+        "ar": "⚠️ حسابك في تلغرام مسجّل كفني أصلًا، فما نقدر نربط عليه تسجيل واتساب.",
+        "en": "⚠️ Your Telegram account is already registered as a professional, so the WhatsApp registration can't be linked to it.",
+        "ur": "⚠️ آپ کا ٹیلیگرام اکاؤنٹ پہلے سے کاریگر کے طور پر رجسٹرڈ ہے، اس لیے واٹس ایپ رجسٹریشن نہیں جوڑی جا سکتی۔",
+    },
+    "wa_link_not_found": {
+        "ar": "⚠️ رابط الربط غير صالح. ارجع لبوت واتساب واضغط «أنا فني» ← «اربط بتلغرام».",
+        "en": "⚠️ Invalid link. Go back to the WhatsApp bot and tap «I'm a professional» → «Link Telegram».",
+        "ur": "⚠️ لنک درست نہیں۔ واٹس ایپ بوٹ میں «میں کاریگر ہوں» ← «ٹیلیگرام سے جوڑیں» دبائیں۔",
+    },
     "srch_wa_open_text": {
         "ar": "اضغط الزر لفتح محادثة واتساب مع {name} 👇",
         "en": "Tap the button to open a WhatsApp chat with {name} 👇",

@@ -1,0 +1,434 @@
+# تسجيل الفني من بوت واتساب (بدون تلغرام).
+#
+# الخطوات (مختصرة لأن واتساب ما يتحمل قوائم طويلة):
+#   الاسم ← المهنة (قائمة مجالات أو كتابة) ← الخدمات (اختياري) ← مشاركة الموقع فقط
+#   ← تأكيد «السعودية / جدة» ← أقرب الأحياء (وإذا ما فيها حيّه: «المزيد» يجيب اللي بعدها)
+#   ← مراجعة وتأكيد ← حفظ بنفس قاعدة بيانات تلغرام ← عرض ربط الحساب بتلغرام.
+#
+# الفني يُحفظ بـ telegram_user_id = -رقم واتساب (لين يربط بتلغرام) و wa_id = رقمه.
+
+import json
+import re
+import threading
+
+import contact_links
+import countries
+import db
+import professions_repo as professions
+
+TELEGRAM_BOT = "FanniServiceBot"
+
+
+def _flow():
+    from whatsapp_bot import flow  # تجنّب الاستيراد الدائري
+    return flow
+
+
+def _digits(wa_id: str) -> str:
+    return re.sub(r"\D", "", wa_id or "")
+
+
+# ─────────────────────────── البداية ───────────────────────────
+
+def start(api, wa_id):
+    """زر «أنا فني»: لو مسجّل يشوف حالته، وإلا نبدأ التسجيل."""
+    p = db.get_professional_by_wa_id(_digits(wa_id))
+    if p and p.get("status") != db.STATUS_REJECTED:
+        return _status(api, wa_id, p)
+    api.text(wa_id, "حيّاك 🙌 نسجّلك في «فنّي» مجانًا خلال دقيقة، وتظهر للعملاء في واتساب وتلغرام.\n\n"
+                    "✍️ اكتب اسمك (اللي يظهر للعملاء):")
+    return "r_name", {"r": {}}
+
+
+def _status(api, wa_id, p):
+    from handlers.search import _professional_card_text
+
+    limit = int(db.get_setting("free_contacts_limit", str(db.FREE_CONTACTS_LIMIT))) + (p.get("bonus_contacts") or 0)
+    line = "✅ مشترك — تظهر لكل العملاء بدون حد" if p.get("is_subscribed") else \
+        f"📊 فرص التواصل المجانية: استخدمت {p.get('free_contacts_used', 0)} من {limit}"
+    buttons = [("m:search", "🔍 ابحث عن فني")]
+    if not (p.get("telegram_user_id") or 0) > 0:
+        buttons.insert(0, ("R:tg:yes", "🔗 اربط بتلغرام"))
+    api.buttons(wa_id, f"أنت مسجّل في «فنّي» 👌\n\n{_professional_card_text(p)}\n\n{line}", buttons)
+    return "menu", {}
+
+
+# ─────────────────────────── النصوص ───────────────────────────
+
+def on_text(api, wa_id, state, data, body):
+    r = data.setdefault("r", {})
+    if state == "r_name":
+        name = re.sub(r"\s+", " ", (body or "").strip())
+        if not (2 <= len(name) <= 40):
+            api.text(wa_id, "اكتب اسمك بين حرفين و40 حرف 🙏")
+            return state, data
+        r["name"] = name
+        return _ask_domain(api, wa_id, 0, data)
+    if state == "r_prof":
+        return _match_profession(api, wa_id, body, data)
+    if state == "r_dist":
+        return _match_district(api, wa_id, body, data)
+    if state in ("r_loc", "r_locok"):
+        api.location_request(wa_id, "📍 شارك موقعك من الزر تحت (أو 📎 ← الموقع) عشان نحدد مدينتك وأحياءك.")
+        return "r_loc", data
+    if state == "r_svc":
+        return _ask_services(api, wa_id, data, r.get("svc_page", 0))
+    if state == "r_confirm":
+        return _confirm(api, wa_id, data)
+    return state, data
+
+
+# ─────────────────────────── المهنة ───────────────────────────
+
+def _ask_domain(api, wa_id, page, data):
+    f = _flow()
+    items, prev, nxt = f._page(professions.get_domains("ar"), page)
+    rows = [(f"R:dom:{d['id']}", d["name"], d["name"] if len(d["name"]) > 24 else None) for d in items]
+    if nxt:
+        rows.append((f"R:dpg:{page + 1}", "المزيد ⬅️", "باقي المجالات"))
+    if prev:
+        rows.append((f"R:dpg:{page - 1}", "➡️ السابق", None))
+    api.list(wa_id, f"تشرفنا يا {data['r'].get('name', '')} 🌟\nاختر مجال مهنتك 👇 أو اكتب اسم مهنتك (مثل: سباك)",
+             "اختر المجال", rows, section_title="المجالات")
+    return "r_prof", data
+
+
+def _ask_profession(api, wa_id, domain_id, page, data):
+    profs = professions.get_professions_by_domain(domain_id, "ar")
+    if not profs:
+        return _ask_domain(api, wa_id, 0, data)
+    per = 7 if len(profs) > 9 else 9
+    start_ = page * per
+    rows = [(f"R:prof:{x['id']}", x["name"], x["name"] if len(x["name"]) > 24 else None) for x in profs[start_:start_ + per]]
+    if start_ + per < len(profs):
+        rows.append((f"R:ppg:{domain_id}:{page + 1}", "المزيد ⬅️", None))
+    if page > 0:
+        rows.append((f"R:ppg:{domain_id}:{page - 1}", "➡️ السابق", None))
+    rows.append(("R:dpg:0", "↩️ رجوع للمجالات", None))
+    api.list(wa_id, "اختر مهنتك 👇", "اختر المهنة", rows, section_title="المهن")
+    return "r_prof", data
+
+
+def _match_profession(api, wa_id, text, data):
+    f = _flow()
+    q = f.norm(text)
+    words = [w for w in q.split() if len(w) >= 3] or [q]
+    scored = []
+    for x in f._all_professions():
+        n = f.norm(x["name"])
+        if q == n:
+            s = 0
+        elif n.startswith(q) or q.startswith(n):
+            s = 1
+        elif q in n or n in q:
+            s = 2
+        elif any(w in n or n in w for w in words):
+            s = 3
+        else:
+            continue
+        scored.append((s, len(n), x))
+    scored.sort(key=lambda t: (t[0], t[1]))
+    if scored and (len(scored) == 1 or scored[0][0] == 0):
+        return _select_profession(api, wa_id, scored[0][2]["id"], data)
+    if scored:
+        rows = [(f"R:prof:{x['id']}", x["name"], x["name"] if len(x["name"]) > 24 else None) for _, _, x in scored[:9]]
+        rows.append(("R:dpg:0", "📋 كل المجالات", None))
+        api.list(wa_id, "اختر مهنتك من النتائج 👇", "اختر المهنة", rows, section_title="المهن")
+        return "r_prof", data
+    api.text(wa_id, "ما لقيت مهنة بهذا الاسم 🤔 اختر من المجالات:")
+    return _ask_domain(api, wa_id, 0, data)
+
+
+def _select_profession(api, wa_id, pid, data):
+    domain, prof = professions.get_profession(pid, "ar")
+    if not prof:
+        return _ask_domain(api, wa_id, 0, data)
+    r = data.setdefault("r", {})
+    r.update(pid=prof["id"], pname=prof["name"], domain=(domain or {}).get("name", ""),
+             wide=bool(prof.get("allow_city_wide")), all_services=prof.get("services") or [], services=[])
+    if r["all_services"]:
+        return _ask_services(api, wa_id, data, 0)
+    return _ask_location(api, wa_id, data)
+
+
+# ─────────────────────────── الخدمات (اختياري) ───────────────────────────
+
+def _ask_services(api, wa_id, data, page):
+    r = data["r"]
+    allsv, chosen = r["all_services"], r.get("services", [])
+    per = 7
+    if page * per >= len(allsv):
+        page = 0
+    r["svc_page"] = page
+    rows = []
+    for i in range(page * per, min(len(allsv), page * per + per)):
+        mark = "✅ " if allsv[i] in chosen else ""
+        rows.append((f"R:svc:{i}", mark + allsv[i], allsv[i] if len(mark + allsv[i]) > 24 else None))
+    if len(allsv) > per:
+        rows.append((f"R:svcpg:{page + 1}", "المزيد ⬅️", "باقي الخدمات"))
+    rows.append(("R:svcdone", f"✔️ انتهيت ({len(chosen)})" if chosen else "✔️ تخطي", None))
+    rows.append(("R:svcall", "📋 كل الخدمات", "أقدّم كل خدمات المهنة"))
+    picked = ("\n✅ اخترت: " + "، ".join(chosen)) if chosen else ""
+    api.list(wa_id, f"وش الخدمات اللي تقدمها كـ«{r['pname']}»؟ اختر وحدة وحدة، وبعدها «انتهيت» 👇{picked}",
+             "اختر الخدمات", rows, section_title="الخدمات")
+    return "r_svc", data
+
+
+# ─────────────────────────── الموقع ───────────────────────────
+
+def _ask_location(api, wa_id, data):
+    api.location_request(wa_id, "📍 شارك موقعك (مكان شغلك أو بيتك) من الزر تحت، ونحدد مدينتك وأقرب الأحياء لك.")
+    return "r_loc", data
+
+
+def on_location(api, wa_id, data, lat, lon):
+    r = data.setdefault("r", {})
+    if not r.get("pid"):
+        return start(api, wa_id)
+    res = db.find_nearest_sa_city_and_district_by_coords(lat, lon, countries.enabled_codes())
+    if not res or not res[0]:
+        api.text(wa_id, "ما قدرنا نحدد مدينتك من هذا الموقع 😅 جرّب ترسل موقع ثاني.")
+        return _ask_location(api, wa_id, data)
+    city, district = res
+    r.update(city_id=city["id"], city=city["name"], country=city.get("country") or "SA",
+             origin=district["id"] if district else None, has_d=bool(city.get("has_districts") and district),
+             chosen=[], shown=[])
+    api.buttons(wa_id, f"📍 موقعك: {countries.name(r['country'], 'ar')} / {city['name']}\nصحيح؟",
+                [("R:locok", "✅ نعم صحيح"), ("R:locno", "❌ لا، أعيد")])
+    return "r_locok", data
+
+
+# ─────────────────────────── الأحياء ───────────────────────────
+
+def _district_rows(r):
+    shown = r.get("page_ids", [])
+    chosen = set(r.get("chosen", []))
+    rows = []
+    for did in shown:
+        if did in chosen:
+            continue
+        d = db.get_sa_district_by_id(did)
+        if d:
+            rows.append((f"R:d:{did}", d["name"], d["name"] if len(d["name"]) > 24 else None))
+    rows = rows[:7]
+    rows.append(("R:dmore", "🔎 أحيائي مو هنا", "اعرض أحياء ثانية"))
+    if chosen:
+        rows.append(("R:ddone", f"✔️ انتهيت ({len(chosen)})", None))
+    if r.get("wide"):
+        rows.append(("R:dwhole", f"🌍 كل {r['city']}", "أخدم المدينة كاملة"))
+    return rows[:10]
+
+
+def _next_page(r):
+    exclude = list(set(r.get("shown", [])) | set(r.get("chosen", [])))
+    origin = r.get("origin")
+    ids = []
+    if origin and origin not in exclude:
+        ids.append(origin)
+    if origin:
+        ids += [d["id"] for d in db.nearest_sa_districts(origin, exclude + ids, limit=7 - len(ids))]
+    r["page_ids"] = ids
+    r["shown"] = list(set(r.get("shown", [])) | set(ids))
+    return ids
+
+
+def _ask_districts(api, wa_id, data, new_page=False):
+    r = data["r"]
+    if new_page or not r.get("page_ids"):
+        if not _next_page(r):
+            # خلصت الأحياء القريبة — نعيد من الأقرب
+            r["shown"] = []
+            _next_page(r)
+    chosen_names = [db.get_sa_district_by_id(d)["name"] for d in r.get("chosen", []) if db.get_sa_district_by_id(d)]
+    head = ("✅ اخترت: " + "، ".join(chosen_names) + "\nتبي تضيف حي ثاني؟ 👇") if chosen_names else \
+        f"وش الأحياء اللي تخدمها في {r['city']}؟ 👇 (تقدر تختار أكثر من حي)\nأو اكتب اسم الحي"
+    api.list(wa_id, head, "اختر الحي", _district_rows(r), section_title="أقرب الأحياء لك")
+    return "r_dist", data
+
+
+def _match_district(api, wa_id, text, data):
+    r = data["r"]
+    q = re.sub(r"^\s*حي\s+", "", (text or "").strip())
+    f = _flow()
+    matches = db.search_sa_districts(r["city_id"], q, 9) if q else []
+    if not matches and q:
+        nq = f.norm(q)
+        matches = [d for d in db.list_sa_districts_by_city(r["city_id"]) if nq in f.norm(d["name"])][:9]
+    if len(matches) == 1:
+        return _add_district(api, wa_id, data, matches[0]["id"])
+    if matches:
+        r["page_ids"] = [d["id"] for d in matches[:7]]
+        return _ask_districts(api, wa_id, data)
+    api.text(wa_id, f"ما لقيت حي بهذا الاسم في {r['city']} 🤔")
+    return _ask_districts(api, wa_id, data)
+
+
+def _add_district(api, wa_id, data, did):
+    r = data["r"]
+    if did not in r.setdefault("chosen", []):
+        r["chosen"].append(did)
+    return _ask_districts(api, wa_id, data)
+
+
+# ─────────────────────────── المراجعة والحفظ ───────────────────────────
+
+def _confirm(api, wa_id, data):
+    r = data["r"]
+    if r.get("whole") or not r.get("has_d"):
+        where = f"{r['city']} — المدينة كاملة 🌍"
+    else:
+        names = [db.get_sa_district_by_id(d)["name"] for d in r.get("chosen", [])]
+        where = f"{r['city']} — " + "، ".join(names)
+    services = "، ".join(r.get("services") or []) or "—"
+    api.buttons(
+        wa_id,
+        "راجع بياناتك قبل التسجيل 👇\n\n"
+        f"👷 {r['name']}\n🛠️ {r['pname']}\n📋 {services}\n📍 {countries.name(r['country'], 'ar')} / {where}\n"
+        f"📱 رقم التواصل للعملاء: +{_digits(wa_id)}",
+        [("R:ok", "✅ تأكيد التسجيل"), ("R:redo", "✏️ أبدأ من جديد")],
+    )
+    return "r_confirm", data
+
+
+def _save(api, wa_id, data):
+    from handlers.search import _professional_card_text
+
+    r = data["r"]
+    digits = _digits(wa_id)
+    whole = bool(r.get("whole") or not r.get("has_d"))
+    chosen = [] if whole else list(r.get("chosen", []))
+    names = [db.get_sa_district_by_id(d)["name"] for d in chosen]
+    row_id = db.create_registration({
+        "telegram_user_id": -int(digits),
+        "wa_id": digits,
+        "full_name": r["name"],
+        "city": r["city"],
+        "city_id": r["city_id"],
+        "country": r["country"],
+        "neighborhood": "، ".join(names) if names else None,
+        "district_ids": chosen,
+        "whatsapp_number": "+" + digits,
+        "has_whatsapp": True,
+        "domain_name": r.get("domain") or "",
+        "profession_id": r["pid"],
+        "profession_name": r["pname"],
+        "services": r.get("services") or [],
+        "covers_whole_city": whole,
+        "source": "whatsapp",
+    })
+    _notify_admin_async(row_id)
+    p = db.get_professional_by_id(row_id)
+    api.text(wa_id, "🎉 تم تسجيلك! وصرت تظهر للعملاء اللي يبحثون في واتساب وتلغرام.\n\nهذي بطاقتك كما يشوفها العميل:\n\n"
+             + _professional_card_text(p))
+    api.buttons(
+        wa_id,
+        "تحب نضيف بياناتك في تطبيق تلغرام كمان؟ 🔗\nتوصلك هناك تنبيهات العملاء مجانًا وتقدر تدير حسابك واشتراكك.",
+        [("R:tg:yes", "✅ نعم أضفها"), ("R:tg:no", "لا، شكرًا")],
+    )
+    return "r_done", {"r": {"saved_id": row_id}}
+
+
+def _telegram_link(api, wa_id, data):
+    p = db.get_professional_by_wa_id(_digits(wa_id))
+    if not p:
+        return start(api, wa_id)
+    if (p.get("telegram_user_id") or 0) > 0:
+        api.text(wa_id, "حسابك مربوط بتلغرام أصلًا ✅")
+        return "menu", {}
+    url = f"https://t.me/{TELEGRAM_BOT}?start={contact_links.link_token(p['id'])}"
+    api.cta_url(wa_id, "اضغط الزر، وفي تلغرام اضغط «ابدأ» (Start) — ويرتبط حسابك تلقائيًا ✅",
+                "فتح تلغرام", url)
+    return "menu", {}
+
+
+# ─────────────────────────── الأزرار ───────────────────────────
+
+def on_choice(api, wa_id, rid, state, data):
+    p = rid.split(":")[1:]
+    act = p[0] if p else ""
+    r = data.setdefault("r", {})
+    if act == "tg":
+        if p[1] == "yes":
+            return _telegram_link(api, wa_id, data)
+        api.text(wa_id, "تمام 👍 تقدر تربطه بأي وقت من «🛠️ أنا فني». اكتب 0 للقائمة.")
+        return "menu", {}
+    if not r.get("name"):            # زر قديم من جلسة منتهية
+        return start(api, wa_id)
+    if act == "dpg":
+        return _ask_domain(api, wa_id, int(p[1]), data)
+    if act == "dom":
+        return _ask_profession(api, wa_id, p[1], 0, data)
+    if act == "ppg":
+        return _ask_profession(api, wa_id, p[1], int(p[2]), data)
+    if act == "prof":
+        return _select_profession(api, wa_id, p[1], data)
+    if not r.get("pid"):
+        return _ask_domain(api, wa_id, 0, data)
+    if act == "svc":
+        i = int(p[1])
+        if 0 <= i < len(r.get("all_services", [])):
+            s = r["all_services"][i]
+            r.setdefault("services", [])
+            r["services"].remove(s) if s in r["services"] else r["services"].append(s)
+        return _ask_services(api, wa_id, data, r.get("svc_page", 0))
+    if act == "svcpg":
+        return _ask_services(api, wa_id, data, int(p[1]))
+    if act == "svcall":
+        r["services"] = list(r.get("all_services", []))
+        return _ask_location(api, wa_id, data)
+    if act == "svcdone":
+        return _ask_location(api, wa_id, data)
+    if act == "locno":
+        return _ask_location(api, wa_id, data)
+    if not r.get("city_id"):
+        return _ask_location(api, wa_id, data)
+    if act == "locok":
+        if r.get("has_d"):
+            r["page_ids"] = []
+            return _ask_districts(api, wa_id, data, new_page=True)
+        return _confirm(api, wa_id, data)
+    if act == "d":
+        return _add_district(api, wa_id, data, int(p[1]))
+    if act == "dmore":
+        return _ask_districts(api, wa_id, data, new_page=True)
+    if act == "ddone":
+        return _confirm(api, wa_id, data)
+    if act == "dwhole":
+        r["whole"] = True
+        return _confirm(api, wa_id, data)
+    if act == "redo":
+        return start(api, wa_id)
+    if act == "ok":
+        if state != "r_confirm":
+            return _confirm(api, wa_id, data)
+        return _save(api, wa_id, data)
+    return state, data
+
+
+# ─────────────────────────── تنبيه الأدمن (تلغرام) ───────────────────────────
+
+def _notify_admin_async(row_id: int):
+    def run():
+        try:
+            import asyncio
+
+            from telegram import Bot
+
+            import config
+            from handlers.admin import notify_admin_new_registration
+
+            class _Ctx:
+                pass
+
+            async def go():
+                async with Bot(config.BOT_TOKEN) as bot:
+                    c = _Ctx()
+                    c.bot = bot
+                    await notify_admin_new_registration(c, row_id)
+
+            asyncio.run(go())
+        except Exception:
+            import logging
+            logging.getLogger("fani.wa").exception("admin notify failed")
+
+    threading.Thread(target=run, daemon=True).start()

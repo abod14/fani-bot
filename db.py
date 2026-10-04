@@ -426,6 +426,11 @@ def init_db():
         if "referred_by" not in prof_cols2:
             # معرّف الفني اللي دعا هذا الفني (من رابط ?start=ref_<id>)
             conn.execute("ALTER TABLE professionals ADD COLUMN referred_by INTEGER")
+        if "wa_id" not in prof_cols2:
+            # فني سجّل من بوت واتساب: رقم واتساب حقه (أرقام فقط). telegram_user_id يكون سالب
+            # (-رقمه) لين يربط حسابه بتلغرام، وعندها يصير رقم حسابه الحقيقي بتلغرام.
+            conn.execute("ALTER TABLE professionals ADD COLUMN wa_id TEXT")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_professionals_wa_id ON professionals (wa_id)")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_professionals_country ON professionals (country)")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_professionals_city_id ON professionals (city_id)")
 
@@ -492,6 +497,30 @@ def _now_iso():
     return datetime.now(timezone.utc).isoformat()
 
 
+def get_professional_by_wa_id(wa_id: str):
+    with get_conn() as conn:
+        row = conn.execute(
+            "SELECT * FROM professionals WHERE wa_id = ? ORDER BY id DESC LIMIT 1", (wa_id,)
+        ).fetchone()
+        return dict(row) if row else None
+
+
+def link_professional_telegram(professional_id: int, telegram_user_id: int) -> str:
+    """يربط فني مسجّل من واتساب بحسابه في تلغرام. يرجّع: ok | already | linked_other |
+    tg_has_account | not_found."""
+    p = get_professional_by_id(professional_id)
+    if not p:
+        return "not_found"
+    if p["telegram_user_id"] and p["telegram_user_id"] > 0:
+        return "already" if p["telegram_user_id"] == telegram_user_id else "linked_other"
+    other = get_professional_by_telegram_id(telegram_user_id)
+    if other and other["id"] != professional_id:
+        return "tg_has_account"
+    with get_conn() as conn:
+        conn.execute("UPDATE professionals SET telegram_user_id = ? WHERE id = ?", (telegram_user_id, professional_id))
+    return "ok"
+
+
 def get_professional_by_telegram_id(telegram_user_id: int):
     with get_conn() as conn:
         row = conn.execute(
@@ -540,6 +569,8 @@ def create_registration(data: dict) -> int:
             ),
         )
         professional_id = cur.lastrowid
+        if data.get("wa_id"):
+            conn.execute("UPDATE professionals SET wa_id = ? WHERE id = ?", (data["wa_id"], professional_id))
         district_ids = data.get("district_ids") or []
         if district_ids:
             conn.executemany(
@@ -703,6 +734,7 @@ def find_subscription_missed_professionals(
             "is_subscribed = 0",
             "free_contacts_used >= ? + bonus_contacts",
             "(last_search_nudge_at IS NULL OR last_search_nudge_at < ?)",
+            "telegram_user_id > 0",   # فني واتساب غير مربوط بتلغرام: ما عندنا طريقة مجانية ننبهه
         ]
         cooldown_cutoff = (
             datetime.now(timezone.utc) - timedelta(hours=NUDGE_COOLDOWN_HOURS)

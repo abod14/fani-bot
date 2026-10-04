@@ -8,6 +8,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import CallbackQueryHandler, CommandHandler, ContextTypes
 
 import config
+import contact_links
 import db
 import i18n
 from handlers import referral
@@ -86,7 +87,12 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # لو الرابط كان فيه وسم مصدر (مثل ?start=facebook)، نحفظه هنا عشان نعرف
     # لاحقًا (عند إتمام التسجيل) من وين جا هذا الفني — يبقى بـ user_data حتى
     # لو مر بخطوة اختيار اللغة أولًا.
-    if context.args:
+    if context.args and context.args[0].lower().startswith("wl_"):
+        # فني سجّل من بوت واتساب ويربط حسابه بتلغرام (رابط موقّع من بوت واتساب)
+        pid = contact_links.parse_link_token(context.args[0])
+        result = await asyncio.to_thread(db.link_professional_telegram, pid, user_id) if pid else "not_found"
+        await update.message.reply_text(i18n.t(f"wa_link_{result}", "ar"))
+    elif context.args:
         arg = context.args[0].strip().lower()[:30]
         referrer_id = referral.parse_ref(arg)
         if referrer_id:

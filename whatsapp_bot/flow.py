@@ -120,9 +120,15 @@ def _dispatch(api, wa_id, name, msg, state, data):
         inter = msg.get("interactive", {})
         kind = inter.get("type")
         rid = (inter.get(kind) or {}).get("id", "")
+        if rid.startswith("R:"):
+            from whatsapp_bot import register
+            return register.on_choice(api, wa_id, rid, state, data)
         return _on_choice(api, wa_id, name, rid, state, data)
     if mtype == "location":
         loc = msg.get("location", {})
+        if (state or "").startswith("r_"):
+            from whatsapp_bot import register
+            return register.on_location(api, wa_id, data, float(loc.get("latitude")), float(loc.get("longitude")))
         if data.get("pid"):
             return _on_location(api, wa_id, float(loc.get("latitude")), float(loc.get("longitude")), data)
         return _welcome(api, wa_id, name)
@@ -132,6 +138,9 @@ def _dispatch(api, wa_id, name, msg, state, data):
             return _delete_my_data(api, wa_id)
         if state is None or norm(body) in RESET_WORDS:
             return _welcome(api, wa_id, name)
+        if (state or "").startswith("r_"):
+            from whatsapp_bot import register
+            return register.on_text(api, wa_id, state, data, body)
         if state == "prof":
             return _match_profession(api, wa_id, body, data)
         if state == "dist" and data.get("city_id"):
@@ -151,7 +160,8 @@ def _on_choice(api, wa_id, name, rid, state, data):
         if p[1] == "search":
             return _ask_domain(api, wa_id, 0, {})
         if p[1] == "pro":
-            return _pro_info(api, wa_id, data)
+            from whatsapp_bot import register
+            return register.start(api, wa_id)
         return _welcome(api, wa_id, name)
     if head == "dpg":
         return _ask_domain(api, wa_id, int(p[1]), data)
