@@ -20,6 +20,12 @@ import professions_repo as professions
 
 TELEGRAM_REGISTER_URL = "https://t.me/FanniServiceBot?start=wa_bot"
 RESULTS_PER_PAGE = 9
+RESULTS_TTL_MIN = 24 * 60   # بعد يوم: القائمة القديمة ما تعطي أرقام، يلزم بحث جديد
+
+
+def _now_minute() -> int:
+    import time
+    return int(time.time() // 60)
 LIST_PAGE = 8          # عناصر كل صفحة بالقوائم الطويلة (+ صفّي التنقل = 10، حد واتساب)
 SESSION_TTL = timedelta(hours=3)
 
@@ -199,6 +205,10 @@ def _on_choice(api, wa_id, name, rid, state, data):
     if head == "more":
         return _show_page(api, wa_id, data)
     if head in ("c", "n"):
+        if len(p) > 2 and p[2].isdigit() and _now_minute() - int(p[2]) > RESULTS_TTL_MIN:
+            api.buttons(wa_id, "⏰ نتائج هذا البحث قديمة (أكثر من يوم). سوّ بحث جديد عشان تشوف الفنيين المتاحين الحين 👇",
+                        [("m:search", "🔄 بحث جديد")])
+            return "menu", {}
         return _contact(api, wa_id, int(p[1]), head == "n", state, data)
     return _welcome(api, wa_id, name)
 
@@ -458,7 +468,8 @@ def _show_page(api, wa_id, data):
     people = db.get_professionals_by_ids(page_ids)
     db.mark_shown([p["id"] for p in people])
     remaining_after = len(ids) - shown - len(people)
-    rows = [((f"c:{p['id']}" if p.get("has_whatsapp", 1) else f"n:{p['id']}"), p["full_name"], _row_desc(p))
+    stamp = _now_minute()   # النتائج صالحة 24 ساعة (الرقم داخل معرّف الصف)
+    rows = [((f"c:{p['id']}:{stamp}" if p.get("has_whatsapp", 1) else f"n:{p['id']}:{stamp}"), p["full_name"], _row_desc(p))
             for p in people]
     if remaining_after > 0:
         rows.append(("more", "⬇️ عرض المزيد", f"باقي {remaining_after} فني"))
@@ -478,8 +489,8 @@ def _contact(api, wa_id, pid, call_only, state, data):
     from handlers.search import _professional_card_text  # نفس نص البطاقة اللي في تلغرام
 
     p = db.get_professional_by_id(pid)
-    if not p or p.get("status") == db.STATUS_REJECTED:
-        api.text(wa_id, "عذرًا، هذا الفني لم يعد متاحًا 🙏")
+    if not db.professional_can_receive_contacts(p):
+        api.text(wa_id, "عذرًا، هذا الفني غير متاح حاليًا 🙏 اختر فني ثاني من القائمة، أو اكتب 0 لبحث جديد.")
         return state or "results", data
     db.register_contact(pid, customer_id(wa_id))   # تُخصم فرصة (مرة وحدة لكل عميل/فني خلال 24 ساعة)
     card = _professional_card_text(p)

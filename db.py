@@ -808,6 +808,17 @@ def mark_shown(professional_ids: list[int]):
 CONTACT_DEDUPE_HOURS = 24
 
 
+def professional_can_receive_contacts(p: dict | None) -> bool:
+    """نفس شرط الظهور بالبحث: فني نشط، ومشترك أو باقي عنده فرص مجانية. يُستخدم عند
+    الضغط على فني من نتائج قديمة — عشان ما يوصل رقم فني خلّصت فرصه وما اشترك."""
+    if not p or p.get("status") != STATUS_ACTIVE:
+        return False
+    if p.get("is_subscribed"):
+        return True
+    limit = int(get_setting("free_contacts_limit", str(FREE_CONTACTS_LIMIT))) + (p.get("bonus_contacts") or 0)
+    return (p.get("free_contacts_used") or 0) < limit
+
+
 def register_contact(professional_id: int, customer_telegram_id: int) -> bool:
     """يسجّل تواصل عميل مع فني ويخصم فرصة مجانية — إلا لو نفس العميل تواصل مع نفس
     الفني خلال آخر 24 ساعة (ضغطة مكررة على نفس الزر ما تخصم فرصة ثانية من الفني).

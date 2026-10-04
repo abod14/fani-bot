@@ -1181,7 +1181,8 @@ async def whatsapp_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = await asyncio.to_thread(db.get_user_language, update.effective_user.id)
 
     p = await asyncio.to_thread(db.get_professional_by_id, professional_id)
-    if not p:
+    if not await asyncio.to_thread(db.professional_can_receive_contacts, p):
+        # بطاقة قديمة لفني خلّص فرصه أو انوقف — ما نعطي رقمه
         await query.answer(i18n.t("srch_professional_gone", lang), show_alert=True)
         return
 
@@ -1218,7 +1219,7 @@ async def telegram_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = await asyncio.to_thread(db.get_user_language, update.effective_user.id)
 
     p = await asyncio.to_thread(db.get_professional_by_id, professional_id)
-    if not p or not p.get("telegram_contact_number"):
+    if not p or not p.get("telegram_contact_number") or not await asyncio.to_thread(db.professional_can_receive_contacts, p):
         await query.answer(i18n.t("srch_professional_gone", lang), show_alert=True)
         return
 
