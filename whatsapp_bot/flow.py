@@ -39,7 +39,7 @@ def _ttl_for(state: str | None) -> timedelta:
         return RESULTS_TTL
     if (state or "").startswith("r_"):
         return REG_STEP_TTL
-    if state in ("prof", "loc", "dist"):
+    if state in ("prof", "loc", "loc_reg", "loc_city", "dist"):
         return SEARCH_STEP_TTL
     return SESSION_TTL
 
@@ -170,7 +170,11 @@ def _dispatch(api, wa_id, name, msg, state, data):
         if state == "prof":
             return _match_profession(api, wa_id, body, data)
         if state == "dist" and data.get("city_id"):
-            return _match_district(api, wa_id, body, data)
+            return _on_district_text(api, wa_id, body, data)
+        if state == "loc_reg" and data.get("pid"):
+            return _on_region_text(api, wa_id, body, data)
+        if state == "loc_city" and data.get("pid"):
+            return _on_city_text(api, wa_id, body, data)
         if state == "loc" and data.get("pid"):
             api.buttons(wa_id, "📍 أرسل موقعك (📎 ← الموقع)، أو اختر مدينتك يدويًا:", [("loc:manual", "🏙️ اختيار يدوي")])
             return state, data
@@ -387,19 +391,63 @@ def _manual_start(api, wa_id, data):
     return "loc", data
 
 
+def send_numbered(api, wa_id, head: str, names: list[str], tail: str, first_line: str | None = None):
+    """قائمة مرقمة برسالة وحدة (تتقسم لو تعدت حد واتساب) — بدل قوائم بصفحات كل صفحة برد."""
+    cur = head + "\n"
+    if first_line:
+        cur += "\n" + first_line
+    chunks = []
+    for i, n in enumerate(names, 1):
+        ln = f"{i}. {n}"
+        if len(cur) + len(ln) + 1 > 3900:
+            chunks.append(cur)
+            cur = ""
+        cur += "\n" + ln
+    chunks.append(cur + "\n\n" + tail)
+    for c in chunks:
+        api.text(wa_id, c.strip())
+
+
+def _number_in(text: str, items: list):
+    n = top.to_number(text)
+    if n is not None and 1 <= n <= len(items):
+        return items[n - 1]
+    return None
+
+
+def _name_in(text: str, items: list[dict]):
+    q = norm(re.sub(r"^\s*(حي|منطقة|مدينة)\s+", "", (text or "").strip()))
+    if not q:
+        return None
+    exact = [x for x in items if norm(x["name"]) == q or norm(re.sub(r"^(حي|منطقة)\s+", "", x["name"])) == q]
+    if exact:
+        return exact[0]
+    part = [x for x in items if q in norm(x["name"])]
+    return part[0] if len(part) == 1 else None
+
+
 def _choose_country(api, wa_id, code, page, data):
     regions = db.list_sa_regions(code)
     data["country"] = code
     if len(regions) == 1:
         return _choose_region(api, wa_id, regions[0]["id"], 0, data)
-    items, prev, nxt = _page(regions, page)
-    rows = [(f"reg:{r['id']}", r["name"], r["name"] if len(r["name"]) > 24 else None) for r in items]
-    if nxt:
-        rows.append((f"rpg:{code}:{page + 1}", "المزيد ⬅️", None))
-    if prev:
-        rows.append((f"rpg:{code}:{page - 1}", "➡️ السابق", None))
-    api.list(wa_id, f"اختر المنطقة في {countries.name(code, 'ar')} 👇", "اختر المنطقة", rows, section_title="المناطق")
-    return "loc", data
+    data["nreg"] = [r["id"] for r in regions]
+    send_numbered(api, wa_id, f"📍 مناطق {countries.name(code, 'ar')} 👇", [r["name"] for r in regions],
+                  "✍️ اكتب *رقم* المنطقة.")
+    return "loc_reg", data
+
+
+def _on_region_text(api, wa_id, text, data):
+    ids = data.get("nreg") or []
+    rid = _number_in(text, ids)
+    if rid is None:
+        regions = [r for r in db.list_sa_regions(data.get("country", "SA")) if r["id"] in ids]
+        hit = _name_in(text, regions)
+        rid = hit["id"] if hit else None
+    if rid is None:
+        api.text(wa_id, f"اكتب رقم من 1 إلى {len(ids)} 🙏")
+        return "loc_reg", data
+    return _choose_region(api, wa_id, rid, 0, data)
 
 
 def _choose_region(api, wa_id, region_id, page, data):
@@ -409,14 +457,23 @@ def _choose_region(api, wa_id, region_id, page, data):
     if not cities:
         api.text(wa_id, "ما فيه مدن مسجلة بهذي المنطقة حاليًا.")
         return _choose_country(api, wa_id, data.get("country", "SA"), 0, data)
-    items, prev, nxt = _page(cities, page)
-    rows = [(f"city:{c['id']}", c["name"], c["name"] if len(c["name"]) > 24 else None) for c in items]
-    if nxt:
-        rows.append((f"cpg:{region_id}:{page + 1}", "المزيد ⬅️", None))
-    if prev:
-        rows.append((f"cpg:{region_id}:{page - 1}", "➡️ السابق", None))
-    api.list(wa_id, "اختر المدينة 👇", "اختر المدينة", rows, section_title="المدن")
-    return "loc", data
+    data["ncity"] = [c["id"] for c in cities]
+    data["nreg_id"] = region_id
+    send_numbered(api, wa_id, "🏙️ اختر المدينة 👇", [c["name"] for c in cities], "✍️ اكتب *رقم* المدينة.")
+    return "loc_city", data
+
+
+def _on_city_text(api, wa_id, text, data):
+    ids = data.get("ncity") or []
+    cid = _number_in(text, ids)
+    if cid is None:
+        cities = db.list_sa_major_cities_by_region(data.get("nreg_id")) if data.get("nreg_id") else []
+        hit = _name_in(text, cities)
+        cid = hit["id"] if hit else None
+    if cid is None:
+        api.text(wa_id, f"اكتب رقم من 1 إلى {len(ids)} 🙏")
+        return "loc_city", data
+    return _choose_city(api, wa_id, cid, 0, data)
 
 
 def _choose_city(api, wa_id, city_id, page, data):
@@ -428,18 +485,29 @@ def _choose_city(api, wa_id, city_id, page, data):
     if not districts:
         data.update(neighborhood=None, district_id=None)
         return _run_search(api, wa_id, data)
-    per = 7
-    start = page * per
-    items = districts[start:start + per]
-    rows = [("dist:all", f"🌍 كل {city['name']}", "كل أحياء المدينة")]
-    rows += [(f"dist:{d['id']}", d["name"], d["name"] if len(d["name"]) > 24 else None) for d in items]
-    if start + per < len(districts):
-        rows.append((f"dipg:{city_id}:{page + 1}", "المزيد ⬅️", f"باقي {len(districts) - start - per} حي"))
-    if page > 0:
-        rows.append((f"dipg:{city_id}:{page - 1}", "➡️ السابق", None))
-    api.list(wa_id, f"اختر الحي في {city['name']} 👇\nأو اكتب اسم حيّك مباشرة (مثل: النرجس)", "اختر الحي", rows,
-             section_title="الأحياء")
+    # ترتيب أبجدي بدون كلمة «حي» عشان العميل يلقى حيّه بسهولة
+    districts.sort(key=lambda d: norm(re.sub(r"^حي\s+", "", d["name"])))
+    data["ndist"] = [d["id"] for d in districts]
+    send_numbered(api, wa_id, f"📍 أحياء {city['name']} 👇", [d["name"] for d in districts],
+                  "✍️ اكتب *رقم* حيّك (أو اسمه).", first_line=f"#. 🌍 كل {city['name']}")
     return "dist", data
+
+
+def _on_district_text(api, wa_id, text, data):
+    t = (text or "").strip()
+    if t in ("#", "＃"):
+        data.update(neighborhood=None, district_id=None)
+        return _run_search(api, wa_id, data)
+    did = _number_in(t, data.get("ndist") or [])
+    if did is not None:
+        d = db.get_sa_district_by_id(did)
+        if d:
+            data.update(neighborhood=d["name"], district_id=d["id"])
+            return _run_search(api, wa_id, data)
+    if top.to_number(t) is not None:
+        api.text(wa_id, f"اكتب رقم من 1 إلى {len(data.get('ndist') or [])}، أو # لكل المدينة 🙏")
+        return "dist", data
+    return _match_district(api, wa_id, t, data)
 
 
 def _match_district(api, wa_id, text, data):
@@ -457,8 +525,8 @@ def _match_district(api, wa_id, text, data):
         rows.append(("dist:all", f"🌍 كل {data.get('city', 'المدينة')}", None))
         api.list(wa_id, f"اختر حيّك من النتائج 👇", "اختر الحي", rows, section_title="الأحياء")
         return "dist", data
-    api.text(wa_id, f"ما لقيت حي باسم «{clip_text(text)}» في {data.get('city', '')} 🤔")
-    return _choose_city(api, wa_id, city_id, 0, data)
+    api.text(wa_id, f"ما لقيت حي باسم «{clip_text(text)}» في {data.get('city', '')} 🤔 اكتب رقم الحي من القائمة، أو # لكل المدينة.")
+    return "dist", data
 
 
 # ─────────────────────────── البحث والنتائج ───────────────────────────
