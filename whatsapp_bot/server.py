@@ -48,6 +48,35 @@ def health():
     return "ok"
 
 
+PRIVACY_HTML = """<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>سياسة الخصوصية — فني | Fanni Privacy Policy</title>
+<style>body{font-family:system-ui,Tahoma,sans-serif;max-width:760px;margin:0 auto;padding:24px;line-height:1.8;color:#1f2937;background:#fff}
+h1{font-size:24px}h2{font-size:18px;margin-top:28px}.en{direction:ltr;text-align:left;border-top:1px solid #e5e7eb;margin-top:32px;padding-top:16px}</style></head><body>
+<h1>سياسة الخصوصية — خدمة «فني»</h1>
+<p>«فني» خدمة تربط العملاء بالفنيين والحرفيين في السعودية ومصر ودول الخليج، عبر بوت تلغرام @FanniServiceBot وعبر واتساب.</p>
+<h2>البيانات التي نجمعها</h2>
+<p><b>للعميل:</b> رقم واتساب أو معرّف تلغرام، والمهنة والمدينة/الحي اللي يبحث فيها، والموقع إذا أرسله بنفسه (لتحديد أقرب مدينة وحي فقط)، وسجل التواصل مع الفنيين.</p>
+<p><b>للفني:</b> الاسم والمهنة والخدمات والمدينة والأحياء ورقم التواصل اللي يختار عرضه للعملاء.</p>
+<h2>كيف نستخدمها</h2>
+<p>لعرض الفنيين المناسبين للعميل، وحساب فرص التواصل المجانية للفني، وتنبيه الفني بطلبات العملاء، وتحسين الخدمة بإحصاءات عامة. لا نبيع البيانات ولا نشاركها مع أي جهة لأغراض تسويقية. رقم الفني يظهر للعميل فقط عند طلب التواصل.</p>
+<h2>الحذف</h2>
+<p>تقدر تطلب حذف بياناتك نهائيًا في أي وقت: في تلغرام بالأمر /delete_account، أو بمراسلتنا على واتساب بكلمة «حذف بياناتي».</p>
+<h2>التواصل</h2>
+<p>عبر بوت تلغرام: <a href="https://t.me/FanniServiceBot">t.me/FanniServiceBot</a></p>
+<div class="en"><h1>Privacy Policy — Fanni</h1>
+<p>Fanni connects customers with technicians and tradespeople in Saudi Arabia, Egypt and the Gulf via the Telegram bot @FanniServiceBot and WhatsApp.</p>
+<p><b>Data we collect:</b> customers' WhatsApp number or Telegram ID, the profession and city/district searched, location only if the customer shares it (to find the nearest city/district), and contact history; technicians' name, profession, services, city/districts and the contact number they choose to show.</p>
+<p><b>Use:</b> to show matching technicians, count technicians' free contacts, notify technicians of customer requests and improve the service with aggregate statistics. We never sell data or share it for marketing. A technician's number is shown to a customer only when the customer asks to contact them.</p>
+<p><b>Deletion:</b> request permanent deletion anytime via /delete_account on Telegram or by messaging "delete my data" on WhatsApp.</p>
+<p><b>Contact:</b> <a href="https://t.me/FanniServiceBot">t.me/FanniServiceBot</a></p></div>
+</body></html>"""
+
+
+@app.get("/privacy")
+def privacy():
+    return PRIVACY_HTML
+
+
 @app.get("/wa/webhook")
 def verify():
     """خطوة التحقق اللي تسويها ميتا مرة وحدة لما تحفظ رابط الـ Webhook."""

@@ -27,6 +27,9 @@ show_url() {
   echo " Verify token:  $VERIFY"
   echo
   echo " وبعدها في Webhook fields فعّل (Subscribe) خانة: messages"
+  echo
+  echo " رابط سياسة الخصوصية (لإعدادات التطبيق قبل النشر):"
+  echo " ${URL:-...}/privacy"
   echo "=============================================================="
 }
 

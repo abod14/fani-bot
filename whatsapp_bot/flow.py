@@ -84,6 +84,20 @@ RESET_WORDS = {norm(w) for w in [
 ]}
 
 
+DELETE_WORDS = {norm(w) for w in ["حذف بياناتي", "احذف بياناتي", "delete my data"]}
+
+
+def _delete_my_data(api, wa_id):
+    """حذف بيانات العميل نهائيًا (وعد سياسة الخصوصية): الجلسة + سجلات بحثه وتواصله."""
+    cid = customer_id(wa_id)
+    with db.get_conn() as conn:
+        conn.execute("DELETE FROM wa_sessions WHERE wa_id = ?", (wa_id,))
+        conn.execute("DELETE FROM search_log WHERE customer_telegram_id = ?", (cid,))
+        conn.execute("DELETE FROM contact_clicks WHERE customer_telegram_id = ?", (cid,))
+    api.text(wa_id, "✅ تم حذف كل بياناتك من «فني» نهائيًا. تقدر ترجع تستخدم الخدمة بأي وقت.")
+    return None, {}
+
+
 def _page(items: list, page: int, per: int = LIST_PAGE):
     if len(items) <= 10 and page == 0:
         return items, False, False
@@ -114,6 +128,8 @@ def _dispatch(api, wa_id, name, msg, state, data):
         return _welcome(api, wa_id, name)
     if mtype == "text":
         body = (msg.get("text") or {}).get("body", "")
+        if norm(body) in DELETE_WORDS:
+            return _delete_my_data(api, wa_id)
         if state is None or norm(body) in RESET_WORDS:
             return _welcome(api, wa_id, name)
         if state == "prof":
