@@ -13,6 +13,9 @@ import config
 
 log = logging.getLogger("fani.wa")
 
+# اتصال واحد دائم مع ميتا بدل فتح اتصال جديد لكل رسالة (يوفّر جزء من الثانية بكل رد)
+_client = httpx.Client(timeout=20, http2=False, limits=httpx.Limits(max_keepalive_connections=10, keepalive_expiry=120))
+
 
 def clip(text: str, n: int) -> str:
     text = (text or "").strip()
@@ -32,8 +35,7 @@ class WhatsAppAPI:
 
     def _post(self, payload: dict):
         try:
-            r = httpx.post(self.url, json=payload, timeout=20,
-                           headers={"Authorization": f"Bearer {self.token}"})
+            r = _client.post(self.url, json=payload, headers={"Authorization": f"Bearer {self.token}"})
             if r.status_code >= 400:
                 log.warning("WA send failed %s: %s", r.status_code, r.text[:500])
             return r
