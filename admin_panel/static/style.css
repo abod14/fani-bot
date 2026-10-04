@@ -280,3 +280,7 @@ button.success:hover, .btn.success:hover {
 .health-box.health-yellow { border-right-color: #f59e0b; background: #fffbeb; }
 .health-box.health-red { border-right-color: #ef4444; background: #fef2f2; }
 .health-box table td:last-child { text-align: left; }
+
+.src-badge{display:inline-block;font-size:11px;padding:1px 7px;border-radius:999px;margin-inline-start:6px;vertical-align:middle;white-space:nowrap}
+.src-badge.wa{background:#dcfce7;color:#166534}
+.src-badge.tg{background:#e0f2fe;color:#075985}

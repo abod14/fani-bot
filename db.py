@@ -1292,6 +1292,7 @@ def admin_list_professionals(
     subscribed: bool | None = None,
     query: str | None = None,
     country: str | None = None,
+    channel: str | None = None,
     limit: int = 50,
     offset: int = 0,
 ):
@@ -1315,6 +1316,10 @@ def admin_list_professionals(
         where.append("(full_name LIKE ? OR whatsapp_number LIKE ? OR telegram_contact_number LIKE ?)")
         like = f"%{query.strip()}%"
         params.extend([like, like, like])
+    if channel == "whatsapp":
+        where.append("wa_id IS NOT NULL")
+    elif channel == "telegram":
+        where.append("wa_id IS NULL")
     if country:
         where.append("country = ?")
         params.append(country)
@@ -1341,6 +1346,7 @@ def admin_count_professionals(
     subscribed: bool | None = None,
     query: str | None = None,
     country: str | None = None,
+    channel: str | None = None,
 ) -> int:
     """نفس فلاتر admin_list_professionals، لكن يرجّع العدد الكلي (لأجل ترقيم الصفحات)."""
     where = []
@@ -1362,6 +1368,10 @@ def admin_count_professionals(
         where.append("(full_name LIKE ? OR whatsapp_number LIKE ? OR telegram_contact_number LIKE ?)")
         like = f"%{query.strip()}%"
         params.extend([like, like, like])
+    if channel == "whatsapp":
+        where.append("wa_id IS NOT NULL")
+    elif channel == "telegram":
+        where.append("wa_id IS NULL")
     if country:
         where.append("country = ?")
         params.append(country)

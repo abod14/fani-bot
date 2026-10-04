@@ -244,6 +244,7 @@ def professionals_list():
     profession_id = request.args.get("profession_id") or None
     subscribed_raw = request.args.get("subscribed") or None
     query = request.args.get("q") or None
+    channel = request.args.get("channel") if request.args.get("channel") in ("whatsapp", "telegram") else None
     page = max(1, request.args.get("page", 1, type=int))
 
     subscribed = None
@@ -255,19 +256,19 @@ def professionals_list():
     country = scope_country()
     total_count = db.admin_count_professionals(
         status=status, city=city, profession_id=profession_id, subscribed=subscribed, query=query,
-        country=country,
+        country=country, channel=channel,
     )
     total_pages = max(1, (total_count + PAGE_SIZE - 1) // PAGE_SIZE)
     page = min(page, total_pages)
 
     professionals = db.admin_list_professionals(
         status=status, city=city, profession_id=profession_id, subscribed=subscribed, query=query,
-        country=country, limit=PAGE_SIZE, offset=(page - 1) * PAGE_SIZE,
+        country=country, channel=channel, limit=PAGE_SIZE, offset=(page - 1) * PAGE_SIZE,
     )
 
     filters = {
         "status": status, "city": city, "profession_id": profession_id, "subscribed": subscribed_raw, "q": query,
-        "country": country if is_super() else None,
+        "country": country if is_super() else None, "channel": channel,
     }
     filters_qs = {k: v for k, v in filters.items() if v}
 

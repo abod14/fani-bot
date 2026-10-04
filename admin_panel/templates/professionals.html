@@ -53,6 +53,14 @@
     </select>
   </div>
   <div class="field">
+    <label>مكان التسجيل</label>
+    <select name="channel">
+      <option value="">الكل</option>
+      <option value="whatsapp" {{ 'selected' if filters.channel == 'whatsapp' }}>واتساب</option>
+      <option value="telegram" {{ 'selected' if filters.channel == 'telegram' }}>تلغرام</option>
+    </select>
+  </div>
+  <div class="field">
     <label>بحث (اسم/رقم)</label>
     <input type="text" name="q" value="{{ filters.q or '' }}" placeholder="اسم أو رقم واتساب">
   </div>
@@ -88,7 +96,9 @@
   <tbody>
     {% for p in professionals %}
     <tr>
-      <td><a href="{{ url_for('professional_detail', professional_id=p.id) }}">{{ p.full_name }}</a></td>
+      <td><a href="{{ url_for('professional_detail', professional_id=p.id) }}">{{ p.full_name }}</a>
+        {% if p.wa_id %}<span class="src-badge wa" title="سجّل من واتساب{% if p.telegram_user_id > 0 %} ومربوط بتلغرام{% endif %}">واتساب{% if p.telegram_user_id > 0 %} + تلغرام{% endif %}</span>
+        {% else %}<span class="src-badge tg" title="سجّل من تلغرام">تلغرام</span>{% endif %}</td>
       {% if is_super %}<td>{{ country_label(p.country or 'SA') }}</td>{% endif %}
       <td>{{ p.city }}{% if p.covers_whole_city %} / المدينة كاملة 🌍{% elif p.neighborhood %} / {{ p.neighborhood }}{% endif %}</td>
       <td>{{ p.profession_name }}{% if p.profession2_name %} • {{ p.profession2_name }}{% endif %}</td>
