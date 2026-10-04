@@ -13,8 +13,11 @@ import config
 
 log = logging.getLogger("fani.wa")
 
-# اتصال واحد دائم مع ميتا بدل فتح اتصال جديد لكل رسالة (يوفّر جزء من الثانية بكل رد)
-_client = httpx.Client(timeout=20, http2=False, limits=httpx.Limits(max_keepalive_connections=10, keepalive_expiry=120))
+# اتصال دائم مع ميتا بدل فتح اتصال جديد لكل رسالة (يوفّر جزء من الثانية بكل رد).
+# ميتا تقفل الاتصال الخامل بسرعة، فنخلي مدة الإبقاء قصيرة (20 ثانية) ونعيد المحاولة مرة
+# وحدة لو لقينا الاتصال مقفول (كان يسبب إن البوت ما يرد بعد ما يسكت دقيقتين).
+_client = httpx.Client(timeout=20, http2=False, limits=httpx.Limits(max_keepalive_connections=10, keepalive_expiry=20))
+_RETRYABLE = (httpx.RemoteProtocolError, httpx.ConnectError, httpx.ReadError, httpx.WriteError, httpx.PoolTimeout)
 
 
 def clip(text: str, n: int) -> str:
@@ -34,14 +37,21 @@ class WhatsAppAPI:
         return f"https://graph.facebook.com/{config.WA_GRAPH_VERSION}/{self.phone_number_id}/messages"
 
     def _post(self, payload: dict):
-        try:
-            r = _client.post(self.url, json=payload, headers={"Authorization": f"Bearer {self.token}"})
-            if r.status_code >= 400:
-                log.warning("WA send failed %s: %s", r.status_code, r.text[:500])
-            return r
-        except Exception:
-            log.exception("WA send error")
-            return None
+        for attempt in (1, 2):
+            try:
+                r = _client.post(self.url, json=payload, headers={"Authorization": f"Bearer {self.token}"})
+                if r.status_code >= 400:
+                    log.warning("WA send failed %s: %s", r.status_code, r.text[:500])
+                return r
+            except _RETRYABLE as e:
+                if attempt == 1:
+                    log.info("WA connection dropped (%s) — retrying on a fresh connection", type(e).__name__)
+                    continue
+                log.exception("WA send error after retry")
+                return None
+            except Exception:
+                log.exception("WA send error")
+                return None
 
     def _send(self, to: str, body: dict):
         payload = {"messaging_product": "whatsapp", "recipient_type": "individual", "to": to}
