@@ -17,6 +17,7 @@ import countries
 import db
 import i18n
 import professions_repo as professions
+from whatsapp_bot import top
 
 TELEGRAM_REGISTER_URL = "https://t.me/FanniServiceBot?start=wa_bot"
 RESULTS_PER_PAGE = 9
@@ -183,11 +184,13 @@ def _on_choice(api, wa_id, name, rid, state, data):
     head = p[0]
     if head == "m":
         if p[1] == "search":
-            return _ask_domain(api, wa_id, 0, {})
+            return _ask_top(api, wa_id)
         if p[1] == "pro":
             from whatsapp_bot import register
             return register.start(api, wa_id)
         return _welcome(api, wa_id, name)
+    if head == "top":
+        return _ask_more(api, wa_id)
     if head == "dpg":
         return _ask_domain(api, wa_id, int(p[1]), data)
     if head == "dom":
@@ -256,6 +259,19 @@ def _pro_info(api, wa_id, data):
     return "menu", data
 
 
+def _ask_top(api, wa_id):
+    """أول شاشة بالبحث: الـ9 الأكثر طلبًا + «المزيد» (رسالة وحدة)."""
+    api.list(wa_id, "وش المهنة اللي تبيها؟ اختر من القائمة 👇\nأو اكتب اسمها مباشرة (مثل: سباك)",
+             "اختر المهنة", top.top_rows(), header="🔍 بحث عن فني", section_title="الأكثر طلبًا")
+    return "prof", {}  # بحث جديد = جلسة جديدة
+
+
+def _ask_more(api, wa_id):
+    text, ids = top.more_message("📋 باقي المهن (الأكثر طلبًا أول):")
+    api.text(wa_id, text)
+    return "prof", {"more": ids}
+
+
 def _ask_domain(api, wa_id, page, data):
     domains = professions.get_domains("ar")
     items, prev, nxt = _page(domains, page)
@@ -272,7 +288,7 @@ def _ask_domain(api, wa_id, page, data):
 def _ask_profession(api, wa_id, domain_id, page, data):
     profs = professions.get_professions_by_domain(domain_id, "ar")
     if not profs:
-        return _ask_domain(api, wa_id, 0, data)
+        return _ask_top(api, wa_id)
     per = 7 if len(profs) > 9 else 9      # 7 + (التالي/السابق/رجوع) = 10 حد واتساب
     start = page * per
     items = profs[start:start + per]
@@ -294,6 +310,15 @@ def _all_professions():
 
 
 def _match_profession(api, wa_id, text, data):
+    n = top.to_number(text)
+    if n is not None:
+        if n == 10 and not data.get("more"):
+            return _ask_more(api, wa_id)
+        pid = top.pick_by_number(n, data.get("more"))
+        if pid:
+            return _select_profession(api, wa_id, pid, data)
+        api.text(wa_id, "الرقم مو موجود بالقائمة 🤔 اكتب رقم صحيح أو اسم المهنة.")
+        return "prof", data
     q = norm(text)
     words = [w for w in q.split() if len(w) >= 3] or [q]
     scored = []
@@ -316,12 +341,12 @@ def _match_profession(api, wa_id, text, data):
         return _select_profession(api, wa_id, matches[0]["id"], data)
     if matches:
         rows = [(f"prof:{x['id']}", x["name"], x["name"] if len(x["name"]) > 24 else None) for x in matches[:9]]
-        rows.append(("dpg:0", "📋 كل المجالات", None))
+        rows.append(("top:more", "📋 كل المهن", None))
         api.list(wa_id, f"لقيت أكثر من مهنة قريبة من «{clip_text(text)}» — اختر المقصودة 👇", "اختر المهنة", rows,
                  section_title="نتائج البحث")
         return "prof", data
-    api.text(wa_id, f"ما لقيت مهنة باسم «{clip_text(text)}» 🤔 اختر من المجالات:")
-    return _ask_domain(api, wa_id, 0, data)
+    api.text(wa_id, f"ما لقيت مهنة باسم «{clip_text(text)}» 🤔")
+    return _ask_top(api, wa_id)
 
 
 def clip_text(s, n=30):
@@ -332,7 +357,7 @@ def clip_text(s, n=30):
 def _select_profession(api, wa_id, pid, data):
     _, prof = professions.get_profession(pid, "ar")
     if not prof:
-        return _ask_domain(api, wa_id, 0, data)
+        return _ask_top(api, wa_id)
     data = {"pid": prof["id"], "pname": prof["name"]}
     api.location_request(
         wa_id, f"تمام ✅ «{prof['name']}»\n📍 أرسل موقعك من الزر تحت، ونجيب لك أقرب الفنيين لك."

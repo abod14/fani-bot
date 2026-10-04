@@ -39,6 +39,7 @@ PAGE_SIZE = 20
 
 db.init_db()
 db.seed_professions_from_json_if_empty(config.PROFESSIONS_JSON_PATH)
+db.ensure_extra_professions()
 db.seed_saudi_geo_if_empty(
     config.SAUDI_REGIONS_JSON_PATH, config.SAUDI_CITIES_JSON_PATH, config.SAUDI_DISTRICTS_JSON_PATH
 )
@@ -630,6 +631,63 @@ def admins_page():
         return redirect(url_for("admins_page"))
 
     return render_template("admins.html", admins=db.list_admin_users(), active_page="admins")
+
+
+# ─────────────────────────── المهن الأكثر طلبًا + قائمة الـ9 بواتساب ───────────────────────────
+
+@app.route("/demand", methods=["GET", "POST"])
+@super_required
+def demand_page():
+    from whatsapp_bot import top
+    all_profs = top.all_professions()
+    valid = {p["id"] for p in all_profs}
+    if request.method == "POST":
+        if request.form.get("auto") == "1":
+            demand = db.get_profession_demand(int(request.form.get("days") or 30))
+            ranked = sorted((p for p in all_profs if demand.get(p["id"], {}).get("recent", 0) > 0),
+                            key=lambda p: demand[p["id"]]["recent"], reverse=True)
+            chosen = [p["id"] for p in ranked[:9]]
+            # لو المهن المطلوبة أقل من 9، نكمّل من القائمة الحالية (بدل مهن ما أحد بحث عنها)
+            for p in top.top_professions(all_profs):
+                if len(chosen) < 9 and p["id"] not in chosen:
+                    chosen.append(p["id"])
+        else:
+            chosen = []
+            for i in range(9):
+                pid = request.form.get(f"slot{i}", "")
+                if pid in valid and pid not in chosen:
+                    chosen.append(pid)
+        if len(chosen) != 9:
+            flash("لازم تختار 9 مهن مختلفة.", "error")
+        else:
+            db.set_setting(top.SETTING_KEY, ",".join(chosen))
+            flash("تم حفظ قائمة الـ9 — تظهر فورًا بواتساب.", "success")
+        return redirect(url_for("demand_page", days=request.form.get("days") or 30))
+
+    days = request.args.get("days", 30, type=int)
+    if days not in (7, 30, 90, 365):
+        days = 30
+    demand = db.get_profession_demand(days)
+    top_ids = [p["id"] for p in top.top_professions(all_profs)]
+    rows = []
+    for p in all_profs:
+        d = demand.get(p["id"], {})
+        rows.append({"id": p["id"], "name": p["name"], "recent": d.get("recent", 0), "total": d.get("total", 0),
+                     "empty": d.get("empty", 0), "techs": d.get("techs", 0),
+                     "top_pos": top_ids.index(p["id"]) + 1 if p["id"] in top_ids else None})
+    rows.sort(key=lambda r: (r["recent"], r["total"]), reverse=True)
+    for i, r in enumerate(rows, 1):
+        r["rank"] = i
+    # تنبيه: مهن داخل الـ9 مو ضمن أعلى 9 طلبًا (لما يكون فيه بيانات كافية)
+    has_data = any(r["recent"] for r in rows)
+    enough = sum(r["recent"] for r in rows) >= 30   # الاقتراح يحتاج بحث كافي عشان ما يضلّل
+    top9_by_demand = {r["id"] for r in rows[:9]}
+    suggest_out = [r for r in rows if enough and r["top_pos"] and r["id"] not in top9_by_demand]
+    suggest_in = [r for r in rows[:9] if enough and not r["top_pos"] and r["recent"] > 0]
+    options = sorted(all_profs, key=lambda p: p["name"])
+    return render_template("demand.html", rows=rows, top_ids=top_ids, options=options, days=days,
+                           suggest_out=suggest_out, suggest_in=suggest_in, has_data=has_data,
+                           active_page="demand")
 
 
 # ─────────────────────────── إدارة المهن والمجالات ───────────────────────────

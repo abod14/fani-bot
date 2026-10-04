@@ -63,7 +63,7 @@ def on_text(api, wa_id, state, data, body):
             api.text(wa_id, "اكتب اسمك بين حرفين و40 حرف 🙏")
             return state, data
         r["name"] = name
-        return _ask_domain(api, wa_id, 0, data)
+        return _ask_top(api, wa_id, data)
     if state == "r_prof":
         return _match_profession(api, wa_id, body, data)
     if state == "r_dist":
@@ -79,6 +79,23 @@ def on_text(api, wa_id, state, data, body):
 
 
 # ─────────────────────────── المهنة ───────────────────────────
+
+def _ask_top(api, wa_id, data, intro=None):
+    """الـ9 الأكثر طلبًا + «المزيد» — نفس قائمة البحث."""
+    from whatsapp_bot import top
+    data.setdefault("r", {}).pop("more", None)
+    body = intro or f"تشرفنا يا {data['r'].get('name', '')} 🌟\nوش مهنتك؟ اختر من القائمة 👇 أو اكتب اسمها (مثل: سباك)"
+    api.list(wa_id, body, "اختر مهنتك", top.top_rows("R:"), section_title="الأكثر طلبًا")
+    return "r_prof", data
+
+
+def _ask_more(api, wa_id, data):
+    from whatsapp_bot import top
+    text, ids = top.more_message("📋 باقي المهن:")
+    api.text(wa_id, text)
+    data.setdefault("r", {})["more"] = ids
+    return "r_prof", data
+
 
 def _ask_domain(api, wa_id, page, data):
     f = _flow()
@@ -96,7 +113,7 @@ def _ask_domain(api, wa_id, page, data):
 def _ask_profession(api, wa_id, domain_id, page, data):
     profs = professions.get_professions_by_domain(domain_id, "ar")
     if not profs:
-        return _ask_domain(api, wa_id, 0, data)
+        return _ask_top(api, wa_id, data)
     per = 7 if len(profs) > 9 else 9
     start_ = page * per
     rows = [(f"R:prof:{x['id']}", x["name"], x["name"] if len(x["name"]) > 24 else None) for x in profs[start_:start_ + per]]
@@ -110,6 +127,17 @@ def _ask_profession(api, wa_id, domain_id, page, data):
 
 
 def _match_profession(api, wa_id, text, data):
+    from whatsapp_bot import top
+    n = top.to_number(text)
+    if n is not None:
+        more = data.get("r", {}).get("more")
+        if n == 10 and not more:
+            return _ask_more(api, wa_id, data)
+        pid = top.pick_by_number(n, more)
+        if pid:
+            return _select_profession(api, wa_id, pid, data)
+        api.text(wa_id, "الرقم مو موجود بالقائمة 🤔 اكتب رقم صحيح أو اسم المهنة.")
+        return "r_prof", data
     f = _flow()
     q = f.norm(text)
     words = [w for w in q.split() if len(w) >= 3] or [q]
@@ -132,17 +160,17 @@ def _match_profession(api, wa_id, text, data):
         return _select_profession(api, wa_id, scored[0][2]["id"], data)
     if scored:
         rows = [(f"R:prof:{x['id']}", x["name"], x["name"] if len(x["name"]) > 24 else None) for _, _, x in scored[:9]]
-        rows.append(("R:dpg:0", "📋 كل المجالات", None))
+        rows.append(("R:top:more", "📋 كل المهن", None))
         api.list(wa_id, "اختر مهنتك من النتائج 👇", "اختر المهنة", rows, section_title="المهن")
         return "r_prof", data
-    api.text(wa_id, "ما لقيت مهنة بهذا الاسم 🤔 اختر من المجالات:")
-    return _ask_domain(api, wa_id, 0, data)
+    api.text(wa_id, "ما لقيت مهنة بهذا الاسم 🤔")
+    return _ask_top(api, wa_id, data, "اختر مهنتك من القائمة 👇 أو اكتب رقمها/اسمها بشكل ثاني")
 
 
 def _select_profession(api, wa_id, pid, data):
     domain, prof = professions.get_profession(pid, "ar")
     if not prof:
-        return _ask_domain(api, wa_id, 0, data)
+        return _ask_top(api, wa_id, data)
     r = data.setdefault("r", {})
     r.update(pid=prof["id"], pname=prof["name"], domain=(domain or {}).get("name", ""),
              wide=bool(prof.get("allow_city_wide")), all_services=prof.get("services") or [], services=[])
@@ -354,6 +382,8 @@ def on_choice(api, wa_id, rid, state, data):
         return "menu", {}
     if not r.get("name"):            # زر قديم من جلسة منتهية
         return start(api, wa_id)
+    if act == "top":
+        return _ask_more(api, wa_id, data)
     if act == "dpg":
         return _ask_domain(api, wa_id, int(p[1]), data)
     if act == "dom":
@@ -363,7 +393,7 @@ def on_choice(api, wa_id, rid, state, data):
     if act == "prof":
         return _select_profession(api, wa_id, p[1], data)
     if not r.get("pid"):
-        return _ask_domain(api, wa_id, 0, data)
+        return _ask_top(api, wa_id, data)
     if act == "svc":
         i = int(p[1])
         if 0 <= i < len(r.get("all_services", [])):

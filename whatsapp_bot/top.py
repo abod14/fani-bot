@@ -1,0 +1,99 @@
+# قائمة المهن بواتساب: 9 مهن ثابتة (الأكثر طلبًا) + «➕ المزيد».
+#
+# - الـ9 ما تتغير تلقائيًا — المالك يختارها من لوحة التحكم (صفحة «المهن الأكثر طلبًا»)
+#   وتنحفظ بجدول settings بالمفتاح wa_top9.
+# - «المزيد» = رسالة وحدة فيها باقي المهن مرقّمة، مرتبة حسب الأكثر بحثًا (تتغير تلقائيًا)،
+#   والعميل يرد برقم المهنة أو اسمها. نفس الشي بتسجيل الفني.
+# - رسالة وحدة بدل قوائم مجالات متعددة = ردود أقل = تكلفة أقل على واتساب.
+
+import db
+import professions_repo as professions
+
+SETTING_KEY = "wa_top9"
+
+# اقتراح المالك (حسب الأكثر طلبًا بجدة) — يُستخدم لين يغيّرها من اللوحة
+DEFAULT_TOP = ["p12", "p17", "p13", "p26", db.SATELLITE_PROFESSION_ID, "p14", "p59", "p64", "p58"]
+
+DESCS = {
+    "p12": "تسريب، انسداد، خلاطات",
+    "p17": "التماس، تركيب لمبات، طبلون",
+    "p13": "تركيب، صيانة، تعبئة فريون",
+    "p26": "فك وتركيب غرف نوم، أبواب، مطابخ",
+    db.SATELLITE_PROFESSION_ID: "تركيب دش، برمجة، كاميرات مراقبة",
+    "p14": "ترميم، دهان شقق، بوية",
+    "p59": "شبابيك، أبواب، درابزين",
+    "p64": "تحميل، نقل عفش داخل المدينة",
+    "p58": "غسالات، ثلاجات، أفران",
+}
+
+_AR_DIGITS = str.maketrans("٠١٢٣٤٥٦٧٨٩۰۱۲۳۴۵۶۷۸۹", "01234567890123456789")
+
+
+def to_number(text: str) -> int | None:
+    t = (text or "").strip().translate(_AR_DIGITS).rstrip(".-) ")
+    return int(t) if t.isdigit() and len(t) <= 3 else None
+
+
+def all_professions() -> list[dict]:
+    out = []
+    for d in professions.get_domains("ar"):
+        out.extend(professions.get_professions_by_domain(d["id"], "ar"))
+    return out
+
+
+def top_ids_setting() -> list[str]:
+    raw = db.get_setting(SETTING_KEY, "")
+    ids = [x.strip() for x in raw.split(",") if x.strip()] if raw else []
+    return ids or list(DEFAULT_TOP)
+
+
+def top_professions(all_profs: list[dict] | None = None) -> list[dict]:
+    by_id = {p["id"]: p for p in (all_profs or all_professions())}
+    out, seen = [], set()
+    for pid in top_ids_setting():
+        if pid in by_id and pid not in seen:
+            out.append(by_id[pid])
+            seen.add(pid)
+    return out[:9]
+
+
+def rest_by_demand(all_profs: list[dict] | None = None) -> list[dict]:
+    """باقي المهن (غير الـ9) مرتبة حسب عدد مرات البحث — المتساوية تبقى بترتيبها الأصلي."""
+    all_profs = all_profs or all_professions()
+    top = {p["id"] for p in top_professions(all_profs)}
+    pop = db.get_profession_popularity()
+    rest = [p for p in all_profs if p["id"] not in top]
+    rest.sort(key=lambda p: pop.get(p["id"], 0), reverse=True)
+    return rest
+
+
+def desc_for(p: dict) -> str | None:
+    if p["id"] in DESCS:
+        return DESCS[p["id"]]
+    services = p.get("services") or []
+    return "، ".join(services[:3]) or None
+
+
+def top_rows(prefix: str = "") -> list[tuple]:
+    """صفوف قائمة واتساب: 9 مهن + المزيد (10 = حد واتساب)."""
+    all_profs = all_professions()
+    top = top_professions(all_profs)
+    rows = [(f"{prefix}prof:{p['id']}", p["name"], desc_for(p)) for p in top]
+    rows.append((f"{prefix}top:more", "➕ المزيد", f"باقي المهن ({len(all_profs) - len(top)} مهنة)"))
+    return rows
+
+
+def more_message(intro: str) -> tuple[str, list[str]]:
+    """نص رسالة «المزيد» المرقّمة + ترتيب المعرّفات (عشان نعرف وش يقصد بالرقم)."""
+    rest = rest_by_demand()
+    lines = [f"{i}. {p['name']}" for i, p in enumerate(rest, 1)]
+    text = f"{intro}\n\n" + "\n".join(lines) + "\n\n✍️ اكتب *رقم* المهنة (مثل: 3) أو اسمها."
+    return text, [p["id"] for p in rest]
+
+
+def pick_by_number(n: int, data_more: list | None) -> str | None:
+    """الرقم بعد «المزيد» = من القائمة المرقمة. بدونها: 1-9 = الـ9 الأساسية."""
+    if data_more:
+        return data_more[n - 1] if 1 <= n <= len(data_more) else None
+    top = top_professions()
+    return top[n - 1]["id"] if 1 <= n <= len(top) else None

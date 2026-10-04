@@ -507,6 +507,65 @@ def _now_iso():
     return datetime.now(timezone.utc).isoformat()
 
 
+# ─────────────────────────── المهن الأكثر طلبًا (قائمة الـ9 بواتساب + صفحة باللوحة) ───────────────────────────
+
+SATELLITE_PROFESSION_ID = "p69"
+
+# مهن أضافها المالك (طلب مباشر). كل وحدة تنضاف مرة وحدة فقط — لو الأدمن حذفها من
+# اللوحة ما ترجع (علامة seed_extra_<id> بجدول settings).
+EXTRA_PROFESSIONS = [
+    ("p69", "d2", "فني ستالايت وكاميرات", ["تركيب دش", "برمجة رسيفر", "كاميرات مراقبة", "انتركم وجرس", "شبكات واي فاي"]),
+    ("p70", "d2", "صيانة غسالات صحون", ["عدم التصريف", "تسريب ماء", "ما تسخّن", "تركيب غسالة صحون", "تغيير قطع"]),
+    ("p71", "d2", "صيانة أفران", ["أفران غاز", "أفران كهرباء", "أفران مدمجة (بلت إن)", "تركيب فرن", "تغيير قطع وحساسات"]),
+]
+
+
+def ensure_extra_professions():
+    with get_conn() as conn:
+        for pid, domain_id, name, services in EXTRA_PROFESSIONS:
+            flag = f"seed_extra_{pid}"
+            if conn.execute("SELECT 1 FROM settings WHERE key = ?", (flag,)).fetchone():
+                continue
+            if not conn.execute("SELECT 1 FROM domains WHERE id = ?", (domain_id,)).fetchone():
+                continue  # البذر الأساسي للمهن ما صار بعد — نحاول بالتشغيل الجاي
+            if not conn.execute("SELECT 1 FROM professions WHERE id = ?", (pid,)).fetchone():
+                max_order = conn.execute(
+                    "SELECT COALESCE(MAX(sort_order), -1) FROM professions WHERE domain_id = ?", (domain_id,)
+                ).fetchone()[0]
+                conn.execute(
+                    "INSERT INTO professions (id, domain_id, name, isco_code, status, services_json, sort_order) "
+                    "VALUES (?, ?, ?, NULL, 'مضافة يدويًا', ?, ?)",
+                    (pid, domain_id, name, json.dumps(services, ensure_ascii=False), max_order + 1),
+                )
+            conn.execute("INSERT OR REPLACE INTO settings (key, value) VALUES (?, '1')", (flag,))
+
+
+def get_profession_demand(days: int = 30) -> dict:
+    """{profession_id: {"recent": بحث آخر N يوم, "total": كل البحث, "empty": بحث آخر N يوم بدون نتائج,
+    "techs": فنيين نشطين}} — لصفحة «المهن الأكثر طلبًا» باللوحة."""
+    since = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+    out: dict = {}
+    with get_conn() as conn:
+        for r in conn.execute(
+            """
+            SELECT profession_id,
+                   COUNT(*) AS total,
+                   SUM(CASE WHEN searched_at >= ? THEN 1 ELSE 0 END) AS recent,
+                   SUM(CASE WHEN searched_at >= ? AND results_count = 0 THEN 1 ELSE 0 END) AS empty
+            FROM search_log GROUP BY profession_id
+            """,
+            (since, since),
+        ).fetchall():
+            out[r["profession_id"]] = {"total": r["total"], "recent": r["recent"] or 0, "empty": r["empty"] or 0, "techs": 0}
+        for col in ("profession_id", "profession2_id"):
+            for r in conn.execute(
+                f"SELECT {col} AS pid, COUNT(*) AS c FROM professionals WHERE status = ? AND {col} IS NOT NULL GROUP BY {col}",
+                (STATUS_ACTIVE,),
+            ).fetchall():
+                out.setdefault(r["pid"], {"total": 0, "recent": 0, "empty": 0, "techs": 0})["techs"] += r["c"]
+    return out
+
+
 def get_professional_by_wa_id(wa_id: str):
     with get_conn() as conn:
         row = conn.execute(

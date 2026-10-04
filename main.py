@@ -91,6 +91,7 @@ def main():
     # بالمستودع ينعكس تلقائيًا على قاعدة البيانات الحية في كل إعادة تشغيل، بدون حذف
     # أي بيانات فنيين مسجّلين مسبقًا.
     db.sync_professions_from_json(PROFESSIONS_JSON_PATH)
+    db.ensure_extra_professions()
     db.sync_saudi_geo_from_json(SAUDI_REGIONS_JSON_PATH, SAUDI_CITIES_JSON_PATH, SAUDI_DISTRICTS_JSON_PATH)
     db.sync_extra_geo_from_json(EXTRA_GEO_JSON_PATH)
     db.backfill_professional_city_ids()

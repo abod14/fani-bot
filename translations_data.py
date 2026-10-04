@@ -121,4 +121,8 @@ PROFESSION_TRANSLATIONS = {
     # d17 — خدمات متخصصة
     "p62": {"en": "Pool Technician", "ur": "سوئمنگ پول ٹیکنیشن"},
     "p63": {"en": "Pest Control Technician", "ur": "پیسٹ کنٹرول ٹیکنیشن"},
+    # مهن أضافها المالك (db.EXTRA_PROFESSIONS)
+    "p69": {"en": "Satellite & CCTV Technician", "ur": "ڈش اور سی سی ٹی وی ٹیکنیشن"},
+    "p70": {"en": "Dishwasher Repair", "ur": "ڈش واشر مرمت"},
+    "p71": {"en": "Oven Repair", "ur": "اوون مرمت"},
 }

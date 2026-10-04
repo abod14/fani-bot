@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}المهن الأكثر طلبًا — لوحة تحكم «فني»{% endblock %}
+{% block content %}
+<h1>المهن الأكثر طلبًا</h1>
+<p class="muted">من سجل البحث (واتساب + تلغرام). استخدمها عشان تعدّل قائمة الـ9 اللي تظهر أول شي بواتساب.
+باقي المهن تحت «➕ المزيد» تترتب تلقائيًا حسب الطلب.</p>
+
+<div class="card">
+  <form method="get" style="display:flex; gap:8px; align-items:center;">
+    <label>الفترة:</label>
+    <select name="days" onchange="this.form.submit()">
+      {% for d, label in [(7, 'آخر أسبوع'), (30, 'آخر 30 يوم'), (90, 'آخر 3 شهور'), (365, 'آخر سنة')] %}
+      <option value="{{ d }}" {{ 'selected' if d == days }}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </form>
+</div>
+
+{% if suggest_out or suggest_in %}
+<div class="card" style="border-right: 4px solid #f59e0b;">
+  <h2>💡 اقتراح تعديل</h2>
+  {% if suggest_in %}<p>مطلوبة كثير وما هي ضمن الـ9: <strong>{{ suggest_in|map(attribute='name')|join('، ') }}</strong></p>{% endif %}
+  {% if suggest_out %}<p>ضمن الـ9 لكن طلبها أقل: <strong>{{ suggest_out|map(attribute='name')|join('، ') }}</strong></p>{% endif %}
+  <form method="post" onsubmit="return confirm('تبي تخلي الـ9 = أعلى 9 مهن طلبًا بهذي الفترة؟');">
+    <input type="hidden" name="auto" value="1"><input type="hidden" name="days" value="{{ days }}">
+    <button type="submit" class="success">⚡ طبّق أعلى 9 طلبًا تلقائيًا</button>
+  </form>
+</div>
+{% endif %}
+
+<div class="card">
+  <h2>قائمة الـ9 بواتساب (الترتيب = ترتيب ظهورها)</h2>
+  <form method="post">
+    <input type="hidden" name="days" value="{{ days }}">
+    <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap:8px;">
+      {% for i in range(9) %}
+      <label style="font-weight:normal;">{{ i + 1 }}.
+        <select name="slot{{ i }}" style="width:85%;">
+          {% for p in options %}
+          <option value="{{ p.id }}" {{ 'selected' if top_ids|length > i and top_ids[i] == p.id }}>{{ p.name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      {% endfor %}
+    </div>
+    <br>
+    <button type="submit">حفظ القائمة</button>
+  </form>
+</div>
+
+<div class="card">
+  <h2>كل المهن حسب الطلب</h2>
+  {% if not has_data %}<p class="muted">ما فيه بحث بهذي الفترة بعد — الأرقام تبدأ تظهر مع استخدام البوت.</p>{% endif %}
+  <table>
+    <thead><tr>
+      <th>#</th><th>المهنة</th><th>بحث بالفترة</th><th>بحث بدون نتائج</th><th>كل البحث</th><th>فنيين نشطين</th><th>بالـ9؟</th>
+    </tr></thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td>{{ r.rank }}</td>
+        <td>{{ r.name }}</td>
+        <td><strong>{{ r.recent }}</strong></td>
+        <td>{% if r.empty %}<span class="badge rejected" title="ناس بحثوا وما لقوا فني — فرصة تسويق للفنيين">{{ r.empty }}</span>{% else %}0{% endif %}</td>
+        <td>{{ r.total }}</td>
+        <td>{{ r.techs }}</td>
+        <td>{% if r.top_pos %}<span class="badge active">⭐ {{ r.top_pos }}</span>{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <p class="muted">«بحث بدون نتائج» = عملاء بحثوا وما لقوا أحد — هذي المهن تحتاج تسوّق لها عند الفنيين.</p>
+</div>
+{% endblock %}
