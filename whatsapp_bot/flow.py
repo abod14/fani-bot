@@ -27,7 +27,20 @@ def _now_minute() -> int:
     import time
     return int(time.time() // 60)
 LIST_PAGE = 8          # عناصر كل صفحة بالقوائم الطويلة (+ صفّي التنقل = 10، حد واتساب)
-SESSION_TTL = timedelta(hours=3)
+SESSION_TTL = timedelta(hours=3)          # احتياطي لأي حالة ثانية
+SEARCH_STEP_TTL = timedelta(minutes=30)   # بحث ما خلص (مهنة/موقع/حي) وتأخر → يبدأ من جديد
+RESULTS_TTL = timedelta(hours=24)         # بعد ظهور النتائج: صالحة يوم كامل («عرض المزيد» والتواصل)
+REG_STEP_TTL = timedelta(hours=2)         # تسجيل فني ما خلص
+
+
+def _ttl_for(state: str | None) -> timedelta:
+    if state == "results":
+        return RESULTS_TTL
+    if (state or "").startswith("r_"):
+        return REG_STEP_TTL
+    if state in ("prof", "loc", "dist"):
+        return SEARCH_STEP_TTL
+    return SESSION_TTL
 
 _locks: dict[str, threading.Lock] = {}
 _locks_guard = threading.Lock()
@@ -53,7 +66,7 @@ def _load(wa_id: str) -> tuple[str | None, dict]:
     if not row:
         return None, {}
     try:
-        if datetime.now(timezone.utc) - datetime.fromisoformat(row["updated_at"]) > SESSION_TTL:
+        if datetime.now(timezone.utc) - datetime.fromisoformat(row["updated_at"]) > _ttl_for(row["state"]):
             return None, {}
     except Exception:
         return None, {}
