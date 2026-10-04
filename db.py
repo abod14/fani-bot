@@ -126,8 +126,11 @@ def get_conn():
         raw_conn = libsql.connect(database=TURSO_DATABASE_URL, auth_token=TURSO_AUTH_TOKEN)
         conn = _LibsqlConnWrapper(raw_conn)
     else:
-        conn = sqlite3.connect(DB_PATH)
+        # timeout/busy_timeout: ثلاث برامج تكتب بنفس القاعدة (بوت تلغرام، بوت واتساب، اللوحة)
+        # — لو صادف كتابتين بنفس اللحظة، الثانية تنتظر ثواني بدل ما تفشل بـ«database is locked».
+        conn = sqlite3.connect(DB_PATH, timeout=15)
         conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA busy_timeout = 15000")
 
     try:
         conn.execute("PRAGMA foreign_keys = ON")
@@ -142,6 +145,13 @@ def get_conn():
 
 
 def init_db():
+    if not TURSO_DATABASE_URL:
+        # WAL: القراءة ما توقف الكتابة والعكس — أنسب لعدة برامج على نفس الملف. إعداد دائم بالملف.
+        try:
+            with get_conn() as conn:
+                conn.execute("PRAGMA journal_mode = WAL")
+        except Exception:
+            pass
     with get_conn() as conn:
         conn.execute(
             """
