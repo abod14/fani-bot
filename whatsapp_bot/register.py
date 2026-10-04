@@ -308,9 +308,10 @@ def _ask_districts_numbered(api, wa_id, data):
     r["dlist"] = ids
     names = {d["id"]: d["name"] for d in db.list_sa_districts_by_city(r["city_id"])}
     lines = [f"{i}. {names[did]}" for i, did in enumerate(ids, 1)]
-    whole = f"\n\n🌍 تخدم {r['city']} كاملة؟ اكتب *#* بس." if r.get("wide") else ""
+    # خيار المدينة كاملة (للمهن النادرة) أول سطر بالقائمة قبل رقم 1
+    whole = f"\n#. 🌍 كل {r['city']} (المدينة كاملة)" if r.get("wide") else ""
     head = (f"📍 أحياء {r['city']} (الأقرب لموقعك أول) 👇\n"
-            f"اكتب *أرقام* الأحياء اللي تشتغل فيها — حتى {MAX_DISTRICTS} أحياء، كل رقم بسطر، مثل:\n1\n4\n9{whole}\n")
+            f"اكتب *أرقام* الأحياء اللي تشتغل فيها — حتى {MAX_DISTRICTS} أحياء، كل رقم بسطر، مثل:\n1\n4\n9\n{whole}")
     chunks, cur = [], head
     for ln in lines:
         if len(cur) + len(ln) + 1 > 3900:
