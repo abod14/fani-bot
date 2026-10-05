@@ -1,3 +1,4 @@
+# (ملغاة — أكتوبر 2026: ما نعطي مكافآت دعوة جديدة؛ الفرص اللي انكسبت قبل تبقى للفني)
 # «ادعُ زميلك» — كل فني مسجّل له رابط دعوة خاص (?start=ref_<رقمه>). أي فني جديد يكمل
 # تسجيله من هذا الرابط، يكسب الداعي فرص مجانية إضافية (إعداد referral_bonus، الافتراضي 3)
 # ويوصله إشعار. الاحتساب كله بـ db.credit_referral (حماية من التلاعب هناك).
@@ -55,12 +56,9 @@ async def invite_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.answer()
     target = update.message or query.message
     lang = await asyncio.to_thread(db.get_user_language, update.effective_user.id)
-    professional = await asyncio.to_thread(db.get_professional_by_telegram_id, update.effective_user.id)
-    if not professional or professional["status"] == db.STATUS_REJECTED:
-        await target.reply_text(i18n.t("ref_not_registered", lang))
-        return
-    text, keyboard = await build_invite(context, professional, lang)
-    await target.reply_text(text, reply_markup=keyboard)
+    # خاصية «ادعُ زميلك» ملغاة (قرار المالك بعد فتح البوت على واتساب) — الأزرار القديمة
+    # بالرسائل السابقة ترد بهذا التنبيه بدل ما تعلق
+    await target.reply_text(i18n.t("ref_disabled", lang))
 
 
 async def after_registration(context: ContextTypes.DEFAULT_TYPE, message, new_professional_id: int, lang: str):

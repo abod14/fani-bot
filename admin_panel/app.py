@@ -148,7 +148,7 @@ def dashboard():
     health = _server_health() if is_super() else None
     return render_template(
         "dashboard.html", stats=stats, health=health, selected_country=country,
-        top_referrers=db.admin_top_referrers(country), active_page="dashboard",
+        active_page="dashboard",
     )
 
 
@@ -574,7 +574,6 @@ SETTINGS_DEFAULTS = {
     "subscription_price_stars": str(config.SUBSCRIPTION_PRICE_STARS),
     "subscription_days": str(config.SUBSCRIPTION_DAYS),
     "free_contacts_limit": str(db.FREE_CONTACTS_LIMIT),
-    "referral_bonus": str(db.REFERRAL_BONUS_DEFAULT),
 }
 
 

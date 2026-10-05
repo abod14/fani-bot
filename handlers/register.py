@@ -1082,11 +1082,6 @@ async def confirm_yes(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await notify_admin_new_registration(context, row_id)
 
-    # دعوة الزملاء: نحتسب الدعوة للداعي (لو جاء من رابط دعوة) ونعطي الفني الجديد رابطه الخاص
-    from handlers import referral
-
-    await referral.after_registration(context, query.message, row_id, lang)
-
     context.user_data.clear()
     return ConversationHandler.END
 

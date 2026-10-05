@@ -34,8 +34,6 @@ def _main_menu_keyboard(lang: str, show_register: bool = True, show_invite: bool
         buttons.append(
             [InlineKeyboardButton(i18n.t("menu_register", lang), callback_data=CB_START_REGISTER)]
         )
-    if show_invite:
-        buttons.append([InlineKeyboardButton(i18n.t("menu_invite", lang), callback_data=referral.CB_INVITE)])
     buttons.append([InlineKeyboardButton(i18n.t("menu_channel", lang), url=config.CHANNEL_URL)])
     return InlineKeyboardMarkup(buttons)
 
@@ -63,9 +61,6 @@ async def _build_welcome_message(user_id: int, lang: str):
         # كثير مستخدمين (وحتى أثناء اختبار البوت) يلخبطهم ظهور حالة تسجيلهم
         # كفني ويظنون إنه خطأ يمنعهم من البحث. هذا التنبيه لأي حساب مسجّل،
         # مو حل خاص بحساب معيّن.
-        stats = await asyncio.to_thread(db.referral_stats, existing["id"])
-        if stats["count"]:
-            text += "\n\n" + i18n.t("ref_stats_line", lang, count=stats["count"], earned=stats["bonus"])
         text += i18n.t("dual_role_hint", lang)
         keyboard = _main_menu_keyboard(
             lang, show_register=False, show_invite=existing["status"] != db.STATUS_REJECTED
@@ -94,11 +89,8 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(i18n.t(f"wa_link_{result}", "ar"))
     elif context.args:
         arg = context.args[0].strip().lower()[:30]
-        referrer_id = referral.parse_ref(arg)
-        if referrer_id:
-            # رابط دعوة من فني (ref_<رقمه>) — نحفظ الداعي، والمصدر "referral" (مو رقم
-            # كل فني، حتى تبقى إحصائية المصادر مرتّبة)
-            context.user_data["referrer_id"] = referrer_id
+        if referral.parse_ref(arg):
+            # روابط دعوة قديمة (ref_<رقم>) — خاصية الدعوة ملغاة، نسجّل المصدر بس بدون مكافأة
             context.user_data["source"] = "referral"
         else:
             context.user_data["source"] = arg

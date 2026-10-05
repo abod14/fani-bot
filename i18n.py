@@ -208,6 +208,11 @@ TEXTS: dict[str, dict[str, str]] = {
         "en": "🎉 Your colleague {name} ({profession}) registered through your link!\nWe added {bonus} extra free contacts to your account.\nTotal invites: {count}",
         "ur": "🎉 آپ کے ساتھی {name} ({profession}) نے آپ کے لنک سے رجسٹر کیا!\nہم نے آپ کو {bonus} اضافی مفت مواقع دیے۔\nکل دعوتیں: {count}",
     },
+    "ref_disabled": {
+        "ar": "خاصية دعوة الزملاء متوقفة حاليًا 🙏 تقدر تشارك رابط البوت مع أي أحد: https://t.me/FanniServiceBot",
+        "en": "Inviting colleagues is no longer available 🙏 You can share the bot link with anyone: https://t.me/FanniServiceBot",
+        "ur": "ساتھیوں کو مدعو کرنے کی سہولت اب دستیاب نہیں 🙏 آپ بوٹ کا لنک کسی کے ساتھ بھی شیئر کر سکتے ہیں: https://t.me/FanniServiceBot",
+    },
     "ref_not_registered": {
         "ar": "رابط الدعوة متاح للفنيين المسجّلين — سجّل أولًا عبر /register",
         "en": "Invite links are for registered professionals — register first via /register",
