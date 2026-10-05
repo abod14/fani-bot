@@ -48,6 +48,43 @@
   </form>
 </div>
 
+<div class="card" id="terms">
+  <h2>✍️ وش كتب الناس بواتساب (يدوّرون مهنة)</h2>
+  <p class="muted">الكلمات اللي انكتبت مرتين أو أكثر بهذي الفترة — بدون أسماء أو أرقام أصحابها.</p>
+  <h3>❌ ما لقى لها البوت مهنة واضحة — مهن ناقصة محتمل تضيفها</h3>
+  {% if terms_missing %}
+  <table>
+    <thead><tr><th>الكلمة</th><th>كم مرة</th><th>اقترح البوت بدالها</th><th></th></tr></thead>
+    <tbody>
+      {% for t in terms_missing %}
+      <tr>
+        <td>{{ t.term }}</td><td><strong>{{ t.c }}</strong></td><td class="muted">{{ t.matched or '—' }}</td>
+        <td><form method="post" action="{{ url_for('demand_ignore_term') }}" class="inline-form">
+          <input type="hidden" name="term_norm" value="{{ t.term_norm }}"><input type="hidden" name="days" value="{{ days }}">
+          <button type="submit" class="secondary">تجاهل</button></form></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}<p class="muted">ما فيه كلمات بدون مهنة بعد.</p>{% endif %}
+  <h3>✅ لقى لها مهنة</h3>
+  {% if terms_found %}
+  <table>
+    <thead><tr><th>الكلمة</th><th>كم مرة</th><th>راحت لـ</th><th></th></tr></thead>
+    <tbody>
+      {% for t in terms_found %}
+      <tr>
+        <td>{{ t.term }}</td><td><strong>{{ t.c }}</strong></td><td>{{ t.matched }}</td>
+        <td><form method="post" action="{{ url_for('demand_ignore_term') }}" class="inline-form">
+          <input type="hidden" name="term_norm" value="{{ t.term_norm }}"><input type="hidden" name="days" value="{{ days }}">
+          <button type="submit" class="secondary">تجاهل</button></form></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}<p class="muted">ما فيه بعد.</p>{% endif %}
+</div>
+
 <div class="card">
   <h2>كل المهن حسب الطلب</h2>
   {% if not has_data %}<p class="muted">ما فيه بحث بهذي الفترة بعد — الأرقام تبدأ تظهر مع استخدام البوت.</p>{% endif %}

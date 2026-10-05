@@ -15,6 +15,7 @@ import contact_links
 import countries
 import db
 import professions_repo as professions
+from whatsapp_bot import top
 
 TELEGRAM_BOT = "FanniServiceBot"
 
@@ -148,6 +149,10 @@ def _match_profession(api, wa_id, text, data):
             return _select_profession(api, wa_id, pid, data)
         api.text(wa_id, "الرقم مو موجود بالقائمة 🤔 اكتب رقم صحيح أو اسم المهنة.")
         return "r_prof", data
+    syn = top.synonym_profession(text)
+    if syn and professions.get_profession(syn, "ar")[1]:
+        db.log_search_term(text, syn, professions.get_profession(syn, "ar")[1]["name"], "register")
+        return _select_profession(api, wa_id, syn, data)
     f = _flow()
     q = f.norm(text)
     words = [w for w in q.split() if len(w) >= 3] or [q]
@@ -167,14 +172,15 @@ def _match_profession(api, wa_id, text, data):
         scored.append((s, len(n), x))
     scored.sort(key=lambda t: (t[0], t[1]))
     if scored and (len(scored) == 1 or scored[0][0] == 0):
+        db.log_search_term(text, scored[0][2]["id"], scored[0][2]["name"], "register")
         return _select_profession(api, wa_id, scored[0][2]["id"], data)
+    db.log_search_term(text, None, "، ".join(x["name"] for _, _, x in scored[:3]) or None, "register")
     if scored:
         rows = [(f"R:prof:{x['id']}", x["name"], x["name"] if len(x["name"]) > 24 else None) for _, _, x in scored[:9]]
         rows.append(("R:top:more", "📋 كل المهن", None))
         api.list(wa_id, "اختر مهنتك من النتائج 👇", "اختر المهنة", rows, section_title="المهن")
         return "r_prof", data
-    api.text(wa_id, "ما لقيت مهنة بهذا الاسم 🤔")
-    return _ask_top(api, wa_id, data, "اختر مهنتك من القائمة 👇 أو اكتب رقمها/اسمها بشكل ثاني")
+    return _ask_top(api, wa_id, data, f"ما لقيت مهنة باسم «{_flow().clip_text(text)}» 🤔\n\nاختر مهنتك من القائمة 👇 أو اكتب رقمها/اسمها بشكل ثاني")
 
 
 def _select_profession(api, wa_id, pid, data):
@@ -469,7 +475,7 @@ def on_choice(api, wa_id, rid, state, data):
     if act == "tg":
         if p[1] == "yes":
             return _telegram_link(api, wa_id, data)
-        api.text(wa_id, "تمام 👍 تقدر تربطه بأي وقت من «🛠️ أنا فني». اكتب 0 للقائمة.")
+        api.text(wa_id, "تمام 👍 تقدر تربطه بأي وقت من «🛠️ أنا فني». اكتب s للقائمة.")
         return "menu", {}
     if not r.get("name"):            # زر قديم من جلسة منتهية
         return start(api, wa_id)

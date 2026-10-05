@@ -102,3 +102,31 @@ def pick_by_number(n: int, data_more: list | None) -> str | None:
         return data_more[n - 1] if 1 <= n <= len(data_more) else None
     top = top_professions()
     return top[n - 1]["id"] if 1 <= n <= len(top) else None
+
+
+# كلمات الناس اليومية ← المهنة (العميل يكتب «مكيف» مو «فني تكييف وتبريد»)
+SYNONYMS = [
+    (("غساله صحون", "غسالة صحون", "جلايه", "جلاية"), "p70"),
+    (("فرن", "افران", "أفران", "طباخ"), "p71"),
+    (("مكيف", "مكيفات", "تكييف", "مكيفة", "سبليت", "اسبلت", "فريون"), "p13"),
+    (("دش", "ستلايت", "ستالايت", "رسيفر", "كاميرات", "كاميرا مراقبه", "كاميرا مراقبة"), db.SATELLITE_PROFESSION_ID),
+    (("عفش", "نقل اثاث", "نقل أثاث", "دينا", "وانيت نقل"), "p64"),
+    (("حشرات", "صراصير", "رش مبيد", "رش", "نمل ابيض", "بق"), "p63"),
+    (("سباكه", "سباكة", "تسريب", "تسربات", "مواسير", "انسداد", "مجاري"), "p12"),
+    (("كهربا", "كهرباء", "كهربائي", "التماس"), "p17"),
+    (("بويه", "بوية", "صباغ", "دهانات"), "p14"),
+    (("المنيوم", "ألمنيوم", "الومنيوم"), "p59"),
+]
+
+
+def synonym_profession(text: str) -> str | None:
+    """لو الكلام فيه كلمة يومية معروفة لمهنة، يرجع رقم المهنة (الأطول تطابقًا أول)."""
+    t = " " + " ".join((text or "").replace("ة", "ه").split()) + " "
+    best = None
+    for words, pid in SYNONYMS:
+        for w in words:
+            w2 = w.replace("ة", "ه")
+            if f" {w2} " in t or t.strip().startswith(w2) and len(w2) >= 3 and w2 in t:
+                if not best or len(w2) > best[0]:
+                    best = (len(w2), pid)
+    return best[1] if best else None

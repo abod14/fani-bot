@@ -702,9 +702,22 @@ def demand_page():
     suggest_out = [r for r in rows if enough and r["top_pos"] and r["id"] not in top9_by_demand]
     suggest_in = [r for r in rows[:9] if enough and not r["top_pos"] and r["recent"] > 0]
     options = sorted(all_profs, key=lambda p: p["name"])
+    terms = db.get_search_terms(days)
     return render_template("demand.html", rows=rows, top_ids=top_ids, options=options, days=days,
+                           terms_missing=[t for t in terms if not t["exact"]],
+                           terms_found=[t for t in terms if t["exact"]],
                            suggest_out=suggest_out, suggest_in=suggest_in, has_data=has_data,
                            active_page="demand")
+
+
+@app.route("/demand/ignore", methods=["POST"])
+@super_required
+def demand_ignore_term():
+    key = (request.form.get("term_norm") or "").strip()
+    if key:
+        db.ignore_search_term(key)
+        flash("تم تجاهل الكلمة — ما تطلع لك مرة ثانية.", "success")
+    return redirect(url_for("demand_page", days=request.form.get("days") or 30) + "#terms")
 
 
 # ─────────────────────────── إدارة المهن والمجالات ───────────────────────────

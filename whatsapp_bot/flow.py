@@ -98,16 +98,32 @@ def norm(s: str) -> str:
     return s.translate(str.maketrans({"أ": "ا", "إ": "ا", "آ": "ا", "ة": "ه", "ى": "ي"}))
 
 
+# اختصارات (طلب المالك): s للبداية، x لإنهاء المحادثة، d لحذف البيانات — ونقبل نفس
+# الزر بلوحة المفاتيح العربية (s=س، x=ء، d=ي) لو المستخدم ناسي يغيّر اللغة. والصفر/o تبقى للبداية.
 RESET_WORDS = {norm(w) for w in [
-    "0", "٠", "ابدأ", "ابدا", "القائمة", "قائمة", "منيو", "menu", "start", "مرحبا", "هلا", "اهلا",
+    "s", "س", "o", "0", "٠", "ابدأ", "ابدا", "القائمة", "قائمة", "منيو", "menu", "start", "مرحبا", "هلا", "اهلا",
     "السلام عليكم", "السلام", "هاي", "hi", "hello", "الغاء", "إلغاء",
 ]}
 
 
 DISAPPEAR_TIP = "🧹 تبي تنمسح المحادثة تلقائيًا؟ اضغط اسم المحادثة فوق ← «الرسائل المؤقتة» ← 24 ساعة"
-END_WORDS = {norm(w) for w in ["إنهاء", "انهاء", "انهي", "إنهاء المحادثة", "end"]}
+END_WORDS = {norm(w) for w in ["x", "ء", "إنهاء", "انهاء", "انهي", "إنهاء المحادثة", "end"]}
 
-DELETE_WORDS = {norm(w) for w in ["حذف بياناتي", "احذف بياناتي", "delete my data"]}
+DELETE_WORDS = {norm(w) for w in ["d", "ي", "حذف بياناتي", "احذف بياناتي", "delete my data"]}
+MENU_FOOTER = "s للبداية • x إنهاء المحادثة • d حذف بياناتك"
+CHANNEL_URL = "https://whatsapp.com/channel/0029VbDnWZT11ulJLdQN7D3L"
+
+
+def _ask_delete(api, wa_id):
+    """حذف البيانات نهائي — نأكد قبل (حرف d ممكن ينكتب بالغلط)."""
+    api.buttons(
+        wa_id,
+        "🗑️ تبي نحذف بياناتك من «فنّي» نهائيًا؟\n\n"
+        "اللي ينحذف:\n• سجل بحوثك (وش بحثت عنه ووين)\n• سجل الفنيين اللي تواصلت معهم\n• محادثتك الحالية مع البوت\n\n"
+        "ملاحظة: لو أنت مسجّل كفني، تسجيلك كفني ما ينحذف بهذا (اطلبه من الإدارة).",
+        [("del:yes", "🗑️ نعم، احذف"), ("del:no", "لا، رجوع")],
+    )
+    return "menu", {}
 
 
 def _delete_my_data(api, wa_id):
@@ -158,9 +174,9 @@ def _dispatch(api, wa_id, name, msg, state, data):
     if mtype == "text":
         body = (msg.get("text") or {}).get("body", "")
         if norm(body) in DELETE_WORDS:
-            return _delete_my_data(api, wa_id)
+            return _ask_delete(api, wa_id)
         if norm(body) in END_WORDS:
-            api.text(wa_id, f"تم إنهاء المحادثة 👋 شكرًا لاستخدامك «فنّي».\n\n{DISAPPEAR_TIP}\n\nاكتب 0 بأي وقت لبحث جديد.")
+            api.text(wa_id, f"تم إنهاء المحادثة 👋 شكرًا لاستخدامك «فنّي».\n\n{DISAPPEAR_TIP}\n\nاكتب s بأي وقت لبحث جديد.")
             return None, {}
         if state is None or norm(body) in RESET_WORDS:
             return _welcome(api, wa_id, name)
@@ -186,7 +202,14 @@ def _dispatch(api, wa_id, name, msg, state, data):
 def _on_choice(api, wa_id, name, rid, state, data):
     p = rid.split(":")
     head = p[0]
+    if head == "del":
+        if p[1] == "yes":
+            return _delete_my_data(api, wa_id)
+        return _welcome(api, wa_id, name)
     if head == "m":
+        if p[1] == "channel":
+            api.cta_url(wa_id, "📢 تابع قناة «فنّي» على واتساب: عروض، مهن جديدة، ونصائح صيانة.", "فتح القناة", CHANNEL_URL)
+            return state, data
         if p[1] == "search":
             return _ask_top(api, wa_id)
         if p[1] == "pro":
@@ -247,8 +270,8 @@ def _welcome(api, wa_id, name):
         wa_id,
         f"{hi}\nمعك «فنّي» 🛠️ نوصلك بأقرب فني: سبّاك، كهربائي، تكييف، نجّار، وأكثر من 60 مهنة "
         "في السعودية ومصر ودول الخليج.\n\nوش تبي تسوي؟",
-        [("m:search", "🔍 ابحث عن فني"), ("m:pro", "🛠️ أنا فني")],
-        footer="0 للقائمة • «إنهاء» لإنهاء المحادثة",
+        [("m:search", "🔍 ابحث عن فني"), ("m:pro", "🛠️ أنا فني"), ("m:channel", "📢 قناة فنّي")],
+        footer=MENU_FOOTER,
     )
     return "menu", {}
 
@@ -263,9 +286,9 @@ def _pro_info(api, wa_id, data):
     return "menu", data
 
 
-def _ask_top(api, wa_id):
-    """أول شاشة بالبحث: الـ9 الأكثر طلبًا + «المزيد» (رسالة وحدة)."""
-    api.list(wa_id, "وش المهنة اللي تبيها؟ اختر من القائمة 👇\nأو اكتب اسمها مباشرة (مثل: سباك)",
+def _ask_top(api, wa_id, note: str = ""):
+    """أول شاشة بالبحث: الـ9 الأكثر طلبًا + «المزيد» (رسالة وحدة). note: سطر فوقها (مثل «ما لقيت…»)."""
+    api.list(wa_id, f"{note}وش المهنة اللي تبيها؟ اختر من القائمة 👇\nأو اكتب اسمها مباشرة (مثل: سباك)",
              "اختر المهنة", top.top_rows(), header="🔍 بحث عن فني", section_title="الأكثر طلبًا")
     return "prof", {}  # بحث جديد = جلسة جديدة
 
@@ -323,10 +346,15 @@ def _match_profession(api, wa_id, text, data):
             return _select_profession(api, wa_id, pid, data)
         api.text(wa_id, "الرقم مو موجود بالقائمة 🤔 اكتب رقم صحيح أو اسم المهنة.")
         return "prof", data
+    syn = top.synonym_profession(text)
+    if syn and professions.get_profession(syn, "ar")[1]:
+        db.log_search_term(text, syn, professions.get_profession(syn, "ar")[1]["name"], "search")
+        return _select_profession(api, wa_id, syn, data)
     q = norm(text)
     words = [w for w in q.split() if len(w) >= 3] or [q]
     scored = []
-    for x in _all_professions():
+    _all = _all_professions()
+    for x in _all:
         n = norm(x["name"])
         if q == n:
             s = 0
@@ -342,15 +370,16 @@ def _match_profession(api, wa_id, text, data):
     scored.sort(key=lambda t: (t[0], t[1]))
     matches = [x for _, _, x in scored]
     if len(matches) == 1 or (matches and scored[0][0] == 0):
+        db.log_search_term(text, matches[0]["id"], matches[0]["name"], "search")
         return _select_profession(api, wa_id, matches[0]["id"], data)
+    db.log_search_term(text, None, "، ".join(x["name"] for x in matches[:3]) or None, "search")
     if matches:
         rows = [(f"prof:{x['id']}", x["name"], x["name"] if len(x["name"]) > 24 else None) for x in matches[:9]]
         rows.append(("top:more", "📋 كل المهن", None))
         api.list(wa_id, f"لقيت أكثر من مهنة قريبة من «{clip_text(text)}» — اختر المقصودة 👇", "اختر المهنة", rows,
                  section_title="نتائج البحث")
         return "prof", data
-    api.text(wa_id, f"ما لقيت مهنة باسم «{clip_text(text)}» 🤔")
-    return _ask_top(api, wa_id)
+    return _ask_top(api, wa_id, f"ما لقيت مهنة باسم «{clip_text(text)}» 🤔\n\n")
 
 
 def clip_text(s, n=30):
@@ -638,7 +667,7 @@ def _contact(api, wa_id, pid, call_only, state, data):
 
     p = db.get_professional_by_id(pid)
     if not db.professional_can_receive_contacts(p):
-        api.text(wa_id, "عذرًا، هذا الفني غير متاح حاليًا 🙏 اختر فني ثاني من القائمة، أو اكتب 0 لبحث جديد.")
+        api.text(wa_id, "عذرًا، هذا الفني غير متاح حاليًا 🙏 اختر فني ثاني من القائمة، أو اكتب s لبحث جديد.")
         return state or "results", data
     db.register_contact(pid, customer_id(wa_id))   # تُخصم فرصة (مرة وحدة لكل عميل/فني خلال 24 ساعة)
     card = _professional_card_text(p)

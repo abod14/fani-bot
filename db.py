@@ -492,6 +492,24 @@ def init_db():
         # ─────────────────────────── نشاط البوت (لمربع صحة السيرفر) ───────────────────────────
         # صف واحد لكل دقيقة فيها نشاط: عدد المستخدمين المختلفين وعدد الرسائل/الضغطات —
         # يُكتب مرة وحدة بالدقيقة (مو مع كل ضغطة)، فما له أي ثقل على البوت.
+        # كلمات يكتبها الناس بخطوة اختيار المهنة (واتساب) — بدون أي ربط بالشخص (لا رقم ولا
+        # معرّف): الكلمة + وش طابقت + التاريخ. لصفحة «الأكثر طلبًا» (مهن ناقصة يدوّرها الناس).
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS search_terms (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                term TEXT NOT NULL,
+                term_norm TEXT NOT NULL,
+                profession_id TEXT,
+                matched_name TEXT,
+                source TEXT NOT NULL,
+                created_at TEXT NOT NULL
+            )
+            """
+        )
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_search_terms_norm ON search_terms (term_norm, created_at)")
+        conn.execute("CREATE TABLE IF NOT EXISTS search_terms_ignored (term_norm TEXT PRIMARY KEY)")
+
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS activity_minutes (
@@ -2353,3 +2371,60 @@ def profession_display(p: dict) -> str:
     """اسم المهنة للعرض — المهنتين مع بعض لو الفني عنده مهنة ثانية: «سباك • كهربائي»."""
     second = p.get("profession2_name")
     return f"{p['profession_name']} • {second}" if second else p["profession_name"]
+
+
+# ─────────────────────────── كلمات البحث المكتوبة (واتساب) ───────────────────────────
+
+def _term_norm(text: str) -> str:
+    import re as _re
+    t = _re.sub(r"[ً-ْـ]", "", (text or "").strip().lower())
+    for a, b in (("أ", "ا"), ("إ", "ا"), ("آ", "ا"), ("ة", "ه"), ("ى", "ي")):
+        t = t.replace(a, b)
+    t = _re.sub(r"[^\w\s]", " ", t)
+    t = _re.sub(r"^(فني|معلم|ابي|ابغى|ابغي|احتاج|اريد|ودي)\s+", "", _re.sub(r"\s+", " ", t).strip())
+    return t.strip()
+
+
+def log_search_term(text: str, profession_id: str | None, matched_name: str | None, source: str):
+    """يحفظ الكلمة بس (بدون صاحبها). نتجاهل الحرف الواحد والأرقام والرموز."""
+    try:
+        term = " ".join((text or "").split())[:40]
+        key = _term_norm(term)
+        if len(key.replace(" ", "")) < 2 or key.replace(" ", "").isdigit():
+            return
+        with get_conn() as conn:
+            conn.execute(
+                "INSERT INTO search_terms (term, term_norm, profession_id, matched_name, source, created_at) "
+                "VALUES (?, ?, ?, ?, ?, ?)",
+                (term, key, profession_id, matched_name, source, _now_iso()),
+            )
+    except Exception:  # noqa: BLE001 — إحصائية فقط، ما توقف البوت
+        pass
+
+
+def get_search_terms(days: int = 30, min_count: int = 2) -> list[dict]:
+    """الكلمات المكتوبة بالفترة (مرتين أو أكثر)، مجمّعة: أكثر كتابة شائعة، العدد، وش طابقت."""
+    since = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+    with get_conn() as conn:
+        rows = conn.execute(
+            """
+            SELECT t.term_norm,
+                   COUNT(*) AS c,
+                   (SELECT t2.term FROM search_terms t2 WHERE t2.term_norm = t.term_norm
+                    GROUP BY t2.term ORDER BY COUNT(*) DESC LIMIT 1) AS term,
+                   (SELECT t3.matched_name FROM search_terms t3 WHERE t3.term_norm = t.term_norm
+                    AND t3.matched_name IS NOT NULL GROUP BY t3.matched_name ORDER BY COUNT(*) DESC LIMIT 1) AS matched,
+                   MAX(CASE WHEN t.profession_id IS NOT NULL THEN 1 ELSE 0 END) AS exact
+            FROM search_terms t
+            WHERE t.created_at >= ? AND t.term_norm NOT IN (SELECT term_norm FROM search_terms_ignored)
+            GROUP BY t.term_norm HAVING COUNT(*) >= ?
+            ORDER BY c DESC LIMIT 200
+            """,
+            (since, min_count),
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+
+def ignore_search_term(term_norm: str):
+    with get_conn() as conn:
+        conn.execute("INSERT OR IGNORE INTO search_terms_ignored (term_norm) VALUES (?)", (term_norm,))
