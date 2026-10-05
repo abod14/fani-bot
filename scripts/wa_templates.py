@@ -2,6 +2,8 @@
 #
 #   cd /root/fani-bot && venv/bin/python scripts/wa_templates.py create 2153603535505078
 #   cd /root/fani-bot && venv/bin/python scripts/wa_templates.py status 2153603535505078
+#   cd /root/fani-bot && venv/bin/python scripts/wa_templates.py test 2153603535505078 9665XXXXXXXX
+#     (يرسل كل قالب «مقبول» لرقمك عشان تشوف شكله — كل رسالة تنحسب بسعرها)
 #
 # الرقم = WABA ID (حساب واتساب للأعمال). التوكن يُقرأ من .env (WA_TOKEN) — ما ينطبع أبدًا.
 # بعد ما تصير الحالة APPROVED، البوت يستخدم القوالب لحاله.
@@ -41,8 +43,8 @@ TEMPLATES = [
 
 
 def main():
-    if len(sys.argv) < 3 or sys.argv[1] not in ("create", "status"):
-        print("الاستخدام: venv/bin/python scripts/wa_templates.py create|status <WABA_ID>")
+    if len(sys.argv) < 3 or sys.argv[1] not in ("create", "status", "test"):
+        print("الاستخدام: venv/bin/python scripts/wa_templates.py create|status <WABA_ID>  أو  test <WABA_ID> <رقمك>")
         return
     action, waba = sys.argv[1], sys.argv[2].strip()
     if not config.WA_TOKEN:
@@ -64,6 +66,27 @@ def main():
             else:
                 msg = (data.get("error") or {}).get("error_user_msg") or (data.get("error") or {}).get("message")
                 print(f"❌ {t['name']}: {msg}")
+    if action == "test":
+        if len(sys.argv) < 4:
+            print("اكتب رقمك بعد الأمر، مثال: ... test 2153603535505078 966501234567")
+            return
+        to = "".join(ch for ch in sys.argv[3] if ch.isdigit())
+        examples = {t["name"]: t["components"][0]["example"]["body_text"][0] for t in TEMPLATES}
+        st = requests.get(url, headers=headers, params={"fields": "name,status", "limit": 100}, timeout=30).json()
+        approved = [t["name"] for t in st.get("data", []) if t.get("status") == "APPROVED" and t["name"] in examples]
+        if not approved:
+            print("⏳ ولا قالب مقبول بعد (لازم APPROVED) — جرّب بعدين.")
+            return
+        send_url = f"https://graph.facebook.com/{config.WA_GRAPH_VERSION}/{config.WA_PHONE_NUMBER_ID}/messages"
+        for name in approved:
+            comps = [{"type": "body", "parameters": [{"type": "text", "text": v} for v in examples[name]]}]
+            comps += [{"type": "button", "sub_type": "quick_reply", "index": str(i),
+                       "parameters": [{"type": "payload", "payload": p}]} for i, p in enumerate(["R:sub", "R:mute"])]
+            r = requests.post(send_url, headers=headers, timeout=30, json={
+                "messaging_product": "whatsapp", "to": to, "type": "template",
+                "template": {"name": name, "language": {"code": "ar"}, "components": comps}})
+            print(("✅ انرسل: " if r.ok else "❌ ما انرسل: ") + name + ("" if r.ok else f" — {r.json().get('error', {}).get('message')}"))
+        return
     r = requests.get(url, headers=headers, params={"fields": "name,status,category,rejected_reason", "limit": 50}, timeout=30)
     names = {t["name"] for t in TEMPLATES}
     print("\nحالة القوالب:")
