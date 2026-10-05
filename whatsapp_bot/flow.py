@@ -110,7 +110,7 @@ DISAPPEAR_TIP = "🧹 هل تريد حذف المحادثة تلقائيًا؟ �
 END_WORDS = {norm(w) for w in ["x", "ء", "إنهاء", "انهاء", "انهي", "إنهاء المحادثة", "end"]}
 
 DELETE_WORDS = {norm(w) for w in ["d", "ي", "حذف بياناتي", "احذف بياناتي", "delete my data"]}
-MENU_FOOTER = "s للبداية • x لإنهاء المحادثة • d لحذف بياناتك"
+MENU_FOOTER = "s للبداية • d لحذف بياناتك"
 CHANNEL_URL = "https://whatsapp.com/channel/0029VbDnWZT11ulJLdQN7D3L"
 
 
@@ -194,7 +194,7 @@ def _dispatch(api, wa_id, name, msg, state, data):
         if norm(body) in DELETE_WORDS:
             return _ask_delete(api, wa_id)
         if norm(body) in END_WORDS:
-            api.text(wa_id, f"تم إنهاء المحادثة 👋 شكرًا لاستخدامك «فنّي».\n\n{DISAPPEAR_TIP}\n\nاكتب s في أي وقت لبدء بحث جديد.")
+            # «إنهاء» ألغيناه كزر (رسالة بلا فائدة = تكلفة) — لو أحد كتبه نصفّر الجلسة بصمت بدون رد
             return None, {}
         if state is None or norm(body) in RESET_WORDS:
             return _welcome(api, wa_id, name)
