@@ -190,8 +190,8 @@ def notify_missed(profession_id, profession_name, city, neighborhood, district_i
                 place = f"{city}{suffix}"
                 ok, paid = _send_wa(
                     p,
-                    f"🔔 فيه عميل الحين يدوّر على «{profession_name}» في {place}، لكن رقمك ما ظهر له لأنك خلّصت فرصك المجانية.\n\n"
-                    "اشترك عشان تظهر لكل العملاء اللي يبحثون عن خدمتك 👇",
+                    f"🔔 يبحث عميل الآن عن «{profession_name}» في {place}، لكن رقمك لم يظهر له لأن فرصك المجانية انتهت.\n\n"
+                    "اشترك لتظهر لجميع العملاء الذين يبحثون عن خدمتك 👇",
                     config.WA_TPL_CUSTOMER_SEARCHING, [profession_name, place],
                 )
                 db.log_notification(p["id"], "missed", "whatsapp", paid, ok)

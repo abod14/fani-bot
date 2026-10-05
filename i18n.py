@@ -34,17 +34,17 @@ TEXTS: dict[str, dict[str, str]] = {
         "ur": "📝 کاریگر کے طور پر رجسٹر کریں",
     },
     "menu_channel": {
-        "ar": "📢 قناتنا بتلغرام",
+        "ar": "📢 قناتنا على تلغرام",
         "en": "📢 Our Telegram channel",
         "ur": "📢 ہمارا ٹیلیگرام چینل",
     },
     "reg_channel_gate": {
-        "ar": "قبل ما نكمل تسجيلك كفني، لازم تكون مشترك بقناتنا بتلغرام أول 📢\n\n١) اضغط \"اشترك بالقناة\"\n٢) بعد ما تشترك، ارجع واضغط \"تحققت، أكمل\"",
+        "ar": "قبل إكمال تسجيلك كفنّي، يجب أن تكون مشتركًا في قناتنا على تلغرام أولًا 📢\n\n١) اضغط \"اشترك في القناة\"\n٢) بعد الاشتراك، عُد واضغط \"تحققت، أكمل\"",
         "en": "Before we continue your registration, please join our Telegram channel first 📢\n\n1) Tap \"Join the channel\"\n2) After joining, come back and tap \"I joined, continue\"",
         "ur": "رجسٹریشن جاری رکھنے سے پہلے، پہلے ہمارے ٹیلیگرام چینل میں شامل ہوں 📢\n\n١) \"چینل میں شامل ہوں\" دبائیں\n٢) شامل ہونے کے بعد واپس آکر \"شامل ہو گیا، جاری رکھیں\" دبائیں",
     },
     "reg_channel_join_btn": {
-        "ar": "📢 اشترك بالقناة",
+        "ar": "📢 اشترك في القناة",
         "en": "📢 Join the channel",
         "ur": "📢 چینل میں شامل ہوں",
     },
@@ -54,7 +54,7 @@ TEXTS: dict[str, dict[str, str]] = {
         "ur": "✅ شامل ہو گیا، جاری رکھیں",
     },
     "reg_channel_not_joined": {
-        "ar": "لسا ما ظهر إنك مشترك بالقناة 🤔\nتأكد إنك ضغطت \"اشترك\" فعليًا بالقناة، ثم جرّب زر \"تحققت\" مرة ثانية.",
+        "ar": "لم يظهر اشتراكك في القناة بعد 🤔\nتأكد أنك ضغطت \"اشترك\" فعلًا في القناة، ثم جرّب زر \"تحققت\" مرة أخرى.",
         "en": "It looks like you haven't joined the channel yet 🤔\nMake sure you actually joined, then try \"I joined, continue\" again.",
         "ur": "لگتا ہے آپ ابھی تک چینل میں شامل نہیں ہوئے 🤔\nیقینی بنائیں کہ آپ شامل ہو چکے ہیں، پھر دوبارہ کوشش کریں۔",
     },
@@ -64,7 +64,7 @@ TEXTS: dict[str, dict[str, str]] = {
         "ur": "\n\nآپ ہمارے ہاں بطور کاریگر ({profession}) رجسٹرڈ ہیں — آپ کی حیثیت: {status}۔",
     },
     "free_contacts_line": {
-        "ar": "\nاستخدمت {used} من {limit} فرص مجانية. أرسل /subscribe لتفعيل الاشتراك والاستمرار بالظهور بدون حدود.",
+        "ar": "\nاستخدمت {used} من {limit} فرص مجانية. أرسل /subscribe لتفعيل الاشتراك والاستمرار في الظهور دون حدود.",
         "en": "\nYou've used {used} of {limit} free contacts. Send /subscribe to activate your subscription and keep appearing without limits.",
         "ur": "\nآپ نے {limit} میں سے {used} مفت رابطے استعمال کر لیے۔ لامحدود نظر آنے کے لیے /subscribe بھیجیں۔",
     },
@@ -74,7 +74,7 @@ TEXTS: dict[str, dict[str, str]] = {
         "ur": "\nآپ کی سبسکرپشن فعال ہے ✅",
     },
     "dual_role_hint": {
-        "ar": "\n\n👇 هذا لا يمنعك من استخدام البوت كعميل أيضًا بنفس الحساب — اضغط زر «🔍 البحث عن فني» تحت في أي وقت تبي تدور على فني ثاني.",
+        "ar": "\n\n👇 هذا لا يمنعك من استخدام البوت كعميل أيضًا بالحساب نفسه — اضغط زر «🔍 البحث عن فني» أدناه في أي وقت تريد فيه البحث عن فنّي آخر.",
         "en": "\n\n👇 This doesn't stop you from also using the bot as a customer with the same account — tap \"🔍 Find a professional\" below anytime you want to search for someone else.",
         "ur": "\n\n👇 یہ آپ کو اسی اکاؤنٹ سے بطور گاہک بوٹ استعمال کرنے سے نہیں روکتا — جب چاہیں کسی اور کاریگر کی تلاش کے لیے نیچے \"🔍 کاریگر تلاش کریں\" دبائیں۔",
     },
@@ -124,12 +124,12 @@ TEXTS: dict[str, dict[str, str]] = {
         "ur": "آپ {max} سے زیادہ علاقے منتخب نہیں کر سکتے۔",
     },
     "reg_city_not_found": {
-        "ar": "ما لقينا مدينة بهذا الاسم. جرّب اسمًا آخر أو اختر من القائمة:",
+        "ar": "لم نجد مدينة بهذا الاسم. جرّب اسمًا آخر أو اختر من القائمة:",
         "en": "No city found with that name. Try another name or pick from the list:",
         "ur": "اس نام کا کوئی شہر نہیں ملا۔ کوئی اور نام آزمائیں یا فہرست سے منتخب کریں:",
     },
     "reg_district_not_found": {
-        "ar": "ما لقينا حيًا بهذا الاسم. جرّب اسمًا آخر أو اختر من القائمة:",
+        "ar": "لم نجد حيًا بهذا الاسم. جرّب اسمًا آخر أو اختر من القائمة:",
         "en": "No district found with that name. Try another name or pick from the list:",
         "ur": "اس نام کا کوئی علاقہ نہیں ملا۔ کوئی اور نام آزمائیں یا فہرست سے منتخب کریں:",
     },
@@ -150,11 +150,11 @@ TEXTS: dict[str, dict[str, str]] = {
     },
     # ─────────────────────────── مهنة ثانية / المدينة كاملة ───────────────────────────
     "reg_second_prof_prompt": {
-        "ar": "مهنتك: {profession} ✅\n\nتشتغل بمهنة ثانية؟ تقدر تضيف مهنة ثانية وحدة (اختياري)، وتظهر للعملاء بالمهنتين.",
+        "ar": "مهنتك: {profession} ✅\n\nهل تعمل في مهنة ثانية؟ يمكنك إضافة مهنة ثانية واحدة (اختياري)، لتظهر للعملاء في المهنتين.",
         "en": "Your profession: {profession} ✅\n\nDo you work in a second profession? You can add one more (optional) and appear to customers under both.",
         "ur": "آپ کا پیشہ: {profession} ✅\n\nکیا آپ دوسرا پیشہ بھی کرتے ہیں؟ آپ ایک اور پیشہ شامل کر سکتے ہیں (اختیاری) اور دونوں میں نظر آئیں گے۔",
     },
-    "reg_add_second_btn": {"ar": "➕ أضيف مهنة ثانية", "en": "➕ Add a second profession", "ur": "➕ دوسرا پیشہ شامل کریں"},
+    "reg_add_second_btn": {"ar": "➕ إضافة مهنة ثانية", "en": "➕ Add a second profession", "ur": "➕ دوسرا پیشہ شامل کریں"},
     "reg_no_second_btn": {"ar": "لا، أكمل ✅", "en": "No, continue ✅", "ur": "نہیں، آگے بڑھیں ✅"},
     "reg_skip_second_btn": {"ar": "⏭️ بدون مهنة ثانية", "en": "⏭️ No second profession", "ur": "⏭️ دوسرا پیشہ نہیں"},
     "reg_pick_second_prof": {
@@ -164,7 +164,7 @@ TEXTS: dict[str, dict[str, str]] = {
     },
     "reg_whole_city_btn": {"ar": "🌍 أغطي المدينة كاملة", "en": "🌍 I cover the whole city", "ur": "🌍 میں پورے شہر میں کام کرتا ہوں"},
     "reg_rare_whole_city_hint": {
-        "ar": "🌍 مهنتك من المهن المطلوبة على مستوى المدينة — تقدر تضغط «أغطي المدينة كاملة» وتظهر لأي عميل بالمدينة، أو تختار أحياء محددة.",
+        "ar": "🌍 مهنتك من المهن المطلوبة على مستوى المدينة — يمكنك الضغط على «أغطي المدينة كاملة» لتظهر لأي عميل في المدينة، أو اختيار أحياء محددة.",
         "en": "🌍 Your profession can cover the whole city — tap \"I cover the whole city\" to appear to any customer in the city, or pick specific districts.",
         "ur": "🌍 آپ کا پیشہ پورے شہر کا احاطہ کر سکتا ہے — \"میں پورے شہر میں کام کرتا ہوں\" دبائیں یا مخصوص علاقے منتخب کریں۔",
     },
@@ -177,29 +177,29 @@ TEXTS: dict[str, dict[str, str]] = {
 
     # ─────────────────────────── دعوة الزملاء ───────────────────────────
     "menu_invite": {
-        "ar": "🎁 ادعُ زملاءك واكسب فرص مجانية",
+        "ar": "🎁 ادعُ زملاءك واكسب فرصًا مجانية",
         "en": "🎁 Invite colleagues & earn free contacts",
         "ur": "🎁 ساتھیوں کو مدعو کریں اور مفت مواقع حاصل کریں",
     },
     "ref_invite_msg": {
-        "ar": "🎁 ادعُ زملاءك في المهنة!\nكل فني يسجّل من رابطك تاخذ {bonus} فرص مجانية إضافية.\n\nرابطك الخاص:\n{link}\n\nاضغط زر المشاركة وأرسله لزملائك أو لقروب مهنتك 👇",
+        "ar": "🎁 ادعُ زملاءك في المهنة!\nعن كل فنّي يسجّل من رابطك تحصل على {bonus} فرص مجانية إضافية.\n\nرابطك الخاص:\n{link}\n\nاضغط زر المشاركة وأرسله إلى زملائك أو إلى مجموعة مهنتك 👇",
         "en": "🎁 Invite your fellow professionals!\nFor every professional who registers through your link, you get {bonus} extra free contacts.\n\nYour personal link:\n{link}\n\nTap a share button and send it to colleagues or your trade group 👇",
         "ur": "🎁 اپنے ہم پیشہ ساتھیوں کو مدعو کریں!\nآپ کے لنک سے رجسٹر ہونے والے ہر کاریگر پر آپ کو {bonus} اضافی مفت مواقع ملیں گے۔\n\nآپ کا خاص لنک:\n{link}\n\nشیئر بٹن دبائیں اور ساتھیوں یا اپنے گروپ کو بھیجیں 👇",
     },
     "ref_stats_line": {
-        "ar": "حتى الآن: دعوت {count} فني وكسبت {earned} فرصة مجانية 👏",
+        "ar": "حتى الآن: دعوت {count} من الفنيين وكسبت {earned} من الفرص المجانية 👏",
         "en": "So far: you invited {count} professionals and earned {earned} free contacts 👏",
         "ur": "اب تک: آپ نے {count} کاریگر مدعو کیے اور {earned} مفت مواقع حاصل کیے 👏",
     },
     "ref_share_wa_btn": {"ar": "📤 شارك عبر واتساب", "en": "📤 Share via WhatsApp", "ur": "📤 واٹس ایپ پر شیئر کریں"},
     "ref_share_tg_btn": {"ar": "📤 شارك عبر تلغرام", "en": "📤 Share via Telegram", "ur": "📤 ٹیلیگرام پر شیئر کریں"},
     "ref_share_text": {
-        "ar": "السلام عليكم 👋 سجّلت في بوت «فني» على تلغرام — يوصلك العملاء مباشرة على الواتساب، بدون عمولة، والتسجيل مجاني الآن. سجّل من هنا:\n{link}",
+        "ar": "السلام عليكم 👋 سجّلت في بوت «فني» على تلغرام — يصلك العملاء مباشرة عبر واتساب، دون عمولة، والتسجيل مجاني الآن. سجّل من هنا:\n{link}",
         "en": "Hi 👋 I registered on the «Fani» Telegram bot — customers reach you directly on WhatsApp, no commission, and registration is free now. Register here:\n{link}",
         "ur": "السلام علیکم 👋 میں نے ٹیلیگرام پر «فنی» بوٹ میں رجسٹر کیا — گاہک براہِ راست واٹس ایپ پر رابطہ کرتے ہیں، کوئی کمیشن نہیں، اور رجسٹریشن ابھی مفت ہے۔ یہاں سے رجسٹر کریں:\n{link}",
     },
     "ref_share_text_short": {
-        "ar": "سجّل معي في بوت «فني» — يوصلك العملاء على الواتساب بدون عمولة، والتسجيل مجاني الآن 👷‍♂️",
+        "ar": "سجّل معي في بوت «فني» — يصلك العملاء عبر واتساب دون عمولة، والتسجيل مجاني الآن 👷‍♂️",
         "en": "Join me on «Fani» — customers reach you on WhatsApp, no commission, free registration now 👷‍♂️",
         "ur": "«فنی» میں میرے ساتھ شامل ہوں — گاہک واٹس ایپ پر رابطہ کرتے ہیں، کوئی کمیشن نہیں 👷‍♂️",
     },
@@ -209,7 +209,7 @@ TEXTS: dict[str, dict[str, str]] = {
         "ur": "🎉 آپ کے ساتھی {name} ({profession}) نے آپ کے لنک سے رجسٹر کیا!\nہم نے آپ کو {bonus} اضافی مفت مواقع دیے۔\nکل دعوتیں: {count}",
     },
     "ref_disabled": {
-        "ar": "خاصية دعوة الزملاء متوقفة حاليًا 🙏 تقدر تشارك رابط البوت مع أي أحد: https://t.me/FanniServiceBot",
+        "ar": "خاصية دعوة الزملاء متوقفة حاليًا 🙏 يمكنك مشاركة رابط البوت مع أي شخص: https://t.me/FanniServiceBot",
         "en": "Inviting colleagues is no longer available 🙏 You can share the bot link with anyone: https://t.me/FanniServiceBot",
         "ur": "ساتھیوں کو مدعو کرنے کی سہولت اب دستیاب نہیں 🙏 آپ بوٹ کا لنک کسی کے ساتھ بھی شیئر کر سکتے ہیں: https://t.me/FanniServiceBot",
     },
@@ -231,7 +231,7 @@ TEXTS: dict[str, dict[str, str]] = {
         "ur": "🌍 وہ ملک منتخب کریں جہاں آپ اس وقت کام کرتے ہیں:",
     },
     "srch_ask_country": {
-        "ar": "🌍 اختر الدولة اللي تبحث فيها عن فني:",
+        "ar": "🌍 اختر الدولة التي تبحث فيها عن فني:",
         "en": "🌍 Choose the country where you need a professional:",
         "ur": "🌍 وہ ملک منتخب کریں جہاں آپ کو کاریگر چاہیے:",
     },
@@ -282,7 +282,7 @@ TEXTS: dict[str, dict[str, str]] = {
         "ur": "نہیں، صرف کال کے لیے 📞",
     },
     "reg_wa_saved": {
-        "ar": "تمام، سجّلنا رقمك كـ: {label}",
+        "ar": "حسنًا، تم تسجيل رقمك: {label}",
         "en": "Got it, saved your number as: {label}",
         "ur": "ٹھیک ہے، آپ کا نمبر یوں محفوظ کر لیا گیا: {label}",
     },
@@ -312,7 +312,7 @@ TEXTS: dict[str, dict[str, str]] = {
         "ur": "براہ کرم نیچے دیا گیا بٹن دبائیں (نمبر خود سے نہ لکھیں):",
     },
     "reg_domain_prompt": {
-        "ar": "تمام ✅ اختر مجال عملك:",
+        "ar": "حسنًا ✅ اختر مجال عملك:",
         "en": "Great ✅ Choose your field of work:",
         "ur": "ٹھیک ہے ✅ اپنا شعبہ منتخب کریں:",
     },
@@ -367,7 +367,7 @@ TEXTS: dict[str, dict[str, str]] = {
         "ur": "نام: {name}\nشہر: {city}\nعلاقے: {districts}\nرابطہ نمبر: {contact} ({wa_label})\nٹیلیگرام: {telegram}\nپیشہ: {profession}\nخدمات: {services}",
     },
     "reg_city_wide_prompt": {
-        "ar": "مهنتك من المهن اللي تحتاج تغطية أوسع 🌍\n\nتحب تغطي كل مدينة {city} (بدل الأحياء اللي اخترتها بس)؟ كذا تظهر لأي عميل يبحث من أي حي بالمدينة.",
+        "ar": "مهنتك من المهن التي تحتاج إلى تغطية أوسع 🌍\n\nهل تريد تغطية مدينة {city} كاملة (بدلًا من الأحياء التي اخترتها فقط)؟ بذلك تظهر لأي عميل يبحث من أي حي في المدينة.",
         "en": "Your profession needs wider coverage 🌍\n\nWould you like to cover all of {city} (instead of just the districts you picked)? This way you'll show up for customers searching from any district in the city.",
         "ur": "آپ کے پیشے کو زیادہ کوریج کی ضرورت ہے 🌍\n\nکیا آپ پورے {city} کو کور کرنا چاہتے ہیں (صرف منتخب علاقوں کی بجائے)؟",
     },
@@ -377,7 +377,7 @@ TEXTS: dict[str, dict[str, str]] = {
         "ur": "🌍 جی ہاں، پورا شہر",
     },
     "reg_city_wide_no_btn": {
-        "ar": "📍 لا، نفس الأحياء اللي اخترتها",
+        "ar": "📍 لا، الأحياء التي اخترتها",
         "en": "📍 No, just the districts I picked",
         "ur": "📍 نہیں، صرف منتخب علاقے",
     },
@@ -426,17 +426,17 @@ TEXTS: dict[str, dict[str, str]] = {
         "ur": "آپ پہلے ہی اس اکاؤنٹ پر رجسٹرڈ ہیں ({profession})۔\n\nتفصیلات یا پیشوں میں ترمیم کے لیے سپورٹ سے رابطہ کریں۔",
     },
     "reg_card_preview_intro": {
-        "ar": "👀 هذي بطاقتك اللي بيشوفها العميل بالضبط لما يبحث عن مهنتك:",
+        "ar": "👀 هذه بطاقتك كما سيراها العميل تمامًا عند البحث عن مهنتك:",
         "en": "👀 Here's exactly how your card will look to a customer searching for your profession:",
         "ur": "👀 جب کوئی گاہک آپ کا پیشہ تلاش کرے گا تو آپ کا کارڈ بالکل ایسا نظر آئے گا:",
     },
     "reg_restart": {
-        "ar": "تمام، نبدأ التسجيل من جديد.\nأرسل اسمك الكامل:",
+        "ar": "حسنًا، لنبدأ التسجيل من جديد.\nأرسل اسمك الكامل:",
         "en": "Okay, let's start the registration over.\nSend your full name:",
         "ur": "ٹھیک ہے، رجسٹریشن دوبارہ شروع کرتے ہیں۔\nاپنا پورا نام بھیجیں:",
     },
     "reg_success": {
-        "ar": "✅ تم تسجيلك بنجاح وتفعيل حسابك مباشرة!\n\nالاسم: {name}\nالمدينة: {city}\nالمهنة: {profession}\n\nأنت الآن تظهر للعملاء عند البحث عن هذي المهنة في مدينتك.",
+        "ar": "✅ تم تسجيلك بنجاح وتفعيل حسابك مباشرة!\n\nالاسم: {name}\nالمدينة: {city}\nالمهنة: {profession}\n\nأنت الآن تظهر للعملاء عند البحث عن هذه المهنة في مدينتك.",
         "en": "✅ You're registered and activated right away!\n\nName: {name}\nCity: {city}\nProfession: {profession}\n\nYou now appear to customers searching for this profession in your city.",
         "ur": "✅ آپ کامیابی سے رجسٹر اور فوری طور پر فعال ہو گئے ہیں!\n\nنام: {name}\nشہر: {city}\nپیشہ: {profession}\n\nاب آپ اپنے شہر میں اس پیشے کی تلاش کرنے والے گاہکوں کو نظر آئیں گے۔",
     },
@@ -448,12 +448,12 @@ TEXTS: dict[str, dict[str, str]] = {
 
     # ─────────────────────────── /search ───────────────────────────
     "srch_entry": {
-        "ar": "اختر مهنتك من القائمة:\n\n(لو تبي ترجع للقائمة الرئيسية بأي وقت، اضغط /start)",
+        "ar": "اختر المهنة المطلوبة من القائمة:\n\n(للعودة إلى القائمة الرئيسية في أي وقت، اضغط /start)",
         "en": "Choose your profession from the list:\n\n(To go back to the main menu anytime, press /start)",
         "ur": "فہرست سے اپنا پیشہ منتخب کریں:\n\n(کسی بھی وقت مرکزی مینو پر واپس جانے کے لیے /start دبائیں)",
     },
     "srch_no_match": {
-        "ar": "لم أستطع التعرف على مشكلتك تلقائيًا 🤔 اختر مهنتك من القائمة:",
+        "ar": "لم أستطع التعرف على مشكلتك تلقائيًا 🤔 اختر المهنة المطلوبة من القائمة:",
         "en": "I couldn't automatically figure out your issue 🤔 Choose your profession from the list:",
         "ur": "میں خودکار طور پر آپ کا مسئلہ سمجھ نہیں سکا 🤔 فہرست سے اپنا پیشہ منتخب کریں:",
     },
@@ -463,7 +463,7 @@ TEXTS: dict[str, dict[str, str]] = {
         "ur": "لگتا ہے آپ کو ضرورت ہے: {profession} ✅",
     },
     "srch_subservice_prompt": {
-        "ar": "اختر الخدمة المحدّدة اللي تحتاجها من «{profession}» (أو اختر «كل الخدمات» لو مو متأكد):",
+        "ar": "اختر الخدمة المحدّدة التي تحتاجها من «{profession}» (أو اختر «كل الخدمات» إذا لم تكن متأكدًا):",
         "en": "Choose the specific service you need from \"{profession}\" (or pick \"All services\" if unsure):",
         "ur": "\"{profession}\" میں سے اپنی مطلوبہ مخصوص سروس منتخب کریں (یا غیر یقینی صورت میں \"تمام سروسز\" منتخب کریں):",
     },
@@ -483,16 +483,16 @@ TEXTS: dict[str, dict[str, str]] = {
         "ur": "◀️ پیشوں کی فہرست پر واپس",
     },
     "stale_session_alert": {
-        "ar": "⏰ خلصت مهلة هذي الجلسة لتأخرك بالرد",
+        "ar": "⏰ انتهت مهلة هذه الجلسة بسبب التأخر في الرد",
         "en": "⏰ This session expired because you took too long to respond",
         "ur": "⏰ جواب دینے میں تاخیر کی وجہ سے یہ سیشن ختم ہو گیا",
     },
     "stale_session_restart": {
         "ar": (
-            "⏰ خلصت مهلة هذي المحادثة لأنك تأخرت بالرد (بعد فترة من عدم النشاط "
-            "نمسح الخطوات القديمة تلقائيًا).\n\n"
-            "ما فيه مشكلة — بس ابدأ من جديد بإرسال {command}\n"
-            "أو اضغط /start للرجوع للقائمة الرئيسية"
+            "⏰ انتهت مهلة هذه المحادثة بسبب التأخر في الرد (بعد فترة من عدم النشاط "
+            "نحذف الخطوات القديمة تلقائيًا).\n\n"
+            "لا مشكلة — ابدأ من جديد بإرسال {command}\n"
+            "أو اضغط /start للعودة إلى القائمة الرئيسية"
         ),
         "en": (
             "⏰ This conversation expired because you took too long to respond "
@@ -509,8 +509,8 @@ TEXTS: dict[str, dict[str, str]] = {
     },
     "srch_district_choice_prompt": {
         "ar": (
-            "كيف تحب تحدد حيّك؟\n\n"
-            "💡 لو ضغطت «شارك موقعي الحالي» وما اشتغل الزر أو ظهر لك خطأ، "
+            "كيف تريد تحديد حيّك؟\n\n"
+            "💡 إذا ضغطت «شارك موقعي الحالي» ولم يعمل الزر أو ظهر لك خطأ، "
             "فعّل صلاحية الموقع (Location) لتطبيق تلغرام من إعدادات جوالك، ثم أعد المحاولة."
         ),
         "en": (
@@ -540,7 +540,7 @@ TEXTS: dict[str, dict[str, str]] = {
         "ur": "📍 ہم نے آپ کا قریب ترین علاقہ متعین کر لیا: {district}\nاب قریب ترین کاریگر تلاش کیے جا رہے ہیں...",
     },
     "srch_location_no_match": {
-        "ar": "ما قدرنا نحدد حيّك من الموقع المُرسل (بيانات الأحياء غير مكتملة لهذي المدينة حاليًا). اختر حيّك يدويًا:",
+        "ar": "لم نتمكن من تحديد حيّك من الموقع المُرسل (بيانات الأحياء غير مكتملة لهذه المدينة حاليًا). اختر حيّك يدويًا:",
         "en": "We couldn't match a district from the location you shared (district data isn't complete for this city yet). Choose your district manually:",
         "ur": "ہم آپ کی بھیجی گئی لوکیشن سے علاقہ متعین نہیں کر سکے (اس شہر کے لیے علاقوں کا ڈیٹا ابھی مکمل نہیں)۔ اپنا علاقہ دستی طور پر منتخب کریں:",
     },
@@ -550,16 +550,16 @@ TEXTS: dict[str, dict[str, str]] = {
         "ur": "آپ کو ان میں سے کسی ایک پیشے کی ضرورت ہو سکتی ہے، بہترین آپشن منتخب کریں:",
     },
     "srch_location_choice_intro": {
-        "ar": "تمام ✅",
+        "ar": "حسنًا ✅",
         "en": "Got it ✅",
         "ur": "ٹھیک ہے ✅",
     },
     "srch_location_choice_prompt": {
         "ar": (
-            "كيف تحب نحدد موقعك؟\n\n"
-            "📍 «شارك موقعي الحالي» تحدد لك المدينة والحي مباشرة بضغطة وحدة.\n"
-            "🗂️ «اختيار يدوي» لو تفضل تختار المنطقة والمدينة والحي بنفسك.\n\n"
-            "💡 لو ضغطت «شارك موقعي الحالي» وما اشتغل الزر أو ظهر لك خطأ، "
+            "كيف تريد أن نحدد موقعك؟\n\n"
+            "📍 «شارك موقعي الحالي» يحدد لك المدينة والحي مباشرة بضغطة واحدة.\n"
+            "🗂️ «اختيار يدوي» إذا كنت تفضّل اختيار المنطقة والمدينة والحي بنفسك.\n\n"
+            "💡 إذا ضغطت «شارك موقعي الحالي» ولم يعمل الزر أو ظهر لك خطأ، "
             "فعّل صلاحية الموقع (Location) لتطبيق تلغرام من إعدادات جوالك، ثم أعد المحاولة."
         ),
         "en": (
@@ -583,7 +583,7 @@ TEXTS: dict[str, dict[str, str]] = {
         "ur": "🗂️ دستی انتخاب",
     },
     "srch_location_received": {
-        "ar": "📍 تم استلام موقعك، لحظة نحدده...",
+        "ar": "📍 تم استلام موقعك، جارٍ تحديده...",
         "en": "📍 Location received, one moment while we match it...",
         "ur": "📍 لوکیشن موصول ہو گئی، ذرا انتظار کریں...",
     },
@@ -598,7 +598,7 @@ TEXTS: dict[str, dict[str, str]] = {
         "ur": "ہم نے آپ کی تقریبی لوکیشن متعین کی:\n\n🏙️ شہر: {city}{district_line}\n\nکیا یہ درست ہے؟",
     },
     "srch_location_confirm_yes_btn": {
-        "ar": "نعم هو",
+        "ar": "نعم، هذا هو",
         "en": "Yes, that's it",
         "ur": "جی ہاں",
     },
@@ -613,7 +613,7 @@ TEXTS: dict[str, dict[str, str]] = {
         "ur": "✅ لوکیشن کی تصدیق ہو گئی: {city}\nاب قریب ترین کاریگر تلاش کیے جا رہے ہیں...",
     },
     "srch_location_select_at_least_one": {
-        "ar": "علّم حي واحد على الأقل قبل ما تضغط تم، أو اختر «كل أحياء المدينة».",
+        "ar": "حدّد حيًا واحدًا على الأقل قبل الضغط على «تم»، أو اختر «كل أحياء المدينة».",
         "en": "Mark at least one district before pressing done, or choose \"All districts in the city\".",
         "ur": "تم دبانے سے پہلے کم از کم ایک علاقہ منتخب کریں، یا \"شہر کے تمام علاقے\" چنیں۔",
     },
@@ -628,7 +628,7 @@ TEXTS: dict[str, dict[str, str]] = {
         "ur": "🏙️ شہر کے تمام علاقے",
     },
     "srch_city_step": {
-        "ar": "المدينة: {city}\n\nاختر الحي (أو تخطى للبحث بكل المدينة):",
+        "ar": "المدينة: {city}\n\nاختر الحي (أو تخطَّ هذه الخطوة للبحث في المدينة كلها):",
         "en": "City: {city}\n\nChoose a district (or skip to search the whole city):",
         "ur": "شہر: {city}\n\nعلاقہ منتخب کریں (یا پورے شہر میں تلاش کے لیے چھوڑ دیں):",
     },
@@ -638,13 +638,13 @@ TEXTS: dict[str, dict[str, str]] = {
         "ur": "چھوڑ دیں (پورے شہر میں تلاش کریں)",
     },
     "srch_no_results": {
-        "ar": "لا يوجد حاليًا فنيين ({profession}) متاحين بمدينة «{city}»{district_suffix}.",
+        "ar": "لا يوجد حاليًا فنيون متاحون ({profession}) في مدينة «{city}»{district_suffix}.",
         "en": "No professionals ({profession}) are currently available in «{city}»{district_suffix}.",
         "ur": "فی الحال «{city}»{district_suffix} میں کوئی ({profession}) کاریگر دستیاب نہیں۔",
     },
     "notify_off_btn": {"ar": "🔕 إيقاف الإشعارات", "en": "🔕 Stop notifications", "ur": "🔕 اطلاعات بند کریں"},
     "notify_off_done": {
-        "ar": "🔕 تم إيقاف الإشعارات. لو تبي ترجعها تواصل مع إدارة «فنّي».",
+        "ar": "🔕 تم إيقاف الإشعارات. إذا أردت إعادة تفعيلها فتواصل مع إدارة «فنّي».",
         "en": "🔕 Notifications stopped. Contact Fanni support if you want them back.",
         "ur": "🔕 اطلاعات بند کر دی گئیں۔ دوبارہ چاہیں تو «فنّی» انتظامیہ سے رابطہ کریں۔",
     },
@@ -654,7 +654,7 @@ TEXTS: dict[str, dict[str, str]] = {
         "ur": "⚠️ «فنّی» پر آپ کے مفت رابطے ({limit}) ختم ہو گئے — اب سے آپ کی سروس تلاش کرنے والے گاہکوں کو آپ نظر نہیں آئیں گے۔\n\nدوبارہ نظر آنے اور لامحدود گاہکوں کے لیے سبسکرائب کریں 👇",
     },
     "srch_missed_nudge": {
-        "ar": "🔔 فيه عميل الحين يدوّر على «{profession}» في {city}{district_suffix}، لكن رقمك ما ظهر له لأنك خلّصت فرصك المجانية.\n\nاشترك الآن حتى تظهر لكل العملاء اللي يبحثون عن خدمتك 👇",
+        "ar": "🔔 يبحث عميل الآن عن «{profession}» في {city}{district_suffix}، لكن رقمك لم يظهر له لأن فرصك المجانية انتهت.\n\nاشترك الآن لتظهر لجميع العملاء الذين يبحثون عن خدمتك 👇",
         "en": "🔔 A customer is searching for \"{profession}\" in {city}{district_suffix} right now, but you didn't show up because you've used up your free contacts.\n\nSubscribe now to appear to every customer searching for your service 👇",
         "ur": "🔔 ابھی ایک گاہک {city}{district_suffix} میں \"{profession}\" تلاش کر رہا ہے، لیکن آپ کا نمبر نظر نہیں آیا کیونکہ آپ کی مفت رابطے ختم ہو چکے ہیں۔\n\nاب سبسکرائب کریں تاکہ آپ ہر تلاش کرنے والے گاہک کو نظر آئیں 👇",
     },
@@ -664,7 +664,7 @@ TEXTS: dict[str, dict[str, str]] = {
         "ur": "⭐ ابھی سبسکرائب کریں",
     },
     "srch_results_header": {
-        "ar": "وجدنا {count} فني/فنيين ({profession}) بمدينة «{city}»:",
+        "ar": "وجدنا {count} من الفنيين ({profession}) في مدينة «{city}»:",
         "en": "We found {count} professional(s) ({profession}) in «{city}»:",
         "ur": "ہمیں «{city}» میں {count} ({profession}) کاریگر ملے:",
     },
@@ -679,17 +679,17 @@ TEXTS: dict[str, dict[str, str]] = {
         "ur": "مزید کاریگروں کے لیے:",
     },
     "srch_offer_nearby_district": {
-        "ar": "استوفينا كل الفنيين بحيك. تحب نبحث لك بحي مجاور؟",
+        "ar": "عرضنا جميع الفنيين في حيّك. هل تريد البحث في حي مجاور؟",
         "en": "We've shown you every professional in your district. Want us to check a nearby district?",
         "ur": "ہم نے آپ کے علاقے کے تمام کاریگر دکھا دیے۔ کیا ہم قریبی علاقے میں تلاش کریں؟",
     },
     "srch_offer_nearby_city": {
-        "ar": "ما فيه فنيين أكثر قريبين منك. تحب نبحث لك بأقرب مدينة أو مركز؟",
+        "ar": "لا يوجد فنيون آخرون قريبون منك. هل تريد البحث في أقرب مدينة أو مركز؟",
         "en": "There are no more professionals near you. Want us to check the nearest city or town?",
         "ur": "آپ کے قریب مزید کاریگر نہیں ہیں۔ کیا ہم قریب ترین شہر میں تلاش کریں؟",
     },
     "srch_no_more_suggestions": {
-        "ar": "ما فيه مدن أو مراكز أقرب ثانية نقترحها — جرّب /search من جديد بمنطقة مختلفة.",
+        "ar": "لا توجد مدن أو مراكز قريبة أخرى نقترحها — جرّب /search من جديد في منطقة مختلفة.",
         "en": "There are no more nearby cities or towns to suggest — try /search again with a different area.",
         "ur": "تجویز کرنے کے لیے مزید قریبی شہر نہیں ہیں — کسی مختلف علاقے کے ساتھ دوبارہ /search آزمائیں۔",
     },
@@ -699,7 +699,7 @@ TEXTS: dict[str, dict[str, str]] = {
         "ur": "❌ تلاش ختم کریں",
     },
     "srch_ended": {
-        "ar": "تمام، تم إنهاء البحث. أرسل /search في أي وقت للبحث من جديد.",
+        "ar": "حسنًا، تم إنهاء البحث. أرسل /search في أي وقت للبحث من جديد.",
         "en": "Alright, search ended. Send /search anytime to search again.",
         "ur": "ٹھیک ہے، تلاش ختم ہو گئی۔ دوبارہ تلاش کے لیے کبھی بھی /search بھیجیں۔",
     },
@@ -729,7 +729,7 @@ TEXTS: dict[str, dict[str, str]] = {
         "ur": "💬 ابھی واٹس ایپ کھولیں",
     },
     "srch_wa_prefill_text": {
-        "ar": "مرحبًا، لقيتك عبر بوت «فني» 🛠️ أحتاج خدمة: {profession}",
+        "ar": "مرحبًا، وجدتك عبر بوت «فني» 🛠️ أحتاج خدمة: {profession}",
         "en": "Hi, I found you through the Fani bot 🛠️ I need this service: {profession}",
         "ur": "السلام علیکم، میں نے آپ کو فنی بوٹ کے ذریعے پایا 🛠️ مجھے یہ سروس چاہیے: {profession}",
     },
@@ -754,27 +754,27 @@ TEXTS: dict[str, dict[str, str]] = {
         "ur": "✈️ ابھی ٹیلیگرام کھولیں",
     },
     "wa_link_ok": {
-        "ar": "✅ تم ربط حسابك في واتساب بتلغرام! توصلك هنا تنبيهات العملاء مجانًا، وتقدر تدير حسابك واشتراكك من هنا.",
+        "ar": "✅ تم ربط حسابك في واتساب بتلغرام! ستصلك هنا تنبيهات العملاء مجانًا، ويمكنك إدارة حسابك واشتراكك من هنا.",
         "en": "✅ Your WhatsApp account is now linked to Telegram! You'll get customer alerts here for free and can manage your account and subscription here.",
         "ur": "✅ آپ کا واٹس ایپ اکاؤنٹ ٹیلیگرام سے جڑ گیا! گاہکوں کی اطلاعات یہاں مفت ملیں گی اور آپ اپنا اکاؤنٹ یہاں سے سنبھال سکتے ہیں۔",
     },
     "wa_link_already": {
-        "ar": "حسابك مربوط بتلغرام أصلًا ✅",
+        "ar": "حسابك مربوط بتلغرام بالفعل ✅",
         "en": "Your account is already linked to Telegram ✅",
         "ur": "آپ کا اکاؤنٹ پہلے سے ٹیلیگرام سے جڑا ہوا ہے ✅",
     },
     "wa_link_linked_other": {
-        "ar": "⚠️ هذا التسجيل مربوط بحساب تلغرام ثاني.",
+        "ar": "⚠️ هذا التسجيل مربوط بحساب تلغرام آخر.",
         "en": "⚠️ This registration is linked to another Telegram account.",
         "ur": "⚠️ یہ رجسٹریشن کسی دوسرے ٹیلیگرام اکاؤنٹ سے جڑی ہے۔",
     },
     "wa_link_tg_has_account": {
-        "ar": "⚠️ حسابك في تلغرام مسجّل كفني أصلًا، فما نقدر نربط عليه تسجيل واتساب.",
+        "ar": "⚠️ حسابك في تلغرام مسجّل كفنّي بالفعل، لذلك لا يمكن ربط تسجيل واتساب به.",
         "en": "⚠️ Your Telegram account is already registered as a professional, so the WhatsApp registration can't be linked to it.",
         "ur": "⚠️ آپ کا ٹیلیگرام اکاؤنٹ پہلے سے کاریگر کے طور پر رجسٹرڈ ہے، اس لیے واٹس ایپ رجسٹریشن نہیں جوڑی جا سکتی۔",
     },
     "wa_link_not_found": {
-        "ar": "⚠️ رابط الربط غير صالح. ارجع لبوت واتساب واضغط «أنا فني» ← «اربط بتلغرام».",
+        "ar": "⚠️ رابط الربط غير صالح. عُد إلى بوت واتساب واضغط «أنا فني» ← «اربط بتلغرام».",
         "en": "⚠️ Invalid link. Go back to the WhatsApp bot and tap «I'm a professional» → «Link Telegram».",
         "ur": "⚠️ لنک درست نہیں۔ واٹس ایپ بوٹ میں «میں کاریگر ہوں» ← «ٹیلیگرام سے جوڑیں» دبائیں۔",
     },
@@ -799,7 +799,7 @@ TEXTS: dict[str, dict[str, str]] = {
         "ur": "بوٹ پر واپس جائیں",
     },
     "srch_tg_number_text": {
-        "ar": "رقم {name} على تلغرام: {number}\nلو الرابط ما فتح المحادثة مباشرة، احفظ الرقم في جهات الاتصال وابحث عنه داخل تلغرام.",
+        "ar": "رقم {name} على تلغرام: {number}\nإذا لم يفتح الرابط المحادثة مباشرة، فاحفظ الرقم في جهات الاتصال وابحث عنه داخل تلغرام.",
         "en": "{name}'s Telegram number: {number}\nIf the link doesn't open the chat directly, save the number in your contacts and search for it inside Telegram.",
         "ur": "{name} کا ٹیلیگرام نمبر: {number}\nاگر لنک براہ راست چیٹ نہ کھولے تو نمبر کو اپنے رابطوں میں محفوظ کریں اور ٹیلیگرام میں تلاش کریں۔",
     },
@@ -885,11 +885,11 @@ TEXTS: dict[str, dict[str, str]] = {
     "sub_activated_card": {
         "ar": (
             "✅ تم تفعيل اشتراكك بنجاح\n\n"
-            "📦 المدة: {days} يوم\n"
+            "📦 المدة: {days} يومًا\n"
             "📅 يبدأ: {start_date}\n"
             "⏳ ينتهي: {expiry_date}\n\n"
-            "طول فترة الاشتراك تظهر بنتائج البحث بدون أي حد لفرص التواصل، وراح "
-            "نرسل لك تنبيه هنا بتلغرام قبل ما ينتهي الاشتراك حتى تجدده بدون انقطاع."
+            "طوال فترة الاشتراك ستظهر في نتائج البحث دون أي حد لفرص التواصل، وسوف "
+            "نرسل لك تنبيهًا هنا في تلغرام قبل انتهاء الاشتراك لتجدده دون انقطاع."
         ),
         "en": (
             "✅ Your subscription is now active\n\n"
@@ -911,8 +911,8 @@ TEXTS: dict[str, dict[str, str]] = {
     "sub_expired_notice": {
         "ar": (
             "⏰ انتهى اشتراكك في بوت «فني»\n\n"
-            "رجعت الآن للفرص المجانية المحدودة بالتواصل، وممكن تختفي من نتائج "
-            "البحث لو خلصتها. جدّد اشتراكك الآن عشان تستمر تظهر للعملاء بدون حدود:"
+            "عدت الآن إلى فرص التواصل المجانية المحدودة، وقد تختفي من نتائج "
+            "البحث إذا استنفدتها. جدّد اشتراكك الآن لتستمر في الظهور للعملاء دون حدود:"
         ),
         "en": (
             "⏰ Your Fani bot subscription has expired\n\n"
@@ -934,9 +934,9 @@ TEXTS: dict[str, dict[str, str]] = {
     },
     "donate_prompt": {
         "ar": (
-            "🙏 لاحظنا إنك استخدمت بوت «فني» أكثر من {count} مرة — يسعدنا نخدمك!\n\n"
-            "تشغيل البوت وإضافة/تصنيف الفنيين يأخذ وقت وجهد مستمر من فريق صغير. "
-            "لو تحب تدعمنا بمبلغ رمزي، نكون شاكرين لك 🙏 (اختياري بالكامل، ما يوقف "
+            "🙏 لاحظنا أنك استخدمت بوت «فني» أكثر من {count} مرة — يسعدنا أن نخدمك!\n\n"
+            "يتطلب تشغيل البوت وإضافة الفنيين وتصنيفهم وقتًا وجهدًا مستمرين من فريق صغير. "
+            "إذا رغبت في دعمنا بمبلغ رمزي، فسنكون شاكرين لك 🙏 (الدعم اختياري تمامًا، ولا يوقف "
             "استخدامك للبوت أبدًا):"
         ),
         "en": (
@@ -958,12 +958,12 @@ TEXTS: dict[str, dict[str, str]] = {
         "ur": "💙 {sar} ریال",
     },
     "donate_dismiss_btn": {
-        "ar": "🙏 لا شكرًا الآن",
+        "ar": "🙏 لا، شكرًا",
         "en": "🙏 No thanks for now",
         "ur": "🙏 ابھی نہیں، شکریہ",
     },
     "donate_dismissed": {
-        "ar": "تمام، لا مشكلة 🙏 استمتع باستخدام البوت!",
+        "ar": "حسنًا، لا مشكلة 🙏 استمتع باستخدام البوت!",
         "en": "No problem at all 🙏 Enjoy using the bot!",
         "ur": "کوئی مسئلہ نہیں 🙏 بوٹ کا استعمال جاری رکھیں!",
     },
@@ -993,7 +993,7 @@ TEXTS: dict[str, dict[str, str]] = {
         "ur": "✅ ادائیگی ہو گئی",
     },
     "donate_tap_instructions": {
-        "ar": "اضغط للدفع عبر Tap، وبعد ما تخلّص الدفع ارجع واضغط 'تحققت من الدفع':",
+        "ar": "اضغط للدفع عبر Tap، وبعد إتمام الدفع عُد واضغط 'تحققت من الدفع':",
         "en": "Tap to pay via Tap, then come back and press 'I've paid':",
         "ur": "Tap کے ذریعے ادائیگی کے لیے دبائیں، پھر واپس آ کر 'ادائیگی ہو گئی' دبائیں:",
     },
@@ -1003,17 +1003,17 @@ TEXTS: dict[str, dict[str, str]] = {
         "ur": "⚠️ Tap ادائیگی ابھی فعال نہیں۔ اس کی بجائے Telegram Stars آزمائیں۔",
     },
     "donate_tap_error": {
-        "ar": "⚠️ صار خطأ أثناء التواصل مع Tap. حاول مرة أخرى بعد شوي، أو جرّب Stars.",
+        "ar": "⚠️ حدث خطأ أثناء الاتصال بـ Tap. حاول مرة أخرى بعد قليل، أو جرّب Stars.",
         "en": "⚠️ Something went wrong contacting Tap. Try again shortly, or use Stars.",
         "ur": "⚠️ Tap سے رابطے میں خرابی ہوئی۔ تھوڑی دیر بعد کوشش کریں یا Stars استعمال کریں۔",
     },
     "donate_tap_verify_error": {
-        "ar": "تعذّر التحقق الآن، حاول بعد شوي.",
+        "ar": "تعذّر التحقق الآن، حاول بعد قليل.",
         "en": "Couldn't verify right now, try again shortly.",
         "ur": "ابھی تصدیق نہیں ہو سکی، تھوڑی دیر بعد کوشش کریں۔",
     },
     "donate_tap_not_paid_yet": {
-        "ar": "لسه ما وصلنا تأكيد الدفع. لو دفعت فعلًا، انتظر دقيقة وجرّب الزر مرة ثانية.",
+        "ar": "لم يصلنا تأكيد الدفع بعد. إذا كنت قد دفعت فعلًا، فانتظر دقيقة وجرّب الزر مرة أخرى.",
         "en": "We haven't received payment confirmation yet. If you've already paid, wait a minute and try again.",
         "ur": "ابھی تک ادائیگی کی تصدیق موصول نہیں ہوئی۔ اگر آپ نے ادائیگی کر دی ہے تو ایک منٹ انتظار کریں۔",
     },
@@ -1023,12 +1023,12 @@ TEXTS: dict[str, dict[str, str]] = {
         "ur": "یہ عطیہ پہلے ہی درج ہو چکا ✅ شکریہ!",
     },
     "donate_thanks": {
-        "ar": "🙏 شكرًا جزيلاً لدعمك! يساعدنا كثير نكمل نطوّر بوت «فني» ونضيف فنيين جدد.",
+        "ar": "🙏 شكرًا جزيلًا لدعمك! فهو يساعدنا كثيرًا على مواصلة تطوير بوت «فني» وإضافة فنيين جدد.",
         "en": "🙏 Thank you so much for your support! It really helps us keep improving «Fani» and adding new professionals.",
         "ur": "🙏 آپ کی سپورٹ کا بہت شکریہ! یہ ہمیں «فني» بوٹ بہتر بنانے اور نئے کاریگر شامل کرنے میں مدد دیتا ہے۔",
     },
     "donate_stars_match_error": {
-        "ar": "تم استلام الدعم لكن صار خطأ بمطابقة الطلب. تواصل مع الدعم رجاءً.",
+        "ar": "تم استلام الدعم، لكن حدث خطأ في مطابقة الطلب. يُرجى التواصل مع الدعم.",
         "en": "Payment received but there was a matching error. Please contact support.",
         "ur": "ادائیگی موصول ہوئی لیکن مماثلت میں خرابی آئی۔ براہ کرم سپورٹ سے رابطہ کریں۔",
     },

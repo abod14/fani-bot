@@ -33,11 +33,11 @@ def _date(iso):
 def start(api, wa_id, p):
     db.mark_notifications_responded(p["id"])
     if p.get("is_subscribed"):
-        api.text(wa_id, f"✅ اشتراكك فعّال لين {_date(p.get('subscription_expires_at'))} — تظهر لكل العملاء بدون حد.")
+        api.text(wa_id, f"✅ اشتراكك فعّال حتى {_date(p.get('subscription_expires_at'))} — تظهر لجميع العملاء دون حد.")
         return "menu", {}
     country = p.get("country") or countries.DEFAULT_COUNTRY
     if not countries.tap_available(country):
-        api.text(wa_id, "الاشتراك من واتساب غير متاح لدولتك حاليًا 🙏 تقدر تشترك بنجوم تلغرام عن طريق بوت «فنّي»: "
+        api.text(wa_id, "الاشتراك عبر واتساب غير متاح في دولتك حاليًا 🙏 يمكنك الاشتراك بنجوم تلغرام عن طريق بوت «فنّي»: "
                         "https://t.me/FanniServiceBot?start=subscribe")
         return "menu", {}
     sar, days = _prices()
@@ -46,18 +46,18 @@ def start(api, wa_id, p):
     try:
         charge = tap_client.create_charge(sar, p["full_name"], p["id"])
     except tap_client.TapNotConfigured:
-        api.text(wa_id, "⚠️ الدفع غير متاح حاليًا — حاول بعد شوي أو تواصل مع الإدارة.")
+        api.text(wa_id, "⚠️ الدفع غير متاح حاليًا — حاول بعد قليل أو تواصل مع الإدارة.")
         return "menu", {}
     except Exception:  # noqa: BLE001
         log.exception("tap charge failed")
-        api.text(wa_id, "⚠️ صار خطأ مع بوابة الدفع. حاول مرة ثانية بعد شوي.")
+        api.text(wa_id, "⚠️ حدث خطأ في بوابة الدفع. حاول مرة أخرى بعد قليل.")
         return "menu", {}
     db.update_payment_external_id(payment_id, charge["id"])
     api.cta_url(
         wa_id,
-        f"💳 اشتراك شهري ({days} يوم) — {sar:.0f} ريال\n"
-        "تظهر لكل العملاء بدون حدود.\n\n"
-        "ادفع بمدى أو فيزا أو آبل باي من الزر تحت، وبعد ما تخلص ارجع هنا واكتب «دفعت» ✅",
+        f"💳 اشتراك شهري ({days} يومًا) — {sar:.0f} ريال\n"
+        "تظهر لجميع العملاء دون حدود.\n\n"
+        "ادفع بمدى أو فيزا أو آبل باي من الزر أدناه، وبعد إتمام الدفع عُد إلى هنا واكتب «دفعت» ✅",
         "ادفع الآن", charge["redirect_url"],
     )
     return "menu", {}
@@ -77,10 +77,10 @@ def check_pending(api, wa_id, p) -> bool:
     db.mark_payment_paid(pay["id"])
     _, days = _prices()
     expires = db.activate_subscription(p["id"], days)
-    api.text(wa_id, f"✅ تم تفعيل اشتراكك في «فنّي» — {days} يوم (لين {_date(expires)}).\n"
-                    "من الحين تظهر لكل العملاء اللي يبحثون عن خدمتك بدون حد 👌")
+    api.text(wa_id, f"✅ تم تفعيل اشتراكك في «فنّي» — {days} يومًا (حتى {_date(expires)}).\n"
+                    "من الآن ستظهر لجميع العملاء الذين يبحثون عن خدمتك دون حد 👌")
     return True
 
 
 def not_paid_yet(api, wa_id):
-    api.text(wa_id, "لسه ما وصلنا تأكيد الدفع ⏳ لو دفعت فعلًا انتظر دقيقة واكتب «دفعت» مرة ثانية.")
+    api.text(wa_id, "لم يصلنا تأكيد الدفع بعد ⏳ إذا كنت قد دفعت فعلًا، فانتظر دقيقة ثم اكتب «دفعت» مرة أخرى.")

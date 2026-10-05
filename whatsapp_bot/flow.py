@@ -106,11 +106,11 @@ RESET_WORDS = {norm(w) for w in [
 ]}
 
 
-DISAPPEAR_TIP = "🧹 تبي تنمسح المحادثة تلقائيًا؟ اضغط اسم المحادثة فوق ← «الرسائل المؤقتة» ← 24 ساعة"
+DISAPPEAR_TIP = "🧹 هل تريد حذف المحادثة تلقائيًا؟ اضغط على اسم المحادثة في الأعلى ← «الرسائل المؤقتة» ← 24 ساعة"
 END_WORDS = {norm(w) for w in ["x", "ء", "إنهاء", "انهاء", "انهي", "إنهاء المحادثة", "end"]}
 
 DELETE_WORDS = {norm(w) for w in ["d", "ي", "حذف بياناتي", "احذف بياناتي", "delete my data"]}
-MENU_FOOTER = "s للبداية • x إنهاء المحادثة • d حذف بياناتك"
+MENU_FOOTER = "s للبداية • x لإنهاء المحادثة • d لحذف بياناتك"
 CHANNEL_URL = "https://whatsapp.com/channel/0029VbDnWZT11ulJLdQN7D3L"
 
 
@@ -118,9 +118,9 @@ def _ask_delete(api, wa_id):
     """حذف البيانات نهائي — نأكد قبل (حرف d ممكن ينكتب بالغلط)."""
     api.buttons(
         wa_id,
-        "🗑️ تبي نحذف بياناتك من «فنّي» نهائيًا؟\n\n"
-        "اللي ينحذف:\n• سجل بحوثك (وش بحثت عنه ووين)\n• سجل الفنيين اللي تواصلت معهم\n• محادثتك الحالية مع البوت\n\n"
-        "ملاحظة: لو أنت مسجّل كفني، تسجيلك كفني ما ينحذف بهذا (اطلبه من الإدارة).",
+        "🗑️ هل تريد حذف بياناتك من «فنّي» نهائيًا؟\n\n"
+        "سيُحذف ما يلي:\n• سجل عمليات البحث (ما بحثت عنه وأين)\n• سجل الفنيين الذين تواصلت معهم\n• محادثتك الحالية مع البوت\n\n"
+        "ملاحظة: إذا كنت مسجّلًا كفنّي، فلن يُحذف تسجيلك كفنّي بهذا الإجراء (اطلب ذلك من الإدارة).",
         [("del:yes", "🗑️ نعم، احذف"), ("del:no", "لا، رجوع")],
     )
     return "menu", {}
@@ -133,7 +133,7 @@ def _delete_my_data(api, wa_id):
         conn.execute("DELETE FROM wa_sessions WHERE wa_id = ?", (wa_id,))
         conn.execute("DELETE FROM search_log WHERE customer_telegram_id = ?", (cid,))
         conn.execute("DELETE FROM contact_clicks WHERE customer_telegram_id = ?", (cid,))
-    api.text(wa_id, "✅ تم حذف كل بياناتك من «فني» نهائيًا. تقدر ترجع تستخدم الخدمة بأي وقت.")
+    api.text(wa_id, "✅ تم حذف جميع بياناتك من «فني» نهائيًا. يمكنك العودة إلى استخدام الخدمة في أي وقت.")
     return None, {}
 
 
@@ -194,7 +194,7 @@ def _dispatch(api, wa_id, name, msg, state, data):
         if norm(body) in DELETE_WORDS:
             return _ask_delete(api, wa_id)
         if norm(body) in END_WORDS:
-            api.text(wa_id, f"تم إنهاء المحادثة 👋 شكرًا لاستخدامك «فنّي».\n\n{DISAPPEAR_TIP}\n\nاكتب s بأي وقت لبحث جديد.")
+            api.text(wa_id, f"تم إنهاء المحادثة 👋 شكرًا لاستخدامك «فنّي».\n\n{DISAPPEAR_TIP}\n\nاكتب s في أي وقت لبدء بحث جديد.")
             return None, {}
         if state is None or norm(body) in RESET_WORDS:
             return _welcome(api, wa_id, name)
@@ -273,7 +273,7 @@ def _on_choice(api, wa_id, name, rid, state, data):
         return _show_page(api, wa_id, data)
     if head in ("c", "n"):
         if len(p) > 2 and p[2].isdigit() and _now_minute() - int(p[2]) > RESULTS_TTL_MIN:
-            api.buttons(wa_id, "⏰ نتائج هذا البحث قديمة (أكثر من يوم). سوّ بحث جديد عشان تشوف الفنيين المتاحين الحين 👇",
+            api.buttons(wa_id, "⏰ نتائج هذا البحث قديمة (مضى عليها أكثر من يوم). ابدأ بحثًا جديدًا لترى الفنيين المتاحين الآن 👇",
                         [("m:search", "🔄 بحث جديد")])
             return "menu", {}
         return _contact(api, wa_id, int(p[1]), head == "n", state, data)
@@ -289,7 +289,7 @@ def _welcome(api, wa_id, name):
         f"{hi}\nمعك «فنّي» 🛠️ نوصلك بأقرب فني: سبّاك، كهربائي، تكييف، نجّار، وأكثر من 60 مهنة "
         "في السعودية ومصر ودول الخليج.\n\n"
         # واتساب ما يسمح بزر رابط مع أزرار الرد بنفس الرسالة — الرابط بالنص يفتح القناة مباشرة بدون رسالة زيادة
-        f"📢 قناة فنّي: {CHANNEL_URL}\n\nوش تبي تسوي؟",
+        f"📢 قناة فنّي: {CHANNEL_URL}\n\nماذا تريد أن تفعل؟",
         [("m:search", "🔍 ابحث عن فني"), ("m:pro", "🛠️ أنا فني")],
         footer=MENU_FOOTER,
     )
@@ -299,8 +299,8 @@ def _welcome(api, wa_id, name):
 def _pro_info(api, wa_id, data):
     api.cta_url(
         wa_id,
-        "حيّاك 🙌 التسجيل كفني حاليًا عن طريق بوت «فنّي» على تلغرام — مجاني وياخذ دقيقتين، "
-        "وبعدها تظهر للعملاء اللي يبحثون هنا في واتساب وفي تلغرام.",
+        "مرحبًا بك 🙌 يتم التسجيل كفنّي حاليًا عن طريق بوت «فنّي» على تلغرام — مجانًا ويستغرق دقيقتين، "
+        "وبعدها تظهر للعملاء الذين يبحثون هنا في واتساب وفي تلغرام.",
         "سجّل مجانًا", TELEGRAM_REGISTER_URL,
     )
     return "menu", data
@@ -308,13 +308,13 @@ def _pro_info(api, wa_id, data):
 
 def _ask_top(api, wa_id, note: str = ""):
     """أول شاشة بالبحث: الـ9 الأكثر طلبًا + «المزيد» (رسالة وحدة). note: سطر فوقها (مثل «ما لقيت…»)."""
-    api.list(wa_id, f"{note}وش المهنة اللي تبيها؟ اختر من القائمة 👇\nأو اكتب اسمها مباشرة (مثل: سباك)",
+    api.list(wa_id, f"{note}ما المهنة التي تبحث عنها؟ اختر من القائمة 👇\nأو اكتب اسمها مباشرة (مثل: سباك)",
              "اختر المهنة", top.top_rows(), header="🔍 بحث عن فني", section_title="الأكثر طلبًا")
     return "prof", {}  # بحث جديد = جلسة جديدة
 
 
 def _ask_more(api, wa_id):
-    text, ids = top.more_message("📋 باقي المهن (الأكثر طلبًا أول):")
+    text, ids = top.more_message("📋 باقي المهن (الأكثر طلبًا أولًا):")
     api.text(wa_id, text)
     return "prof", {"more": ids}
 
@@ -344,7 +344,7 @@ def _ask_profession(api, wa_id, domain_id, page, data):
         rows.append((f"ppg:{domain_id}:{page + 1}", "المزيد ⬅️", f"باقي {len(profs) - start - per} مهنة"))
     if page > 0:
         rows.append((f"ppg:{domain_id}:{page - 1}", "➡️ السابق", None))
-    rows.append(("dpg:0", "↩️ رجوع للمجالات", None))
+    rows.append(("dpg:0", "↩️ العودة إلى المجالات", None))
     api.list(wa_id, "اختر المهنة 👇", "اختر المهنة", rows, section_title="المهن")
     return "prof", data
 
@@ -364,7 +364,7 @@ def _match_profession(api, wa_id, text, data):
         pid = top.pick_by_number(n, data.get("more"))
         if pid:
             return _select_profession(api, wa_id, pid, data)
-        api.text(wa_id, "الرقم مو موجود بالقائمة 🤔 اكتب رقم صحيح أو اسم المهنة.")
+        api.text(wa_id, "هذا الرقم غير موجود في القائمة 🤔 اكتب رقمًا صحيحًا أو اسم المهنة.")
         return "prof", data
     syn = top.synonym_profession(text)
     if syn and professions.get_profession(syn, "ar")[1]:
@@ -396,10 +396,10 @@ def _match_profession(api, wa_id, text, data):
     if matches:
         rows = [(f"prof:{x['id']}", x["name"], x["name"] if len(x["name"]) > 24 else None) for x in matches[:9]]
         rows.append(("top:more", "📋 كل المهن", None))
-        api.list(wa_id, f"لقيت أكثر من مهنة قريبة من «{clip_text(text)}» — اختر المقصودة 👇", "اختر المهنة", rows,
+        api.list(wa_id, f"وجدت أكثر من مهنة قريبة من «{clip_text(text)}» — اختر المهنة المقصودة 👇", "اختر المهنة", rows,
                  section_title="نتائج البحث")
         return "prof", data
-    return _ask_top(api, wa_id, f"ما لقيت مهنة باسم «{clip_text(text)}» 🤔\n\n")
+    return _ask_top(api, wa_id, f"لم أجد مهنة باسم «{clip_text(text)}» 🤔\n\n")
 
 
 def clip_text(s, n=30):
@@ -413,7 +413,7 @@ def _select_profession(api, wa_id, pid, data):
         return _ask_top(api, wa_id)
     data = {"pid": prof["id"], "pname": prof["name"]}
     api.location_request(
-        wa_id, f"تمام ✅ «{prof['name']}»\n📍 أرسل موقعك من الزر تحت، ونجيب لك أقرب الفنيين لك."
+        wa_id, f"حسنًا ✅ «{prof['name']}»\n📍 أرسل موقعك من الزر أدناه، وسنعرض لك أقرب الفنيين إليك."
     )
     api.buttons(wa_id, "أو اختر مدينتك وحيّك يدويًا:", [("loc:manual", "🏙️ اختيار يدوي")])
     return "loc", data
@@ -422,7 +422,7 @@ def _select_profession(api, wa_id, pid, data):
 def _on_location(api, wa_id, lat, lon, data):
     res = db.find_nearest_sa_city_and_district_by_coords(lat, lon, countries.enabled_codes("wa"))
     if not res or not res[0]:
-        api.text(wa_id, "ما قدرنا نحدد مدينتك من الموقع 😅 اختر يدويًا:")
+        api.text(wa_id, "لم نتمكن من تحديد مدينتك من الموقع 😅 اختر يدويًا:")
         return _manual_start(api, wa_id, data)
     city, district = res
     data.update(city_id=city["id"], city=city["name"], country=city.get("country") or "SA",
@@ -507,7 +507,7 @@ def _on_region_text(api, wa_id, text, data):
         hit = _name_in(text, regions)
         rid = hit["id"] if hit else None
     if rid is None:
-        api.text(wa_id, f"اكتب رقم من 1 إلى {len(ids)} 🙏")
+        api.text(wa_id, f"اكتب رقمًا من 1 إلى {len(ids)} 🙏")
         return "loc_reg", data
     return _choose_region(api, wa_id, rid, 0, data)
 
@@ -517,7 +517,7 @@ def _choose_region(api, wa_id, region_id, page, data):
     if len(cities) == 1:
         return _choose_city(api, wa_id, cities[0]["id"], 0, data)
     if not cities:
-        api.text(wa_id, "ما فيه مدن مسجلة بهذي المنطقة حاليًا.")
+        api.text(wa_id, "لا توجد مدن مسجلة في هذه المنطقة حاليًا.")
         return _choose_country(api, wa_id, data.get("country", "SA"), 0, data)
     data["ncity"] = [c["id"] for c in cities]
     data["nreg_id"] = region_id
@@ -533,7 +533,7 @@ def _on_city_text(api, wa_id, text, data):
         hit = _name_in(text, cities)
         cid = hit["id"] if hit else None
     if cid is None:
-        api.text(wa_id, f"اكتب رقم من 1 إلى {len(ids)} 🙏")
+        api.text(wa_id, f"اكتب رقمًا من 1 إلى {len(ids)} 🙏")
         return "loc_city", data
     return _choose_city(api, wa_id, cid, 0, data)
 
@@ -575,7 +575,7 @@ def _on_district_text(api, wa_id, text, data):
     if top.to_number(t) is not None or not data.get("ndist"):
         if not data.get("ndist"):
             return _match_district(api, wa_id, t, data)
-        api.text(wa_id, f"اكتب رقم من 1 إلى {len(data.get('ndist') or [])}، أو # لكل المدينة 🙏")
+        api.text(wa_id, f"اكتب رقمًا من 1 إلى {len(data.get('ndist') or [])}، أو # لكل المدينة 🙏")
         return "dist", data
     # كتب اسم: لو حي واحد يطابق نبحث فيه مباشرة، وإلا نعرض أرقام المتشابهة (بدون إعادة القائمة)
     q = norm(re.sub(r"^\s*حي\s+", "", t))
@@ -587,11 +587,11 @@ def _on_district_text(api, wa_id, text, data):
         data.update(neighborhood=names[pick], district_id=pick)
         return _run_search(api, wa_id, data)
     if hits:
-        api.text(wa_id, f"🔎 الأحياء اللي فيها «{clip_text(t)}»:\n" + "\n".join(f"{i}. {names[d]}" for i, d in hits[:15])
+        api.text(wa_id, f"🔎 الأحياء التي تحتوي على «{clip_text(t)}»:\n" + "\n".join(f"{i}. {names[d]}" for i, d in hits[:15])
                  + "\n\n✍️ اكتب *رقم* حيّك.")
     else:
-        api.text(wa_id, f"✍️ اكتب *رقم* حيّك من القائمة فوق 👆 أو # لكل المدينة."
-                 + (f"\nما لقيت حي فيه «{clip_text(t)}»." if len(q) >= 2 else ""))
+        api.text(wa_id, f"✍️ اكتب *رقم* حيّك من القائمة أعلاه 👆 أو # لكل المدينة."
+                 + (f"\nلم أجد حيًّا يحتوي على «{clip_text(t)}»." if len(q) >= 2 else ""))
     return "dist", data
 
 
@@ -610,7 +610,7 @@ def _match_district(api, wa_id, text, data):
         rows.append(("dist:all", f"🌍 كل {data.get('city', 'المدينة')}", None))
         api.list(wa_id, f"اختر حيّك من النتائج 👇", "اختر الحي", rows, section_title="الأحياء")
         return "dist", data
-    api.text(wa_id, f"ما لقيت حي باسم «{clip_text(text)}» في {data.get('city', '')} 🤔 اكتب رقم الحي من القائمة، أو # لكل المدينة.")
+    api.text(wa_id, f"لم أجد حيًّا باسم «{clip_text(text)}» في {data.get('city', '')} 🤔 اكتب رقم الحي من القائمة، أو # لكل المدينة.")
     return "dist", data
 
 
@@ -629,13 +629,13 @@ def _run_search(api, wa_id, data):
         ids = db.search_active_professional_ids(pid, city, None, None, None, data.get("city_id"))
         if ids:
             nb = data["neighborhood"] if str(data["neighborhood"]).startswith("حي") else f"حي {data['neighborhood']}"
-            note = f"ما لقينا في {nb}، وهذي نتائج كل {city} 👇\n"
+            note = f"لم نجد نتائج في {nb}، وهذه نتائج {city} كاملة 👇\n"
             data.update(neighborhood=None, district_id=None)
     if not ids:
         api.buttons(
             wa_id,
-            f"ما فيه حاليًا فنيين «{pname}» في {city} 😔\nجرّب مدينة قريبة أو مهنة ثانية.",
-            [("m:search", "🔄 بحث جديد"), ("loc:manual", "🏙️ مدينة ثانية")],
+            f"لا يوجد حاليًا فنيون في مهنة «{pname}» في {city} 😔\nجرّب مدينة قريبة أو مهنة أخرى.",
+            [("m:search", "🔄 بحث جديد"), ("loc:manual", "🏙️ مدينة أخرى")],
         )
         return "results", data
     data.update(ids=ids, shown=0, note=note)
@@ -660,7 +660,7 @@ def _show_page(api, wa_id, data):
     shown = data.get("shown", 0)
     page_ids = ids[shown:shown + RESULTS_PER_PAGE]
     if not page_ids:
-        api.buttons(wa_id, "هذولا كل الفنيين المتاحين 👌", [("m:search", "🔄 بحث جديد")])
+        api.buttons(wa_id, "هؤلاء جميع الفنيين المتاحين 👌", [("m:search", "🔄 بحث جديد")])
         return "results", data
     people = db.get_professionals_by_ids(page_ids)
     db.mark_shown([p["id"] for p in people])
@@ -669,13 +669,13 @@ def _show_page(api, wa_id, data):
     rows = [((f"c:{p['id']}:{stamp}" if p.get("has_whatsapp", 1) else f"n:{p['id']}:{stamp}"), p["full_name"], _row_desc(p))
             for p in people]
     if remaining_after > 0:
-        rows.append(("more", "⬇️ عرض المزيد", f"باقي {remaining_after} فني"))
+        rows.append(("more", "⬇️ عرض المزيد", f"بقي {remaining_after} من الفنيين"))
     if shown == 0:
         body = (data.pop("note", "") or "") + (
-            f"وجدنا {len(ids)} فني «{data['pname']}» 👍\nاضغط «عرض الفنيين» واختر واحد، ونفتح لك محادثته على واتساب مباشرة."
+            f"وجدنا {len(ids)} من فنيي «{data['pname']}» 👍\nاضغط «عرض الفنيين» واختر أحدهم، وسنفتح لك محادثته على واتساب مباشرة."
         )
     else:
-        body = f"باقي {len(ids) - shown} فني «{data['pname']}» 👇"
+        body = f"بقي {len(ids) - shown} من فنيي «{data['pname']}» 👇"
     api.list(wa_id, body, "عرض الفنيين", rows, header=f"🛠️ {data['pname']} — {data['city']}",
              footer="الترتيب بالتناوب العادل بين الفنيين", section_title="الفنيين")
     data["shown"] = shown + len(people)
@@ -687,7 +687,7 @@ def _contact(api, wa_id, pid, call_only, state, data):
 
     p = db.get_professional_by_id(pid)
     if not db.professional_can_receive_contacts(p):
-        api.text(wa_id, "عذرًا، هذا الفني غير متاح حاليًا 🙏 اختر فني ثاني من القائمة، أو اكتب s لبحث جديد.")
+        api.text(wa_id, "عذرًا، هذا الفني غير متاح حاليًا 🙏 اختر فنيًا آخر من القائمة، أو اكتب s لبدء بحث جديد.")
         return state or "results", data
     db.register_contact(pid, customer_id(wa_id))   # تُخصم فرصة (مرة وحدة لكل عميل/فني خلال 24 ساعة)
     card = _professional_card_text(p)
@@ -700,7 +700,7 @@ def _contact(api, wa_id, pid, call_only, state, data):
     prefill = i18n.t("srch_wa_prefill_text", "ar", profession=prof_name)
     url = contact_links.wa_link(p["whatsapp_number"], prefill, p.get("country"))
     api.cta_url(wa_id, f"{card}\n\nاضغط الزر لفتح المحادثة معه 👇\n\n{DISAPPEAR_TIP}", "💬 فتح المحادثة", url,
-                footer="تقدر ترجع للقائمة وتختار فني ثاني")
+                footer="يمكنك العودة إلى القائمة واختيار فنّي آخر")
     return state or "results", data
 
 

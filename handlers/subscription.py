@@ -91,12 +91,12 @@ async def subscribe_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         _require_registered_professional, update.effective_user.id
     )
     if not professional:
-        await target.reply_text("لازم تسجّل كفني أولاً عبر /register قبل ما تشترك.")
+        await target.reply_text("يجب أن تسجّل كفنّي أولًا عبر /register قبل الاشتراك.")
         return
 
     if professional["status"] != db.STATUS_ACTIVE:
         await target.reply_text(
-            "حسابك لسه قيد المراجعة أو غير مفعّل — الاشتراك متاح فقط للفنيين النشطين."
+            "حسابك ما زال قيد المراجعة أو غير مفعّل — الاشتراك متاح للفنيين النشطين فقط."
         )
         return
 
@@ -104,7 +104,7 @@ async def subscribe_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await asyncio.to_thread(db.mark_notifications_responded, professional["id"])
     sar, stars, days = await asyncio.to_thread(_current_prices)
     country = professional.get("country") or countries.DEFAULT_COUNTRY
-    text = f"اختر طريقة الدفع للاشتراك الشهري ({days} يوم):"
+    text = f"اختر طريقة الدفع للاشتراك الشهري ({days} يومًا):"
     if not countries.tap_available(country) and not countries.stars_available(country):
         await target.reply_text("الاشتراك غير متاح في دولتك حاليًا 🙏 تواصل مع الإدارة.")
         return
@@ -124,7 +124,7 @@ async def subscribe_via_tap(update: Update, context: ContextTypes.DEFAULT_TYPE):
         _require_registered_professional, update.effective_user.id
     )
     if not professional:
-        await query.edit_message_text("لازم تسجّل كفني أولاً عبر /register.")
+        await query.edit_message_text("يجب أن تسجّل كفنّي أولًا عبر /register.")
         return
 
     if not countries.tap_available(professional.get("country")):
@@ -145,13 +145,13 @@ async def subscribe_via_tap(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
     except tap_client.TapNotConfigured:
         await query.edit_message_text(
-            "⚠️ الدفع عبر Tap غير مفعّل حاليًا (يحتاج ضبط TAP_SECRET_KEY بملف .env). "
+            "⚠️ الدفع عبر Tap غير مفعّل حاليًا (يتطلب ضبط TAP_SECRET_KEY في ملف .env). "
             "جرّب الاشتراك عبر Telegram Stars بدلًا عنه، أو تواصل مع الدعم."
         )
         return
     except Exception:
         await query.edit_message_text(
-            "⚠️ صار خطأ أثناء التواصل مع Tap. حاول مرة أخرى بعد شوي، أو جرّب Stars."
+            "⚠️ حدث خطأ أثناء الاتصال بـ Tap. حاول مرة أخرى بعد قليل، أو جرّب Stars."
         )
         return
 
@@ -166,8 +166,8 @@ async def subscribe_via_tap(update: Update, context: ContextTypes.DEFAULT_TYPE):
         ]
     )
     await query.edit_message_text(
-        "اضغط للدفع عبر Tap (مدى / فيزا / آبل باي)، وبعد ما تخلّص الدفع ارجع واضغط "
-        "'تحققت من الدفع' عشان نفعّل اشتراكك:",
+        "اضغط للدفع عبر Tap (مدى / فيزا / آبل باي)، وبعد إتمام الدفع عُد واضغط "
+        "'تحققت من الدفع' لنفعّل اشتراكك:",
         reply_markup=keyboard,
     )
 
@@ -180,7 +180,7 @@ async def verify_tap_payment(update: Update, context: ContextTypes.DEFAULT_TYPE)
         _require_registered_professional, update.effective_user.id
     )
     if not professional:
-        await query.answer("لازم تسجّل كفني أولاً.", show_alert=True)
+        await query.answer("يجب أن تسجّل كفنّي أولًا.", show_alert=True)
         return
 
     try:
@@ -189,12 +189,12 @@ async def verify_tap_payment(update: Update, context: ContextTypes.DEFAULT_TYPE)
         await query.answer("الدفع عبر Tap غير مفعّل حاليًا.", show_alert=True)
         return
     except Exception:
-        await query.answer("تعذّر التحقق الآن، حاول بعد شوي.", show_alert=True)
+        await query.answer("تعذّر التحقق الآن، حاول بعد قليل.", show_alert=True)
         return
 
     if not tap_client.is_paid(status):
         await query.answer(
-            "لسه ما وصلنا تأكيد الدفع. لو دفعت فعلًا، انتظر دقيقة وجرّب الزر مرة ثانية.",
+            "لم يصلنا تأكيد الدفع بعد. إذا كنت قد دفعت فعلًا، فانتظر دقيقة وجرّب الزر مرة أخرى.",
             show_alert=True,
         )
         return
@@ -231,7 +231,7 @@ async def subscribe_via_stars(update: Update, context: ContextTypes.DEFAULT_TYPE
         _require_registered_professional, update.effective_user.id
     )
     if not professional:
-        await query.edit_message_text("لازم تسجّل كفني أولاً عبر /register.")
+        await query.edit_message_text("يجب أن تسجّل كفنّي أولًا عبر /register.")
         return
     if not countries.stars_available(professional.get("country")):
         await query.edit_message_text("الدفع بالنجوم غير متاح في دولتك حاليًا 🙏 اكتب /subscribe لعرض الطرق المتاحة.")
@@ -247,7 +247,7 @@ async def subscribe_via_stars(update: Update, context: ContextTypes.DEFAULT_TYPE
     await context.bot.send_invoice(
         chat_id=update.effective_chat.id,
         title="اشتراك بوت فني",
-        description=f"اشتراك شهري ({days} يوم) لتظهر بنتائج البحث بدون حدود.",
+        description=f"اشتراك شهري ({days} يومًا) لتظهر في نتائج البحث دون حدود.",
         payload=f"{STARS_PAYLOAD_PREFIX}{professional['id']}:{payment_id}",
         provider_token="",  # لازم يكون فاضي لمدفوعات Stars تحديدًا
         currency="XTR",
@@ -277,7 +277,7 @@ async def stars_successful_payment(update: Update, context: ContextTypes.DEFAULT
         payment_id = int(payment_id_str)
     except (ValueError, AttributeError):
         await update.message.reply_text(
-            "تم استلام الدفع لكن صار خطأ بمطابقة الطلب. تواصل مع الدعم رجاءً."
+            "تم استلام الدفع، لكن حدث خطأ في مطابقة الطلب. يُرجى التواصل مع الدعم."
         )
         return
 
