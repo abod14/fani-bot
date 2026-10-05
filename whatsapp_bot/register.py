@@ -99,7 +99,10 @@ def _ask_top(api, wa_id, data, intro=None):
     """الـ9 الأكثر طلبًا + «المزيد» — نفس قائمة البحث."""
     from whatsapp_bot import top
     data.setdefault("r", {}).pop("more", None)
-    body = intro or f"تشرفنا يا {data['r'].get('name', '')} 🌟\nوش مهنتك؟ اختر من القائمة 👇 أو اكتب اسمها (مثل: سباك)"
+    more_n = max(len(top.all_professions()) - 9, 0)
+    body = intro or (f"أهلًا بك {data['r'].get('name', '')} 👋\n"
+                     f"ما هي مهنتك؟ اختر من القائمة التالية، أو اضغط «المزيد» للقائمة الموسّعة (+{more_n} مهنة)، "
+                     "أو اكتب اسمها (مثل: سباك)")
     api.list(wa_id, body, "اختر مهنتك", top.top_rows("R:"), section_title="الأكثر طلبًا")
     return "r_prof", data
 

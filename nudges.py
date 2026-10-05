@@ -138,8 +138,7 @@ def notify_exhausted(professional_id: int, kind: str = "exhausted") -> bool:
         first = (p.get("full_name") or "").split()[0] if p.get("full_name") else ""
         ok, paid = _send_wa(
             p,
-            f"⚠️ خلصت فرصك المجانية ({limit}) في «فنّي» يا {first} — رقمك ما يظهر للعملاء الحين.\n\n"
-            "اشترك عشان ترجع تظهر وتستقبل عملاء بدون حدود 👇",
+            f"⚠️ يا {first}، انتهت فرصك المجانية للتواصل مع العملاء في «فنّي».\n\nجدد اشتراكك من هنا 👇",
             config.WA_TPL_FREE_ENDED, [first or "صديقنا"],
         )
         db.log_notification(p["id"], kind, "whatsapp", paid, ok)
