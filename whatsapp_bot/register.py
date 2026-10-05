@@ -77,7 +77,7 @@ def on_text(api, wa_id, state, data, body):
         picked = _pick_district_numbers(api, wa_id, data, body)
         if picked:
             return picked
-        return _match_district(api, wa_id, body, data)
+        return _hint_district_numbers(api, wa_id, data, body)
     if state in ("r_loc", "r_locok"):
         api.location_request(wa_id, "📍 شارك موقعك من الزر تحت (أو 📎 ← الموقع) عشان نحدد مدينتك وأحياءك.")
         return "r_loc", data
@@ -352,6 +352,30 @@ def _pick_district_numbers(api, wa_id, data, text) -> tuple | None:
     r["chosen"] = ids
     r["whole"] = False
     return _confirm(api, wa_id, data, note)
+
+
+def _hint_district_numbers(api, wa_id, data, text):
+    """كتب كلام بدل أرقام: نطلع له أرقام الأحياء اللي تشبه كلامه (من نفس القائمة)،
+    وإلا نذكّره يكتب أرقام — بدون ما نعيد القائمة الطويلة أو نرجع للقوائم القديمة."""
+    r = data["r"]
+    if not r.get("dlist"):
+        return _ask_districts_numbered(api, wa_id, data)
+    f = _flow()
+    q = f.norm(re.sub(r"^\s*حي\s+", "", (text or "").strip()))
+    hits = []
+    if len(q) >= 2:
+        names = {d["id"]: d["name"] for d in db.list_sa_districts_by_city(r["city_id"])}
+        for i, did in enumerate(r["dlist"], 1):
+            if q in f.norm(names.get(did, "")):
+                hits.append(f"{i}. {names[did]}")
+    if hits:
+        api.text(wa_id, f"🔎 الأحياء اللي فيها «{f.clip_text(text)}»:\n" + "\n".join(hits[:15])
+                 + f"\n\n✍️ اكتب *أرقام* أحيائك (حتى {MAX_DISTRICTS})، كل رقم بسطر.")
+    else:
+        api.text(wa_id, f"✍️ اكتب *أرقام* الأحياء من القائمة فوق 👆 (حتى {MAX_DISTRICTS})، كل رقم بسطر، مثل:\n12\n40\n7"
+                 + ("\nأو اكتب اسم الحي عشان أطلع لك رقمه." if len(q) < 2 else f"\nما لقيت حي فيه «{f.clip_text(text)}».")
+                 + ("\n🌍 أو # لكل المدينة." if r.get("wide") else ""))
+    return "r_dist", data
 
 
 def _match_district(api, wa_id, text, data):

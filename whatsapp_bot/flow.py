@@ -504,10 +504,27 @@ def _on_district_text(api, wa_id, text, data):
         if d:
             data.update(neighborhood=d["name"], district_id=d["id"])
             return _run_search(api, wa_id, data)
-    if top.to_number(t) is not None:
+    if top.to_number(t) is not None or not data.get("ndist"):
+        if not data.get("ndist"):
+            return _match_district(api, wa_id, t, data)
         api.text(wa_id, f"اكتب رقم من 1 إلى {len(data.get('ndist') or [])}، أو # لكل المدينة 🙏")
         return "dist", data
-    return _match_district(api, wa_id, t, data)
+    # كتب اسم: لو حي واحد يطابق نبحث فيه مباشرة، وإلا نعرض أرقام المتشابهة (بدون إعادة القائمة)
+    q = norm(re.sub(r"^\s*حي\s+", "", t))
+    names = {d["id"]: d["name"] for d in db.list_sa_districts_by_city(data["city_id"])}
+    exact = [did for did in data["ndist"] if norm(re.sub(r"^حي\s+", "", names.get(did, ""))) == q]
+    hits = [(i, did) for i, did in enumerate(data["ndist"], 1) if len(q) >= 2 and q in norm(names.get(did, ""))]
+    pick = exact[0] if exact else (hits[0][1] if len(hits) == 1 else None)
+    if pick:
+        data.update(neighborhood=names[pick], district_id=pick)
+        return _run_search(api, wa_id, data)
+    if hits:
+        api.text(wa_id, f"🔎 الأحياء اللي فيها «{clip_text(t)}»:\n" + "\n".join(f"{i}. {names[d]}" for i, d in hits[:15])
+                 + "\n\n✍️ اكتب *رقم* حيّك.")
+    else:
+        api.text(wa_id, f"✍️ اكتب *رقم* حيّك من القائمة فوق 👆 أو # لكل المدينة."
+                 + (f"\nما لقيت حي فيه «{clip_text(t)}»." if len(q) >= 2 else ""))
+    return "dist", data
 
 
 def _match_district(api, wa_id, text, data):
