@@ -1,0 +1,3254 @@
+{
+"_source": "Open Admin Data — CC-BY-4.0 — https://github.com/open-admin-data/oman-administrative-divisions (villages)",
+"data": [
+{
+"name": "الوشل",
+"en": "Al Washal",
+"wilayat": "مطرح",
+"wilayat_en": "Muttrah",
+"gov": "مسقط",
+"lat": 23.704,
+"lon": 57.897
+},
+{
+"name": "روي",
+"en": "Ruwi",
+"wilayat": "مطرح",
+"wilayat_en": "Muttrah",
+"gov": "مسقط",
+"lat": 23.602,
+"lon": 58.54
+},
+{
+"name": "الوادي الكبير",
+"en": "Wadi Kabir",
+"wilayat": "مطرح",
+"wilayat_en": "Muttrah",
+"gov": "مسقط",
+"lat": 23.581,
+"lon": 58.564
+},
+{
+"name": "سـداب",
+"en": "Sidab",
+"wilayat": "مسـقط",
+"wilayat_en": "Muscat",
+"gov": "مسقط",
+"lat": 23.589,
+"lon": 58.598
+},
+{
+"name": "الخيران",
+"en": "Al Khairan",
+"wilayat": "مسـقط",
+"wilayat_en": "Muscat",
+"gov": "مسقط",
+"lat": 23.512,
+"lon": 58.74
+},
+{
+"name": "حلة الصاغة",
+"en": "Halah Al Saghah",
+"wilayat": "مطرح",
+"wilayat_en": "Muttrah",
+"gov": "مسقط",
+"lat": 23.623,
+"lon": 58.561
+},
+{
+"name": "ميابين",
+"en": "Mayabin",
+"wilayat": "مسـقط",
+"wilayat_en": "Muscat",
+"gov": "مسقط",
+"lat": 23.594,
+"lon": 58.402
+},
+{
+"name": "السيفة",
+"en": "Al Sifah",
+"wilayat": "مسـقط",
+"wilayat_en": "Muscat",
+"gov": "مسقط",
+"lat": 23.61,
+"lon": 58.454
+},
+{
+"name": "حلة القرين",
+"en": "Halah Al Qarin",
+"wilayat": "مطرح",
+"wilayat_en": "Muttrah",
+"gov": "مسقط",
+"lat": 23.589,
+"lon": 58.544
+},
+{
+"name": "الوطيه",
+"en": "Al Wutayyah",
+"wilayat": "مطرح",
+"wilayat_en": "Muttrah",
+"gov": "مسقط",
+"lat": 23.602,
+"lon": 58.511
+},
+{
+"name": "الراوية",
+"en": "Al Rawayah",
+"wilayat": "مسـقط",
+"wilayat_en": "Muscat",
+"gov": "مسقط",
+"lat": 23.575,
+"lon": 58.302
+},
+{
+"name": "دارسيت الساحل",
+"en": "Darsait Coast",
+"wilayat": "مطرح",
+"wilayat_en": "Muttrah",
+"gov": "مسقط",
+"lat": 23.628,
+"lon": 58.542
+},
+{
+"name": "قنتب",
+"en": "Qantab",
+"wilayat": "مسـقط",
+"wilayat_en": "Muscat",
+"gov": "مسقط",
+"lat": 23.591,
+"lon": 58.386
+},
+{
+"name": "يتـي",
+"en": "Yiti",
+"wilayat": "مسـقط",
+"wilayat_en": "Muscat",
+"gov": "مسقط",
+"lat": 23.507,
+"lon": 58.663
+},
+{
+"name": "وادي عدي",
+"en": "Wadi Adi",
+"wilayat": "مطرح",
+"wilayat_en": "Muttrah",
+"gov": "مسقط",
+"lat": 23.586,
+"lon": 58.519
+},
+{
+"name": "الولجة",
+"en": "Al Walajah",
+"wilayat": "مطرح",
+"wilayat_en": "Muttrah",
+"gov": "مسقط",
+"lat": 23.591,
+"lon": 58.549
+},
+{
+"name": "الزاهيه",
+"en": "Al Zahiyah",
+"wilayat": "مطرح",
+"wilayat_en": "Muttrah",
+"gov": "مسقط",
+"lat": 23.622,
+"lon": 58.56
+},
+{
+"name": "عويفيه",
+"en": "Awayafih",
+"wilayat": "بـهـلاء",
+"wilayat_en": "Bahla",
+"gov": "الداخلية",
+"lat": 22.251,
+"lon": 56.981
+},
+{
+"name": "الجيلة - الطويخات",
+"en": "Al Jilah - Al Tawyakhat",
+"wilayat": "سـمائل",
+"wilayat_en": "Samail",
+"gov": "الداخلية",
+"lat": 23.35,
+"lon": 58.008
+},
+{
+"name": "وادي غول",
+"en": "Wadi Ghul",
+"wilayat": "الحـمراء",
+"wilayat_en": "Al Hamra",
+"gov": "الداخلية",
+"lat": 23.091,
+"lon": 57.294
+},
+{
+"name": "بسياء",
+"en": "Basaya",
+"wilayat": "بـهـلاء",
+"wilayat_en": "Bahla",
+"gov": "الداخلية",
+"lat": 22.717,
+"lon": 57.241
+},
+{
+"name": "غبرة نزوى",
+"en": "Ghubrah Nizwa",
+"wilayat": "نـزوى",
+"wilayat_en": "Nizwa",
+"gov": "الداخلية",
+"lat": 22.974,
+"lon": 57.552
+},
+{
+"name": "صومرة",
+"en": "Sumarah",
+"wilayat": "سـمائل",
+"wilayat_en": "Samail",
+"gov": "الداخلية",
+"lat": 23.082,
+"lon": 58.129
+},
+{
+"name": "سنت (المركز)",
+"en": "Sanat (Al Markaz)",
+"wilayat": "بـهـلاء",
+"wilayat_en": "Bahla",
+"gov": "الداخلية",
+"lat": 22.992,
+"lon": 57.323
+},
+{
+"name": "فـرق (البلاد)",
+"en": "Faraq (Al Balad)",
+"wilayat": "نـزوى",
+"wilayat_en": "Nizwa",
+"gov": "الداخلية",
+"lat": 22.932,
+"lon": 57.529
+},
+{
+"name": "السليل",
+"en": "Al Salil",
+"wilayat": "أدم",
+"wilayat_en": "Adam",
+"gov": "الداخلية",
+"lat": 22.394,
+"lon": 57.529
+},
+{
+"name": "وادي سميط",
+"en": "Wadi Samit",
+"wilayat": "نـزوى",
+"wilayat_en": "Nizwa",
+"gov": "الداخلية",
+"lat": 22.994,
+"lon": 57.552
+},
+{
+"name": "هصاص",
+"en": "Hasas",
+"wilayat": "سـمائل",
+"wilayat_en": "Samail",
+"gov": "الداخلية",
+"lat": 23.314,
+"lon": 58.058
+},
+{
+"name": "مخطط وادي غول الشرقي",
+"en": "Makhtat Wadi Ghul East",
+"wilayat": "الحـمراء",
+"wilayat_en": "Al Hamra",
+"gov": "الداخلية",
+"lat": 23.095,
+"lon": 57.286
+},
+{
+"name": "امطي - العين",
+"en": "Amati - Al Ain",
+"wilayat": "ازكـي",
+"wilayat_en": "Izki",
+"gov": "الداخلية",
+"lat": 22.992,
+"lon": 57.779
+},
+{
+"name": "البشائر الشمالية(القري ش)",
+"en": "Al Bashar North(al Qari Sh)",
+"wilayat": "أدم",
+"wilayat_en": "Adam",
+"gov": "الداخلية",
+"lat": 22.523,
+"lon": 57.585
+},
+{
+"name": "العين (عين شجب)",
+"en": "Al Ain (Ain Shajab)",
+"wilayat": "نـزوى",
+"wilayat_en": "Nizwa",
+"gov": "الداخلية",
+"lat": 22.919,
+"lon": 57.519
+},
+{
+"name": "قلعة العوامر",
+"en": "Qalah Al Awamar",
+"wilayat": "ازكـي",
+"wilayat_en": "Izki",
+"gov": "الداخلية",
+"lat": 22.824,
+"lon": 57.757
+},
+{
+"name": "سيما - العلاية",
+"en": "Sima - Al Alayah",
+"wilayat": "ازكـي",
+"wilayat_en": "Izki",
+"gov": "الداخلية",
+"lat": 22.967,
+"lon": 57.908
+},
+{
+"name": "سـرور",
+"en": "Sarur",
+"wilayat": "سـمائل",
+"wilayat_en": "Samail",
+"gov": "الداخلية",
+"lat": 23.352,
+"lon": 58.105
+},
+{
+"name": "الخوبار",
+"en": "Al Khubar",
+"wilayat": "سـمائل",
+"wilayat_en": "Samail",
+"gov": "الداخلية",
+"lat": 23.307,
+"lon": 58.041
+},
+{
+"name": "الحبي",
+"en": "Al Habi",
+"wilayat": "بـهـلاء",
+"wilayat_en": "Bahla",
+"gov": "الداخلية",
+"lat": 22.637,
+"lon": 57.344
+},
+{
+"name": "سعال - الشمامير",
+"en": "Sal - Al Shamamir",
+"wilayat": "نـزوى",
+"wilayat_en": "Nizwa",
+"gov": "الداخلية",
+"lat": 22.938,
+"lon": 57.538
+},
+{
+"name": "جماح",
+"en": "Jamah",
+"wilayat": "بـهـلاء",
+"wilayat_en": "Bahla",
+"gov": "الداخلية",
+"lat": 22.947,
+"lon": 57.272
+},
+{
+"name": "المعمورة",
+"en": "Al Mamurah",
+"wilayat": "بـهـلاء",
+"wilayat_en": "Bahla",
+"gov": "الداخلية",
+"lat": 22.987,
+"lon": 57.322
+},
+{
+"name": "حارةالرحى",
+"en": "Harahalarahi",
+"wilayat": "ازكـي",
+"wilayat_en": "Izki",
+"gov": "الداخلية",
+"lat": 22.948,
+"lon": 57.763
+},
+{
+"name": "العلاية",
+"en": "Al Alayah",
+"wilayat": "أدم",
+"wilayat_en": "Adam",
+"gov": "الداخلية",
+"lat": 22.396,
+"lon": 57.518
+},
+{
+"name": "البلاد",
+"en": "Al Balad",
+"wilayat": "مـنح",
+"wilayat_en": "Manah",
+"gov": "الداخلية",
+"lat": 22.79,
+"lon": 57.61
+},
+{
+"name": "حي الجامع",
+"en": "Hayy Al Jam",
+"wilayat": "مـنح",
+"wilayat_en": "Manah",
+"gov": "الداخلية",
+"lat": 22.794,
+"lon": 57.62
+},
+{
+"name": "مخطط وادي غول الغربي",
+"en": "Makhtat Wadi Ghul West",
+"wilayat": "الحـمراء",
+"wilayat_en": "Al Hamra",
+"gov": "الداخلية",
+"lat": 23.104,
+"lon": 57.274
+},
+{
+"name": "طوي سليم",
+"en": "Tauwi Salim",
+"wilayat": "الحـمراء",
+"wilayat_en": "Al Hamra",
+"gov": "الداخلية",
+"lat": 23.119,
+"lon": 57.294
+},
+{
+"name": "الزاهية",
+"en": "Al Zahiah",
+"wilayat": "أدم",
+"wilayat_en": "Adam",
+"gov": "الداخلية",
+"lat": 22.394,
+"lon": 57.529
+},
+{
+"name": "حي النماء",
+"en": "Hayy Al Nama",
+"wilayat": "نـزوى",
+"wilayat_en": "Nizwa",
+"gov": "الداخلية",
+"lat": 22.875,
+"lon": 57.543
+},
+{
+"name": "حي العين - الشعبية",
+"en": "Hayy Al Ain - Al Shabiah",
+"wilayat": "نـزوى",
+"wilayat_en": "Nizwa",
+"gov": "الداخلية",
+"lat": 22.934,
+"lon": 57.518
+},
+{
+"name": "وادي العق - الدسر",
+"en": "Wadi Al Aq - Al Dasar",
+"wilayat": "سـمائل",
+"wilayat_en": "Samail",
+"gov": "الداخلية",
+"lat": 23.257,
+"lon": 58.104
+},
+{
+"name": "الجيلة -المخططات الجديدة",
+"en": "Al Jilah -Al Makhtatat New",
+"wilayat": "سـمائل",
+"wilayat_en": "Samail",
+"gov": "الداخلية",
+"lat": 23.358,
+"lon": 57.993
+},
+{
+"name": "سيما - السفالة",
+"en": "Sima - Al Safalah",
+"wilayat": "ازكـي",
+"wilayat_en": "Izki",
+"gov": "الداخلية",
+"lat": 22.949,
+"lon": 57.905
+},
+{
+"name": "الغليل",
+"en": "Al Ghalil",
+"wilayat": "ازكـي",
+"wilayat_en": "Izki",
+"gov": "الداخلية",
+"lat": 22.936,
+"lon": 57.753
+},
+{
+"name": "القريتين - حدرا",
+"en": "Al Qaritin - Hadara",
+"wilayat": "ازكـي",
+"wilayat_en": "Izki",
+"gov": "الداخلية",
+"lat": 22.9,
+"lon": 57.937
+},
+{
+"name": "حي الساكبية",
+"en": "Hayy Al Sakabiah",
+"wilayat": "أدم",
+"wilayat_en": "Adam",
+"gov": "الداخلية",
+"lat": 22.384,
+"lon": 57.546
+},
+{
+"name": "السليل",
+"en": "Al Salil",
+"wilayat": "الحـمراء",
+"wilayat_en": "Al Hamra",
+"gov": "الداخلية",
+"lat": 23.123,
+"lon": 57.29
+},
+{
+"name": "المدرة",
+"en": "Al Madarah",
+"wilayat": "سـمائل",
+"wilayat_en": "Samail",
+"gov": "الداخلية",
+"lat": 23.305,
+"lon": 57.953
+},
+{
+"name": "عقبة الثيران",
+"en": "Aqabah Al Thiran",
+"wilayat": "بـهـلاء",
+"wilayat_en": "Bahla",
+"gov": "الداخلية",
+"lat": 22.962,
+"lon": 57.286
+},
+{
+"name": "بركة الموز - المنطقة الجديدة",
+"en": "Barakah Al Muz - Al Mantaqah New",
+"wilayat": "نـزوى",
+"wilayat_en": "Nizwa",
+"gov": "الداخلية",
+"lat": 22.917,
+"lon": 57.672
+},
+{
+"name": "الصامتي",
+"en": "Al Samati",
+"wilayat": "أدم",
+"wilayat_en": "Adam",
+"gov": "الداخلية",
+"lat": 22.426,
+"lon": 57.431
+},
+{
+"name": "القريه",
+"en": "Al Qarih",
+"wilayat": "الحـمراء",
+"wilayat_en": "Al Hamra",
+"gov": "الداخلية",
+"lat": 23.087,
+"lon": 57.316
+},
+{
+"name": "حي التراث الشمالي",
+"en": "Hayy Al Tarath North",
+"wilayat": "نـزوى",
+"wilayat_en": "Nizwa",
+"gov": "الداخلية",
+"lat": 22.906,
+"lon": 57.566
+},
+{
+"name": "حي السعد",
+"en": "Hayy Al Sad",
+"wilayat": "بـهـلاء",
+"wilayat_en": "Bahla",
+"gov": "الداخلية",
+"lat": 23.025,
+"lon": 57.343
+},
+{
+"name": "عــز",
+"en": "Az",
+"wilayat": "مـنح",
+"wilayat_en": "Manah",
+"gov": "الداخلية",
+"lat": 22.994,
+"lon": 58.471
+},
+{
+"name": "الغافات (المركز)",
+"en": "Al Ghafat (Al Markaz)",
+"wilayat": "بـهـلاء",
+"wilayat_en": "Bahla",
+"gov": "الداخلية",
+"lat": 22.974,
+"lon": 57.16
+},
+{
+"name": "جبل شمس",
+"en": "Jabal Shamas",
+"wilayat": "الحـمراء",
+"wilayat_en": "Al Hamra",
+"gov": "الداخلية",
+"lat": 23.243,
+"lon": 57.148
+},
+{
+"name": "مويهي المر",
+"en": "Mawyahi Al Mar",
+"wilayat": "بـهـلاء",
+"wilayat_en": "Bahla",
+"gov": "الداخلية",
+"lat": 22.95,
+"lon": 57.258
+},
+{
+"name": "قصيبة",
+"en": "Qasibah",
+"wilayat": "بـهـلاء",
+"wilayat_en": "Bahla",
+"gov": "الداخلية",
+"lat": 22.834,
+"lon": 58.167
+},
+{
+"name": "مرفع دارس",
+"en": "Maraf Daras",
+"wilayat": "نـزوى",
+"wilayat_en": "Nizwa",
+"gov": "الداخلية",
+"lat": 22.966,
+"lon": 57.547
+},
+{
+"name": "الصويريج",
+"en": "Al Sawyarij",
+"wilayat": "سـمائل",
+"wilayat_en": "Samail",
+"gov": "الداخلية",
+"lat": 23.283,
+"lon": 57.942
+},
+{
+"name": "مسفاة العبريين - السيبان",
+"en": "Masafah Al Abaryayn - Al Siban",
+"wilayat": "الحـمراء",
+"wilayat_en": "Al Hamra",
+"gov": "الداخلية",
+"lat": 23.136,
+"lon": 57.303
+},
+{
+"name": "مغيوث",
+"en": "Maghyawth",
+"wilayat": "ازكـي",
+"wilayat_en": "Izki",
+"gov": "الداخلية",
+"lat": 22.93,
+"lon": 57.782
+},
+{
+"name": "مرتفعات ازكي",
+"en": "Heights Azaki",
+"wilayat": "ازكـي",
+"wilayat_en": "Izki",
+"gov": "الداخلية",
+"lat": 22.918,
+"lon": 57.75
+},
+{
+"name": "شافع/مساكن المدرعات",
+"en": "shaf/masakan Al Madarat",
+"wilayat": "ازكـي",
+"wilayat_en": "Izki",
+"gov": "الداخلية",
+"lat": 22.755,
+"lon": 57.732
+},
+{
+"name": "قرن الجارية",
+"en": "Qaran Al Jariah",
+"wilayat": "سـمائل",
+"wilayat_en": "Samail",
+"gov": "الداخلية",
+"lat": 23.302,
+"lon": 57.943
+},
+{
+"name": "ردة البوسعيد",
+"en": "Radah Al Busid",
+"wilayat": "نـزوى",
+"wilayat_en": "Nizwa",
+"gov": "الداخلية",
+"lat": 22.858,
+"lon": 57.514
+},
+{
+"name": "الغابة",
+"en": "Al Ghabah",
+"wilayat": "أدم",
+"wilayat_en": "Adam",
+"gov": "الداخلية",
+"lat": 21.383,
+"lon": 57.255
+},
+{
+"name": "كـمه",
+"en": "Kamah",
+"wilayat": "نـزوى",
+"wilayat_en": "Nizwa",
+"gov": "الداخلية",
+"lat": 23.013,
+"lon": 57.533
+},
+{
+"name": "طيمساء البلاد",
+"en": "Timasa Al Balad",
+"wilayat": "نـزوى",
+"wilayat_en": "Nizwa",
+"gov": "الداخلية",
+"lat": 22.851,
+"lon": 57.474
+},
+{
+"name": "سيح المعاشي",
+"en": "Sayh Al Mashi",
+"wilayat": "بـهـلاء",
+"wilayat_en": "Bahla",
+"gov": "الداخلية",
+"lat": 23.048,
+"lon": 56.921
+},
+{
+"name": "غاف الشيخ",
+"en": "Ghaf Al Shikh",
+"wilayat": "نـزوى",
+"wilayat_en": "Nizwa",
+"gov": "الداخلية",
+"lat": 22.908,
+"lon": 57.524
+},
+{
+"name": "المدة - المويدين",
+"en": "Al Madah - Al Mawyadin",
+"wilayat": "نـزوى",
+"wilayat_en": "Nizwa",
+"gov": "الداخلية",
+"lat": 22.95,
+"lon": 57.526
+},
+{
+"name": "الفجرية",
+"en": "Al Fajariah",
+"wilayat": "بـهـلاء",
+"wilayat_en": "Bahla",
+"gov": "الداخلية",
+"lat": 22.967,
+"lon": 57.295
+},
+{
+"name": "الطوق",
+"en": "Al Tuq",
+"wilayat": "ازكـي",
+"wilayat_en": "Izki",
+"gov": "الداخلية",
+"lat": 22.909,
+"lon": 57.736
+},
+{
+"name": "الرويغ العالي",
+"en": "Al Rawyagh Al Ali",
+"wilayat": "الحـمراء",
+"wilayat_en": "Al Hamra",
+"gov": "الداخلية",
+"lat": 23.151,
+"lon": 57.19
+},
+{
+"name": "وادي محرم - محرم",
+"en": "Wadi Mahram - Mahram",
+"wilayat": "سـمائل",
+"wilayat_en": "Samail",
+"gov": "الداخلية",
+"lat": 23.023,
+"lon": 57.984
+},
+{
+"name": "بلاد سيت - حي السلام",
+"en": "Balad Sit - Hayy Al Salam",
+"wilayat": "بـهـلاء",
+"wilayat_en": "Bahla",
+"gov": "الداخلية",
+"lat": 23.065,
+"lon": 57.276
+},
+{
+"name": "وادي بني رواحة - وصـاد",
+"en": "Wadi Bani Rawahah - Wasad",
+"wilayat": "سـمائل",
+"wilayat_en": "Samail",
+"gov": "الداخلية",
+"lat": 23.191,
+"lon": 57.874
+},
+{
+"name": "وادي قريات",
+"en": "Wadi Qurayyat",
+"wilayat": "بـهـلاء",
+"wilayat_en": "Bahla",
+"gov": "الداخلية",
+"lat": 22.832,
+"lon": 57.193
+},
+{
+"name": "الوادي الأعلى",
+"en": "Al Wadi Al Ali",
+"wilayat": "بـهـلاء",
+"wilayat_en": "Bahla",
+"gov": "الداخلية",
+"lat": 22.945,
+"lon": 57.26
+},
+{
+"name": "الغيظرانة - المركز",
+"en": "Al Ghizaranah - Al Markaz",
+"wilayat": "أدم",
+"wilayat_en": "Adam",
+"gov": "الداخلية",
+"lat": 21.799,
+"lon": 57.907
+},
+{
+"name": "المعمور",
+"en": "Al Mamur",
+"wilayat": "بـهـلاء",
+"wilayat_en": "Bahla",
+"gov": "الداخلية",
+"lat": 22.996,
+"lon": 57.312
+},
+{
+"name": "سعال-المنجب",
+"en": "Sal-Al Manjab",
+"wilayat": "نـزوى",
+"wilayat_en": "Nizwa",
+"gov": "الداخلية",
+"lat": 22.928,
+"lon": 57.543
+},
+{
+"name": "الصقرية",
+"en": "Al Saqariah",
+"wilayat": "نـزوى",
+"wilayat_en": "Nizwa",
+"gov": "الداخلية",
+"lat": 22.94,
+"lon": 57.524
+},
+{
+"name": "معمد",
+"en": "Ma'mad",
+"wilayat": "مـنح",
+"wilayat_en": "Manah",
+"gov": "الداخلية",
+"lat": 22.801,
+"lon": 57.572
+},
+{
+"name": "بركة الموز- الحيل",
+"en": "Barakah Al Muz- Al Hil",
+"wilayat": "نـزوى",
+"wilayat_en": "Nizwa",
+"gov": "الداخلية",
+"lat": 22.926,
+"lon": 57.687
+},
+{
+"name": "بلاد سيت - الطويان",
+"en": "Balad Sit - Al Tawayan",
+"wilayat": "بـهـلاء",
+"wilayat_en": "Bahla",
+"gov": "الداخلية",
+"lat": 23.072,
+"lon": 57.272
+},
+{
+"name": "تنوف - طوية سيف",
+"en": "Tanuf - Tawayah Sif",
+"wilayat": "نـزوى",
+"wilayat_en": "Nizwa",
+"gov": "الداخلية",
+"lat": 22.917,
+"lon": 57.536
+},
+{
+"name": "راس الجبل",
+"en": "Ras Al Jabal",
+"wilayat": "أدم",
+"wilayat_en": "Adam",
+"gov": "الداخلية",
+"lat": 22.413,
+"lon": 57.154
+},
+{
+"name": "الغبرة (سفالة سمائل)",
+"en": "Al Ghubrah (Safalah Samail)",
+"wilayat": "سـمائل",
+"wilayat_en": "Samail",
+"gov": "الداخلية",
+"lat": 23.308,
+"lon": 58.021
+},
+{
+"name": "سيجاء",
+"en": "Sija",
+"wilayat": "سـمائل",
+"wilayat_en": "Samail",
+"gov": "الداخلية",
+"lat": 23.214,
+"lon": 57.882
+},
+{
+"name": "خضراء الصراني القديمة",
+"en": "Khadara Al Sarani Old",
+"wilayat": "نـزوى",
+"wilayat_en": "Nizwa",
+"gov": "الداخلية",
+"lat": 22.963,
+"lon": 57.535
+},
+{
+"name": "تنوف -الجديدة",
+"en": "Tanuf -New",
+"wilayat": "نـزوى",
+"wilayat_en": "Nizwa",
+"gov": "الداخلية",
+"lat": 22.917,
+"lon": 57.536
+},
+{
+"name": "وادي حلفين الرحاب",
+"en": "Wadi Halafin al Rahab",
+"wilayat": "أدم",
+"wilayat_en": "Adam",
+"gov": "الداخلية",
+"lat": 22.284,
+"lon": 57.656
+},
+{
+"name": "الروضه",
+"en": "Al Rudah",
+"wilayat": "المضيبي",
+"wilayat_en": "Al Mudhaibi",
+"gov": "شمال الشرقية",
+"lat": 22.895,
+"lon": 58.233
+},
+{
+"name": "النصيب",
+"en": "Al Nasib",
+"wilayat": "ابـراء",
+"wilayat_en": "Ibra",
+"gov": "شمال الشرقية",
+"lat": 22.718,
+"lon": 58.514
+},
+{
+"name": "المعترض",
+"en": "Al Matrad",
+"wilayat": "ابـراء",
+"wilayat_en": "Ibra",
+"gov": "شمال الشرقية",
+"lat": 22.663,
+"lon": 58.529
+},
+{
+"name": "قفيفة",
+"en": "Qafifah",
+"wilayat": "ابـراء",
+"wilayat_en": "Ibra",
+"gov": "شمال الشرقية",
+"lat": 22.845,
+"lon": 58.432
+},
+{
+"name": "المضيبي",
+"en": "Al Madibi",
+"wilayat": "المضيبي",
+"wilayat_en": "Al Mudhaibi",
+"gov": "شمال الشرقية",
+"lat": 22.576,
+"lon": 58.115
+},
+{
+"name": "سمد الجديدة",
+"en": "Samad New",
+"wilayat": "المضيبي",
+"wilayat_en": "Al Mudhaibi",
+"gov": "شمال الشرقية",
+"lat": 22.766,
+"lon": 58.144
+},
+{
+"name": "الافلاج",
+"en": "Al Afalaj",
+"wilayat": "المضيبي",
+"wilayat_en": "Al Mudhaibi",
+"gov": "شمال الشرقية",
+"lat": 22.386,
+"lon": 58.213
+},
+{
+"name": "الدكيك",
+"en": "Al Dakik",
+"wilayat": "ابـراء",
+"wilayat_en": "Ibra",
+"gov": "شمال الشرقية",
+"lat": 22.71,
+"lon": 58.538
+},
+{
+"name": "العلياء",
+"en": "Al Alaya",
+"wilayat": "المضيبي",
+"wilayat_en": "Al Mudhaibi",
+"gov": "شمال الشرقية",
+"lat": 22.921,
+"lon": 58.041
+},
+{
+"name": "الفتح",
+"en": "Al Fatah",
+"wilayat": "المضيبي",
+"wilayat_en": "Al Mudhaibi",
+"gov": "شمال الشرقية",
+"lat": 22.615,
+"lon": 58.135
+},
+{
+"name": "الصويريج",
+"en": "Al Sawyarij",
+"wilayat": "المضيبي",
+"wilayat_en": "Al Mudhaibi",
+"gov": "شمال الشرقية",
+"lat": 22.84,
+"lon": 58.161
+},
+{
+"name": "الخضراء غرب",
+"en": "Al Khadara West",
+"wilayat": "المضيبي",
+"wilayat_en": "Al Mudhaibi",
+"gov": "شمال الشرقية",
+"lat": 22.797,
+"lon": 58.003
+},
+{
+"name": "العينين",
+"en": "Al Ainin",
+"wilayat": "المضيبي",
+"wilayat_en": "Al Mudhaibi",
+"gov": "شمال الشرقية",
+"lat": 22.572,
+"lon": 58.131
+},
+{
+"name": "المخترع",
+"en": "Al Makhtar",
+"wilayat": "المضيبي",
+"wilayat_en": "Al Mudhaibi",
+"gov": "شمال الشرقية",
+"lat": 22.671,
+"lon": 57.987
+},
+{
+"name": "النبـأ",
+"en": "Al Naba",
+"wilayat": "القابل",
+"wilayat_en": "Al Qabil",
+"gov": "شمال الشرقية",
+"lat": 22.738,
+"lon": 58.694
+},
+{
+"name": "المضيرب",
+"en": "Al Madirab",
+"wilayat": "القابل",
+"wilayat_en": "Al Qabil",
+"gov": "شمال الشرقية",
+"lat": 22.594,
+"lon": 58.681
+},
+{
+"name": "الثابتي",
+"en": "Al Thabati",
+"wilayat": "ابـراء",
+"wilayat_en": "Ibra",
+"gov": "شمال الشرقية",
+"lat": 22.731,
+"lon": 58.525
+},
+{
+"name": "اليحمدي",
+"en": "Al Ihamadi",
+"wilayat": "ابـراء",
+"wilayat_en": "Ibra",
+"gov": "شمال الشرقية",
+"lat": 22.751,
+"lon": 58.51
+},
+{
+"name": "المعترض",
+"en": "Al Matrad",
+"wilayat": "القابل",
+"wilayat_en": "Al Qabil",
+"gov": "شمال الشرقية",
+"lat": 22.728,
+"lon": 58.663
+},
+{
+"name": "بعد",
+"en": "Bad",
+"wilayat": "المضيبي",
+"wilayat_en": "Al Mudhaibi",
+"gov": "شمال الشرقية",
+"lat": 22.695,
+"lon": 58.545
+},
+{
+"name": "النجادي",
+"en": "Al Najadi",
+"wilayat": "ابـراء",
+"wilayat_en": "Ibra",
+"gov": "شمال الشرقية",
+"lat": 22.698,
+"lon": 58.537
+},
+{
+"name": "سيح العافية",
+"en": "Sayh Al Afiah",
+"wilayat": "ابـراء",
+"wilayat_en": "Ibra",
+"gov": "شمال الشرقية",
+"lat": 22.71,
+"lon": 58.538
+},
+{
+"name": "الشريعة",
+"en": "Al Shariah",
+"wilayat": "المضيبي",
+"wilayat_en": "Al Mudhaibi",
+"gov": "شمال الشرقية",
+"lat": 22.808,
+"lon": 58.155
+},
+{
+"name": "الصفيح",
+"en": "Al Safih",
+"wilayat": "ابـراء",
+"wilayat_en": "Ibra",
+"gov": "شمال الشرقية",
+"lat": 22.687,
+"lon": 58.555
+},
+{
+"name": "الخشبة",
+"en": "Al Khashabah",
+"wilayat": "المضيبي",
+"wilayat_en": "Al Mudhaibi",
+"gov": "شمال الشرقية",
+"lat": 22.656,
+"lon": 58.045
+},
+{
+"name": "الجرداء",
+"en": "Al Jarada",
+"wilayat": "المضيبي",
+"wilayat_en": "Al Mudhaibi",
+"gov": "شمال الشرقية",
+"lat": 23.035,
+"lon": 58.194
+},
+{
+"name": "القابل",
+"en": "Al Qabal",
+"wilayat": "القابل",
+"wilayat_en": "Al Qabil",
+"gov": "شمال الشرقية",
+"lat": 22.572,
+"lon": 58.692
+},
+{
+"name": "الشارق",
+"en": "Al Sharaq",
+"wilayat": "المضيبي",
+"wilayat_en": "Al Mudhaibi",
+"gov": "شمال الشرقية",
+"lat": 22.525,
+"lon": 58.117
+},
+{
+"name": "الزاهرة",
+"en": "Al Zaharah",
+"wilayat": "المضيبي",
+"wilayat_en": "Al Mudhaibi",
+"gov": "شمال الشرقية",
+"lat": 22.144,
+"lon": 58.29
+},
+{
+"name": "لـزق",
+"en": "Lazaq",
+"wilayat": "المضيبي",
+"wilayat_en": "Al Mudhaibi",
+"gov": "شمال الشرقية",
+"lat": 22.717,
+"lon": 58.169
+},
+{
+"name": "مصرون",
+"en": "Masarun",
+"wilayat": "ابـراء",
+"wilayat_en": "Ibra",
+"gov": "شمال الشرقية",
+"lat": 22.648,
+"lon": 58.529
+},
+{
+"name": "السويح",
+"en": "Al Sawyah",
+"wilayat": "Jalan Bani",
+"wilayat_en": "Jalan Bani",
+"gov": "جنوب الشرقية",
+"lat": 22.09,
+"lon": 59.689
+},
+{
+"name": "المريبي",
+"en": "Al Maribi",
+"wilayat": "Jalan Bani",
+"wilayat_en": "Jalan Bani",
+"gov": "جنوب الشرقية",
+"lat": 22.082,
+"lon": 59.26
+},
+{
+"name": "المرتفع ( الاشخرة )",
+"en": "Al Martaf ( Al Ashakharah )",
+"wilayat": "Jalan Bani",
+"wilayat_en": "Jalan Bani",
+"gov": "جنوب الشرقية",
+"lat": 21.851,
+"lon": 59.567
+},
+{
+"name": "الرويس",
+"en": "Al Rawyas",
+"wilayat": "Jalan Bani",
+"wilayat_en": "Jalan Bani",
+"gov": "جنوب الشرقية",
+"lat": 22.181,
+"lon": 59.764
+},
+{
+"name": "الشرية",
+"en": "Al Shariah",
+"wilayat": "صـور",
+"wilayat_en": "Sur",
+"gov": "جنوب الشرقية",
+"lat": 23.584,
+"lon": 58.431
+},
+{
+"name": "الطحايم",
+"en": "Al Tahayam",
+"wilayat": "Jalan Bani",
+"wilayat_en": "Jalan Bani",
+"gov": "جنوب الشرقية",
+"lat": 21.611,
+"lon": 58.873
+},
+{
+"name": "الرشه",
+"en": "Al Rashah",
+"wilayat": "صـور",
+"wilayat_en": "Sur",
+"gov": "جنوب الشرقية",
+"lat": 22.564,
+"lon": 59.497
+},
+{
+"name": "العيجه",
+"en": "Al Aijah",
+"wilayat": "صـور",
+"wilayat_en": "Sur",
+"gov": "جنوب الشرقية",
+"lat": 22.565,
+"lon": 59.545
+},
+{
+"name": "البندر الجديد",
+"en": "Al Bandar New",
+"wilayat": "Jalan Bani",
+"wilayat_en": "Jalan Bani",
+"gov": "جنوب الشرقية",
+"lat": 22.018,
+"lon": 59.336
+},
+{
+"name": "البر",
+"en": "Al Bar",
+"wilayat": "صـور",
+"wilayat_en": "Sur",
+"gov": "جنوب الشرقية",
+"lat": 22.606,
+"lon": 59.47
+},
+{
+"name": "سيح الرمث",
+"en": "Sayh Al Ramath",
+"wilayat": "Jalan Bani",
+"wilayat_en": "Jalan Bani",
+"gov": "جنوب الشرقية",
+"lat": 21.995,
+"lon": 59.306
+},
+{
+"name": "ابو قلع",
+"en": "Abu Qal",
+"wilayat": "صـور",
+"wilayat_en": "Sur",
+"gov": "جنوب الشرقية",
+"lat": 22.523,
+"lon": 59.488
+},
+{
+"name": "الفليج",
+"en": "Al Falij",
+"wilayat": "صـور",
+"wilayat_en": "Sur",
+"gov": "جنوب الشرقية",
+"lat": 22.45,
+"lon": 59.377
+},
+{
+"name": "الحـده",
+"en": "Al Hadah",
+"wilayat": "Jalan Bani",
+"wilayat_en": "Jalan Bani",
+"gov": "جنوب الشرقية",
+"lat": 22.132,
+"lon": 59.726
+},
+{
+"name": "السيح الشرقي",
+"en": "Al Sayh East",
+"wilayat": "Jalan Bani",
+"wilayat_en": "Jalan Bani",
+"gov": "جنوب الشرقية",
+"lat": 22.089,
+"lon": 59.277
+},
+{
+"name": "حواجر",
+"en": "Hawajar",
+"wilayat": "صـور",
+"wilayat_en": "Sur",
+"gov": "جنوب الشرقية",
+"lat": 22.591,
+"lon": 59.495
+},
+{
+"name": "قــرون",
+"en": "Qarun",
+"wilayat": "Jalan Bani",
+"wilayat_en": "Jalan Bani",
+"gov": "جنوب الشرقية",
+"lat": 21.45,
+"lon": 59.299
+},
+{
+"name": "الرصاغ",
+"en": "Al Rasagh",
+"wilayat": "صـور",
+"wilayat_en": "Sur",
+"gov": "جنوب الشرقية",
+"lat": 22.588,
+"lon": 59.5
+},
+{
+"name": "رأس الحد",
+"en": "Ras Al Had",
+"wilayat": "صـور",
+"wilayat_en": "Sur",
+"gov": "جنوب الشرقية",
+"lat": 22.518,
+"lon": 59.791
+},
+{
+"name": "راس حلف",
+"en": "Ras Halaf",
+"wilayat": "مصـيره",
+"wilayat_en": "Masirah",
+"gov": "جنوب الشرقية",
+"lat": 20.66,
+"lon": 58.876
+},
+{
+"name": "حارة السوق",
+"en": "Harat Al Souq",
+"wilayat": "Jalan Bani",
+"wilayat_en": "Jalan Bani",
+"gov": "جنوب الشرقية",
+"lat": 22.072,
+"lon": 59.286
+},
+{
+"name": "سيح الصادر",
+"en": "Sayh Al Sadar",
+"wilayat": "Jalan Bani",
+"wilayat_en": "Jalan Bani",
+"gov": "جنوب الشرقية",
+"lat": 22.023,
+"lon": 59.349
+},
+{
+"name": "سيح الزبيري",
+"en": "Sayh Al Zabiri",
+"wilayat": "Jalan Bani",
+"wilayat_en": "Jalan Bani",
+"gov": "جنوب الشرقية",
+"lat": 22.023,
+"lon": 59.337
+},
+{
+"name": "سيح العلا",
+"en": "Sayh Al Ala",
+"wilayat": "Jalan Bani",
+"wilayat_en": "Jalan Bani",
+"gov": "جنوب الشرقية",
+"lat": 22.038,
+"lon": 59.338
+},
+{
+"name": "اصيله",
+"en": "Asilah",
+"wilayat": "Jalan Bani",
+"wilayat_en": "Jalan Bani",
+"gov": "جنوب الشرقية",
+"lat": 23.633,
+"lon": 58.212
+},
+{
+"name": "قرن بو عباس",
+"en": "Qaran Bu Abas",
+"wilayat": "صـور",
+"wilayat_en": "Sur",
+"gov": "جنوب الشرقية",
+"lat": 22.555,
+"lon": 59.473
+},
+{
+"name": "الليتاق",
+"en": "Al Litaq",
+"wilayat": "Jalan Bani",
+"wilayat_en": "Jalan Bani",
+"gov": "جنوب الشرقية",
+"lat": 22.027,
+"lon": 59.356
+},
+{
+"name": "المحيول",
+"en": "Al Mahyawl",
+"wilayat": "Jalan Bani",
+"wilayat_en": "Jalan Bani",
+"gov": "جنوب الشرقية",
+"lat": 22.089,
+"lon": 59.279
+},
+{
+"name": "الشعبية",
+"en": "Al Shabiah",
+"wilayat": "Jalan Bani",
+"wilayat_en": "Jalan Bani",
+"gov": "جنوب الشرقية",
+"lat": 22.037,
+"lon": 59.332
+},
+{
+"name": "جويره",
+"en": "Jawyarh",
+"wilayat": "Jalan Bani",
+"wilayat_en": "Jalan Bani",
+"gov": "جنوب الشرقية",
+"lat": 21.066,
+"lon": 58.852
+},
+{
+"name": "الاشخره",
+"en": "Al Ashakhrah",
+"wilayat": "Jalan Bani",
+"wilayat_en": "Jalan Bani",
+"gov": "جنوب الشرقية",
+"lat": 21.859,
+"lon": 59.561
+},
+{
+"name": "قلهات",
+"en": "Qalahat",
+"wilayat": "صـور",
+"wilayat_en": "Sur",
+"gov": "جنوب الشرقية",
+"lat": 22.7,
+"lon": 59.371
+},
+{
+"name": "فلج المشايخ",
+"en": "Falaj Al Mashayakh",
+"wilayat": "Jalan Bani",
+"wilayat_en": "Jalan Bani",
+"gov": "جنوب الشرقية",
+"lat": 22.135,
+"lon": 59.168
+},
+{
+"name": "سيح قريحه",
+"en": "Sayh Qarihah",
+"wilayat": "Jalan Bani",
+"wilayat_en": "Jalan Bani",
+"gov": "جنوب الشرقية",
+"lat": 22.027,
+"lon": 59.335
+},
+{
+"name": "طيـوي",
+"en": "Tayauwi",
+"wilayat": "صـور",
+"wilayat_en": "Sur",
+"gov": "جنوب الشرقية",
+"lat": 22.831,
+"lon": 59.253
+},
+{
+"name": "ابو فشيغة",
+"en": "Abu Fashighah",
+"wilayat": "Jalan Bani",
+"wilayat_en": "Jalan Bani",
+"gov": "جنوب الشرقية",
+"lat": 22.086,
+"lon": 59.682
+},
+{
+"name": "قعب",
+"en": "Qab",
+"wilayat": "صـور",
+"wilayat_en": "Sur",
+"gov": "جنوب الشرقية",
+"lat": 22.641,
+"lon": 59.274
+},
+{
+"name": "جحلـه",
+"en": "Jahlah",
+"wilayat": "Jalan Bani",
+"wilayat_en": "Jalan Bani",
+"gov": "جنوب الشرقية",
+"lat": 22.037,
+"lon": 59.332
+},
+{
+"name": "وادي سال",
+"en": "Wadi Sal",
+"wilayat": "Jalan Bani",
+"wilayat_en": "Jalan Bani",
+"gov": "جنوب الشرقية",
+"lat": 22.113,
+"lon": 59.608
+},
+{
+"name": "العيص",
+"en": "Al Ais",
+"wilayat": "صـور",
+"wilayat_en": "Sur",
+"gov": "جنوب الشرقية",
+"lat": 22.586,
+"lon": 59.41
+},
+{
+"name": "الدفـه",
+"en": "Al Dafah",
+"wilayat": "Jalan Bani",
+"wilayat_en": "Jalan Bani",
+"gov": "جنوب الشرقية",
+"lat": 22.016,
+"lon": 59.325
+},
+{
+"name": "جـوابي",
+"en": "Jawabi",
+"wilayat": "Jalan Bani",
+"wilayat_en": "Jalan Bani",
+"gov": "جنوب الشرقية",
+"lat": 22.027,
+"lon": 59.356
+},
+{
+"name": "حارةالكهرباء",
+"en": "Harahalakharba",
+"wilayat": "صـور",
+"wilayat_en": "Sur",
+"gov": "جنوب الشرقية",
+"lat": 22.575,
+"lon": 59.51
+},
+{
+"name": "خـويمه",
+"en": "Khawyamh",
+"wilayat": "Jalan Bani",
+"wilayat_en": "Jalan Bani",
+"gov": "جنوب الشرقية",
+"lat": 22.018,
+"lon": 59.345
+},
+{
+"name": "الشعبية القديمه",
+"en": "Al Shabiah Old",
+"wilayat": "Jalan Bani",
+"wilayat_en": "Jalan Bani",
+"gov": "جنوب الشرقية",
+"lat": 22.078,
+"lon": 59.293
+},
+{
+"name": "سيح المطار",
+"en": "Sayh Al Matar",
+"wilayat": "صـور",
+"wilayat_en": "Sur",
+"gov": "جنوب الشرقية",
+"lat": 22.535,
+"lon": 59.482
+},
+{
+"name": "اللبيدعه",
+"en": "Al Labidah",
+"wilayat": "Jalan Bani",
+"wilayat_en": "Jalan Bani",
+"gov": "جنوب الشرقية",
+"lat": 21.747,
+"lon": 59.316
+},
+{
+"name": "الجزير",
+"en": "Al Jazir",
+"wilayat": "صـور",
+"wilayat_en": "Sur",
+"gov": "جنوب الشرقية",
+"lat": 22.535,
+"lon": 59.482
+},
+{
+"name": "شعبة العود",
+"en": "Shabah Al Aud",
+"wilayat": "Jalan Bani",
+"wilayat_en": "Jalan Bani",
+"gov": "جنوب الشرقية",
+"lat": 22.11,
+"lon": 59.287
+},
+{
+"name": "سيح سنده",
+"en": "Sayh Sandah",
+"wilayat": "Jalan Bani",
+"wilayat_en": "Jalan Bani",
+"gov": "جنوب الشرقية",
+"lat": 22.026,
+"lon": 59.336
+},
+{
+"name": "رعينيه",
+"en": "Rinih",
+"wilayat": "صـور",
+"wilayat_en": "Sur",
+"gov": "جنوب الشرقية",
+"lat": 22.577,
+"lon": 59.521
+},
+{
+"name": "الهيال",
+"en": "Al Hayal",
+"wilayat": "عبـري",
+"wilayat_en": "Ibri",
+"gov": "الظاهرة",
+"lat": 23.437,
+"lon": 56.745
+},
+{
+"name": "الهجر",
+"en": "Al Hajar",
+"wilayat": "عبـري",
+"wilayat_en": "Ibri",
+"gov": "الظاهرة",
+"lat": 23.278,
+"lon": 56.94
+},
+{
+"name": "عملا",
+"en": "Amala",
+"wilayat": "عبـري",
+"wilayat_en": "Ibri",
+"gov": "الظاهرة",
+"lat": 23.128,
+"lon": 56.89
+},
+{
+"name": "المازم",
+"en": "Al Mazam",
+"wilayat": "عبـري",
+"wilayat_en": "Ibri",
+"gov": "الظاهرة",
+"lat": 23.397,
+"lon": 56.281
+},
+{
+"name": "تنعم",
+"en": "Tanam",
+"wilayat": "عبـري",
+"wilayat_en": "Ibri",
+"gov": "الظاهرة",
+"lat": 23.148,
+"lon": 56.477
+},
+{
+"name": "كاواس",
+"en": "Kawas",
+"wilayat": "عبـري",
+"wilayat_en": "Ibri",
+"gov": "الظاهرة",
+"lat": 23.243,
+"lon": 56.514
+},
+{
+"name": "الدريز",
+"en": "Al Dariz",
+"wilayat": "عبـري",
+"wilayat_en": "Ibri",
+"gov": "الظاهرة",
+"lat": 23.324,
+"lon": 56.615
+},
+{
+"name": "العارض",
+"en": "Al Arad",
+"wilayat": "عبـري",
+"wilayat_en": "Ibri",
+"gov": "الظاهرة",
+"lat": 23.44,
+"lon": 56.632
+},
+{
+"name": "السليف",
+"en": "Al Salif",
+"wilayat": "عبـري",
+"wilayat_en": "Ibri",
+"gov": "الظاهرة",
+"lat": 23.212,
+"lon": 56.517
+},
+{
+"name": "المرتفع",
+"en": "Al Martaf",
+"wilayat": "عبـري",
+"wilayat_en": "Ibri",
+"gov": "الظاهرة",
+"lat": 23.23,
+"lon": 56.517
+},
+{
+"name": "النجيد",
+"en": "Al Najid",
+"wilayat": "عبـري",
+"wilayat_en": "Ibri",
+"gov": "الظاهرة",
+"lat": 23.466,
+"lon": 56.798
+},
+{
+"name": "الظاهر",
+"en": "Al Zahar",
+"wilayat": "عبـري",
+"wilayat_en": "Ibri",
+"gov": "الظاهرة",
+"lat": 23.644,
+"lon": 56.626
+},
+{
+"name": "بـات",
+"en": "Bat",
+"wilayat": "عبـري",
+"wilayat_en": "Ibri",
+"gov": "الظاهرة",
+"lat": 23.255,
+"lon": 56.754
+},
+{
+"name": "بلاد الشهوم",
+"en": "Balad Al Shahum",
+"wilayat": "عبـري",
+"wilayat_en": "Ibri",
+"gov": "الظاهرة",
+"lat": 23.396,
+"lon": 56.991
+},
+{
+"name": "العينين",
+"en": "Al Ainin",
+"wilayat": "عبـري",
+"wilayat_en": "Ibri",
+"gov": "الظاهرة",
+"lat": 23.302,
+"lon": 56.559
+},
+{
+"name": "مقنيات",
+"en": "Maqnayat",
+"wilayat": "عبـري",
+"wilayat_en": "Ibri",
+"gov": "الظاهرة",
+"lat": 23.384,
+"lon": 56.853
+},
+{
+"name": "حي العقبة",
+"en": "Hayy Al Aqabah",
+"wilayat": "عبـري",
+"wilayat_en": "Ibri",
+"gov": "الظاهرة",
+"lat": 23.39,
+"lon": 57.425
+},
+{
+"name": "كهنـات",
+"en": "Kahanat",
+"wilayat": "عبـري",
+"wilayat_en": "Ibri",
+"gov": "الظاهرة",
+"lat": 23.556,
+"lon": 56.782
+},
+{
+"name": "حي النهضة",
+"en": "Hayy Al Nahdah",
+"wilayat": "عبـري",
+"wilayat_en": "Ibri",
+"gov": "الظاهرة",
+"lat": 23.207,
+"lon": 56.479
+},
+{
+"name": "وادي العين",
+"en": "Wadi Al Ain",
+"wilayat": "عبـري",
+"wilayat_en": "Ibri",
+"gov": "الظاهرة",
+"lat": 23.223,
+"lon": 56.989
+},
+{
+"name": "مجزي - البلاد",
+"en": "Majazi - Al Balad",
+"wilayat": "عبـري",
+"wilayat_en": "Ibri",
+"gov": "الظاهرة",
+"lat": 23.628,
+"lon": 56.956
+},
+{
+"name": "ظاهرالفوارس",
+"en": "Zaharalafawaras",
+"wilayat": "عبـري",
+"wilayat_en": "Ibri",
+"gov": "الظاهرة",
+"lat": 23.65,
+"lon": 56.645
+},
+{
+"name": "الحيل",
+"en": "Al Hail",
+"wilayat": "عبـري",
+"wilayat_en": "Ibri",
+"gov": "الظاهرة",
+"lat": 17.207,
+"lon": 54.139
+},
+{
+"name": "العراقي",
+"en": "Al Araqi",
+"wilayat": "عبـري",
+"wilayat_en": "Ibri",
+"gov": "الظاهرة",
+"lat": 23.28,
+"lon": 56.545
+},
+{
+"name": "مسكن",
+"en": "Maskan",
+"wilayat": "عبـري",
+"wilayat_en": "Ibri",
+"gov": "الظاهرة",
+"lat": 23.497,
+"lon": 56.832
+},
+{
+"name": "المعمور",
+"en": "Al Mamur",
+"wilayat": "عبـري",
+"wilayat_en": "Ibri",
+"gov": "الظاهرة",
+"lat": 23.421,
+"lon": 56.246
+},
+{
+"name": "الردة",
+"en": "Al Radah",
+"wilayat": "صــحم",
+"wilayat_en": "Saham",
+"gov": "شمال الباطنة",
+"lat": 24.086,
+"lon": 56.97
+},
+{
+"name": "سور هيان",
+"en": "Sur Hayan",
+"wilayat": "السـويق",
+"wilayat_en": "As Suwaiq",
+"gov": "شمال الباطنة",
+"lat": 23.874,
+"lon": 57.344
+},
+{
+"name": "الغيزين",
+"en": "Al Ghizin",
+"wilayat": "Al Khabourah",
+"wilayat_en": "Al Khabourah",
+"gov": "شمال الباطنة",
+"lat": 23.816,
+"lon": 56.985
+},
+{
+"name": "الطريف",
+"en": "Al Tarif",
+"wilayat": "صــحار",
+"wilayat_en": "Sohar",
+"gov": "شمال الباطنة",
+"lat": 24.366,
+"lon": 56.715
+},
+{
+"name": "ضيان الجهاور",
+"en": "Dayan Al Jahawar",
+"wilayat": "السـويق",
+"wilayat_en": "As Suwaiq",
+"gov": "شمال الباطنة",
+"lat": 23.88,
+"lon": 57.247
+},
+{
+"name": "مويلح",
+"en": "Mawyalh",
+"wilayat": "صــحار",
+"wilayat_en": "Sohar",
+"gov": "شمال الباطنة",
+"lat": 24.32,
+"lon": 56.67
+},
+{
+"name": "مجز الكبرى",
+"en": "Majaz Al Kabari",
+"wilayat": "صــحار",
+"wilayat_en": "Sohar",
+"gov": "شمال الباطنة",
+"lat": 24.232,
+"lon": 56.832
+},
+{
+"name": "حلة النهضة",
+"en": "Halah Al Nahdah",
+"wilayat": "السـويق",
+"wilayat_en": "As Suwaiq",
+"gov": "شمال الباطنة",
+"lat": 23.868,
+"lon": 57.191
+},
+{
+"name": "مقاعسة",
+"en": "Maqasah",
+"wilayat": "صــحم",
+"wilayat_en": "Saham",
+"gov": "شمال الباطنة",
+"lat": 24.057,
+"lon": 56.982
+},
+{
+"name": "أبو الظروس",
+"en": "Abu Al Zarus",
+"wilayat": "صــحم",
+"wilayat_en": "Saham",
+"gov": "شمال الباطنة",
+"lat": 24.196,
+"lon": 56.862
+},
+{
+"name": "البوارح",
+"en": "Al Bawarah",
+"wilayat": "السـويق",
+"wilayat_en": "As Suwaiq",
+"gov": "شمال الباطنة",
+"lat": 23.888,
+"lon": 57.275
+},
+{
+"name": "الخضراء",
+"en": "Al Khadara",
+"wilayat": "السـويق",
+"wilayat_en": "As Suwaiq",
+"gov": "شمال الباطنة",
+"lat": 23.842,
+"lon": 57.305
+},
+{
+"name": "غيل الشبول",
+"en": "Ghil Al Shabul",
+"wilayat": "صــحار",
+"wilayat_en": "Sohar",
+"gov": "شمال الباطنة",
+"lat": 23.4,
+"lon": 57.814
+},
+{
+"name": "البداية",
+"en": "Al Badayah",
+"wilayat": "السـويق",
+"wilayat_en": "As Suwaiq",
+"gov": "شمال الباطنة",
+"lat": 23.912,
+"lon": 57.181
+},
+{
+"name": "ديل آل عبدالسلام",
+"en": "Dil Al Abadalasalam",
+"wilayat": "صــحم",
+"wilayat_en": "Saham",
+"gov": "شمال الباطنة",
+"lat": 24.073,
+"lon": 56.961
+},
+{
+"name": "فلج القبايل",
+"en": "Falaj Al Qabayal",
+"wilayat": "صــحار",
+"wilayat_en": "Sohar",
+"gov": "شمال الباطنة",
+"lat": 24.436,
+"lon": 56.614
+},
+{
+"name": "العفيفة",
+"en": "Al Afifah",
+"wilayat": "صــحار",
+"wilayat_en": "Sohar",
+"gov": "شمال الباطنة",
+"lat": 24.439,
+"lon": 56.622
+},
+{
+"name": "السرحات",
+"en": "Al Sarahat",
+"wilayat": "Al Khabourah",
+"wilayat_en": "Al Khabourah",
+"gov": "شمال الباطنة",
+"lat": 23.952,
+"lon": 57.052
+},
+{
+"name": "مدينة لوى النموذجية",
+"en": "Madinat Lauwi Al Namudhajiah",
+"wilayat": "لـوى",
+"wilayat_en": "Liwa",
+"gov": "شمال الباطنة",
+"lat": 24.55,
+"lon": 56.504
+},
+{
+"name": "سورالدواحنه",
+"en": "Suraladawahanah",
+"wilayat": "Al Khabourah",
+"wilayat_en": "Al Khabourah",
+"gov": "شمال الباطنة",
+"lat": 23.98,
+"lon": 57.09
+},
+{
+"name": "سور العبري",
+"en": "Sur Al Ibri",
+"wilayat": "شـناص",
+"wilayat_en": "Shinas",
+"gov": "شمال الباطنة",
+"lat": 25.81,
+"lon": 55.978
+},
+{
+"name": "النعمى",
+"en": "Al Nami",
+"wilayat": "شـناص",
+"wilayat_en": "Shinas",
+"gov": "شمال الباطنة",
+"lat": 24.611,
+"lon": 56.529
+},
+{
+"name": "مخيليف",
+"en": "Makhilif",
+"wilayat": "صــحم",
+"wilayat_en": "Saham",
+"gov": "شمال الباطنة",
+"lat": 24.112,
+"lon": 56.914
+},
+{
+"name": "البريك",
+"en": "Al Barik",
+"wilayat": "Al Khabourah",
+"wilayat_en": "Al Khabourah",
+"gov": "شمال الباطنة",
+"lat": 23.933,
+"lon": 57.121
+},
+{
+"name": "الهمبار",
+"en": "Al Hamabar",
+"wilayat": "صــحار",
+"wilayat_en": "Sohar",
+"gov": "شمال الباطنة",
+"lat": 24.341,
+"lon": 56.74
+},
+{
+"name": "لوى الجديدة الشرق",
+"en": "Lauwi New East",
+"wilayat": "لـوى",
+"wilayat_en": "Liwa",
+"gov": "شمال الباطنة",
+"lat": 24.53,
+"lon": 56.557
+},
+{
+"name": "الحويل الجديدة",
+"en": "Al Hawyal New",
+"wilayat": "صــحم",
+"wilayat_en": "Saham",
+"gov": "شمال الباطنة",
+"lat": 24.141,
+"lon": 56.866
+},
+{
+"name": "القرحه",
+"en": "Al Qarhah",
+"wilayat": "السـويق",
+"wilayat_en": "As Suwaiq",
+"gov": "شمال الباطنة",
+"lat": 23.853,
+"lon": 57.418
+},
+{
+"name": "العويدات",
+"en": "Al Awayadat",
+"wilayat": "السـويق",
+"wilayat_en": "As Suwaiq",
+"gov": "شمال الباطنة",
+"lat": 23.911,
+"lon": 57.239
+},
+{
+"name": "مجيس",
+"en": "Majis",
+"wilayat": "صــحار",
+"wilayat_en": "Sohar",
+"gov": "شمال الباطنة",
+"lat": 24.453,
+"lon": 56.655
+},
+{
+"name": "الفاو",
+"en": "Al Fau",
+"wilayat": "السـويق",
+"wilayat_en": "As Suwaiq",
+"gov": "شمال الباطنة",
+"lat": 23.84,
+"lon": 57.463
+},
+{
+"name": "الحويل القديمة",
+"en": "Al Hawyal Old",
+"wilayat": "صــحم",
+"wilayat_en": "Saham",
+"gov": "شمال الباطنة",
+"lat": 24.148,
+"lon": 56.872
+},
+{
+"name": "الحله الجنوبيه",
+"en": "Al Halah South",
+"wilayat": "شـناص",
+"wilayat_en": "Shinas",
+"gov": "شمال الباطنة",
+"lat": 24.731,
+"lon": 56.471
+},
+{
+"name": "الغريفه",
+"en": "Al Gharifah",
+"wilayat": "السـويق",
+"wilayat_en": "As Suwaiq",
+"gov": "شمال الباطنة",
+"lat": 23.793,
+"lon": 57.511
+},
+{
+"name": "قصبية ال بو سعيد",
+"en": "Qasabiah Al Bu Sid",
+"wilayat": "Al Khabourah",
+"wilayat_en": "Al Khabourah",
+"gov": "شمال الباطنة",
+"lat": 24.02,
+"lon": 57.057
+},
+{
+"name": "ابو بقرة",
+"en": "Abu Baqarah",
+"wilayat": "شـناص",
+"wilayat_en": "Shinas",
+"gov": "شمال الباطنة",
+"lat": 24.867,
+"lon": 56.39
+},
+{
+"name": "ام الجعاريف",
+"en": "Am Al Jarif",
+"wilayat": "صــحم",
+"wilayat_en": "Saham",
+"gov": "شمال الباطنة",
+"lat": 24.105,
+"lon": 56.949
+},
+{
+"name": "سور آل هلال",
+"en": "Sur Al Halal",
+"wilayat": "السـويق",
+"wilayat_en": "As Suwaiq",
+"gov": "شمال الباطنة",
+"lat": 23.851,
+"lon": 57.353
+},
+{
+"name": "الظويهر",
+"en": "Al Zawyahr",
+"wilayat": "Al Khabourah",
+"wilayat_en": "Al Khabourah",
+"gov": "شمال الباطنة",
+"lat": 23.933,
+"lon": 56.717
+},
+{
+"name": "الصبيخي",
+"en": "Al Sabikhi",
+"wilayat": "السـويق",
+"wilayat_en": "As Suwaiq",
+"gov": "شمال الباطنة",
+"lat": 23.841,
+"lon": 57.377
+},
+{
+"name": "بطحاء  هلال",
+"en": "Bataha Halal",
+"wilayat": "السـويق",
+"wilayat_en": "As Suwaiq",
+"gov": "شمال الباطنة",
+"lat": 23.823,
+"lon": 57.423
+},
+{
+"name": "الصويحره",
+"en": "Al Sawyahrah",
+"wilayat": "صــحار",
+"wilayat_en": "Sohar",
+"gov": "شمال الباطنة",
+"lat": 24.309,
+"lon": 56.774
+},
+{
+"name": "العوينات",
+"en": "Al Awayanat",
+"wilayat": "صــحار",
+"wilayat_en": "Sohar",
+"gov": "شمال الباطنة",
+"lat": 24.281,
+"lon": 56.791
+},
+{
+"name": "مجز الصغرى",
+"en": "Majaz Al Saghari",
+"wilayat": "صــحم",
+"wilayat_en": "Saham",
+"gov": "شمال الباطنة",
+"lat": 24.229,
+"lon": 56.833
+},
+{
+"name": "الزاهيه",
+"en": "Al Zahiyah",
+"wilayat": "لـوى",
+"wilayat_en": "Liwa",
+"gov": "شمال الباطنة",
+"lat": 24.544,
+"lon": 56.566
+},
+{
+"name": "عباسة",
+"en": "Abasah",
+"wilayat": "Al Khabourah",
+"wilayat_en": "Al Khabourah",
+"gov": "شمال الباطنة",
+"lat": 23.966,
+"lon": 57.123
+},
+{
+"name": "حلةالبرج",
+"en": "Halahalabraj",
+"wilayat": "صــحم",
+"wilayat_en": "Saham",
+"gov": "شمال الباطنة",
+"lat": 24.044,
+"lon": 57.002
+},
+{
+"name": "الشبيبات",
+"en": "Al Shabibat",
+"wilayat": "صــحار",
+"wilayat_en": "Sohar",
+"gov": "شمال الباطنة",
+"lat": 24.072,
+"lon": 56.566
+},
+{
+"name": "حميراء",
+"en": "Hamira",
+"wilayat": "شـناص",
+"wilayat_en": "Shinas",
+"gov": "شمال الباطنة",
+"lat": 24.672,
+"lon": 56.476
+},
+{
+"name": "دقال",
+"en": "Daqal",
+"wilayat": "صــحم",
+"wilayat_en": "Saham",
+"gov": "شمال الباطنة",
+"lat": 23.869,
+"lon": 56.908
+},
+{
+"name": "فلج بني ربيعه",
+"en": "Falaj Bani Rabih",
+"wilayat": "Al Khabourah",
+"wilayat_en": "Al Khabourah",
+"gov": "شمال الباطنة",
+"lat": 23.84,
+"lon": 57.094
+},
+{
+"name": "لوى الجديدة الغرب",
+"en": "Lauwi New West",
+"wilayat": "لـوى",
+"wilayat_en": "Liwa",
+"gov": "شمال الباطنة",
+"lat": 24.529,
+"lon": 56.556
+},
+{
+"name": "الحجيره",
+"en": "Al Hajirah",
+"wilayat": "السـويق",
+"wilayat_en": "As Suwaiq",
+"gov": "شمال الباطنة",
+"lat": 23.925,
+"lon": 57.161
+},
+{
+"name": "ضيان البوسعيد",
+"en": "Dayan Al Busid",
+"wilayat": "السـويق",
+"wilayat_en": "As Suwaiq",
+"gov": "شمال الباطنة",
+"lat": 23.901,
+"lon": 57.231
+},
+{
+"name": "الرديدة",
+"en": "Al Radidah",
+"wilayat": "Al Khabourah",
+"wilayat_en": "Al Khabourah",
+"gov": "شمال الباطنة",
+"lat": 23.991,
+"lon": 57.092
+},
+{
+"name": "الفليج",
+"en": "Al Falij",
+"wilayat": "صــحم",
+"wilayat_en": "Saham",
+"gov": "شمال الباطنة",
+"lat": 24.055,
+"lon": 56.787
+},
+{
+"name": "السيفيه",
+"en": "Al Sifih",
+"wilayat": "شـناص",
+"wilayat_en": "Shinas",
+"gov": "شمال الباطنة",
+"lat": 24.774,
+"lon": 56.449
+},
+{
+"name": "أم سيح الشمالية",
+"en": "Am Sayh North",
+"wilayat": "السـويق",
+"wilayat_en": "As Suwaiq",
+"gov": "شمال الباطنة",
+"lat": 23.803,
+"lon": 57.484
+},
+{
+"name": "الحظيرة",
+"en": "Al Hazirah",
+"wilayat": "صــحار",
+"wilayat_en": "Sohar",
+"gov": "شمال الباطنة",
+"lat": 24.371,
+"lon": 56.739
+},
+{
+"name": "الصحمي",
+"en": "Al Sahami",
+"wilayat": "صــحم",
+"wilayat_en": "Saham",
+"gov": "شمال الباطنة",
+"lat": 24.131,
+"lon": 56.842
+},
+{
+"name": "خضراء ال بورشيد",
+"en": "Khadara Al Burashid",
+"wilayat": "السـويق",
+"wilayat_en": "As Suwaiq",
+"gov": "شمال الباطنة",
+"lat": 23.89,
+"lon": 57.299
+},
+{
+"name": "الليهبان",
+"en": "Al Lihaban",
+"wilayat": "صــحم",
+"wilayat_en": "Saham",
+"gov": "شمال الباطنة",
+"lat": 24.093,
+"lon": 56.929
+},
+{
+"name": "عقدة الموانع",
+"en": "Aqadah Al Mawan",
+"wilayat": "لـوى",
+"wilayat_en": "Liwa",
+"gov": "شمال الباطنة",
+"lat": 24.501,
+"lon": 56.576
+},
+{
+"name": "صنعاء بني غافر",
+"en": "Sana Bani Ghafar",
+"wilayat": "Al Khabourah",
+"wilayat_en": "Al Khabourah",
+"gov": "شمال الباطنة",
+"lat": 23.826,
+"lon": 57.429
+},
+{
+"name": "حلـة الشيخ",
+"en": "Halah Al Shikh",
+"wilayat": "لـوى",
+"wilayat_en": "Liwa",
+"gov": "شمال الباطنة",
+"lat": 24.518,
+"lon": 56.563
+},
+{
+"name": "غليل الهناديس",
+"en": "Ghalil Al Hanadis",
+"wilayat": "السـويق",
+"wilayat_en": "As Suwaiq",
+"gov": "شمال الباطنة",
+"lat": 22.71,
+"lon": 58.538
+},
+{
+"name": "فـزح",
+"en": "Fazah",
+"wilayat": "لـوى",
+"wilayat_en": "Liwa",
+"gov": "شمال الباطنة",
+"lat": 24.506,
+"lon": 56.451
+},
+{
+"name": "الدوانيج",
+"en": "Al Dawanij",
+"wilayat": "شـناص",
+"wilayat_en": "Shinas",
+"gov": "شمال الباطنة",
+"lat": 24.578,
+"lon": 56.54
+},
+{
+"name": "المرفع",
+"en": "Al Maraf",
+"wilayat": "صــحم",
+"wilayat_en": "Saham",
+"gov": "شمال الباطنة",
+"lat": 24.182,
+"lon": 56.821
+},
+{
+"name": "سيح الرحمات",
+"en": "Sayh Al Rahamat",
+"wilayat": "السـويق",
+"wilayat_en": "As Suwaiq",
+"gov": "شمال الباطنة",
+"lat": 23.831,
+"lon": 57.319
+},
+{
+"name": "الغشبة",
+"en": "Al Ghashabah",
+"wilayat": "صــحار",
+"wilayat_en": "Sohar",
+"gov": "شمال الباطنة",
+"lat": 24.397,
+"lon": 56.696
+},
+{
+"name": "الملتقى",
+"en": "Al Maltaqi",
+"wilayat": "صــحار",
+"wilayat_en": "Sohar",
+"gov": "شمال الباطنة",
+"lat": 24.41,
+"lon": 56.656
+},
+{
+"name": "المتعارشه",
+"en": "Al Matarashah",
+"wilayat": "صــحار",
+"wilayat_en": "Sohar",
+"gov": "شمال الباطنة",
+"lat": 24.081,
+"lon": 56.426
+},
+{
+"name": "فلج المجاجعه",
+"en": "Falaj Al Majajah",
+"wilayat": "Al Khabourah",
+"wilayat_en": "Al Khabourah",
+"gov": "شمال الباطنة",
+"lat": 23.7,
+"lon": 56.909
+},
+{
+"name": "وادى الجزى",
+"en": "Wadi Al Jazi",
+"wilayat": "صــحار",
+"wilayat_en": "Sohar",
+"gov": "شمال الباطنة",
+"lat": 24.225,
+"lon": 56.333
+},
+{
+"name": "الخشدة",
+"en": "Al Khashadah",
+"wilayat": "صــحم",
+"wilayat_en": "Saham",
+"gov": "شمال الباطنة",
+"lat": 24.202,
+"lon": 56.859
+},
+{
+"name": "طريف حجي",
+"en": "Tarif Haji",
+"wilayat": "شـناص",
+"wilayat_en": "Shinas",
+"gov": "شمال الباطنة",
+"lat": 24.672,
+"lon": 56.476
+},
+{
+"name": "الهجاري",
+"en": "Al Hajari",
+"wilayat": "Al Khabourah",
+"wilayat_en": "Al Khabourah",
+"gov": "شمال الباطنة",
+"lat": 24.034,
+"lon": 56.992
+},
+{
+"name": "حيبي",
+"en": "Hibi",
+"wilayat": "صــحار",
+"wilayat_en": "Sohar",
+"gov": "شمال الباطنة",
+"lat": 23.911,
+"lon": 56.553
+},
+{
+"name": "القلعه",
+"en": "Al Qalah",
+"wilayat": "Al Khabourah",
+"wilayat_en": "Al Khabourah",
+"gov": "شمال الباطنة",
+"lat": 23.818,
+"lon": 56.613
+},
+{
+"name": "سيح البرير",
+"en": "Sayh Al Barir",
+"wilayat": "صــحار",
+"wilayat_en": "Sohar",
+"gov": "شمال الباطنة",
+"lat": 23.978,
+"lon": 56.505
+},
+{
+"name": "خبة أل خميس",
+"en": "Khabah Al Khamis",
+"wilayat": "السـويق",
+"wilayat_en": "As Suwaiq",
+"gov": "شمال الباطنة",
+"lat": 23.805,
+"lon": 57.461
+},
+{
+"name": "الحيلين",
+"en": "Al Hilin",
+"wilayat": "السـويق",
+"wilayat_en": "As Suwaiq",
+"gov": "شمال الباطنة",
+"lat": 23.644,
+"lon": 57.128
+},
+{
+"name": "بديعوه",
+"en": "Badiuh",
+"wilayat": "السـويق",
+"wilayat_en": "As Suwaiq",
+"gov": "شمال الباطنة",
+"lat": 23.825,
+"lon": 57.508
+},
+{
+"name": "خور الملح",
+"en": "Khur Al Malah",
+"wilayat": "صــحم",
+"wilayat_en": "Saham",
+"gov": "شمال الباطنة",
+"lat": 24.038,
+"lon": 57.019
+},
+{
+"name": "غضفان",
+"en": "Ghadafan",
+"wilayat": "لـوى",
+"wilayat_en": "Liwa",
+"gov": "شمال الباطنة",
+"lat": 24.48,
+"lon": 56.592
+},
+{
+"name": "الخويرية",
+"en": "Al Khawyariah",
+"wilayat": "صــحار",
+"wilayat_en": "Sohar",
+"gov": "شمال الباطنة",
+"lat": 24.444,
+"lon": 56.635
+},
+{
+"name": "خضراوين",
+"en": "Khadarawayan",
+"wilayat": "شـناص",
+"wilayat_en": "Shinas",
+"gov": "شمال الباطنة",
+"lat": 24.858,
+"lon": 56.394
+},
+{
+"name": "حارة الشيخ",
+"en": "Harat Al Shikh",
+"wilayat": "صــحار",
+"wilayat_en": "Sohar",
+"gov": "شمال الباطنة",
+"lat": 24.442,
+"lon": 56.64
+},
+{
+"name": "قارح بني خروص",
+"en": "Qarah Bani Kharus",
+"wilayat": "السـويق",
+"wilayat_en": "As Suwaiq",
+"gov": "شمال الباطنة",
+"lat": 23.904,
+"lon": 57.215
+},
+{
+"name": "الخد",
+"en": "Al Khad",
+"wilayat": "صــحار",
+"wilayat_en": "Sohar",
+"gov": "شمال الباطنة",
+"lat": 23.854,
+"lon": 56.556
+},
+{
+"name": "خبة النوافل",
+"en": "Khabah Al Nawafal",
+"wilayat": "السـويق",
+"wilayat_en": "As Suwaiq",
+"gov": "شمال الباطنة",
+"lat": 23.809,
+"lon": 57.467
+},
+{
+"name": "فلج العوهي",
+"en": "Falaj Al Auhi",
+"wilayat": "صــحار",
+"wilayat_en": "Sohar",
+"gov": "شمال الباطنة",
+"lat": 24.398,
+"lon": 56.686
+},
+{
+"name": "الـعقر",
+"en": "Al Aqar",
+"wilayat": "شـناص",
+"wilayat_en": "Shinas",
+"gov": "شمال الباطنة",
+"lat": 24.8,
+"lon": 56.425
+},
+{
+"name": "المبرح",
+"en": "Al Mabrah",
+"wilayat": "السـويق",
+"wilayat_en": "As Suwaiq",
+"gov": "شمال الباطنة",
+"lat": 23.659,
+"lon": 57.167
+},
+{
+"name": "خضراء المكاتيم",
+"en": "Khadara Al Makatim",
+"wilayat": "Al Khabourah",
+"wilayat_en": "Al Khabourah",
+"gov": "شمال الباطنة",
+"lat": 23.846,
+"lon": 56.566
+},
+{
+"name": "حفيت",
+"en": "Hafit",
+"wilayat": "صــحم",
+"wilayat_en": "Saham",
+"gov": "شمال الباطنة",
+"lat": 24.038,
+"lon": 56.982
+},
+{
+"name": "ميحة بني كيوم",
+"en": "Mihah Bani Kaywam",
+"wilayat": "Al Khabourah",
+"wilayat_en": "Al Khabourah",
+"gov": "شمال الباطنة",
+"lat": 23.688,
+"lon": 57.074
+},
+{
+"name": "اســود",
+"en": "Asud",
+"wilayat": "شـناص",
+"wilayat_en": "Shinas",
+"gov": "شمال الباطنة",
+"lat": 24.869,
+"lon": 56.32
+},
+{
+"name": "خور الحمام",
+"en": "Khur Al Hamam",
+"wilayat": "صــحم",
+"wilayat_en": "Saham",
+"gov": "شمال الباطنة",
+"lat": 24.151,
+"lon": 56.904
+},
+{
+"name": "رحــب",
+"en": "Rahab",
+"wilayat": "لـوى",
+"wilayat_en": "Liwa",
+"gov": "شمال الباطنة",
+"lat": 24.353,
+"lon": 56.368
+},
+{
+"name": "العقير",
+"en": "Al Aqir",
+"wilayat": "صــحم",
+"wilayat_en": "Saham",
+"gov": "شمال الباطنة",
+"lat": 23.783,
+"lon": 56.638
+},
+{
+"name": "شيده",
+"en": "Shidah",
+"wilayat": "صــحم",
+"wilayat_en": "Saham",
+"gov": "شمال الباطنة",
+"lat": 24.002,
+"lon": 56.654
+},
+{
+"name": "العماني",
+"en": "Al Amani",
+"wilayat": "شـناص",
+"wilayat_en": "Shinas",
+"gov": "شمال الباطنة",
+"lat": 24.746,
+"lon": 56.452
+},
+{
+"name": "الشعيبه",
+"en": "Al Shibah",
+"wilayat": "المضيبي",
+"wilayat_en": "Al Mudhaibi",
+"gov": "شمال الشرقية",
+"lat": 23.766,
+"lon": 57.648
+},
+{
+"name": "قرحة البلوش",
+"en": "Qarahah Al Balush",
+"wilayat": "بـركـاء",
+"wilayat_en": "Barka",
+"gov": "جنوب الباطنة",
+"lat": 23.706,
+"lon": 57.87
+},
+{
+"name": "الرميس الشمالية",
+"en": "Al Ramis North",
+"wilayat": "بـركـاء",
+"wilayat_en": "Barka",
+"gov": "جنوب الباطنة",
+"lat": 22.443,
+"lon": 58.806
+},
+{
+"name": "باب الظفور الغربية",
+"en": "Bab Al Zafur West",
+"wilayat": "نـخـل",
+"wilayat_en": "Nakhal",
+"gov": "جنوب الباطنة",
+"lat": 23.404,
+"lon": 57.817
+},
+{
+"name": "المراغ",
+"en": "Al Maragh",
+"wilayat": "بـركـاء",
+"wilayat_en": "Barka",
+"gov": "جنوب الباطنة",
+"lat": 23.703,
+"lon": 57.902
+},
+{
+"name": "ابو عبالي الساحل",
+"en": "Abu Abali Al Sahal",
+"wilayat": "المضيبي",
+"wilayat_en": "Al Mudhaibi",
+"gov": "شمال الشرقية",
+"lat": 23.77,
+"lon": 57.683
+},
+{
+"name": "حي عاصم الغربية",
+"en": "Hayy Asam West",
+"wilayat": "بـركـاء",
+"wilayat_en": "Barka",
+"gov": "جنوب الباطنة",
+"lat": 23.68,
+"lon": 57.957
+},
+{
+"name": "الأبيض",
+"en": "Al Abid",
+"wilayat": "نـخـل",
+"wilayat_en": "Nakhal",
+"gov": "جنوب الباطنة",
+"lat": 23.482,
+"lon": 57.682
+},
+{
+"name": "محاره",
+"en": "Maharah",
+"wilayat": "المضيبي",
+"wilayat_en": "Al Mudhaibi",
+"gov": "شمال الشرقية",
+"lat": 23.744,
+"lon": 57.707
+},
+{
+"name": "حلة العجم",
+"en": "Halah Al Ajam",
+"wilayat": "بـركـاء",
+"wilayat_en": "Barka",
+"gov": "جنوب الباطنة",
+"lat": 23.704,
+"lon": 57.897
+},
+{
+"name": "الباسط",
+"en": "Al Basat",
+"wilayat": "بـركـاء",
+"wilayat_en": "Barka",
+"gov": "جنوب الباطنة",
+"lat": 23.706,
+"lon": 57.916
+},
+{
+"name": "البلة",
+"en": "Al Balah",
+"wilayat": "بـركـاء",
+"wilayat_en": "Barka",
+"gov": "جنوب الباطنة",
+"lat": 23.713,
+"lon": 57.754
+},
+{
+"name": "القريم",
+"en": "Al Qarim",
+"wilayat": "المضيبي",
+"wilayat_en": "Al Mudhaibi",
+"gov": "شمال الشرقية",
+"lat": 23.784,
+"lon": 57.614
+},
+{
+"name": "الصومحان الجنوبية",
+"en": "Al Sumahan South",
+"wilayat": "بـركـاء",
+"wilayat_en": "Barka",
+"gov": "جنوب الباطنة",
+"lat": 23.655,
+"lon": 57.894
+},
+{
+"name": "ودام الغاف",
+"en": "Wadam Al Ghaf",
+"wilayat": "المضيبي",
+"wilayat_en": "Al Mudhaibi",
+"gov": "شمال الشرقية",
+"lat": 23.768,
+"lon": 57.547
+},
+{
+"name": "الجنينه",
+"en": "Al Janinah",
+"wilayat": "بـركـاء",
+"wilayat_en": "Barka",
+"gov": "جنوب الباطنة",
+"lat": 23.682,
+"lon": 57.873
+},
+{
+"name": "ودام الساحل",
+"en": "Wadam Al Sahal",
+"wilayat": "المضيبي",
+"wilayat_en": "Al Mudhaibi",
+"gov": "شمال الشرقية",
+"lat": 23.809,
+"lon": 57.549
+},
+{
+"name": "العقدة الغربية",
+"en": "Al Aqadah West",
+"wilayat": "بـركـاء",
+"wilayat_en": "Barka",
+"gov": "جنوب الباطنة",
+"lat": 23.699,
+"lon": 57.784
+},
+{
+"name": "السوادي الساحل",
+"en": "Al Sawadi Al Sahal",
+"wilayat": "بـركـاء",
+"wilayat_en": "Barka",
+"gov": "جنوب الباطنة",
+"lat": 23.743,
+"lon": 57.742
+},
+{
+"name": "سوادي الحكمان",
+"en": "Sawadi Al Hakaman",
+"wilayat": "بـركـاء",
+"wilayat_en": "Barka",
+"gov": "جنوب الباطنة",
+"lat": 23.714,
+"lon": 57.848
+},
+{
+"name": "بــوه",
+"en": "Buh",
+"wilayat": "نـخـل",
+"wilayat_en": "Nakhal",
+"gov": "جنوب الباطنة",
+"lat": 23.498,
+"lon": 58.042
+},
+{
+"name": "الجحيله (شرق)",
+"en": "Al Jahilah (East)",
+"wilayat": "بـركـاء",
+"wilayat_en": "Barka",
+"gov": "جنوب الباطنة",
+"lat": 23.714,
+"lon": 57.848
+},
+{
+"name": "الطريف الشمالية",
+"en": "Al Tarif North",
+"wilayat": "المضيبي",
+"wilayat_en": "Al Mudhaibi",
+"gov": "شمال الشرقية",
+"lat": 23.755,
+"lon": 57.626
+},
+{
+"name": "حلـبان",
+"en": "Halaban",
+"wilayat": "نـخـل",
+"wilayat_en": "Nakhal",
+"gov": "جنوب الباطنة",
+"lat": 23.587,
+"lon": 58.027
+},
+{
+"name": "الهرم الجنوبية",
+"en": "Al Haram South",
+"wilayat": "بـركـاء",
+"wilayat_en": "Barka",
+"gov": "جنوب الباطنة",
+"lat": 23.635,
+"lon": 57.914
+},
+{
+"name": "برج آل خميس",
+"en": "Baraj Al Khamis",
+"wilayat": "المضيبي",
+"wilayat_en": "Al Mudhaibi",
+"gov": "شمال الشرقية",
+"lat": 23.762,
+"lon": 57.651
+},
+{
+"name": "المغسر",
+"en": "Al Maghsar",
+"wilayat": "المضيبي",
+"wilayat_en": "Al Mudhaibi",
+"gov": "شمال الشرقية",
+"lat": 23.736,
+"lon": 57.681
+},
+{
+"name": "السفاله",
+"en": "Al Safalah",
+"wilayat": "نـخـل",
+"wilayat_en": "Nakhal",
+"gov": "جنوب الباطنة",
+"lat": 23.396,
+"lon": 57.829
+},
+{
+"name": "المريصي",
+"en": "Al Marisi",
+"wilayat": "بـركـاء",
+"wilayat_en": "Barka",
+"gov": "جنوب الباطنة",
+"lat": 23.714,
+"lon": 57.848
+},
+{
+"name": "الملدة",
+"en": "Al Maladah",
+"wilayat": "المضيبي",
+"wilayat_en": "Al Mudhaibi",
+"gov": "شمال الشرقية",
+"lat": 23.76,
+"lon": 57.555
+},
+{
+"name": "العوابي الغربية",
+"en": "Al Awabi West",
+"wilayat": "العـوابي",
+"wilayat_en": "Al Awabi",
+"gov": "جنوب الباطنة",
+"lat": 23.356,
+"lon": 57.488
+},
+{
+"name": "باب الظفور الشمالية",
+"en": "Bab Al Zafur North",
+"wilayat": "نـخـل",
+"wilayat_en": "Nakhal",
+"gov": "جنوب الباطنة",
+"lat": 23.398,
+"lon": 57.814
+},
+{
+"name": "المريغات",
+"en": "Al Marighat",
+"wilayat": "بـركـاء",
+"wilayat_en": "Barka",
+"gov": "جنوب الباطنة",
+"lat": 23.682,
+"lon": 57.887
+},
+{
+"name": "البديعة",
+"en": "Al Badiah",
+"wilayat": "المضيبي",
+"wilayat_en": "Al Mudhaibi",
+"gov": "شمال الشرقية",
+"lat": 23.777,
+"lon": 57.635
+},
+{
+"name": "الهجار",
+"en": "Al Hajar",
+"wilayat": "العـوابي",
+"wilayat_en": "Al Awabi",
+"gov": "جنوب الباطنة",
+"lat": 23.19,
+"lon": 57.567
+},
+{
+"name": "وادي مستل",
+"en": "Wadi Mastal",
+"wilayat": "نـخـل",
+"wilayat_en": "Nakhal",
+"gov": "جنوب الباطنة",
+"lat": 23.185,
+"lon": 57.759
+},
+{
+"name": "القرط",
+"en": "Al Qarat",
+"wilayat": "المضيبي",
+"wilayat_en": "Al Mudhaibi",
+"gov": "شمال الشرقية",
+"lat": 23.747,
+"lon": 57.633
+},
+{
+"name": "الشرس",
+"en": "Al Sharas",
+"wilayat": "المضيبي",
+"wilayat_en": "Al Mudhaibi",
+"gov": "شمال الشرقية",
+"lat": 23.791,
+"lon": 57.603
+},
+{
+"name": "الرامي",
+"en": "Al Rami",
+"wilayat": "العـوابي",
+"wilayat_en": "Al Awabi",
+"gov": "جنوب الباطنة",
+"lat": 23.302,
+"lon": 57.538
+},
+{
+"name": "المصينعة الغربية",
+"en": "Al Masinah West",
+"wilayat": "المضيبي",
+"wilayat_en": "Al Mudhaibi",
+"gov": "شمال الشرقية",
+"lat": 23.706,
+"lon": 57.918
+},
+{
+"name": "الـطـو",
+"en": "Al Tu",
+"wilayat": "نـخـل",
+"wilayat_en": "Nakhal",
+"gov": "جنوب الباطنة",
+"lat": 23.509,
+"lon": 57.956
+},
+{
+"name": "القريحات",
+"en": "Al Qarihat",
+"wilayat": "المضيبي",
+"wilayat_en": "Al Mudhaibi",
+"gov": "شمال الشرقية",
+"lat": 23.762,
+"lon": 57.603
+},
+{
+"name": "ثقب",
+"en": "Thaqab",
+"wilayat": "العـوابي",
+"wilayat_en": "Al Awabi",
+"gov": "جنوب الباطنة",
+"lat": 23.19,
+"lon": 57.565
+},
+{
+"name": "العقير",
+"en": "Al Aqir",
+"wilayat": "بـركـاء",
+"wilayat_en": "Barka",
+"gov": "جنوب الباطنة",
+"lat": 23.661,
+"lon": 57.837
+},
+{
+"name": "سـتال",
+"en": "Satal",
+"wilayat": "العـوابي",
+"wilayat_en": "Al Awabi",
+"gov": "جنوب الباطنة",
+"lat": 23.21,
+"lon": 57.554
+}
+]
+}

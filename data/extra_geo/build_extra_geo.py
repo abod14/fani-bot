@@ -580,6 +580,124 @@ def _merge_named(primary, extras, coord_sources, fallback):
     return out
 
 
+# ─────────────── مصر: الشياخات (أحياء المدن غير الكبرى) ───────────────
+# مصدرها Open Admin Data (شياخات الأقسام الحضرية فقط — القرى/المراكز الريفية مستبعدة).
+# المشكلة: كثير من الأسماء بالمصدر ملزوقة بدون مسافة («البساتينالشرقية»)، فنفصلها
+# بقاموس كلمات مأخوذ من نفس المصادر (نفصل فقط لما الجزء الثاني كلمة معروفة).
+_EG_SUFFIX = {"الشرقية", "الغربية", "البحرية", "القبلية", "الشمالية", "الجنوبية", "الجديدة", "القديمة",
+              "البلد", "الكبرى", "الصغرى", "الأولى", "الثانية", "الثالثة", "الأول", "الثاني", "السابع",
+              "السادس", "العاشر", "الثامن", "التاسع", "الخامس", "الرابع", "الحمراء", "الأحمر"}
+_EG_PREFIX = {"أبو", "ابو", "ابن", "بن", "عبد", "كفر", "عزبة", "عزبه", "منشية", "منشأة", "ميت", "دار", "سيدي",
+              "سيدى", "بير", "باب", "بين", "شبرا", "نزلة", "جزيرة", "حدائق", "مساكن", "مدينة", "برج", "حي",
+              "رأس", "راس", "وادي", "بئر", "عين", "تل", "ام", "أم"}
+_EG_TOKEN_FIX = {"عينشمس": "عين شمس", "أبوقير": "أبو قير", "أبولهو": "أبو لهو", "معاديالخبيري": "معادي الخبيري",
+                 "معاديالسرايات": "معادي السرايات", "التبينالشعبية": "التبين الشعبية"}
+_EG_ORD = r"(اول|أول|ثان|ثاني|ثالث|رابع|خامس|سادس|سابع|ثامن|تاسع|عاشر)"
+_eg_vocab = None
+
+
+def _eg_words():
+    global _eg_vocab
+    if _eg_vocab is None:
+        v = set(_EG_SUFFIX)
+        names = [x["name"] for x in _src("oad_eg_shiyakha.json")] + [x["name"] for x in _src("oad_eg.json")]
+        names += [a["name_ar"] for a in _src("eg_areas.json")["areas"]]
+        for _, cities in MANUAL["EG"]:
+            for c in cities:
+                names.append(c[0])
+                names += [d[0] for d in c[3]]
+        for n in names:
+            v.update(clean(n).split())
+        _eg_vocab = v
+    return _eg_vocab
+
+
+def _split_glued(w, depth=0):
+    if len(w) < 6 or depth > 3:
+        return w
+    vocab = _eg_words()
+    for i in range(2, len(w) - 2):
+        if w[i:i + 2] != "ال":
+            continue
+        left, right = w[:i], w[i:]
+        rr = _split_glued(right, depth + 1)
+        r0 = rr.split()[0]
+        if left in _EG_PREFIX or (len(left) >= 3 and len(r0) >= 4 and r0 in vocab
+                                  and (left in vocab or right in _EG_SUFFIX or r0 in _EG_SUFFIX)) or (
+                len(left) >= 5 and left.startswith("ال") and left in vocab and len(right) >= 5):
+            return left + " " + rr
+    return w
+
+
+_EG_GLUE_PREFIX = ("رأس", "عين", "وادي", "وادى", "بير", "بئر", "جبل", "منجم", "أبو", "ابو", "سيل", "جزيرة", "قرية",
+                   "الشيخ", "حوض", "نويبع", "طور", "مرسي", "دمنهور")
+_ORD_ONLY = re.compile(r"^(ال)?(اول|أول|اولى|أولى|ثان|ثاني|ثانى|ثانيه|ثانية|ثالث|ثالثه|ثالثة|رابع|رابعه|رابعة|خامس|خامسه|"
+                       r"خامسة|سادس|سادسه|سادسة|سابع|سابعه|سابعة|ثامن|تاسع|عاشر)$")
+
+
+def _split_prefix(w):
+    for p in _EG_GLUE_PREFIX:
+        if w.startswith(p) and len(w) - len(p) >= 3 and not w[len(p):].startswith(" "):
+            rest = w[len(p):]
+            return p + " " + _split_glued(_split_prefix(rest))
+    return w
+
+
+def _split_and(w):
+    i = w.find("وال", 4)
+    if i > 0 and len(w) - i >= 5 and w[i - 2:i] not in ("أب", "اب"):
+        return w[:i] + " و" + _split_and(w[i + 1:])
+    return w
+
+
+def _eg_shiyakha_name(raw: str) -> str | None:
+    n = clean(raw)
+    if "?" in n or "؟" in n:
+        return None
+    n = re.split(r"\s+(وتشمل|و تشمل)\s+", n)[0]
+    n = re.sub(rf"^(شياخة|قسم)\s+({_EG_ORD}\s+)?", "", n)
+    n = re.sub(r"^مدينة\s*(?=ال)", "مدينة ", n)
+    n = " ".join(_EG_TOKEN_FIX.get(t, t) for t in n.split())
+    n = " ".join(_EG_TOKEN_FIX.get(t, _split_glued(t)) for t in n.split())
+    n = " ".join(_split_prefix(t) if len(t) >= 6 else t for t in n.split())
+    n = " ".join(_split_and(t) for t in n.split())
+    n = re.sub(r"\s+", " ", n).strip()
+    n = re.sub(r"^مدينة\s+", "", n)
+    if not n or re.search(r"\d", n) or _ORD_ONLY.match(n.replace(" ", "")) or any(
+            w in n for w in ("الشياخة", "شياخه", "شياخة", "قسم", "مجاورات", "خارج الزمام", "زمام", "خارج الكوردون",
+                             "جزيرة تيران", "جزيرة صنافير")) or n.startswith("منجم") or n in ("الأحياء", "قرية", "مكتب"):
+        return None
+    return n
+
+
+def _km(a, b):
+    return math.hypot((a[0] - b[0]) * 111, (a[1] - b[1]) * 111 * math.cos(math.radians(b[0])))
+
+
+def _eg_city_districts(gov: str, city: str, center=None, max_km=25):
+    """أحياء مدينة مصرية من شياخات أقسامها الحضرية: [(اسم، lat، lon)] أو [] لو أقل من 3."""
+    key = norm(city)
+    rows, seen = [], set()
+    from collections import Counter
+    items = [x for x in _src("oad_eg_shiyakha.json") if norm(x["gov"]) == norm(gov)]
+    counts = Counter((x["lat"], x["lon"]) for x in items)
+    for x in items:
+        q = clean(x["qism"])
+        q = re.sub(rf"^قسم\s+({_EG_ORD}\s+)?", "", q)
+        q = re.sub(r"[-–].*$", "", q).strip()
+        if norm(q) != key:
+            continue
+        n = _eg_shiyakha_name(x["name"])
+        if not n or norm(n) == key or norm(n) in seen:
+            continue
+        seen.add(norm(n))
+        lat, lon = (x["lat"], x["lon"]) if x["lat"] is not None and counts[(x["lat"], x["lon"])] <= 2 else (None, None)
+        if center and lat is not None and _km((lat, lon), center) > max_km:
+            continue   # تجمعات بعيدة بالصحراء (قسم واسع) — مو حي بالمدينة
+        rows.append((n, lat, lon))
+    return rows if len(rows) >= 4 else []
+
+
 # ─────────────── مصر ───────────────
 EG_METROS = {"القاهرة", "الجيزة", "الإسكندرية", "بورسعيد", "السويس"}
 EG_ALIASES = {  # اسم بقائمتي ← نفس المكان بالقائمة المنشورة (حتى ما يتكرر)
@@ -618,6 +736,15 @@ def _egypt():
             extras += [c[0] for c in manual_cities if c is not mc and c[0] not in EG_ALIASES]
             dists = _merge_named([a for a in areas if norm(a) != norm(gov) or gov in ("بورسعيد", "السويس")],
                                  extras, (man_idx, oad_idx), center)
+            if gov in ("بورسعيد", "السويس"):
+                # مدن صغيرة نسبيًا: نضيف شياخاتها (أسماء أحياء معروفة محليًا)
+                have = {norm(d[0]) for d in dists}
+                for q in {re.sub(rf"^قسم\s+({_EG_ORD}\s+)?", "", clean(x["qism"])) for x in _src("oad_eg_shiyakha.json")
+                          if norm(x["gov"]) == norm(gov)}:
+                    for dn, dla, dlo in _eg_city_districts(gov, q, center) or []:
+                        if norm(dn) not in have and norm(dn) != norm(gov):
+                            have.add(norm(dn))
+                            dists.append((dn, dla if dla is not None else center[0], dlo if dlo is not None else center[1]))
             # أماكن تتبع المحافظة إداريًا لكنها بعيدة جدًا عن المدينة (مثل الواحات البحرية
             # بالجيزة، 290 كم) — تصير مدن مستقلة بدل ما تكون "أحياء" بالمدينة
             near, far = [], []
@@ -629,7 +756,12 @@ def _egypt():
         else:
             extras = [c[0] for c in manual_cities if c[0] not in EG_ALIASES]
             cities = _merge_named(areas, extras, (man_idx, oad_idx), gov_center)
-            regions.append((f"محافظة {gov}", [(n, la, lo, []) for n, la, lo in cities]))
+            out_c = []
+            for n, la, lo in cities:
+                ds = [(dn, dla if dla is not None else la, dlo if dlo is not None else lo)
+                      for dn, dla, dlo in _eg_city_districts(gov, n, (la, lo))]
+                out_c.append((n, la, lo, ds))
+            regions.append((f"محافظة {gov}", out_c))
     return regions
 
 
@@ -693,13 +825,38 @@ def _qatar():
         oad_idx.setdefault(norm(n), (x["lat"], x["lon"]))
     man_idx = _manual_index("QA")
     region_name, man_cities = MANUAL["QA"][0]
+
+    def muni_areas(muni, center, km):
+        """مناطق البلدية القريبة من مركز المدينة (نستبعد الروض/المزارع البعيدة بالبر)."""
+        got, seen = [], set()
+        for x in items:
+            if x["parent"] != muni or x["lat"] is None:
+                continue
+            n = re.sub(r"\s+\d+$", "", clean(x["name"]))
+            if any(w in n for w in ("مطار", "ميناء", "جزيرة", "قاعدة", "منطقة الصناعات")) or norm(n) in seen \
+                    or norm(n) == norm(muni.replace("بلدية ", "")):
+                continue
+            d = math.hypot((x["lat"] - center[0]) * 111, (x["lon"] - center[1]) * 111 * math.cos(math.radians(center[0])))
+            if d <= km:
+                seen.add(norm(n))
+                got.append((n, x["lat"], x["lon"]))
+        return got if len(got) >= 4 else []
+
+    QA_MUNI = {  # مدينة ← (بلدية بالمصدر، نصف قطر كم)
+        "الوكرة": ("بلدية الوكرة", 10), "الخور": ("بلدية الخور و الذخيرة", 10), "أم صلال": ("بلدية ام صلال", 10),
+    }
     out = []
     for name, lat, lon, dists in man_cities:
         if name == "الدوحة":
             merged = _merge_named(doha_areas, [d[0] for d in dists], (oad_idx, man_idx), (lat, lon))
             out.append((name, lat, lon, merged))
+        elif name in QA_MUNI:
+            out.append((name, lat, lon, muni_areas(QA_MUNI[name][0], (lat, lon), QA_MUNI[name][1])))
         else:
             out.append((name, lat, lon, []))
+    # مدن كبيرة ما كانت بالقائمة: الريان ولوسيل (الظعاين)
+    out.append(("الريان", 25.2919, 51.4244, muni_areas("بلدية الريان", (25.2919, 51.4244), 12)))
+    out.append(("الظعاين ولوسيل", 25.4300, 51.4900, muni_areas("بلدية الظعاين", (25.4300, 51.4900), 15)))
     return [(region_name, out)]
 
 
@@ -730,8 +887,28 @@ def _oman():
         metro = [c for c in cities if c[3]]
         merged = _merge_named(by_gov.get(gov, []), extra_names, (oad_idx, man_idx), (cities[0][1], cities[0][2]))
         merged = [m for m in merged if all(norm(m[0]) != norm(c[0]) for c in metro)]
-        out.append((region, metro + [(n, la, lo, []) for n, la, lo in merged]))
+        metro = [(n, la, lo, ds + [v for v in _om_villages(("مسقط", "مطرح"), (la, lo)) if norm(v[0]) not in {norm(d[0]) for d in ds}])
+                 if n == "مسقط" else (n, la, lo, ds) for n, la, lo, ds in metro]
+        out.append((region, metro + [(n, la, lo, _om_villages((n,), (la, lo))) for n, la, lo in merged]))
     return out
+
+
+def _om_villages(city_names, center=None, max_km=35):
+    """قرى/أحياء الولاية من Open Admin Data (عُمان) — [(اسم، lat، lon)] أو [] لو أقل من 4."""
+    keys = {norm(c) for c in city_names}
+    rows, seen = [], set()
+    for v in _src("oad_om_villages.json"):
+        w = clean(v["wilayat"])
+        if norm(w) not in keys and norm(OM_EN.get(v["wilayat"], OM_EN.get(v["wilayat_en"], ""))) not in keys:
+            continue
+        n = clean(v["name"])
+        if not n or norm(n) in seen or norm(n) in keys or v["lat"] is None:
+            continue
+        if center and _km((v["lat"], v["lon"]), center) > max_km:
+            continue
+        seen.add(norm(n))
+        rows.append((n, v["lat"], v["lon"]))
+    return rows if len(rows) >= 4 else []
 
 
 # ─────────────── الإمارات ───────────────
