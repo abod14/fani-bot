@@ -391,18 +391,31 @@ def _manual_start(api, wa_id, data):
     return "loc", data
 
 
-def send_numbered(api, wa_id, head: str, names: list[str], tail: str, first_line: str | None = None):
-    """قائمة مرقمة برسالة وحدة (تتقسم لو تعدت حد واتساب) — بدل قوائم بصفحات كل صفحة برد."""
+def send_numbered(api, wa_id, head: str, names: list[str] | None, tail: str, first_line: str | None = None,
+                  groups: list[tuple] | None = None):
+    """قائمة مرقمة برسالة وحدة (تتقسم لو تعدت حد واتساب) — بدل قوائم بصفحات كل صفحة برد.
+    groups=[(عنوان، [أسماء])]: نفس الترقيم المتسلسل لكن تحت عناوين مجموعات."""
+    groups = groups or [(None, names or [])]
     cur = head + "\n"
     if first_line:
         cur += "\n" + first_line
     chunks = []
-    for i, n in enumerate(names, 1):
-        ln = f"{i}. {n}"
-        if len(cur) + len(ln) + 1 > 3900:
+    i = 0
+
+    def add(line):
+        nonlocal cur
+        if len(cur) + len(line) + 1 > 3900:
             chunks.append(cur)
             cur = ""
-        cur += "\n" + ln
+        cur += "\n" + line
+
+    for title, gnames in groups:
+        if title:
+            add("")
+            add(f"*{title}*")
+        for n in gnames:
+            i += 1
+            add(f"{i}. {n}")
     chunks.append(cur + "\n\n" + tail)
     for c in chunks:
         api.text(wa_id, c.strip())
@@ -485,11 +498,17 @@ def _choose_city(api, wa_id, city_id, page, data):
     if not districts:
         data.update(neighborhood=None, district_id=None)
         return _run_search(api, wa_id, data)
-    # ترتيب أبجدي بدون كلمة «حي» عشان العميل يلقى حيّه بسهولة
-    districts.sort(key=lambda d: norm(re.sub(r"^حي\s+", "", d["name"])))
-    data["ndist"] = [d["id"] for d in districts]
-    send_numbered(api, wa_id, f"📍 أحياء {city['name']} 👇", [d["name"] for d in districts],
-                  "✍️ اكتب *رقم* حيّك (أو اسمه).", first_line=f"#. 🌍 كل {city['name']}")
+    from whatsapp_bot import geo_groups
+    groups = geo_groups.ordered_groups(city["id"], city["name"])
+    if len(groups) == 1 and groups[0][0] is None:
+        # مدينة صغيرة: ترتيب أبجدي بدون كلمة «حي» عشان العميل يلقى حيّه بسهولة
+        groups = [(None, sorted(groups[0][1], key=lambda d: norm(re.sub(r"^حي\s+", "", d["name"]))))]
+        head = f"📍 أحياء {city['name']} 👇"
+    else:
+        head = f"📍 أحياء {city['name']} — مقسّمة حسب المنطقة 👇"
+    data["ndist"] = [d["id"] for _, ds in groups for d in ds]
+    send_numbered(api, wa_id, head, None, "✍️ اكتب *رقم* حيّك (أو اسمه).", first_line=f"#. 🌍 كل {city['name']}",
+                  groups=[(t, [d["name"] for d in ds]) for t, ds in groups])
     return "dist", data
 
 

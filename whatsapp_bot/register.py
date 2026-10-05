@@ -288,39 +288,24 @@ MAX_DISTRICTS = 5   # نفس حد تلغرام
 WHOLE_CITY_WORDS = ("#", "＃", "كل المدينة", "المدينة كاملة", "كامل المدينة", "كل المدينه")
 
 
-def _numbered_districts(r) -> list[int]:
-    """كل أحياء المدينة، الأقرب لموقع الفني أول (عشان أحياؤه تطلع فوق)."""
-    ds = db.list_sa_districts_by_city(r["city_id"])
-    lat, lon = r.get("lat"), r.get("lon")
-    if lat is not None:
-        with_c = [d for d in ds if d.get("lat") is not None]
-        no_c = [d for d in ds if d.get("lat") is None]
-        with_c.sort(key=lambda d: db._approx_dist_sq(d["lat"], d["lon"], lat, lon))
-        ds = with_c + no_c
-    return [d["id"] for d in ds]
-
-
 def _ask_districts_numbered(api, wa_id, data):
-    """رسالة وحدة فيها أحياء المدينة مرقمة، والفني يرد بأرقام أحيائه (حتى 5) برسالة وحدة.
-    أوفر بكثير من الضغط حي حي (كل ضغطة = رد من البوت = تكلفة)."""
+    """رسالة وحدة فيها أحياء المدينة مرقمة (المدن الكبيرة: مقسمة مجموعات متقاربة، ومجموعة
+    الفني أول)، والفني يرد بأرقام أحيائه (حتى 5) برسالة وحدة — أوفر من الضغط حي حي."""
+    from whatsapp_bot import geo_groups
     r = data["r"]
-    ids = _numbered_districts(r)
-    r["dlist"] = ids
-    names = {d["id"]: d["name"] for d in db.list_sa_districts_by_city(r["city_id"])}
-    lines = [f"{i}. {names[did]}" for i, did in enumerate(ids, 1)]
-    # خيار المدينة كاملة (للمهن النادرة) أول سطر بالقائمة قبل رقم 1
-    whole = f"\n#. 🌍 كل {r['city']} (المدينة كاملة)" if r.get("wide") else ""
+    lat, lon = r.get("lat"), r.get("lon")
+    groups = geo_groups.ordered_groups(r["city_id"], r["city"], near=(lat, lon) if lat is not None else None)
+    if len(groups) == 1 and groups[0][0] is None and lat is not None:
+        ds = groups[0][1]
+        with_c = sorted((d for d in ds if d.get("lat") is not None),
+                        key=lambda d: db._approx_dist_sq(d["lat"], d["lon"], lat, lon))
+        groups = [(None, with_c + [d for d in ds if d.get("lat") is None])]
+    r["dlist"] = [d["id"] for _, ds in groups for d in ds]
+    whole = f"#. 🌍 كل {r['city']} (المدينة كاملة)" if r.get("wide") else None
     head = (f"📍 أحياء {r['city']} (الأقرب لموقعك أول) 👇\n"
-            f"اكتب *أرقام* الأحياء اللي تشتغل فيها — حتى {MAX_DISTRICTS} أحياء، كل رقم بسطر، مثل:\n1\n4\n9\n{whole}")
-    chunks, cur = [], head
-    for ln in lines:
-        if len(cur) + len(ln) + 1 > 3900:
-            chunks.append(cur)
-            cur = ""
-        cur += "\n" + ln
-    chunks.append(cur + f"\n\n✍️ اكتب أرقام أحيائك (حتى {MAX_DISTRICTS}).")
-    for c in chunks:
-        api.text(wa_id, c.strip())
+            f"اكتب *أرقام* الأحياء اللي تشتغل فيها — حتى {MAX_DISTRICTS} أحياء، كل رقم بسطر، مثل:\n1\n4\n9")
+    _flow().send_numbered(api, wa_id, head, None, f"✍️ اكتب أرقام أحيائك (حتى {MAX_DISTRICTS}).",
+                          first_line=whole, groups=[(t, [d["name"] for d in ds]) for t, ds in groups])
     return "r_dist", data
 
 
