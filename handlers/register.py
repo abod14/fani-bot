@@ -165,7 +165,7 @@ def _region_keyboard(country: str = countries.DEFAULT_COUNTRY, lang: str = "ar")
             row = []
     if row:
         buttons.append(row)
-    if len(countries.enabled_codes()) > 1:
+    if len(countries.enabled_codes("tg")) > 1:
         buttons.append([InlineKeyboardButton(i18n.t("change_country_btn", lang), callback_data=CHANGE_COUNTRY_CB)])
     return InlineKeyboardMarkup(buttons)
 
@@ -175,7 +175,7 @@ def _city_back_cb(ud: dict) -> str | None:
     (الكويت/البحرين/قطر) ما فيه قائمة مناطق نرجع لها، فنرجع لاختيار الدولة."""
     if ud.get("region_count", 2) > 1:
         return BACK_TO_REGIONS_CB
-    return CHANGE_COUNTRY_CB if len(countries.enabled_codes()) > 1 else None
+    return CHANGE_COUNTRY_CB if len(countries.enabled_codes("tg")) > 1 else None
 
 
 def _paginated_keyboard(items: list[dict], page: int, item_cb_prefix: str, page_cb_prefix: str, extra_rows: list = None):
@@ -260,7 +260,7 @@ def _district_keyboard(city_id: int, page: int, selected_ids: set[int], lang: st
         )
     # الكويت/البحرين: البوت يتخطى المنطقة والمدينة ويوصل هنا مباشرة — بدون هالزر الفني
     # ما يقدر يرجع يغيّر دولته لو اختارها بالغلط
-    if len(countries.enabled_codes()) > 1:
+    if len(countries.enabled_codes("tg")) > 1:
         buttons.append([InlineKeyboardButton(i18n.t("change_country_btn", lang), callback_data=CHANGE_COUNTRY_CB)])
 
     return InlineKeyboardMarkup(buttons)
@@ -461,7 +461,7 @@ async def _location_step(context: ContextTypes.DEFAULT_TYPE, lang: str, country:
     ud = context.user_data
     if region_id is None:
         if country is None:
-            enabled = await asyncio.to_thread(countries.enabled_codes)
+            enabled = await asyncio.to_thread(countries.enabled_codes, "tg")
             if len(enabled) != 1:
                 return i18n.t("reg_ask_country_work", lang), _country_keyboard(enabled, lang), COUNTRY
             country = enabled[0]
@@ -528,7 +528,7 @@ async def choose_country(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
     code = query.data.split(":", 1)[1]
-    enabled = await asyncio.to_thread(countries.enabled_codes)
+    enabled = await asyncio.to_thread(countries.enabled_codes, "tg")
     if code not in enabled:
         await query.edit_message_text(i18n.t("reg_ask_country_work", lang), reply_markup=_country_keyboard(enabled, lang))
         return COUNTRY
@@ -679,7 +679,7 @@ async def district_text_search(update: Update, context: ContextTypes.DEFAULT_TYP
                 callback_data=DISTRICTS_DONE_CB,
             )]
         )
-    if len(countries.enabled_codes()) > 1:
+    if len(countries.enabled_codes("tg")) > 1:
         buttons.append([InlineKeyboardButton(i18n.t("change_country_btn", lang), callback_data=CHANGE_COUNTRY_CB)])
 
     await update.message.reply_text(i18n.t("matched_results", lang), reply_markup=InlineKeyboardMarkup(buttons))

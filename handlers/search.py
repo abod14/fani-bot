@@ -109,7 +109,7 @@ def _region_keyboard(country: str = countries.DEFAULT_COUNTRY, lang: str = "ar")
             row = []
     if row:
         buttons.append(row)
-    if len(countries.enabled_codes()) > 1:
+    if len(countries.enabled_codes("tg")) > 1:
         buttons.append([InlineKeyboardButton(i18n.t("change_country_btn", lang), callback_data=CHANGE_COUNTRY_CB)])
     return InlineKeyboardMarkup(buttons)
 
@@ -119,7 +119,7 @@ def _city_back_cb(ud: dict) -> str | None:
     منطقة وحدة بس (ما فيه قائمة مناطق نرجع لها)."""
     if ud.get("region_count", 2) > 1:
         return BACK_TO_REGIONS_CB
-    return CHANGE_COUNTRY_CB if len(countries.enabled_codes()) > 1 else None
+    return CHANGE_COUNTRY_CB if len(countries.enabled_codes("tg")) > 1 else None
 
 
 def _back_row(back_cb: str | None, lang: str) -> list:
@@ -168,7 +168,7 @@ def _city_keyboard(region_id: int, page: int, lang: str, back_cb: str | None = B
 def _change_country_rows(lang: str) -> list:
     """زر «تغيير الدولة» — يظهر تحت قائمة الأحياء أيضًا، لأن بالكويت/البحرين البوت
     يتخطى المنطقة والمدينة ويوصل للأحياء مباشرة، فبدونه العميل يعلق بدولته."""
-    if len(countries.enabled_codes()) > 1:
+    if len(countries.enabled_codes("tg")) > 1:
         return [[InlineKeyboardButton(i18n.t("change_country_btn", lang), callback_data=CHANGE_COUNTRY_CB)]]
     return []
 
@@ -488,7 +488,7 @@ async def skip_subservice(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def _resolve_country(context: ContextTypes.DEFAULT_TYPE, user_id: int) -> str | None:
     """الدولة الحالية للبحث: من نفس الجلسة، أو آخر دولة اختارها المستخدم سابقًا،
     أو تلقائيًا لو فيه دولة وحدة مفعّلة. None = لازم نسأله."""
-    enabled = await asyncio.to_thread(countries.enabled_codes)
+    enabled = await asyncio.to_thread(countries.enabled_codes, "tg")
     for code in (context.user_data.get("country"), await asyncio.to_thread(db.get_user_country, user_id)):
         if code and code in enabled:
             return code
@@ -517,7 +517,7 @@ async def _advance_location(message, context: ContextTypes.DEFAULT_TYPE, user_id
             if country is None:
                 country = await _resolve_country(context, user_id)
             if country is None:
-                enabled = await asyncio.to_thread(countries.enabled_codes)
+                enabled = await asyncio.to_thread(countries.enabled_codes, "tg")
                 return await _render(message, edit, i18n.t("srch_ask_country", lang),
                                      _country_keyboard(enabled, lang), SEARCH_REGION)
             ud["country"] = country
@@ -560,7 +560,7 @@ async def choose_search_country(update: Update, context: ContextTypes.DEFAULT_TY
     query = update.callback_query
     await query.answer()
     code = query.data.split(":", 1)[1]
-    enabled = await asyncio.to_thread(countries.enabled_codes)
+    enabled = await asyncio.to_thread(countries.enabled_codes, "tg")
     if code not in enabled:
         code = None
     else:
@@ -572,7 +572,7 @@ async def search_change_country(update: Update, context: ContextTypes.DEFAULT_TY
     lang = _lang(context)
     query = update.callback_query
     await query.answer()
-    enabled = await asyncio.to_thread(countries.enabled_codes)
+    enabled = await asyncio.to_thread(countries.enabled_codes, "tg")
     await query.edit_message_text(i18n.t("srch_ask_country", lang), reply_markup=_country_keyboard(enabled, lang))
     return SEARCH_REGION
 
@@ -609,7 +609,7 @@ async def receive_early_location(update: Update, context: ContextTypes.DEFAULT_T
     قبل ما يبدأ البحث فعليًا."""
     lang = _lang(context)
     loc = update.message.location
-    enabled = await asyncio.to_thread(countries.enabled_codes)
+    enabled = await asyncio.to_thread(countries.enabled_codes, "tg")
     result = await asyncio.to_thread(
         db.find_nearest_sa_city_and_district_by_coords, loc.latitude, loc.longitude, enabled
     )

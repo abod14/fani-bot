@@ -27,14 +27,27 @@
     </div>
     <br>
     <div class="field">
-      <label>الدول المفتوحة بالبوت (للتسجيل والبحث)</label>
-      {% for c in all_countries %}
-      <label style="font-weight: normal;">
-        <input type="checkbox" name="country_{{ c.code }}" value="1"
-               {{ 'checked' if c.code in enabled_countries }} {{ 'disabled checked' if c.code == 'SA' }}>
-        {{ c.flag }} {{ c.name.ar }}{% if c.code == 'SA' %} (دائمًا مفتوحة){% else %} — الدفع بالنجوم فقط{% endif %}
-      </label>
-      {% endfor %}
+      <label>الدول: وين تكون متاحة، وبأي بوت، وطرق الدفع</label>
+      <table class="country-table">
+        <thead><tr><th>الدولة</th><th>متاح</th><th>واتساب</th><th>تلغرام</th><th>Tap 💳</th><th>نجوم ⭐</th></tr></thead>
+        <tbody>
+        {% for c in all_countries %}
+        <tr>
+          <td>{{ c.flag }} {{ c.name.ar }}</td>
+          <td><input type="checkbox" name="country_{{ c.code }}" value="1"
+                     {{ 'checked' if c.code in enabled_countries }} {{ 'disabled' if c.code == 'SA' }}></td>
+          <td><input type="checkbox" name="wa_{{ c.code }}" value="1" {{ 'checked' if c.code in country_sets.wa_countries }}></td>
+          <td><input type="checkbox" name="tg_{{ c.code }}" value="1" {{ 'checked' if c.code in country_sets.tg_countries }}></td>
+          <td><input type="checkbox" name="tap_{{ c.code }}" value="1" {{ 'checked' if c.code in country_sets.tap_countries }}></td>
+          <td><input type="checkbox" name="stars_{{ c.code }}" value="1" {{ 'checked' if c.code in country_sets.stars_countries }}></td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      <p class="muted">
+        «متاح»: الدولة تطلع للتسجيل والبحث (السعودية دائمًا متاحة). «واتساب / تلغرام»: بأي بوت تطلع.<br>
+        Tap: مدى/فيزا/آبل باي — المبلغ بالريال السعودي حتى لو الدولة غير السعودية. النجوم: داخل تلغرام فقط (بوت واتساب ما فيه دفع حاليًا).
+      </p>
     </div>
     <br>
     <button type="submit">حفظ الإعدادات</button>

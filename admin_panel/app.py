@@ -589,12 +589,30 @@ def settings_page():
         if countries.DEFAULT_COUNTRY not in enabled:
             enabled.insert(0, countries.DEFAULT_COUNTRY)
         db.set_setting("enabled_countries", ",".join(enabled))
+        # لكل دولة: أي بوت تظهر فيه، وأي طرق دفع متاحة لها
+        for key, field in (("wa_countries", "wa"), ("tg_countries", "tg"),
+                           ("tap_countries", "tap"), ("stars_countries", "stars")):
+            db.set_setting(key, ",".join(c for c in countries.ALL_CODES if request.form.get(f"{field}_{c}") == "1"))
+        warn = []
+        for c in enabled:
+            label = countries.name(c, "ar")
+            if request.form.get(f"wa_{c}") != "1" and request.form.get(f"tg_{c}") != "1":
+                warn.append(f"{label}: متاحة لكن ما اخترت لها واتساب ولا تلغرام")
+            if request.form.get(f"tap_{c}") != "1" and request.form.get(f"stars_{c}") != "1":
+                warn.append(f"{label}: ما فيها أي طريقة دفع — فنيينها ما يقدرون يشتركون")
         flash("تم حفظ الإعدادات — تنعكس فورًا على البوت.", "success")
+        for w in warn:
+            flash("⚠️ " + w, "error")
         return redirect(url_for("settings_page"))
 
     current = {key: db.get_setting(key, default) for key, default in SETTINGS_DEFAULTS.items()}
+    sets = {k: countries._codes(k, d) for k, d in (
+        ("enabled_countries", ",".join(countries.ALL_CODES)), ("wa_countries", ",".join(countries.ALL_CODES)),
+        ("tg_countries", ",".join(countries.ALL_CODES)), ("tap_countries", countries.PAYMENT_DEFAULTS["tap_countries"]),
+        ("stars_countries", countries.PAYMENT_DEFAULTS["stars_countries"]))}
     return render_template(
-        "settings.html", settings=current, enabled_countries=countries.enabled_codes(), active_page="settings"
+        "settings.html", settings=current, enabled_countries=countries.enabled_codes(), country_sets=sets,
+        active_page="settings",
     )
 
 

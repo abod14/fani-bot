@@ -56,7 +56,9 @@ def _method_keyboard(sar: int, lang: str, country: str | None = None) -> InlineK
     # Tap بالريال للسعودية فقط — عملاء باقي الدول نجوم تلغرام فقط
     if countries.tap_available(country):
         rows.append([InlineKeyboardButton(i18n.t("donate_tap_btn", lang, sar=sar), callback_data=f"{CB_DONATE_TAP_PREFIX}{sar}")])
-    rows.append([InlineKeyboardButton(i18n.t("donate_stars_btn", lang, stars=stars), callback_data=f"{CB_DONATE_STARS_PREFIX}{sar}")])
+    # النجوم حسب إعداد الدولة — ولو الدولة ما فيها أي طريقة، نخلي النجوم (الدعم اختياري)
+    if countries.stars_available(country) or not rows:
+        rows.append([InlineKeyboardButton(i18n.t("donate_stars_btn", lang, stars=stars), callback_data=f"{CB_DONATE_STARS_PREFIX}{sar}")])
     return InlineKeyboardMarkup(rows)
 
 

@@ -72,10 +72,11 @@ def _subscription_menu_keyboard(sar: float, stars: int, country: str | None = No
             f"💳 الدفع عبر Tap (مدى/فيزا/آبل باي) — {sar:.0f} ريال",
             callback_data=CB_SUBSCRIBE_TAP,
         )])
-    rows.append([InlineKeyboardButton(
-        f"⭐ الدفع عبر Telegram Stars — {stars} نجمة",
-        callback_data=CB_SUBSCRIBE_STARS,
-    )])
+    if countries.stars_available(country):
+        rows.append([InlineKeyboardButton(
+            f"⭐ الدفع عبر Telegram Stars — {stars} نجمة",
+            callback_data=CB_SUBSCRIBE_STARS,
+        )])
     return InlineKeyboardMarkup(rows)
 
 
@@ -102,6 +103,9 @@ async def subscribe_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     sar, stars, days = await asyncio.to_thread(_current_prices)
     country = professional.get("country") or countries.DEFAULT_COUNTRY
     text = f"اختر طريقة الدفع للاشتراك الشهري ({days} يوم):"
+    if not countries.tap_available(country) and not countries.stars_available(country):
+        await target.reply_text("الاشتراك غير متاح في دولتك حاليًا 🙏 تواصل مع الإدارة.")
+        return
     if not countries.tap_available(country):
         lang = await asyncio.to_thread(db.get_user_language, update.effective_user.id)
         text = i18n.t("sub_stars_only_note", lang) + "\n\n" + text
@@ -226,6 +230,9 @@ async def subscribe_via_stars(update: Update, context: ContextTypes.DEFAULT_TYPE
     )
     if not professional:
         await query.edit_message_text("لازم تسجّل كفني أولاً عبر /register.")
+        return
+    if not countries.stars_available(professional.get("country")):
+        await query.edit_message_text("الدفع بالنجوم غير متاح في دولتك حاليًا 🙏 اكتب /subscribe لعرض الطرق المتاحة.")
         return
 
     sar, stars, days = await asyncio.to_thread(_current_prices)

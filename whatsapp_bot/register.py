@@ -223,7 +223,7 @@ def on_location(api, wa_id, data, lat, lon):
     r = data.setdefault("r", {})
     if not r.get("pid"):
         return start(api, wa_id)
-    res = db.find_nearest_sa_city_and_district_by_coords(lat, lon, countries.enabled_codes())
+    res = db.find_nearest_sa_city_and_district_by_coords(lat, lon, countries.enabled_codes("wa"))
     if not res or not res[0]:
         api.text(wa_id, "ما قدرنا نحدد مدينتك من هذا الموقع 😅 جرّب ترسل موقع ثاني.")
         return _ask_location(api, wa_id, data)

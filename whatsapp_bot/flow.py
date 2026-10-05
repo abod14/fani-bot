@@ -371,7 +371,7 @@ def _select_profession(api, wa_id, pid, data):
 
 
 def _on_location(api, wa_id, lat, lon, data):
-    res = db.find_nearest_sa_city_and_district_by_coords(lat, lon, countries.enabled_codes())
+    res = db.find_nearest_sa_city_and_district_by_coords(lat, lon, countries.enabled_codes("wa"))
     if not res or not res[0]:
         api.text(wa_id, "ما قدرنا نحدد مدينتك من الموقع 😅 اختر يدويًا:")
         return _manual_start(api, wa_id, data)
@@ -383,7 +383,7 @@ def _on_location(api, wa_id, lat, lon, data):
 
 
 def _manual_start(api, wa_id, data):
-    enabled = countries.enabled_codes()
+    enabled = countries.enabled_codes("wa")
     if len(enabled) == 1:
         return _choose_country(api, wa_id, enabled[0], 0, data)
     rows = [(f"cty:{c}", countries.label(c, "ar"), None) for c in enabled[:10]]

@@ -70,20 +70,42 @@ def label(code: str, lang: str = "ar") -> str:
     return f"{c['flag']} {name(code, lang)}" if c else code
 
 
-def enabled_codes() -> list[str]:
-    """الدول المفعّلة حاليًا (من الإعدادات)، بنفس ترتيب COUNTRIES. السعودية دائمًا
-    مفعّلة حتى لو أحد مسحها بالخطأ من الإعدادات."""
+# إعدادات كل دولة من لوحة التحكم (جدول settings) — قائمة رموز دول مفصولة بفواصل:
+#   enabled_countries: الدولة متاحة أصلًا (السعودية دائمًا)
+#   wa_countries / tg_countries: تظهر ببوت واتساب / تلغرام
+#   tap_countries / stars_countries: طرق الدفع المتاحة لفنيين وعملاء الدولة
+CHANNEL_SETTING = {"wa": "wa_countries", "tg": "tg_countries"}
+PAYMENT_DEFAULTS = {"tap_countries": DEFAULT_COUNTRY, "stars_countries": ",".join(ALL_CODES)}
+
+
+def _codes(setting: str, default: str) -> set[str]:
     import db  # استيراد متأخر لتفادي استيراد دائري
 
-    raw = db.get_setting("enabled_countries", ",".join(ALL_CODES))
-    chosen = {c.strip().upper() for c in raw.split(",") if c.strip()}
+    raw = db.get_setting(setting, default)
+    return {c.strip().upper() for c in raw.split(",") if c.strip()}
+
+
+def enabled_codes(channel: str | None = None) -> list[str]:
+    """الدول المفعّلة حاليًا (من الإعدادات)، بنفس ترتيب COUNTRIES. السعودية دائمًا
+    مفعّلة حتى لو أحد مسحها بالخطأ من الإعدادات. channel='wa'/'tg': الدول المفتوحة
+    بهذا البوت بالذات (المتاحة + مفعّلة لهذا البرنامج)."""
+    chosen = _codes("enabled_countries", ",".join(ALL_CODES))
     chosen.add(DEFAULT_COUNTRY)
+    if channel in CHANNEL_SETTING:
+        chosen &= _codes(CHANNEL_SETTING[channel], ",".join(ALL_CODES))
+        if not chosen:
+            chosen = {DEFAULT_COUNTRY}   # احتياط: البوت ما يصير بدون أي دولة
     return [code for code in ALL_CODES if code in chosen]
 
 
 def tap_available(code: str | None) -> bool:
-    """Tap (مدى/فيزا بالريال) للسعودية فقط — باقي الدول الدفع بنجوم تلغرام فقط."""
-    return (code or DEFAULT_COUNTRY) == "SA"
+    """Tap (مدى/فيزا/آبل باي — المبلغ بالريال) — حسب إعداد الدولة (الافتراضي: السعودية فقط)."""
+    return (code or DEFAULT_COUNTRY) in _codes("tap_countries", PAYMENT_DEFAULTS["tap_countries"])
+
+
+def stars_available(code: str | None) -> bool:
+    """نجوم تلغرام — حسب إعداد الدولة (الافتراضي: كل الدول)."""
+    return (code or DEFAULT_COUNTRY) in _codes("stars_countries", PAYMENT_DEFAULTS["stars_countries"])
 
 
 def normalize_phone(number: str, country_code: str) -> str | None:
