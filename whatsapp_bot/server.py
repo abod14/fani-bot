@@ -132,6 +132,8 @@ def main():
     missing = [k for k in ("WA_TOKEN", "WA_PHONE_NUMBER_ID", "WA_VERIFY_TOKEN") if not getattr(config, k)]
     if missing:
         log.warning("WhatsApp settings missing in .env: %s", ", ".join(missing))
+    import nudges
+    nudges.start_summary_loop()   # الملخص الشهري لإشعارات الفنيين (يفحص كل ساعة)
     log.info("Fanni WhatsApp bot listening on 127.0.0.1:%s", config.WA_PORT)
     app.run(host="127.0.0.1", port=config.WA_PORT, threaded=True)
 

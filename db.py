@@ -535,6 +535,12 @@ def init_db():
             """
         )
         conn.execute("CREATE INDEX IF NOT EXISTS idx_notify_prof ON notify_log (professional_id, sent_at)")
+        # كل بحث كان سيظهر فيه الفني لولا انتهاء فرصه — للملخص الشهري («بحث عنك X عميل هذا الشهر»)
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS missed_searches (id INTEGER PRIMARY KEY AUTOINCREMENT, "
+            "professional_id INTEGER NOT NULL, searched_at TEXT NOT NULL)"
+        )
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_missed_prof ON missed_searches (professional_id, searched_at)")
 
         conn.execute(
             """
@@ -2584,5 +2590,32 @@ def admin_nudges_expired(days: int = 365, country: str | None = None) -> list[di
             "WHERE is_subscribed = 0 AND nudge_first_at IS NOT NULL AND nudge_first_at < ? "
             "AND (? IS NULL OR country = ?) ORDER BY nudge_first_at LIMIT 100",
             (cutoff, country, country),
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+
+def record_missed_searches(professional_ids: list[int]):
+    if not professional_ids:
+        return
+    now = _now_iso()
+    with get_conn() as conn:
+        conn.executemany("INSERT INTO missed_searches (professional_id, searched_at) VALUES (?, ?)",
+                         [(pid, now) for pid in professional_ids])
+
+
+def count_missed_searches(professional_id: int, since_iso: str, until_iso: str) -> int:
+    with get_conn() as conn:
+        return conn.execute(
+            "SELECT COUNT(*) FROM missed_searches WHERE professional_id = ? AND searched_at >= ? AND searched_at < ?",
+            (professional_id, since_iso, until_iso),
+        ).fetchone()[0]
+
+
+def summary_candidates() -> list[dict]:
+    """فنيين غير مشتركين بدأت عندهم دورة إشعارات واتساب — نفحصهم للملخص الشهري."""
+    with get_conn() as conn:
+        rows = conn.execute(
+            "SELECT * FROM professionals WHERE is_subscribed = 0 AND status = ? AND nudge_first_at IS NOT NULL "
+            "AND wa_notify_off = 0", (STATUS_ACTIVE,),
         ).fetchall()
         return [dict(r) for r in rows]

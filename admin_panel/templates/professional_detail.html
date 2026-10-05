@@ -99,12 +99,12 @@
         <input type="hidden" name="channel" value="whatsapp"><button type="submit" class="secondary">تفعيل</button></form>
     {% elif notif_stopped.stopped %}<span class="badge rejected">توقفت تلقائيًا (مرت سنة)</span>
     {% else %}<span class="badge active">مفعّلة</span>
-      {% if p.nudge_first_at %}<span class="muted">— الشهر {{ notif_stopped.month + 1 }} من 12 ({{ 3 if notif_stopped.month == 0 else 1 }} إشعار بالشهر)</span>{% endif %}
+      {% if p.nudge_first_at %}<span class="muted">— الشهر {{ notif_stopped.month + 1 }} من 12 ({{ 'إشعارات لحظية، 3 بالكثير' if notif_stopped.month == 0 else 'ملخص شهري واحد' }})</span>{% endif %}
     {% endif %}
   </p>
   {% if p.nudge_first_at %}
   <form method="post" action="{{ url_for('professional_nudges_restart', professional_id=p.id) }}"
-        onsubmit="return confirm('نعيد إشعارات واتساب من البداية؟ (3 بالشهر الأول ثم 1 بالشهر لسنة)');" style="margin-bottom:8px">
+        onsubmit="return confirm('نعيد إشعارات واتساب من البداية؟ (3 إشعارات بالشهر الأول ثم ملخص شهري لسنة)');" style="margin-bottom:8px">
     <button type="submit" class="secondary">🔄 إعادة تشغيل إشعارات واتساب من البداية</button>
   </form>
   {% endif %}

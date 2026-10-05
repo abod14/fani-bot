@@ -25,7 +25,25 @@ def _tpl(name, category, text, example):
                            {"type": "BUTTONS", "buttons": BTN}]}
 
 
+DETAILS_BTN = [{"type": "QUICK_REPLY", "text": "التفاصيل"}]
+
+
+def _tpl_details(name, text, example):
+    return {"name": name, "language": "ar", "category": "UTILITY",
+            "components": [{"type": "BODY", "text": text, "example": {"body_text": [example]}},
+                           {"type": "BUTTONS", "buttons": DETAILS_BTN}]}
+
+
 TEMPLATES = [
+    # كشف حساب بحت بلا ذكر للاشتراك + زر «التفاصيل» فقط — أقرب لتصنيف «خدمة»
+    _tpl_details("fanni_account_update",
+                 "تحديث حسابك في «فنّي» يا {{1}}: رصيد فرص التواصل المجانية في حسابك انتهى، "
+                 "وظهور رقمك في نتائج البحث متوقف حاليًا.",
+                 ["عبدالله"]),
+    _tpl_details("fanni_monthly_summary",
+                 "ملخص حسابك الشهري في «فنّي»: عدد العملاء الذين بحثوا عن «{{1}}» في منطقتك خلال الشهر الماضي "
+                 "ولم يظهر لهم رقمك: {{2}}.",
+                 ["سباك", "7"]),
     # النسخة الإخبارية (تنبيه حساب) — أرخص لو ميتا قبلتها «خدمة»
     _tpl("fanni_account_alert", "UTILITY",
          "تنبيه حسابك في «فنّي»: يا {{1}}، انتهت فرصك المجانية للتواصل مع العملاء، وظهور رقمك بنتائج البحث متوقف حاليًا.",

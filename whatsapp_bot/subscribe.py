@@ -84,3 +84,21 @@ def check_pending(api, wa_id, p) -> bool:
 
 def not_paid_yet(api, wa_id):
     api.text(wa_id, "لم يصلنا تأكيد الدفع بعد ⏳ إذا كنت قد دفعت فعلًا، فانتظر دقيقة ثم اكتب «دفعت» مرة أخرى.")
+
+
+def details(api, wa_id, p):
+    """زر «التفاصيل» بقوالب «خدمة»: حالة الحساب + خيار الاشتراك + إيقاف الإشعارات."""
+    db.mark_notifications_responded(p["id"])
+    limit = int(db.get_setting("free_contacts_limit", str(db.FREE_CONTACTS_LIMIT))) + (p.get("bonus_contacts") or 0)
+    used = p.get("free_contacts_used") or 0
+    if p.get("is_subscribed"):
+        line = f"✅ اشتراكك فعّال حتى {_date(p.get('subscription_expires_at'))}، ورقمك يظهر لجميع العملاء."
+        buttons = [("m:search", "🔍 ابحث عن فني")]
+    else:
+        sar, days = _prices()
+        line = (f"📊 فرص التواصل المجانية: استُخدمت {used} من {limit}."
+                + ("\n⚠️ رقمك لا يظهر حاليًا في نتائج البحث." if used >= limit else "")
+                + f"\n\n💳 الاشتراك الشهري ({days} يومًا) بـ {sar:.0f} ريال يُظهر رقمك لجميع العملاء دون حد.")
+        buttons = [("R:sub", "💳 اشترك الآن"), ("R:mute", "🔕 إيقاف الإشعارات")]
+    api.buttons(wa_id, f"حسابك في «فنّي» 👷 {p.get('full_name', '')}\n🛠️ {p.get('profession_name', '')}\n\n{line}", buttons)
+    return "menu", {}

@@ -479,6 +479,12 @@ def on_choice(api, wa_id, rid, state, data):
     p = rid.split(":")[1:]
     act = p[0] if p else ""
     r = data.setdefault("r", {})
+    if act == "details":
+        p = db.get_professional_for_wa(wa_id)
+        if not p:
+            return start(api, wa_id)
+        from whatsapp_bot import subscribe
+        return subscribe.details(api, wa_id, p)
     if act == "mute":
         p = db.get_professional_for_wa(wa_id)
         if p:

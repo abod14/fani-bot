@@ -6,8 +6,9 @@
 # واتساب (رسائل قوالب مدفوعة) — لكل فني عنده رقم واتساب (حتى لو عنده تلغرام، لأن قليل يفتح
 # تلغرام)، وما أوقفها:
 #   • لحظة ما تخلص الفرص: إشعار واحد.
-#   • «فيه عميل يدوّر عليك»: 3 بالشهر الأول (من أول إشعار)، بعدها 1 بالشهر، لين سنة ثم يوقف.
-#     الأدمن يقدر يعيد التشغيل من لوحة التحكم.
+#   • «فيه عميل يدوّر عليك»: لحظيًا بالشهر الأول (3 بالكثير، من أول إشعار).
+#   • من الشهر الثاني لين السنة: ملخص شهري واحد «X عميل بحثوا عن خدمتك ولم يظهر رقمك» (قالب
+#     «خدمة» — أرخص)، ويُرسل فقط لو فيه بحث فعلًا. بعد سنة يوقف، والأدمن يقدر يعيد التشغيل.
 #   • لو الفني راسل البوت آخر 24 ساعة: رسالة عادية مجانية بدل القالب.
 # كل إشعار ينسجل بـ notify_log، وأي تفاعل من الفني يعلّمها «مستجابة».
 
@@ -29,6 +30,9 @@ WA_MONTH = timedelta(days=30)
 WA_MAX_DAYS = 365
 WA_FREE_WINDOW = timedelta(hours=23)     # نافذة واتساب المجانية 24 ساعة (نترك هامش ساعة)
 SUB_PAYLOAD = "R:sub"                    # زر «اشترك الآن» بواتساب
+DETAILS_PAYLOAD = "R:details"            # زر «التفاصيل» بقوالب «خدمة» (بلا ذكر للاشتراك)
+# أزرار كل قالب (لازم تطابق القالب المسجّل عند ميتا بالعدد والترتيب)
+TEMPLATE_BUTTONS = {"fanni_account_update": [DETAILS_PAYLOAD], "fanni_monthly_summary": [DETAILS_PAYLOAD]}
 MUTE_PAYLOAD = "R:mute"                  # زر «إيقاف الإشعارات» بواتساب
 TG_MUTE_CB = "ntf_off"                   # زر «إيقاف الإشعارات» بتلغرام
 
@@ -113,7 +117,8 @@ def _send_wa(p, free_text: str, template: str, params: list[str]) -> tuple[bool,
         return bool(r is not None and getattr(r, "status_code", 500) < 400), False
     # نجرّب القوالب بالترتيب (الأرخص «خدمة» أول) — المرفوض/قيد المراجعة يرجع خطأ مجاني
     for name in ([template] if isinstance(template, str) else template):
-        r = api.template(to, name.strip(), params, button_payloads=[SUB_PAYLOAD, MUTE_PAYLOAD])
+        name = name.strip()
+        r = api.template(to, name, params, button_payloads=TEMPLATE_BUTTONS.get(name, [SUB_PAYLOAD, MUTE_PAYLOAD]))
         if r is not None and getattr(r, "status_code", 500) < 400:
             return True, True
     return False, True
@@ -167,10 +172,11 @@ def wa_schedule_state(p) -> dict:
     if age > timedelta(days=WA_MAX_DAYS):
         return {"allowed": False, "month": age // WA_MONTH, "stopped": True}
     month = age // WA_MONTH
-    window_start = first + month * WA_MONTH
-    sent = db.count_wa_notifications_since(p["id"], window_start.isoformat(), "missed")
-    cap = WA_FIRST_MONTH_MAX if month == 0 else WA_LATER_MONTH_MAX
-    return {"allowed": sent < cap, "month": month, "stopped": False}
+    if month >= 1:
+        # بعد الشهر الأول: ما فيه إشعار لحظي — يوصله ملخص شهري بدلها (run_monthly_summaries)
+        return {"allowed": False, "month": month, "stopped": False}
+    sent = db.count_wa_notifications_since(p["id"], first.isoformat(), "missed")
+    return {"allowed": sent < WA_FIRST_MONTH_MAX, "month": month, "stopped": False}
 
 
 def notify_missed(profession_id, profession_name, city, neighborhood, district_id, city_id):
@@ -201,10 +207,64 @@ def notify_missed(profession_id, profession_name, city, neighborhood, district_i
             log.exception("nudge failed for %s", p.get("id"))
     if missed:
         db.mark_search_nudge_sent([p["id"] for p in missed])
+        db.record_missed_searches([p["id"] for p in missed])
 
 
 def notify_missed_async(*args):
     threading.Thread(target=notify_missed, args=args, daemon=True).start()
+
+
+# ─────────────────────────── الملخص الشهري (من الشهر الثاني لين سنة) ───────────────────────────
+
+def run_monthly_summaries() -> int:
+    """يُستدعى كل ساعة من خادم واتساب. لكل فني بدأت دورته: لو كمل شهر جديد ولسه ما وصله
+    ملخص هذا الشهر، وفيه عملاء بحثوا عنه بالشهر اللي فات → ملخص واحد. يرجّع عدد المرسَل."""
+    sent_n = 0
+    now = _now()
+    for p in db.summary_candidates():
+        try:
+            if not _wa_ok(p):
+                continue
+            first = _parse(p.get("nudge_first_at"))
+            if not first:
+                continue
+            age = now - first
+            if age > timedelta(days=WA_MAX_DAYS) or age < WA_MONTH:
+                continue
+            month = age // WA_MONTH
+            this_start = first + month * WA_MONTH
+            if db.count_wa_notifications_since(p["id"], this_start.isoformat(), "summary"):
+                continue      # وصله ملخص هذا الشهر
+            prev_start = first + (month - 1) * WA_MONTH
+            count = db.count_missed_searches(p["id"], prev_start.isoformat(), this_start.isoformat())
+            if count <= 0:
+                continue      # ما أحد بحث عنه — ما نرسل شي (توفير)
+            prof = p.get("profession_name") or "خدمتك"
+            ok, paid = _send_wa(
+                p,
+                f"📊 ملخص حسابك الشهري في «فنّي»: عدد العملاء الذين بحثوا عن «{prof}» في منطقتك "
+                f"خلال الشهر الماضي ولم يظهر لهم رقمك: {count}.\n\nلتظهر لهم، جدّد اشتراكك 👇",
+                config.WA_TPL_MONTHLY_SUMMARY, [prof, str(count)],
+            )
+            db.log_notification(p["id"], "summary", "whatsapp", paid, ok)
+            sent_n += int(ok)
+        except Exception:  # noqa: BLE001
+            log.exception("summary failed for %s", p.get("id"))
+    return sent_n
+
+
+def start_summary_loop(interval_seconds: int = 3600):
+    def loop():
+        import time
+        while True:
+            try:
+                n = run_monthly_summaries()
+                if n:
+                    log.info("monthly summaries sent: %s", n)
+            except Exception:  # noqa: BLE001
+                log.exception("summary loop error")
+            time.sleep(interval_seconds)
+    threading.Thread(target=loop, daemon=True, name="monthly-summaries").start()
 
 
 # ─────────────────────────── يدوي من لوحة التحكم ───────────────────────────

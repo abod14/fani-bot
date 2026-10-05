@@ -422,7 +422,7 @@ def professional_nudges_restart(professional_id):
     if not p:
         return redirect(url_for("professionals_list"))
     db.restart_wa_nudges(p["id"])
-    flash("تم إعادة تشغيل إشعارات واتساب من البداية (3 بالشهر الأول، ثم 1 بالشهر لمدة سنة) ✅", "success")
+    flash("تم إعادة تشغيل إشعارات واتساب من البداية (3 إشعارات بالشهر الأول، ثم ملخص شهري لمدة سنة) ✅", "success")
     return redirect(request.referrer or url_for("professional_detail", professional_id=p["id"]))
 
 
