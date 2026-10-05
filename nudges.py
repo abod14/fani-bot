@@ -244,7 +244,7 @@ def run_monthly_summaries() -> int:
                 p,
                 f"📊 ملخص حسابك الشهري في «فنّي»: عدد العملاء الذين بحثوا عن «{prof}» في منطقتك "
                 f"خلال الشهر الماضي ولم يظهر لهم رقمك: {count}.\n\nلتظهر لهم، جدّد اشتراكك 👇",
-                config.WA_TPL_MONTHLY_SUMMARY, [prof, str(count)],
+                config.WA_TPL_MONTHLY_SUMMARY, [str(count), prof],
             )
             db.log_notification(p["id"], "summary", "whatsapp", paid, ok)
             sent_n += int(ok)
