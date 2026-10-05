@@ -48,10 +48,10 @@ def _status(api, wa_id, p):
     line = "✅ مشترك — تظهر لكل العملاء بدون حد" if p.get("is_subscribed") else \
         f"📊 فرص التواصل المجانية: استخدمت {p.get('free_contacts_used', 0)} من {limit}"
     if not p.get("is_subscribed") and (p.get("free_contacts_used") or 0) >= limit:
-        linked = (p.get("telegram_user_id") or 0) > 0
-        line += ("\n\n⚠️ خلصت فرصك المجانية — رقمك ما يظهر للعملاء حاليًا. الاشتراك عن طريق بوت «فنّي» بتلغرام: "
-                 + ("اكتب هناك /subscribe." if linked else "اربط حسابك من الزر تحت واشترك من هناك."))
+        line += "\n\n⚠️ خلصت فرصك المجانية — رقمك ما يظهر للعملاء حاليًا. اضغط «💳 اشترك» تحت عشان ترجع تظهر."
     buttons = [("m:search", "🔍 ابحث عن فني")]
+    if not p.get("is_subscribed"):
+        buttons.insert(0, ("R:sub", "💳 اشترك"))
     if not (p.get("telegram_user_id") or 0) > 0:
         buttons.insert(0, ("R:tg:yes", "🔗 اربط بتلغرام"))
     api.buttons(wa_id, f"أنت مسجّل في «فنّي» 👌\n\n{_professional_card_text(p)}\n\n{line}", buttons)
@@ -476,6 +476,12 @@ def on_choice(api, wa_id, rid, state, data):
     p = rid.split(":")[1:]
     act = p[0] if p else ""
     r = data.setdefault("r", {})
+    if act == "sub":
+        p = db.get_professional_by_wa_id(wa_id)
+        if not p:
+            return start(api, wa_id)
+        from whatsapp_bot import subscribe
+        return subscribe.start(api, wa_id, p)
     if act == "tg":
         if p[1] == "yes":
             return _telegram_link(api, wa_id, data)

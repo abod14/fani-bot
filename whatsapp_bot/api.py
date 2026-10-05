@@ -109,6 +109,18 @@ class WhatsAppAPI:
             "action": {"name": "send_location"},
         }})
 
+    def template(self, to: str, name: str, body_params: "list[str]", button_payload: str | None = None,
+                 lang: str = "ar"):
+        """رسالة قالب (مدفوعة) — الطريقة الوحيدة نبدأ فيها محادثة مع شخص ما راسلنا آخر 24 ساعة."""
+        components = []
+        if body_params:
+            components.append({"type": "body", "parameters": [{"type": "text", "text": clip(p, 60)} for p in body_params]})
+        if button_payload:
+            components.append({"type": "button", "sub_type": "quick_reply", "index": "0",
+                               "parameters": [{"type": "payload", "payload": button_payload}]})
+        return self._send(to, {"type": "template", "template": {
+            "name": name, "language": {"code": lang}, "components": components}})
+
     def cta_url(self, to: str, body: str, display_text: str, url: str, footer: str | None = None):
         inter = {
             "type": "cta_url",

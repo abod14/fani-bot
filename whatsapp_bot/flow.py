@@ -155,6 +155,24 @@ def handle(api, wa_id: str, name: str, msg: dict):
 
 def _dispatch(api, wa_id, name, msg, state, data):
     mtype = msg.get("type")
+    # فني مسجّل من واتساب: أي رسالة منه = تفاعل مع الإشعارات، ونتحقق لو عنده دفع اشتراك معلّق
+    pro = db.get_professional_by_wa_id(wa_id)
+    if pro:
+        db.mark_notifications_responded(pro["id"])
+        from whatsapp_bot import subscribe
+        if subscribe.check_pending(api, wa_id, pro):
+            return "menu", {}
+        if mtype == "text" and norm((msg.get("text") or {}).get("body", "")) in {norm(w) for w in subscribe.PAID_WORDS}:
+            if db.get_latest_pending_payment(pro["id"], "tap"):
+                subscribe.not_paid_yet(api, wa_id)
+                return state, data
+    if mtype == "button":
+        # زر «رد سريع» من رسالة قالب (مثل «💳 اشترك الآن» بإشعار خلصت فرصك)
+        payload = (msg.get("button") or {}).get("payload", "")
+        if payload.startswith("R:"):
+            from whatsapp_bot import register
+            return register.on_choice(api, wa_id, payload, state, data)
+        return _welcome(api, wa_id, name)
     if mtype == "interactive":
         inter = msg.get("interactive", {})
         kind = inter.get("type")
@@ -686,48 +704,11 @@ def _contact(api, wa_id, pid, call_only, state, data):
     return state or "results", data
 
 
-# ─────────────────────────── تنبيه «فوّتّ عميل» للفنيين (على تلغرام، مجاني) ───────────────────────────
+# ─────────────────────────── تنبيه «فيه عميل يدوّر عليك» للفنيين المخفيين ───────────────────────────
 
 def _notify_missed_async(data: dict):
-    threading.Thread(target=_notify_missed, args=(data,), daemon=True).start()
+    """المنطق كله بـ nudges.py (تلغرام مجاني بدون حد، واتساب قوالب بحدود الدورة)."""
+    import nudges
 
-
-def _notify_missed(data: dict):
-    try:
-        missed = db.find_subscription_missed_professionals(
-            data["pid"], data["city"], data.get("neighborhood"), data.get("district_id"), data.get("city_id")
-        )
-        if not missed:
-            return
-        import asyncio
-
-        from telegram import Bot, InlineKeyboardButton, InlineKeyboardMarkup
-
-        import config
-        from handlers.subscription import CB_SUBSCRIBE_MENU
-
-        suffix = f" — {data['neighborhood']}" if data.get("neighborhood") else ""
-
-        async def _send():
-            sent = []
-            async with Bot(config.BOT_TOKEN) as bot:
-                for p in missed:
-                    lang = db.get_user_language(p["telegram_user_id"])
-                    try:
-                        await bot.send_message(
-                            chat_id=p["telegram_user_id"],
-                            text=i18n.t("srch_missed_nudge", lang, profession=data["pname"], city=data["city"],
-                                        district_suffix=suffix),
-                            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton(
-                                i18n.t("srch_missed_nudge_subscribe_btn", lang), callback_data=CB_SUBSCRIBE_MENU)]]),
-                        )
-                        sent.append(p["id"])
-                    except Exception:
-                        pass
-            return sent
-
-        sent = asyncio.run(_send())
-        db.mark_search_nudge_sent(sent)
-    except Exception:
-        import logging
-        logging.getLogger("fani.wa").exception("missed nudge failed")
+    nudges.notify_missed_async(data["pid"], data["pname"], data["city"], data.get("neighborhood"),
+                               data.get("district_id"), data.get("city_id"))

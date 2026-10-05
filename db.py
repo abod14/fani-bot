@@ -193,6 +193,11 @@ def init_db():
             conn.execute(
                 "ALTER TABLE professionals ADD COLUMN has_whatsapp INTEGER NOT NULL DEFAULT 1"
             )
+        for col, ddl in (("wa_nudge_cycle_start", "TEXT"), ("wa_nudge_cycle_count", "INTEGER NOT NULL DEFAULT 0"),
+                         ("nudge_first_at", "TEXT")):
+            if col not in existing_columns:
+                # دورة إشعارات واتساب (المدفوعة): 5 بالشهر، وتوقف تلقائيًا بعد سنة من أول إشعار
+                conn.execute(f"ALTER TABLE professionals ADD COLUMN {col} {ddl}")
         if "last_search_nudge_at" not in existing_columns:
             # تُستخدم لتنبيه الفني: "فيه عميل بحث عنك لكن ما ظهرت لأنك خلّصت فرصك
             # المجانية" — بحد أقصى مرة كل عدة ساعات حتى ما نزعجه بإشعارات متكررة.
@@ -510,6 +515,24 @@ def init_db():
         conn.execute("CREATE INDEX IF NOT EXISTS idx_search_terms_norm ON search_terms (term_norm, created_at)")
         conn.execute("CREATE TABLE IF NOT EXISTS search_terms_ignored (term_norm TEXT PRIMARY KEY)")
 
+        # سجل إشعارات الفنيين (خلصت فرصك / فيه عميل يدوّر عليك / يدوي من اللوحة) — عشان نعرف
+        # كم وصله ولا استجاب (ما ضغط اشتراك ولا راسل البوت بعدها).
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS notify_log (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                professional_id INTEGER NOT NULL,
+                kind TEXT NOT NULL,
+                channel TEXT NOT NULL,
+                paid INTEGER NOT NULL DEFAULT 0,
+                ok INTEGER NOT NULL DEFAULT 1,
+                sent_at TEXT NOT NULL,
+                responded_at TEXT
+            )
+            """
+        )
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_notify_prof ON notify_log (professional_id, sent_at)")
+
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS activity_minutes (
@@ -826,19 +849,16 @@ def find_subscription_missed_professionals(
     free_limit = int(get_setting("free_contacts_limit", str(FREE_CONTACTS_LIMIT)))
     with get_conn() as conn:
         city_sql, city_params = _city_condition(conn, city, city_id)
+        # بدون حد زمني (طلب المالك: تلغرام كل ما بحث عنه أحد). حدود واتساب (المدفوع) تنطبق
+        # بموديول nudges.py — هنا نرجع كل الفنيين المخفيين بسبب انتهاء فرصهم.
         where = [
             "status = ?",
             "(profession_id = ? OR profession2_id = ?)",
             city_sql,
             "is_subscribed = 0",
             "free_contacts_used >= ? + bonus_contacts",
-            "(last_search_nudge_at IS NULL OR last_search_nudge_at < ?)",
-            "telegram_user_id > 0",   # فني واتساب غير مربوط بتلغرام: ما عندنا طريقة مجانية ننبهه
         ]
-        cooldown_cutoff = (
-            datetime.now(timezone.utc) - timedelta(hours=NUDGE_COOLDOWN_HOURS)
-        ).isoformat()
-        params = [STATUS_ACTIVE, profession_id, profession_id, *city_params, free_limit, cooldown_cutoff]
+        params = [STATUS_ACTIVE, profession_id, profession_id, *city_params, free_limit]
 
         if district_id:
             district_ids = [district_id] if isinstance(district_id, int) else list(district_id)
@@ -970,7 +990,19 @@ def activate_subscription(professional_id: int, days: int) -> str:
             "UPDATE professionals SET is_subscribed = 1, subscription_expires_at = ? WHERE id = ?",
             (expires, professional_id),
         )
+    mark_notifications_responded(professional_id)
     return expires
+
+
+def get_latest_pending_payment(professional_id: int, method: str, max_age_hours: int = 6):
+    since = (datetime.now(timezone.utc) - timedelta(hours=max_age_hours)).isoformat()
+    with get_conn() as conn:
+        row = conn.execute(
+            "SELECT * FROM subscription_payments WHERE professional_id = ? AND method = ? AND status = 'pending' "
+            "AND external_id IS NOT NULL AND created_at >= ? ORDER BY id DESC LIMIT 1",
+            (professional_id, method, since),
+        ).fetchone()
+        return dict(row) if row else None
 
 
 def find_expired_subscriptions():
@@ -2433,3 +2465,57 @@ def get_search_terms(days: int = 30, min_count: int = 2) -> list[dict]:
 def ignore_search_term(term_norm: str):
     with get_conn() as conn:
         conn.execute("INSERT OR IGNORE INTO search_terms_ignored (term_norm) VALUES (?)", (term_norm,))
+
+
+# ─────────────────────────── سجل إشعارات الفنيين ───────────────────────────
+
+def log_notification(professional_id: int, kind: str, channel: str, paid: bool, ok: bool):
+    with get_conn() as conn:
+        conn.execute(
+            "INSERT INTO notify_log (professional_id, kind, channel, paid, ok, sent_at) VALUES (?, ?, ?, ?, ?, ?)",
+            (professional_id, kind, channel, int(paid), int(ok), _now_iso()),
+        )
+
+
+def mark_notifications_responded(professional_id: int):
+    """الفني تفاعل (ضغط اشتراك، راسل البوت، أو اشترك) — كل الإشعارات اللي قبلها انحسبت مستجابة."""
+    with get_conn() as conn:
+        conn.execute(
+            "UPDATE notify_log SET responded_at = ? WHERE professional_id = ? AND responded_at IS NULL",
+            (_now_iso(), professional_id),
+        )
+
+
+def notification_summary(professional_id: int) -> dict:
+    with get_conn() as conn:
+        r = conn.execute(
+            """
+            SELECT COUNT(*) AS total,
+                   SUM(CASE WHEN responded_at IS NULL AND ok = 1 THEN 1 ELSE 0 END) AS unanswered,
+                   SUM(paid) AS paid,
+                   MAX(sent_at) AS last_sent,
+                   MAX(responded_at) AS last_response
+            FROM notify_log WHERE professional_id = ?
+            """,
+            (professional_id,),
+        ).fetchone()
+        return {k: (r[k] or 0) if k in ("total", "unanswered", "paid") else r[k] for k in r.keys()}
+
+
+def admin_unresponsive_professionals(min_unanswered: int = 3, country: str | None = None) -> list[dict]:
+    """فنيين وصلتهم إشعارات وما استجابوا — للوحة التحكم."""
+    with get_conn() as conn:
+        rows = conn.execute(
+            """
+            SELECT p.id, p.full_name, p.profession_name, p.city, p.country, p.wa_id, p.telegram_user_id,
+                   p.nudge_first_at,
+                   SUM(CASE WHEN n.responded_at IS NULL AND n.ok = 1 THEN 1 ELSE 0 END) AS unanswered,
+                   COUNT(n.id) AS total, SUM(n.paid) AS paid, MAX(n.sent_at) AS last_sent
+            FROM notify_log n JOIN professionals p ON p.id = n.professional_id
+            WHERE p.is_subscribed = 0 AND (? IS NULL OR p.country = ?)
+            GROUP BY p.id HAVING unanswered >= ?
+            ORDER BY unanswered DESC, last_sent DESC LIMIT 100
+            """,
+            (country, country, min_unanswered),
+        ).fetchall()
+        return [dict(r) for r in rows]

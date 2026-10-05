@@ -148,6 +148,7 @@ def dashboard():
     health = _server_health() if is_super() else None
     return render_template(
         "dashboard.html", stats=stats, health=health, selected_country=country,
+        unresponsive=db.admin_unresponsive_professionals(3, country),
         active_page="dashboard",
     )
 
@@ -386,8 +387,35 @@ def professional_detail(professional_id):
         flash("الفني غير موجود.", "error")
         return redirect(url_for("professionals_list"))
     return render_template(
-        "professional_detail.html", p=p, status_labels=db.STATUS_LABELS_AR, active_page="professionals"
+        "professional_detail.html", p=p, status_labels=db.STATUS_LABELS_AR, active_page="professionals",
+        notif=db.notification_summary(p["id"]), notif_stopped=_nudges_stopped(p),
     )
+
+
+def _nudges_stopped(p) -> bool:
+    """إشعارات واتساب التلقائية توقفت (مرت سنة من أول إشعار)."""
+    import nudges
+    from datetime import datetime as _dt, timedelta as _td, timezone as _tz
+    first = p.get("nudge_first_at")
+    try:
+        return bool(first) and _dt.now(_tz.utc) - _dt.fromisoformat(first) > _td(days=nudges.WA_MAX_DAYS)
+    except ValueError:
+        return False
+
+
+@app.route("/professionals/<int:professional_id>/notify", methods=["POST"])
+@login_required
+def professional_notify(professional_id):
+    p = _professional_or_404(professional_id)
+    if not p:
+        flash("الفني غير موجود.", "error")
+        return redirect(url_for("professionals_list"))
+    import nudges
+    ok = nudges.notify_manual(p["id"])
+    via = "تلغرام" if (p.get("telegram_user_id") or 0) > 0 else "واتساب"
+    flash(f"تم إرسال الإشعار عبر {via} ✅" if ok else f"ما قدرنا نرسل الإشعار عبر {via} (يمكن حاظر البوت، أو قالب واتساب ما انقبل بعد).",
+          "success" if ok else "error")
+    return redirect(request.referrer or url_for("professional_detail", professional_id=p["id"]))
 
 
 @app.route("/professionals/<int:professional_id>/status", methods=["POST"])

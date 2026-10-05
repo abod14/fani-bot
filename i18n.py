@@ -642,11 +642,6 @@ TEXTS: dict[str, dict[str, str]] = {
         "en": "No professionals ({profession}) are currently available in «{city}»{district_suffix}.",
         "ur": "فی الحال «{city}»{district_suffix} میں کوئی ({profession}) کاریگر دستیاب نہیں۔",
     },
-    "contact_counter_notice": {
-        "ar": "🔔 عميل جديد ضغط «تواصل» معك من «فنّي» 👏\n📊 فرصك المجانية: استخدمت {used} من {limit} — باقي {left}.\n\nاشترك وتظهر للعملاء بدون حدود 👇",
-        "en": "🔔 A new customer tapped \"Contact\" on you via Fanni 👏\n📊 Free contacts: {used} of {limit} used — {left} left.\n\nSubscribe to appear to customers without limits 👇",
-        "ur": "🔔 ایک نئے گاہک نے «فنّی» کے ذریعے آپ سے رابطہ کیا 👏\n📊 مفت رابطے: {limit} میں سے {used} استعمال — {left} باقی۔\n\nبغیر حد کے نظر آنے کے لیے سبسکرائب کریں 👇",
-    },
     "free_contacts_exhausted": {
         "ar": "⚠️ خلصت فرصك المجانية ({limit}) في «فنّي» — من الحين رقمك ما يظهر للعملاء اللي يبحثون عن خدمتك.\n\nاشترك عشان ترجع تظهر وتستقبل عملاء بدون حدود 👇",
         "en": "⚠️ You've used all your free contacts ({limit}) on Fanni — from now on customers searching for your service won't see you.\n\nSubscribe to show up again with unlimited customers 👇",

@@ -100,6 +100,8 @@ async def subscribe_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
 
+    # ضغط «اشترك» = استجاب للإشعارات (يطلع بلوحة التحكم)
+    await asyncio.to_thread(db.mark_notifications_responded, professional["id"])
     sar, stars, days = await asyncio.to_thread(_current_prices)
     country = professional.get("country") or countries.DEFAULT_COUNTRY
     text = f"اختر طريقة الدفع للاشتراك الشهري ({days} يوم):"

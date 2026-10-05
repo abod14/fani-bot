@@ -106,6 +106,30 @@
 {% endif %}
 
 <div class="card">
+  <h2>🔕 فنيين وصلتهم إشعارات وما استجابوا</h2>
+  {% if unresponsive %}
+  <table>
+    <thead><tr><th>الفني</th><th>المهنة</th><th>المدينة</th><th>بدون استجابة</th><th>مدفوعة</th><th>آخر إشعار</th><th></th></tr></thead>
+    <tbody>
+      {% for r in unresponsive %}
+      <tr>
+        <td><a href="{{ url_for('professional_detail', professional_id=r.id) }}">{{ r.full_name }}</a>
+            <span class="muted">{{ 'تلغرام' if (r.telegram_user_id or 0) > 0 else 'واتساب' }}</span></td>
+        <td>{{ r.profession_name }}</td><td>{{ r.city }}</td>
+        <td><strong>{{ r.unanswered }}</strong> من {{ r.total }}</td><td>{{ r.paid or 0 }}</td>
+        <td>{{ (r.last_sent or '')[:10] }}</td>
+        <td><form method="post" action="{{ url_for('professional_notify', professional_id=r.id) }}" class="inline-form"
+                  onsubmit="return confirm('نرسل له إشعار الآن؟');"><button type="submit" class="secondary">🔔 إشعار</button></form></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">ما فيه أحد — يطلع هنا أي فني وصله 3 إشعارات أو أكثر وما تفاعل (ما ضغط اشتراك ولا راسل البوت).</p>
+  {% endif %}
+</div>
+
+<div class="card">
   <h2>أكثر المهن طلبًا (من سجل البحث)</h2>
   {% if stats.top_professions %}
   <table>

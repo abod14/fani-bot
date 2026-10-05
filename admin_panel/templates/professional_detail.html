@@ -75,6 +75,27 @@
 </div>
 
 <div class="card">
+  <h2>🔔 الإشعارات</h2>
+  {% if notif.total %}
+  <p>وصله <strong>{{ notif.total }}</strong> إشعار
+     — ما استجاب لـ <strong>{{ notif.unanswered }}</strong> منها
+     {% if notif.paid %}<span class="muted">({{ notif.paid }} منها رسائل واتساب مدفوعة)</span>{% endif %}</p>
+  <p class="muted">آخر إشعار: {{ (notif.last_sent or '')[:16].replace('T', ' ') }}
+     {% if notif.last_response %} — آخر تفاعل منه: {{ notif.last_response[:16].replace('T', ' ') }}{% endif %}</p>
+  {% else %}
+  <p class="muted">ما وصله أي إشعار بعد.</p>
+  {% endif %}
+  {% if notif_stopped %}<p><span class="badge rejected">إشعارات واتساب التلقائية توقفت (مرت سنة)</span></p>{% endif %}
+  {% if not p.is_subscribed %}
+  <form method="post" action="{{ url_for('professional_notify', professional_id=p.id) }}"
+        onsubmit="return confirm('نرسل له إشعار «خلصت فرصك» مع زر الاشتراك؟');">
+    <button type="submit">🔔 أرسل إشعار الآن</button>
+    <span class="muted">{% if (p.telegram_user_id or 0) > 0 %}عبر تلغرام (مجاني){% else %}عبر واتساب (رسالة قالب — مدفوعة، إلا لو راسل البوت آخر 24 ساعة){% endif %}</span>
+  </form>
+  {% endif %}
+</div>
+
+<div class="card">
   <h2>منطقة خطرة</h2>
   <form method="post" action="{{ url_for('professional_delete', professional_id=p.id) }}"
         onsubmit="return confirm('متأكد من حذف هذا الفني نهائيًا؟ هذا الإجراء لا يمكن التراجع عنه.');">
