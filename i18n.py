@@ -642,6 +642,11 @@ TEXTS: dict[str, dict[str, str]] = {
         "en": "No professionals ({profession}) are currently available in «{city}»{district_suffix}.",
         "ur": "فی الحال «{city}»{district_suffix} میں کوئی ({profession}) کاریگر دستیاب نہیں۔",
     },
+    "free_contacts_exhausted": {
+        "ar": "⚠️ خلصت فرصك المجانية ({limit}) في «فنّي» — من الحين رقمك ما يظهر للعملاء اللي يبحثون عن خدمتك.\n\nاشترك عشان ترجع تظهر وتستقبل عملاء بدون حدود 👇",
+        "en": "⚠️ You've used all your free contacts ({limit}) on Fanni — from now on customers searching for your service won't see you.\n\nSubscribe to show up again with unlimited customers 👇",
+        "ur": "⚠️ «فنّی» پر آپ کے مفت رابطے ({limit}) ختم ہو گئے — اب سے آپ کی سروس تلاش کرنے والے گاہکوں کو آپ نظر نہیں آئیں گے۔\n\nدوبارہ نظر آنے اور لامحدود گاہکوں کے لیے سبسکرائب کریں 👇",
+    },
     "srch_missed_nudge": {
         "ar": "🔔 فيه عميل الحين يدوّر على «{profession}» في {city}{district_suffix}، لكن رقمك ما ظهر له لأنك خلّصت فرصك المجانية.\n\nاشترك الآن حتى تظهر لكل العملاء اللي يبحثون عن خدمتك 👇",
         "en": "🔔 A customer is searching for \"{profession}\" in {city}{district_suffix} right now, but you didn't show up because you've used up your free contacts.\n\nSubscribe now to appear to every customer searching for your service 👇",

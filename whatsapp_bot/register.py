@@ -47,6 +47,10 @@ def _status(api, wa_id, p):
     limit = int(db.get_setting("free_contacts_limit", str(db.FREE_CONTACTS_LIMIT))) + (p.get("bonus_contacts") or 0)
     line = "✅ مشترك — تظهر لكل العملاء بدون حد" if p.get("is_subscribed") else \
         f"📊 فرص التواصل المجانية: استخدمت {p.get('free_contacts_used', 0)} من {limit}"
+    if not p.get("is_subscribed") and (p.get("free_contacts_used") or 0) >= limit:
+        linked = (p.get("telegram_user_id") or 0) > 0
+        line += ("\n\n⚠️ خلصت فرصك المجانية — رقمك ما يظهر للعملاء حاليًا. الاشتراك عن طريق بوت «فنّي» بتلغرام: "
+                 + ("اكتب هناك /subscribe." if linked else "اربط حسابك من الزر تحت واشترك من هناك."))
     buttons = [("m:search", "🔍 ابحث عن فني")]
     if not (p.get("telegram_user_id") or 0) > 0:
         buttons.insert(0, ("R:tg:yes", "🔗 اربط بتلغرام"))

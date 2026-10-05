@@ -931,6 +931,11 @@ def register_contact(professional_id: int, customer_telegram_id: int) -> bool:
     if dup:
         return False
     log_contact_click(professional_id, customer_telegram_id)
+    try:   # لو هذي آخر فرصة مجانية: ننبه الفني فورًا (بخيط منفصل — ما يأخر رد العميل)
+        import limit_notice
+        limit_notice.notify_if_exhausted_async(professional_id)
+    except Exception:  # noqa: BLE001
+        pass
     return True
 
 
