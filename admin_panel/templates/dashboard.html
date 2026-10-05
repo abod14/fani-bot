@@ -130,6 +130,45 @@
 </div>
 
 <div class="card">
+  <h2>🔕 فنيين أوقفوا الإشعارات</h2>
+  {% if notify_off %}
+  <table>
+    <thead><tr><th>الفني</th><th>المهنة</th><th>المدينة</th><th>أوقف</th><th>متى</th></tr></thead>
+    <tbody>
+      {% for r in notify_off %}
+      <tr>
+        <td><a href="{{ url_for('professional_detail', professional_id=r.id) }}">{{ r.full_name }}</a></td>
+        <td>{{ r.profession_name }}</td><td>{{ r.city }}</td>
+        <td>{% if r.tg_notify_off %}تلغرام {% endif %}{% if r.wa_notify_off %}واتساب{% endif %}</td>
+        <td>{{ (r.notify_off_at or '')[:10] }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <p class="muted">تقدر ترجّع إشعاراته من صفحة الفني (زر «تفعيل»).</p>
+  {% else %}<p class="muted">ما أحد أوقف الإشعارات.</p>{% endif %}
+</div>
+
+{% if nudges_expired %}
+<div class="card">
+  <h2>⏹️ إشعارات واتساب توقفت (مرت سنة وما اشترك)</h2>
+  <table>
+    <thead><tr><th>الفني</th><th>المهنة</th><th>المدينة</th><th>أول إشعار</th><th></th></tr></thead>
+    <tbody>
+      {% for r in nudges_expired %}
+      <tr>
+        <td><a href="{{ url_for('professional_detail', professional_id=r.id) }}">{{ r.full_name }}</a></td>
+        <td>{{ r.profession_name }}</td><td>{{ r.city }}</td><td>{{ (r.nudge_first_at or '')[:10] }}</td>
+        <td><form method="post" action="{{ url_for('professional_nudges_restart', professional_id=r.id) }}" class="inline-form">
+          <button type="submit" class="secondary">🔄 إعادة تشغيل</button></form></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+<div class="card">
   <h2>أكثر المهن طلبًا (من سجل البحث)</h2>
   {% if stats.top_professions %}
   <table>

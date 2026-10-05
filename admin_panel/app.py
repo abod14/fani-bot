@@ -149,6 +149,8 @@ def dashboard():
     return render_template(
         "dashboard.html", stats=stats, health=health, selected_country=country,
         unresponsive=db.admin_unresponsive_professionals(3, country),
+        notify_off=db.admin_notify_off_professionals(country),
+        nudges_expired=db.admin_nudges_expired(365, country),
         active_page="dashboard",
     )
 
@@ -392,15 +394,36 @@ def professional_detail(professional_id):
     )
 
 
-def _nudges_stopped(p) -> bool:
-    """إشعارات واتساب التلقائية توقفت (مرت سنة من أول إشعار)."""
+def _nudges_stopped(p) -> dict:
+    """حالة جدول إشعارات واتساب: الشهر الحالي، وهل توقفت (مرت سنة)."""
     import nudges
-    from datetime import datetime as _dt, timedelta as _td, timezone as _tz
-    first = p.get("nudge_first_at")
-    try:
-        return bool(first) and _dt.now(_tz.utc) - _dt.fromisoformat(first) > _td(days=nudges.WA_MAX_DAYS)
-    except ValueError:
-        return False
+    st = nudges.wa_schedule_state(p)
+    st["has_wa"] = bool(nudges.wa_number(p))
+    return st
+
+
+@app.route("/professionals/<int:professional_id>/notify-on", methods=["POST"])
+@login_required
+def professional_notify_on(professional_id):
+    p = _professional_or_404(professional_id)
+    if not p:
+        return redirect(url_for("professionals_list"))
+    ch = request.form.get("channel")
+    if ch in ("telegram", "whatsapp"):
+        db.set_notify_off(p["id"], ch, False)
+        flash(f"تم تفعيل إشعارات {'تلغرام' if ch == 'telegram' else 'واتساب'} للفني ✅", "success")
+    return redirect(request.referrer or url_for("professional_detail", professional_id=p["id"]))
+
+
+@app.route("/professionals/<int:professional_id>/nudges-restart", methods=["POST"])
+@login_required
+def professional_nudges_restart(professional_id):
+    p = _professional_or_404(professional_id)
+    if not p:
+        return redirect(url_for("professionals_list"))
+    db.restart_wa_nudges(p["id"])
+    flash("تم إعادة تشغيل إشعارات واتساب من البداية (3 بالشهر الأول، ثم 1 بالشهر لمدة سنة) ✅", "success")
+    return redirect(request.referrer or url_for("professional_detail", professional_id=p["id"]))
 
 
 @app.route("/professionals/<int:professional_id>/notify", methods=["POST"])

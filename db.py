@@ -194,7 +194,10 @@ def init_db():
                 "ALTER TABLE professionals ADD COLUMN has_whatsapp INTEGER NOT NULL DEFAULT 1"
             )
         for col, ddl in (("wa_nudge_cycle_start", "TEXT"), ("wa_nudge_cycle_count", "INTEGER NOT NULL DEFAULT 0"),
-                         ("nudge_first_at", "TEXT")):
+                         ("nudge_first_at", "TEXT"),
+                         # الفني ضغط «إيقاف الإشعارات» (تلغرام/واتساب) — الأدمن يقدر يرجّعها من اللوحة
+                         ("tg_notify_off", "INTEGER NOT NULL DEFAULT 0"), ("wa_notify_off", "INTEGER NOT NULL DEFAULT 0"),
+                         ("notify_off_at", "TEXT")):
             if col not in existing_columns:
                 # دورة إشعارات واتساب (المدفوعة): 5 بالشهر، وتوقف تلقائيًا بعد سنة من أول إشعار
                 conn.execute(f"ALTER TABLE professionals ADD COLUMN {col} {ddl}")
@@ -992,6 +995,13 @@ def activate_subscription(professional_id: int, days: int) -> str:
         )
     mark_notifications_responded(professional_id)
     return expires
+
+
+def supersede_pending_payments(professional_id: int, method: str):
+    """عملية دفع جديدة تلغي المعلّقة القديمة (عشان ما نفعّل الاشتراك مرتين من رابطين)."""
+    with get_conn() as conn:
+        conn.execute("UPDATE subscription_payments SET status = 'superseded' WHERE professional_id = ? "
+                     "AND method = ? AND status = 'pending'", (professional_id, method))
 
 
 def get_latest_pending_payment(professional_id: int, method: str, max_age_hours: int = 6):
@@ -2517,5 +2527,62 @@ def admin_unresponsive_professionals(min_unanswered: int = 3, country: str | Non
             ORDER BY unanswered DESC, last_sent DESC LIMIT 100
             """,
             (country, country, min_unanswered),
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+
+def set_notify_off(professional_id: int, channel: str, off: bool):
+    col = {"telegram": "tg_notify_off", "whatsapp": "wa_notify_off"}[channel]
+    with get_conn() as conn:
+        conn.execute(f"UPDATE professionals SET {col} = ?, notify_off_at = CASE WHEN ? THEN ? ELSE notify_off_at END "
+                     "WHERE id = ?", (int(off), int(off), _now_iso(), professional_id))
+
+
+def restart_wa_nudges(professional_id: int):
+    """الأدمن يعيد تشغيل إشعارات واتساب من البداية (3 بالشهر الأول ثم 1 بالشهر لسنة)."""
+    with get_conn() as conn:
+        conn.execute("UPDATE professionals SET nudge_first_at = NULL, wa_notify_off = 0 WHERE id = ?", (professional_id,))
+
+
+def count_wa_notifications_since(professional_id: int, since_iso: str, kind: str = "missed") -> int:
+    with get_conn() as conn:
+        return conn.execute(
+            "SELECT COUNT(*) FROM notify_log WHERE professional_id = ? AND channel = 'whatsapp' AND kind = ? "
+            "AND ok = 1 AND sent_at >= ?", (professional_id, kind, since_iso),
+        ).fetchone()[0]
+
+
+def get_professional_for_wa(wa_id: str):
+    """الفني صاحب رقم الواتساب هذا: المسجّل من واتساب (wa_id)، أو المسجّل من تلغرام برقم واتساب نفسه."""
+    p = get_professional_by_wa_id(wa_id)
+    if p:
+        return p
+    with get_conn() as conn:
+        row = conn.execute(
+            "SELECT * FROM professionals WHERE whatsapp_number = ? AND status != ? ORDER BY id DESC LIMIT 1",
+            ("+" + wa_id.lstrip("+"), STATUS_REJECTED),
+        ).fetchone()
+        return dict(row) if row else None
+
+
+def admin_notify_off_professionals(country: str | None = None) -> list[dict]:
+    with get_conn() as conn:
+        rows = conn.execute(
+            "SELECT id, full_name, profession_name, city, tg_notify_off, wa_notify_off, notify_off_at FROM professionals "
+            "WHERE (tg_notify_off = 1 OR wa_notify_off = 1) AND (? IS NULL OR country = ?) ORDER BY notify_off_at DESC LIMIT 100",
+            (country, country),
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+
+def admin_nudges_expired(days: int = 365, country: str | None = None) -> list[dict]:
+    """فنيين غير مشتركين مرت سنة على أول إشعار واتساب لهم — الإشعارات التلقائية توقفت."""
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+    with get_conn() as conn:
+        rows = conn.execute(
+            "SELECT id, full_name, profession_name, city, nudge_first_at FROM professionals "
+            "WHERE is_subscribed = 0 AND nudge_first_at IS NOT NULL AND nudge_first_at < ? "
+            "AND (? IS NULL OR country = ?) ORDER BY nudge_first_at LIMIT 100",
+            (cutoff, country, country),
         ).fetchall()
         return [dict(r) for r in rows]

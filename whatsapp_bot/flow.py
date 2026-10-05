@@ -156,7 +156,7 @@ def handle(api, wa_id: str, name: str, msg: dict):
 def _dispatch(api, wa_id, name, msg, state, data):
     mtype = msg.get("type")
     # فني مسجّل من واتساب: أي رسالة منه = تفاعل مع الإشعارات، ونتحقق لو عنده دفع اشتراك معلّق
-    pro = db.get_professional_by_wa_id(wa_id)
+    pro = db.get_professional_for_wa(wa_id)
     if pro:
         db.mark_notifications_responded(pro["id"])
         from whatsapp_bot import subscribe

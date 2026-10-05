@@ -41,6 +41,7 @@ def start(api, wa_id, p):
                         "https://t.me/FanniServiceBot?start=subscribe")
         return "menu", {}
     sar, days = _prices()
+    db.supersede_pending_payments(p["id"], "tap")
     payment_id = db.create_pending_payment(p["id"], "tap", None, f"{sar:.2f} SAR")
     try:
         charge = tap_client.create_charge(sar, p["full_name"], p["id"])

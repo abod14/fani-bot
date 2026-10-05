@@ -16,7 +16,7 @@ import requests  # noqa: E402
 
 import config  # noqa: E402
 
-BTN = [{"type": "QUICK_REPLY", "text": "اشترك الآن"}]
+BTN = [{"type": "QUICK_REPLY", "text": "اشترك الآن"}, {"type": "QUICK_REPLY", "text": "إيقاف الإشعارات"}]
 TEMPLATES = [
     {
         "name": config.WA_TPL_FREE_ENDED,

@@ -85,12 +85,34 @@
   {% else %}
   <p class="muted">ما وصله أي إشعار بعد.</p>
   {% endif %}
-  {% if notif_stopped %}<p><span class="badge rejected">إشعارات واتساب التلقائية توقفت (مرت سنة)</span></p>{% endif %}
+  <p>
+    تلغرام:
+    {% if (p.telegram_user_id or 0) <= 0 %}<span class="muted">ما عنده حساب تلغرام</span>
+    {% elif p.tg_notify_off %}<span class="badge rejected">🔕 أوقفها الفني</span>
+      <form method="post" action="{{ url_for('professional_notify_on', professional_id=p.id) }}" class="inline-form">
+        <input type="hidden" name="channel" value="telegram"><button type="submit" class="secondary">تفعيل</button></form>
+    {% else %}<span class="badge active">مفعّلة</span>{% endif %}
+    &nbsp;|&nbsp; واتساب:
+    {% if not notif_stopped.has_wa %}<span class="muted">ما عنده رقم واتساب</span>
+    {% elif p.wa_notify_off %}<span class="badge rejected">🔕 أوقفها الفني</span>
+      <form method="post" action="{{ url_for('professional_notify_on', professional_id=p.id) }}" class="inline-form">
+        <input type="hidden" name="channel" value="whatsapp"><button type="submit" class="secondary">تفعيل</button></form>
+    {% elif notif_stopped.stopped %}<span class="badge rejected">توقفت تلقائيًا (مرت سنة)</span>
+    {% else %}<span class="badge active">مفعّلة</span>
+      {% if p.nudge_first_at %}<span class="muted">— الشهر {{ notif_stopped.month + 1 }} من 12 ({{ 3 if notif_stopped.month == 0 else 1 }} إشعار بالشهر)</span>{% endif %}
+    {% endif %}
+  </p>
+  {% if p.nudge_first_at %}
+  <form method="post" action="{{ url_for('professional_nudges_restart', professional_id=p.id) }}"
+        onsubmit="return confirm('نعيد إشعارات واتساب من البداية؟ (3 بالشهر الأول ثم 1 بالشهر لسنة)');" style="margin-bottom:8px">
+    <button type="submit" class="secondary">🔄 إعادة تشغيل إشعارات واتساب من البداية</button>
+  </form>
+  {% endif %}
   {% if not p.is_subscribed %}
   <form method="post" action="{{ url_for('professional_notify', professional_id=p.id) }}"
         onsubmit="return confirm('نرسل له إشعار «خلصت فرصك» مع زر الاشتراك؟');">
     <button type="submit">🔔 أرسل إشعار الآن</button>
-    <span class="muted">{% if (p.telegram_user_id or 0) > 0 %}عبر تلغرام (مجاني){% else %}عبر واتساب (رسالة قالب — مدفوعة، إلا لو راسل البوت آخر 24 ساعة){% endif %}</span>
+    <span class="muted">يوصله على تلغرام (مجاني) وواتساب (مدفوع، إلا لو راسل البوت آخر 24 ساعة) — حتى لو موقف الإشعارات</span>
   </form>
   {% endif %}
 </div>

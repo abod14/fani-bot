@@ -642,6 +642,12 @@ TEXTS: dict[str, dict[str, str]] = {
         "en": "No professionals ({profession}) are currently available in «{city}»{district_suffix}.",
         "ur": "فی الحال «{city}»{district_suffix} میں کوئی ({profession}) کاریگر دستیاب نہیں۔",
     },
+    "notify_off_btn": {"ar": "🔕 إيقاف الإشعارات", "en": "🔕 Stop notifications", "ur": "🔕 اطلاعات بند کریں"},
+    "notify_off_done": {
+        "ar": "🔕 تم إيقاف الإشعارات. لو تبي ترجعها تواصل مع إدارة «فنّي».",
+        "en": "🔕 Notifications stopped. Contact Fanni support if you want them back.",
+        "ur": "🔕 اطلاعات بند کر دی گئیں۔ دوبارہ چاہیں تو «فنّی» انتظامیہ سے رابطہ کریں۔",
+    },
     "free_contacts_exhausted": {
         "ar": "⚠️ خلصت فرصك المجانية ({limit}) في «فنّي» — من الحين رقمك ما يظهر للعملاء اللي يبحثون عن خدمتك.\n\nاشترك عشان ترجع تظهر وتستقبل عملاء بدون حدود 👇",
         "en": "⚠️ You've used all your free contacts ({limit}) on Fanni — from now on customers searching for your service won't see you.\n\nSubscribe to show up again with unlimited customers 👇",

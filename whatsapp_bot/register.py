@@ -476,8 +476,15 @@ def on_choice(api, wa_id, rid, state, data):
     p = rid.split(":")[1:]
     act = p[0] if p else ""
     r = data.setdefault("r", {})
+    if act == "mute":
+        p = db.get_professional_for_wa(wa_id)
+        if p:
+            db.set_notify_off(p["id"], "whatsapp", True)
+            db.mark_notifications_responded(p["id"])
+        api.text(wa_id, "🔕 تم إيقاف الإشعارات. لو تبي ترجعها تواصل مع إدارة «فنّي».")
+        return "menu", {}
     if act == "sub":
-        p = db.get_professional_by_wa_id(wa_id)
+        p = db.get_professional_for_wa(wa_id)
         if not p:
             return start(api, wa_id)
         from whatsapp_bot import subscribe

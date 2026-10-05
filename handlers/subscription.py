@@ -328,12 +328,30 @@ async def check_expired_subscriptions(context: ContextTypes.DEFAULT_TYPE):
             pass
 
 
+# ─────────────────────────── إيقاف الإشعارات (زر بإشعارات «خلصت فرصك / فيه عميل») ───────────────────────────
+
+async def notify_off(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    professional = await asyncio.to_thread(_require_registered_professional, update.effective_user.id)
+    lang = await asyncio.to_thread(db.get_user_language, update.effective_user.id)
+    if professional:
+        await asyncio.to_thread(db.set_notify_off, professional["id"], "telegram", True)
+        await asyncio.to_thread(db.mark_notifications_responded, professional["id"])
+    try:
+        await query.edit_message_reply_markup(reply_markup=None)
+    except Exception:  # noqa: BLE001
+        pass
+    await query.message.reply_text(i18n.t("notify_off_done", lang))
+
+
 # ─────────────────────────── تجميع الهاندلرز ───────────────────────────
 
 def build_subscription_handlers() -> list:
     return [
         CommandHandler("subscribe", subscribe_command),
         CallbackQueryHandler(subscribe_command, pattern=f"^{CB_SUBSCRIBE_MENU}$"),
+        CallbackQueryHandler(notify_off, pattern="^ntf_off$"),
         CallbackQueryHandler(subscribe_via_tap, pattern=f"^{CB_SUBSCRIBE_TAP}$"),
         CallbackQueryHandler(verify_tap_payment, pattern=f"^{CB_TAP_VERIFY_PREFIX}"),
         CallbackQueryHandler(subscribe_via_stars, pattern=f"^{CB_SUBSCRIBE_STARS}$"),
