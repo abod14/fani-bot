@@ -52,8 +52,10 @@ WA_GRAPH_VERSION = os.environ.get("WA_GRAPH_VERSION", "v23.0").strip()
 WA_PORT = int(os.environ.get("WA_PORT", "5070"))
 WA_WABA_ID = os.environ.get("WA_WABA_ID", "").strip()   # حساب واتساب للأعمال — لإنشاء القوالب
 # أسماء قوالب الإشعارات المدفوعة (تُنشأ مرة وحدة بـ scripts/wa_templates.py وتنتظر موافقة ميتا)
-WA_TPL_FREE_ENDED = os.environ.get("WA_TPL_FREE_ENDED", "fanni_free_ended")
-WA_TPL_CUSTOMER_SEARCHING = os.environ.get("WA_TPL_CUSTOMER_SEARCHING", "fanni_customer_searching")
+# ميتا صنّفت النسخة الأولى «تسويق» (أغلى) — النسخة الإخبارية (خدمة) تُجرَّب أول، ولو مو مقبولة
+# ننتقل للي بعدها تلقائيًا.
+WA_TPL_FREE_ENDED = os.environ.get("WA_TPL_FREE_ENDED", "fanni_account_alert,fanni_free_ended").split(",")
+WA_TPL_CUSTOMER_SEARCHING = os.environ.get("WA_TPL_CUSTOMER_SEARCHING", "fanni_request_alert,fanni_customer_searching").split(",")
 
 # ───────────────────────── قناة تلغرام المرتبطة بالبوت ─────────────────────────
 # يوزر القناة (بدون @) — تُستخدم للتحقق من اشتراك الفني قبل إكمال التسجيل، ولزر

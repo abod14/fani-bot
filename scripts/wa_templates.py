@@ -16,32 +16,27 @@ import requests  # noqa: E402
 
 import config  # noqa: E402
 
-BTN = [{"type": "QUICK_REPLY", "text": "اشترك الآن"}, {"type": "QUICK_REPLY", "text": "إيقاف الإشعارات"}]
+BTN = [{"type": "QUICK_REPLY", "text": "التفاصيل والاشتراك"}, {"type": "QUICK_REPLY", "text": "إيقاف الإشعارات"}]
+def _tpl(name, category, text, example):
+    return {"name": name, "language": "ar", "category": category,
+            "components": [{"type": "BODY", "text": text, "example": {"body_text": [example]}},
+                           {"type": "BUTTONS", "buttons": BTN}]}
+
+
 TEMPLATES = [
-    {
-        "name": config.WA_TPL_FREE_ENDED,
-        "language": "ar",
-        "category": "UTILITY",
-        "components": [
-            {"type": "BODY",
-             "text": "⚠️ يا {{1}}، انتهت فرصك المجانية للتواصل مع العملاء في «فنّي».\n"
-                     "جدد اشتراكك من هنا 👇",
-             "example": {"body_text": [["عبدالله"]]}},
-            {"type": "BUTTONS", "buttons": BTN},
-        ],
-    },
-    {
-        "name": config.WA_TPL_CUSTOMER_SEARCHING,
-        "language": "ar",
-        "category": "UTILITY",
-        "components": [
-            {"type": "BODY",
-             "text": "🔔 فيه عميل يدوّر على «{{1}}» في {{2}}، لكن رقمك ما ظهر له لأنك خلّصت فرصك المجانية.\n"
-                     "اشترك عشان تظهر لكل العملاء اللي يبحثون عن خدمتك.",
-             "example": {"body_text": [["سباك", "جدة — حي الصفا"]]}},
-            {"type": "BUTTONS", "buttons": BTN},
-        ],
-    },
+    # النسخة الإخبارية (تنبيه حساب) — أرخص لو ميتا قبلتها «خدمة»
+    _tpl("fanni_account_alert", "UTILITY",
+         "تنبيه حسابك في «فنّي»: يا {{1}}، انتهت فرصك المجانية للتواصل مع العملاء، وظهور رقمك بنتائج البحث متوقف حاليًا.",
+         ["عبدالله"]),
+    _tpl("fanni_request_alert", "UTILITY",
+         "تنبيه حسابك في «فنّي»: وصل طلب بحث عن «{{1}}» في {{2}}، ولم يظهر رقمك لأن فرصك المجانية انتهت.",
+         ["سباك", "جدة — حي الصفا"]),
+    # النسخة الأولى (صنّفتها ميتا «تسويق») — احتياط
+    _tpl("fanni_free_ended", "MARKETING",
+         "⚠️ يا {{1}}، انتهت فرصك المجانية للتواصل مع العملاء في «فنّي».\nجدد اشتراكك من هنا 👇", ["عبدالله"]),
+    _tpl("fanni_customer_searching", "MARKETING",
+         "🔔 فيه عميل يدوّر على «{{1}}» في {{2}}، لكن رقمك ما ظهر له لأنك خلّصت فرصك المجانية.\n"
+         "اشترك عشان تظهر لكل العملاء اللي يبحثون عن خدمتك.", ["سباك", "جدة — حي الصفا"]),
 ]
 
 
@@ -56,7 +51,12 @@ def main():
     url = f"https://graph.facebook.com/{config.WA_GRAPH_VERSION}/{waba}/message_templates"
     headers = {"Authorization": f"Bearer {config.WA_TOKEN}"}
     if action == "create":
+        existing = {t["name"] for t in requests.get(url, headers=headers, params={"fields": "name", "limit": 100},
+                                                   timeout=30).json().get("data", [])}
         for t in TEMPLATES:
+            if t["name"] in existing:
+                print(f"• {t['name']}: موجود من قبل — تخطّيته")
+                continue
             r = requests.post(url, headers=headers, json=t, timeout=30)
             data = r.json()
             if r.ok:

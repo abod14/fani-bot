@@ -111,8 +111,12 @@ def _send_wa(p, free_text: str, template: str, params: list[str]) -> tuple[bool,
     if _in_free_window(to):
         r = api.buttons(to, free_text, [(SUB_PAYLOAD, "💳 اشترك الآن"), (MUTE_PAYLOAD, "🔕 إيقاف الإشعارات")])
         return bool(r is not None and getattr(r, "status_code", 500) < 400), False
-    r = api.template(to, template, params, button_payloads=[SUB_PAYLOAD, MUTE_PAYLOAD])
-    return bool(r is not None and getattr(r, "status_code", 500) < 400), True
+    # نجرّب القوالب بالترتيب (الأرخص «خدمة» أول) — المرفوض/قيد المراجعة يرجع خطأ مجاني
+    for name in ([template] if isinstance(template, str) else template):
+        r = api.template(to, name.strip(), params, button_payloads=[SUB_PAYLOAD, MUTE_PAYLOAD])
+        if r is not None and getattr(r, "status_code", 500) < 400:
+            return True, True
+    return False, True
 
 
 def _start_wa_clock(p):
