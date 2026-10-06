@@ -2619,3 +2619,28 @@ def summary_candidates() -> list[dict]:
             "AND wa_notify_off = 0", (STATUS_ACTIVE,),
         ).fetchall()
         return [dict(r) for r in rows]
+
+
+def nearby_cities_with_professionals(city_id: int, profession_id: str, limit: int = 8) -> list[dict]:
+    """أقرب المدن (بنفس الدولة) اللي فيها فنيين متاحين فعلًا لهذي المهنة — مرتبة بالمسافة.
+    [{id, name, count, km}]."""
+    origin = get_sa_city_by_id(city_id) if city_id else None
+    if not origin or origin.get("lat") is None:
+        return []
+    with get_conn() as conn:
+        rows = conn.execute(
+            "SELECT DISTINCT c.id, c.name, c.lat, c.lon FROM professionals p JOIN sa_cities c ON c.id = p.city_id "
+            "WHERE p.status = ? AND (p.profession_id = ? OR p.profession2_id = ?) AND c.id != ? "
+            "AND c.country = ? AND c.lat IS NOT NULL",
+            (STATUS_ACTIVE, profession_id, profession_id, city_id, origin.get("country") or "SA"),
+        ).fetchall()
+    out = []
+    for r in rows:
+        n = len(search_active_professional_ids(profession_id, r["name"], None, None, None, r["id"]))
+        if not n:
+            continue
+        km = math.hypot((r["lat"] - origin["lat"]) * 111,
+                        (r["lon"] - origin["lon"]) * 111 * math.cos(math.radians(origin["lat"])))
+        out.append({"id": r["id"], "name": r["name"], "count": n, "km": round(km)})
+    out.sort(key=lambda x: x["km"])
+    return out[:limit]

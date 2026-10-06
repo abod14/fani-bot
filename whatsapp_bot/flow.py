@@ -547,6 +547,14 @@ def _choose_city(api, wa_id, city_id, page, data):
     if not districts:
         data.update(neighborhood=None, district_id=None)
         return _run_search(api, wa_id, data)
+    if len(districts) <= 9:
+        # أحياء قليلة: قائمة اختيار عادية (أسهل من الأرقام)
+        rows = [("dist:all", f"🌍 كل {city['name']}"[:24], "كل أحياء المدينة")]
+        rows += [(f"dist:{d['id']}", d["name"], d["name"] if len(d["name"]) > 24 else None)
+                 for d in sorted(districts, key=lambda d: norm(re.sub(r"^حي\s+", "", d["name"])))]
+        data["ndist"] = [d["id"] for d in districts]
+        api.list(wa_id, f"📍 اختر الحي في {city['name']} 👇", "اختر الحي", rows, section_title="الأحياء")
+        return "dist", data
     from whatsapp_bot import geo_groups
     groups = geo_groups.ordered_groups(city["id"], city["name"])
     if len(groups) == 1 and groups[0][0] is None:
@@ -632,14 +640,29 @@ def _run_search(api, wa_id, data):
             note = f"لم نجد نتائج في {nb}، وهذه نتائج {city} كاملة 👇\n"
             data.update(neighborhood=None, district_id=None)
     if not ids:
-        api.buttons(
-            wa_id,
-            f"لا يوجد حاليًا فنيون في مهنة «{pname}» في {city} 😔\nجرّب مدينة قريبة أو مهنة أخرى.",
-            [("m:search", "🔄 بحث جديد"), ("loc:manual", "🏙️ مدينة أخرى")],
-        )
-        return "results", data
+        return _offer_nearby_cities(api, wa_id, data)
     data.update(ids=ids, shown=0, note=note)
     return _show_page(api, wa_id, data)
+
+
+def _offer_nearby_cities(api, wa_id, data):
+    """ما فيه فنيين بالمدينة: نعرض مباشرة أقرب المدن اللي فيها فنيين لنفس المهنة (قائمة وحدة)."""
+    pname, city = data["pname"], data["city"]
+    near = db.nearby_cities_with_professionals(data.get("city_id"), data["pid"], 8)
+    if not near:
+        api.buttons(
+            wa_id,
+            f"لا يوجد حاليًا فنيون في مهنة «{pname}» في {city} ولا في المدن القريبة منها 😔\nجرّب مهنة أخرى.",
+            [("m:search", "🔄 بحث جديد"), ("loc:manual", "🏙️ اختيار يدوي")],
+        )
+        return "results", data
+    rows = [(f"city:{c['id']}", c["name"], f"{c['count']} {'فني' if c['count'] == 1 else 'فنيين'} • {c['km']} كم")
+            for c in near]
+    rows.append(("loc:manual", "🏙️ مدينة أخرى", "اختيار يدوي"))
+    rows.append(("m:search", "🔄 بحث جديد", None))
+    api.list(wa_id, f"لا يوجد حاليًا فنيون في مهنة «{pname}» في {city} 😔\nهذه أقرب المدن التي يتوفر فيها فنيون 👇",
+             "اختر المدينة", rows, section_title="مدن قريبة")
+    return "loc", data
 
 
 def _row_desc(p: dict) -> str:
