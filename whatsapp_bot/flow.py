@@ -247,6 +247,8 @@ def _on_choice(api, wa_id, name, rid, state, data):
     if not data.get("pid") and head not in ("c", "n"):
         return _welcome(api, wa_id, name)   # زر قديم بعد انتهاء الجلسة
     if head == "loc":
+        if len(p) > 1 and p[1] == "near" and data.get("city_id"):
+            return _offer_other_cities(api, wa_id, data)
         return _manual_start(api, wa_id, data)
     if head == "cty":
         return _choose_country(api, wa_id, p[1], 0, data)
@@ -661,15 +663,27 @@ def _offer_nearby_cities(api, wa_id, data):
             wa_id,
             f"عذرًا، لا يوجد حاليًا فنيون في مهنة «{pname}» في {city} ولا في المدن القريبة منها 😔\n"
             "سجّلنا طلبك، ونعمل على إضافة فنيين في منطقتك قريبًا.",
-            [("loc:manual", "🏙️ مدينة أخرى")],
+            [("loc:near", "🏙️ مدينة أخرى")],
         )
         return "results", data
     # مدينة ثانية = بحث بكل المدينة مباشرة (أحياؤها ما تهم العميل) — المسافة بس بدون العدد
     rows = [(f"ncity:{c['id']}", c["name"], f"تبعد {c['km']} كم") for c in near]
-    rows.append(("loc:manual", "🏙️ مدينة أخرى", "اختيار يدوي"))
+    rows.append(("loc:near", "🏙️ مدينة أخرى", "أقرب المدن إليك"))
     rows.append(("m:search", "🔄 بحث جديد", None))
     api.list(wa_id, f"لا يوجد حاليًا فنيون في مهنة «{pname}» في {city} 😔\nهذه أقرب المدن التي يتوفر فيها فنيون 👇",
              "اختر المدينة", rows, section_title="مدن قريبة")
+    return "loc", data
+
+
+def _offer_other_cities(api, wa_id, data):
+    """زر «مدينة أخرى»: مباشرة أقرب 9 مدن حول مدينته مع المسافة (+ اختيار يدوي)،
+    واختيار المدينة = بحث بكل المدينة على طول بدون أحياء."""
+    near = db.nearest_cities_km(data["city_id"], 9)
+    if not near:
+        return _manual_start(api, wa_id, data)
+    rows = [(f"ncity:{c['id']}", c["name"], f"تبعد {c['km']} كم") for c in near]
+    rows.append(("loc:manual", "🗺️ اختيار يدوي", "الدولة ثم المنطقة ثم المدينة"))
+    api.list(wa_id, f"أقرب المدن إلى {data['city']} 👇", "اختر المدينة", rows, section_title="مدن قريبة")
     return "loc", data
 
 

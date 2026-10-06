@@ -2621,6 +2621,19 @@ def summary_candidates() -> list[dict]:
         return [dict(r) for r in rows]
 
 
+def nearest_cities_km(city_id: int, limit: int = 9) -> list[dict]:
+    """أقرب N مدينة (بنفس الدولة، من المدن المعروضة) مع المسافة بالكيلو — [{id, name, km}]."""
+    origin = get_sa_city_by_id(city_id) if city_id else None
+    if not origin or origin.get("lat") is None:
+        return []
+    out = []
+    for c in nearest_sa_cities(city_id, [city_id], limit):
+        km = math.hypot((c["lat"] - origin["lat"]) * 111,
+                        (c["lon"] - origin["lon"]) * 111 * math.cos(math.radians(origin["lat"])))
+        out.append({"id": c["id"], "name": c["name"], "km": round(km)})
+    return out
+
+
 def nearby_cities_with_professionals(city_id: int, profession_id: str, limit: int = 8) -> list[dict]:
     """أقرب المدن (بنفس الدولة) اللي فيها فنيين متاحين فعلًا لهذي المهنة — مرتبة بالمسافة.
     [{id, name, count, km}]."""
