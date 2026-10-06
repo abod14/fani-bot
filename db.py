@@ -2634,6 +2634,16 @@ def nearest_cities_km(city_id: int, limit: int = 9) -> list[dict]:
     return out
 
 
+def nearest3_with_professionals(city_id: int, profession_id: str, n: int = 3) -> list[dict]:
+    """أقرب n مدن جغرافيًا حول المدينة (بدون بحث بكل الدولة) — ويرجع منها فقط اللي فيها
+    فنيين متاحين لهذي المهنة. [{id, name, km}]."""
+    out = []
+    for c in nearest_cities_km(city_id, n):
+        if search_active_professional_ids(profession_id, c["name"], None, None, None, c["id"]):
+            out.append(c)
+    return out
+
+
 def nearby_cities_with_professionals(city_id: int, profession_id: str, limit: int = 8) -> list[dict]:
     """أقرب المدن (بنفس الدولة) اللي فيها فنيين متاحين فعلًا لهذي المهنة — مرتبة بالمسافة.
     [{id, name, count, km}]."""

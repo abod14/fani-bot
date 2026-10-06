@@ -247,8 +247,6 @@ def _on_choice(api, wa_id, name, rid, state, data):
     if not data.get("pid") and head not in ("c", "n"):
         return _welcome(api, wa_id, name)   # زر قديم بعد انتهاء الجلسة
     if head == "loc":
-        if len(p) > 1 and p[1] == "near" and data.get("city_id"):
-            return _offer_other_cities(api, wa_id, data)
         return _manual_start(api, wa_id, data)
     if head == "cty":
         return _choose_country(api, wa_id, p[1], 0, data)
@@ -268,8 +266,7 @@ def _on_choice(api, wa_id, name, rid, state, data):
             return _welcome(api, wa_id, name)
         data.update(city_id=c["id"], city=c["name"], country=c.get("country") or data.get("country") or "SA",
                     neighborhood=None, district_id=None)
-        if c["id"] in (data.get("other") or []):
-            data["tried"] = list(set((data.get("tried") or []) + [c["id"]]))
+        data["from_near"] = 1
         return _run_search(api, wa_id, data)
     if head == "dist":
         if p[1] == "all":
@@ -431,8 +428,7 @@ def _select_profession(api, wa_id, pid, data):
 
 
 def _on_location(api, wa_id, lat, lon, data):
-    for k in ("other", "other_km", "other_names", "tried"):
-        data.pop(k, None)
+    data.pop("from_near", None)
     res = db.find_nearest_sa_city_and_district_by_coords(lat, lon, countries.enabled_codes("wa"))
     if not res or not res[0]:
         api.text(wa_id, "لم نتمكن من تحديد مدينتك من الموقع 😅 اختر يدويًا:")
@@ -445,8 +441,7 @@ def _on_location(api, wa_id, lat, lon, data):
 
 
 def _manual_start(api, wa_id, data):
-    for k in ("other", "other_km", "other_names", "tried"):
-        data.pop(k, None)
+    data.pop("from_near", None)
     enabled = countries.enabled_codes("wa")
     if len(enabled) == 1:
         return _choose_country(api, wa_id, enabled[0], 0, data)
@@ -661,55 +656,19 @@ def _run_search(api, wa_id, data):
 
 
 def _offer_nearby_cities(api, wa_id, data):
-    """ما فيه فنيين بالمدينة: نعرض مباشرة أقرب المدن اللي فيها فنيين لنفس المهنة (قائمة وحدة)."""
+    """ما فيه فنيين بالمدينة: نشيّك أقرب 3 مدن حولها فقط (مو الدولة كلها) ونعرض منها اللي فيها
+    فنيين كأزرار مع المسافة. ما فيه ولا وحدة — أو جاي أصلًا من وحدة منها — ننهي البحث نهائيًا."""
     pname, city = data["pname"], data["city"]
-    if data.get("other"):
-        return _other_city_empty(api, wa_id, data)
-    near = db.nearby_cities_with_professionals(data.get("city_id"), data["pid"], 8)
+    near = [] if data.get("from_near") else db.nearest3_with_professionals(data.get("city_id"), data["pid"], 3)
     if not near:
-        api.buttons(
-            wa_id,
-            f"عذرًا، لا يوجد حاليًا فنيون في مهنة «{pname}» في {city} ولا في المدن القريبة منها 😔\n"
-            "سجّلنا طلبك، ونعمل على إضافة فنيين في منطقتك قريبًا.",
-            [("loc:near", "🏙️ مدينة أخرى")],
-        )
-        return "results", data
-    # مدينة ثانية = بحث بكل المدينة مباشرة (أحياؤها ما تهم العميل) — المسافة بس بدون العدد
-    rows = [(f"ncity:{c['id']}", c["name"], f"تبعد {c['km']} كم") for c in near]
-    rows.append(("loc:near", "🏙️ مدينة أخرى", "أقرب المدن إليك"))
-    rows.append(("m:search", "🔄 بحث جديد", None))
-    api.list(wa_id, f"لا يوجد حاليًا فنيون في مهنة «{pname}» في {city} 😔\nهذه أقرب المدن التي يتوفر فيها فنيون 👇",
-             "اختر المدينة", rows, section_title="مدن قريبة")
-    return "loc", data
-
-
-def _offer_other_cities(api, wa_id, data):
-    """زر «مدينة أخرى»: أقرب 3 مدن حول مدينته (مع المسافة) كأزرار — اختيار المدينة = بحث بكل
-    المدينة مباشرة. لو جرّب الثلاث وما طلع شي ننهي البحث."""
-    near = db.nearest_cities_km(data["city_id"], 3)
-    if not near:
-        return _manual_start(api, wa_id, data)
-    data.update(other=[c["id"] for c in near], other_km={str(c["id"]): c["km"] for c in near},
-                other_names={str(c["id"]): c["name"] for c in near}, tried=[])
-    lines = "\n".join(f"• {c['name']} — تبعد {c['km']} كم" for c in near)
-    api.buttons(wa_id, f"أقرب المدن إلى {data['city']} 👇\n{lines}",
-                [(f"ncity:{c['id']}", clip_text(c["name"], 20)) for c in near])
-    return "loc", data
-
-
-def _other_city_empty(api, wa_id, data):
-    """ما فيه فنيين بمدينة من المدن الثلاث: نعرض اللي باقي منها، ولو خلصت ننهي البحث."""
-    pname, city = data["pname"], data["city"]
-    left = [i for i in data["other"] if i not in (data.get("tried") or [])]
-    if not left:
-        api.text(wa_id, f"عذرًا، لا يوجد حاليًا فنيون في مهنة «{pname}» في المدن القريبة أيضًا 😔\n"
+        api.text(wa_id, f"عذرًا، لا يوجد حاليًا فنيون في مهنة «{pname}» في {city} ولا في المدن القريبة منها 😔\n"
                         "سجّلنا طلبك، ونعمل على إضافة فنيين في منطقتك قريبًا.\n\n"
                         "للبحث من جديد اكتب s")
         return None, {}
-    names, kms = data.get("other_names") or {}, data.get("other_km") or {}
-    lines = "\n".join(f"• {names.get(str(i), '')} — تبعد {kms.get(str(i), '?')} كم" for i in left)
-    api.buttons(wa_id, f"لا يوجد حاليًا فنيون في مهنة «{pname}» في {city} 😔\nجرّب مدينة أخرى 👇\n{lines}",
-                [(f"ncity:{i}", clip_text(names.get(str(i), str(i)), 20)) for i in left])
+    lines = "\n".join(f"• {c['name']} — تبعد {c['km']} كم" for c in near)
+    api.buttons(wa_id, f"لا يوجد حاليًا فنيون في مهنة «{pname}» في {city} 😔\n"
+                       f"يتوفر فنيون في هذه المدن القريبة 👇\n{lines}",
+                [(f"ncity:{c['id']}", clip_text(c["name"], 20)) for c in near])
     return "loc", data
 
 
