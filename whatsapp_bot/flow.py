@@ -210,8 +210,11 @@ def _dispatch(api, wa_id, name, msg, state, data):
         if state == "loc_city" and data.get("pid"):
             return _on_city_text(api, wa_id, body, data)
         if state == "loc" and data.get("pid"):
-            api.buttons(wa_id, "📍 أرسل موقعك (📎 ← الموقع)، أو اختر مدينتك يدويًا:", [("loc:manual", "🏙️ اختيار يدوي")])
-            return state, data
+            # كتب اسم مدينته ← نروح لها مباشرة؛ أي كتابة ثانية («يدوي»…) ← الاختيار اليدوي
+            city = db.find_listed_city_by_name(body, countries.enabled_codes("wa"))
+            if city:
+                return _choose_city(api, wa_id, city["id"], 0, data)
+            return _manual_start(api, wa_id, data)
         return _welcome(api, wa_id, name)
     # صورة/صوت/ملصق… → القائمة
     return _welcome(api, wa_id, name)
@@ -419,10 +422,14 @@ def _select_profession(api, wa_id, pid, data):
     if not prof:
         return _ask_top(api, wa_id)
     data = {"pid": prof["id"], "pname": prof["name"]}
+    # رسالة وحدة: زر «إرسال الموقع» ما يقبل زرًا ثانيًا معه (قيد من واتساب)،
+    # فالاختيار اليدوي يكون بالكتابة: اسم المدينة مباشرة أو أي كلمة (مثل «يدوي»).
     api.location_request(
-        wa_id, f"حسنًا ✅ «{prof['name']}»\n📍 أرسل موقعك من الزر أدناه، وسنعرض لك أقرب الفنيين إليك."
+        wa_id,
+        f"حسنًا ✅ «{prof['name']}»\n"
+        "📍 اضغط «إرسال الموقع» أدناه، وسنعرض لك أقرب الفنيين إليك.\n\n"
+        "🏙️ أو اكتب اسم مدينتك (مثل: الرياض)، أو اكتب «يدوي» لاختيار مدينتك وحيّك من القائمة.",
     )
-    api.buttons(wa_id, "أو اختر مدينتك وحيّك يدويًا:", [("loc:manual", "🏙️ اختيار يدوي")])
     return "loc", data
 
 
