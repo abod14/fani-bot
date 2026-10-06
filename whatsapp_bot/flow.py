@@ -652,8 +652,9 @@ def _offer_nearby_cities(api, wa_id, data):
     if not near:
         api.buttons(
             wa_id,
-            f"لا يوجد حاليًا فنيون في مهنة «{pname}» في {city} ولا في المدن القريبة منها 😔\nجرّب مهنة أخرى.",
-            [("m:search", "🔄 بحث جديد"), ("loc:manual", "🏙️ اختيار يدوي")],
+            f"عذرًا، لا يوجد حاليًا فنيون في مهنة «{pname}» في {city} ولا في المدن القريبة منها 😔\n"
+            "سجّلنا طلبك، ونعمل على إضافة فنيين في منطقتك قريبًا.",
+            [("loc:manual", "🏙️ مدينة أخرى"), ("m:search", "🔄 بحث جديد")],
         )
         return "results", data
     rows = [(f"city:{c['id']}", c["name"], f"{c['count']} {'فني' if c['count'] == 1 else 'فنيين'} • {c['km']} كم")
