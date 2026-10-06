@@ -2131,30 +2131,6 @@ def search_sa_districts(city_id: int, query: str, limit: int = 8):
         return [dict(r) for r in rows]
 
 
-def find_listed_city_by_name(name: str, countries: list[str] | None = None):
-    """مدينة (من المدن المعروضة للاختيار) اسمها يطابق النص المكتوب تمامًا — مع أو بدون «ال»
-    وكلمة «مدينة». للعميل اللي يكتب اسم مدينته بدل ما يرسل موقعه."""
-    t = " ".join((name or "").strip().split())
-    for w in ("مدينة ", "مدينه "):
-        if t.startswith(w):
-            t = t[len(w):]
-    if len(t) < 2:
-        return None
-    variants = {t, t.replace("ه", "ة") if t.endswith("ه") else t}
-    for v in list(variants):
-        variants.add(v[2:] if v.startswith("ال") else "ال" + v)
-    marks = ",".join("?" * len(variants))
-    sql = f"SELECT * FROM sa_cities WHERE name IN ({marks}) AND {_listed_city_sql()}"
-    params = list(variants)
-    if countries:
-        sql += f" AND country IN ({','.join('?' * len(countries))})"
-        params += list(countries)
-    sql += " ORDER BY has_districts DESC, id LIMIT 1"
-    with get_conn() as conn:
-        row = conn.execute(sql, params).fetchone()
-        return dict(row) if row else None
-
-
 def get_sa_city_by_id(city_id: int):
     with get_conn() as conn:
         row = conn.execute("SELECT * FROM sa_cities WHERE id = ?", (city_id,)).fetchone()
