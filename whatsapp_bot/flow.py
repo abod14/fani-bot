@@ -676,13 +676,12 @@ def _offer_nearby_cities(api, wa_id, data):
 
 
 def _offer_other_cities(api, wa_id, data):
-    """زر «مدينة أخرى»: مباشرة أقرب 9 مدن حول مدينته مع المسافة (+ اختيار يدوي)،
+    """زر «مدينة أخرى»: مباشرة أقرب 10 مدن حول مدينته مع المسافة (بدون اختيار يدوي)،
     واختيار المدينة = بحث بكل المدينة على طول بدون أحياء."""
-    near = db.nearest_cities_km(data["city_id"], 9)
+    near = db.nearest_cities_km(data["city_id"], 10)
     if not near:
         return _manual_start(api, wa_id, data)
     rows = [(f"ncity:{c['id']}", c["name"], f"تبعد {c['km']} كم") for c in near]
-    rows.append(("loc:manual", "🗺️ اختيار يدوي", "الدولة ثم المنطقة ثم المدينة"))
     api.list(wa_id, f"أقرب المدن إلى {data['city']} 👇", "اختر المدينة", rows, section_title="مدن قريبة")
     return "loc", data
 
