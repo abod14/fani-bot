@@ -260,6 +260,13 @@ def _on_choice(api, wa_id, name, rid, state, data):
         return _choose_city(api, wa_id, int(p[1]), 0, data)
     if head == "dipg":
         return _choose_city(api, wa_id, int(p[1]), int(p[2]), data)
+    if head == "ncity":
+        c = db.get_sa_city_by_id(int(p[1]))
+        if not c:
+            return _welcome(api, wa_id, name)
+        data.update(city_id=c["id"], city=c["name"], country=c.get("country") or data.get("country") or "SA",
+                    neighborhood=None, district_id=None)
+        return _run_search(api, wa_id, data)
     if head == "dist":
         if p[1] == "all":
             data.update(neighborhood=None, district_id=None)
@@ -657,8 +664,8 @@ def _offer_nearby_cities(api, wa_id, data):
             [("loc:manual", "🏙️ مدينة أخرى"), ("m:search", "🔄 بحث جديد")],
         )
         return "results", data
-    rows = [(f"city:{c['id']}", c["name"], f"{c['count']} {'فني' if c['count'] == 1 else 'فنيين'} • {c['km']} كم")
-            for c in near]
+    # مدينة ثانية = بحث بكل المدينة مباشرة (أحياؤها ما تهم العميل) — المسافة بس بدون العدد
+    rows = [(f"ncity:{c['id']}", c["name"], f"تبعد {c['km']} كم") for c in near]
     rows.append(("loc:manual", "🏙️ مدينة أخرى", "اختيار يدوي"))
     rows.append(("m:search", "🔄 بحث جديد", None))
     api.list(wa_id, f"لا يوجد حاليًا فنيون في مهنة «{pname}» في {city} 😔\nهذه أقرب المدن التي يتوفر فيها فنيون 👇",
