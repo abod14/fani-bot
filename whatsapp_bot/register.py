@@ -130,8 +130,18 @@ def norm_phone(text: str, sender: str) -> str | None:
     return t if 10 <= len(t) <= 15 else None
 
 
+def otp_enabled() -> bool:
+    """رمز التحقق للجمهور يشتغل بس بعد ما يتفعّل قالب المصادقة (يحتاج توثيق النشاط التجاري بميتا) —
+    المالك يفعّله من صفحة «المسوّقون» باللوحة."""
+    return db.get_setting("wa_otp_enabled", "0") == "1"
+
+
 def _ask_number(api, wa_id, data):
     me = _digits(wa_id)
+    if not db.is_wa_registrar(me) and not otp_enabled():
+        # الجمهور قبل تفعيل رمز التحقق: التسجيل على رقمه فقط (بدون سؤال = رسالة أقل)
+        data["r"].pop("phone", None)
+        return _on_number_choice(api, wa_id, data, "me")
     api.buttons(
         wa_id,
         f"📱 هل تريد التسجيل على هذا الرقم؟\n+{me}\n\n(هو الرقم الذي سيتواصل عليه العملاء عبر واتساب)",
@@ -152,6 +162,8 @@ def _on_number_choice(api, wa_id, data, which):
         p = _registered(me)
         if p:
             api.text(wa_id, f"هذا الرقم مسجّل مسبقًا في «فنّي» باسم «{p['full_name']}».")
+            if not db.is_wa_registrar(me) and not otp_enabled():
+                return "menu", {}
             return _ask_number(api, wa_id, data)
         r.pop("phone", None)
         return _ask_top(api, wa_id, data)

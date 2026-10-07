@@ -6,6 +6,14 @@
 (بعد كتابة الاسم يختار «📱 رقم آخر» ويكتب رقم الفني). أضف رقمك أنت أيضًا.
 باقي الناس يقدرون يسجّلون رقمًا آخر لكن برمز تحقق يُرسل لواتساب ذاك الرقم.</p>
 
+<div class="card" style="border-right: 4px solid {{ '#16a34a' if otp_on else '#f59e0b' }};">
+  <h2>🔐 رمز التحقق للجمهور: {{ 'مفعّل ✅' if otp_on else 'متوقف ⏸️' }}</h2>
+  <p class="muted">لما يكون متوقف: الناس يسجّلون على أرقامهم فقط (ما يظهر لهم «رقم آخر»)، والمسوّقون يشتغلون عادي.
+  فعّله بعد توثيق نشاطك التجاري في ميتا وقبول قالب fanni_verify_code — كل رمز رسالة مدفوعة (~4 هللات).</p>
+  <form method="post"><input type="hidden" name="action" value="otp"><input type="hidden" name="on" value="{{ '0' if otp_on else '1' }}">
+    <button type="submit" class="{{ 'secondary' if otp_on else 'success' }}">{{ 'إيقاف' if otp_on else 'تفعيل' }}</button></form>
+</div>
+
 <div class="card">
   <h2>إضافة رقم</h2>
   <form method="post" style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">

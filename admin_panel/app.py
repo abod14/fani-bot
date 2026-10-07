@@ -707,7 +707,10 @@ def admins_page():
 @super_required
 def registrars_page():
     if request.method == "POST":
-        if request.form.get("action") == "remove":
+        if request.form.get("action") == "otp":
+            db.set_setting("wa_otp_enabled", "1" if request.form.get("on") == "1" else "0")
+            flash("تم الحفظ.", "success")
+        elif request.form.get("action") == "remove":
             db.remove_wa_registrar(request.form.get("phone", ""))
             flash("تم حذف الرقم.", "success")
         elif db.add_wa_registrar(request.form.get("phone", ""), request.form.get("name", "")):
@@ -715,7 +718,8 @@ def registrars_page():
         else:
             flash("اكتب الرقم كاملًا مع رمز الدولة، مثل: 966501234567", "error")
         return redirect(url_for("registrars_page"))
-    return render_template("registrars.html", rows=db.list_wa_registrars(), active_page="registrars")
+    return render_template("registrars.html", rows=db.list_wa_registrars(), active_page="registrars",
+                           otp_on=db.get_setting("wa_otp_enabled", "0") == "1")
 
 
 # ─────────────────────────── المهن الأكثر طلبًا + قائمة الـ9 بواتساب ───────────────────────────
