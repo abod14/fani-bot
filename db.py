@@ -1652,6 +1652,17 @@ def admin_delete_professional(professional_id: int):
         conn.execute("DELETE FROM professionals WHERE id = ?", (professional_id,))
 
 
+def delete_wa_professional(wa_id: str) -> int:
+    """حذف نهائي لتسجيل الفني المسجّل من واتساب (بطلبه هو عبر «d») مع كل ما يرتبط به."""
+    with get_conn() as conn:
+        ids = [r["id"] for r in conn.execute("SELECT id FROM professionals WHERE wa_id = ?", (wa_id,)).fetchall()]
+        for pid in ids:
+            for t in ("contact_clicks", "subscription_payments", "professional_districts", "notify_log", "missed_searches"):
+                conn.execute(f"DELETE FROM {t} WHERE professional_id = ?", (pid,))
+        conn.execute("DELETE FROM professionals WHERE wa_id = ?", (wa_id,))
+    return len(ids)
+
+
 def has_any_user_data(telegram_user_id: int) -> bool:
     """يفحص هل عند هذا المستخدم أي بيانات مخزّنة (كفني و/أو كعميل باحث) — تُستخدم قبل عرض
     تأكيد حذف الحساب، حتى ما نعرض الخيار لمن ما عنده شي أصلًا."""

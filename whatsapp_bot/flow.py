@@ -115,25 +115,33 @@ CHANNEL_URL = "https://whatsapp.com/channel/0029VbDnWZT11ulJLdQN7D3L"
 
 
 def _ask_delete(api, wa_id):
-    """حذف البيانات نهائي — نأكد قبل (حرف d ممكن ينكتب بالغلط)."""
+    """حذف البيانات نهائي (يشمل تسجيل الفني) — نأكد قبل برسالة تنبيه (حرف d ممكن ينكتب بالغلط)."""
+    pro = db.get_professional_by_wa_id(wa_id)
+    items = []
+    if pro:
+        items.append(f"• تسجيلك كفنّي ({pro.get('profession_name') or ''})، ولن تظهر للعملاء بعد الآن")
+        if pro.get("is_subscribed"):
+            items.append("• اشتراكك المدفوع الحالي، دون استرجاع المبلغ")
+    items += ["• سجل عمليات البحث (ما بحثت عنه وأين)", "• سجل الفنيين الذين تواصلت معهم",
+              "• محادثتك الحالية مع البوت"]
     api.buttons(
         wa_id,
-        "🗑️ هل تريد حذف بياناتك من «فنّي» نهائيًا؟\n\n"
-        "سيُحذف ما يلي:\n• سجل عمليات البحث (ما بحثت عنه وأين)\n• سجل الفنيين الذين تواصلت معهم\n• محادثتك الحالية مع البوت\n\n"
-        "ملاحظة: إذا كنت مسجّلًا كفنّي، فلن يُحذف تسجيلك كفنّي بهذا الإجراء (اطلب ذلك من الإدارة).",
+        "🗑️ هل تريد حذف بياناتك من «فنّي» نهائيًا؟\n\nسيُحذف ما يلي:\n" + "\n".join(items)
+        + "\n\n⚠️ لا يمكن التراجع عن هذا الإجراء.",
         [("del:yes", "🗑️ نعم، احذف"), ("del:no", "لا، رجوع")],
     )
     return "menu", {}
 
 
 def _delete_my_data(api, wa_id):
-    """حذف بيانات العميل نهائيًا (وعد سياسة الخصوصية): الجلسة + سجلات بحثه وتواصله."""
+    """حذف نهائي (وعد سياسة الخصوصية): الجلسة + سجلات بحثه وتواصله + تسجيله كفني لو مسجّل من واتساب."""
     cid = customer_id(wa_id)
+    db.delete_wa_professional(wa_id)
     with db.get_conn() as conn:
         conn.execute("DELETE FROM wa_sessions WHERE wa_id = ?", (wa_id,))
         conn.execute("DELETE FROM search_log WHERE customer_telegram_id = ?", (cid,))
         conn.execute("DELETE FROM contact_clicks WHERE customer_telegram_id = ?", (cid,))
-    api.text(wa_id, "✅ تم حذف جميع بياناتك من «فني» نهائيًا. يمكنك العودة إلى استخدام الخدمة في أي وقت.")
+    api.text(wa_id, "✅ تم حذف جميع بياناتك من «فنّي» نهائيًا. يمكنك العودة إلى استخدام الخدمة في أي وقت.")
     return None, {}
 
 
