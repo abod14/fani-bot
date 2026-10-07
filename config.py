@@ -59,6 +59,8 @@ WA_TPL_FREE_ENDED = os.environ.get("WA_TPL_FREE_ENDED",
 WA_TPL_MONTHLY_SUMMARY = os.environ.get("WA_TPL_MONTHLY_SUMMARY", "fanni_monthly_summary").split(",")
 # قالب «رمز التحقق» (تصنيف AUTHENTICATION) — لتسجيل فني على رقم غير رقم المرسل
 WA_TPL_VERIFY = os.environ.get("WA_TPL_VERIFY", "fanni_verify_code").split(",")
+# إشعار «تم تسجيلك» للفني اللي سجّله مسوّق/شخص آخر على رقمه (خدمي)
+WA_TPL_REGISTERED = os.environ.get("WA_TPL_REGISTERED", "fanni_registered").split(",")
 WA_TPL_CUSTOMER_SEARCHING = os.environ.get("WA_TPL_CUSTOMER_SEARCHING", "fanni_request_alert,fanni_customer_searching").split(",")
 
 # ───────────────────────── قناة تلغرام المرتبطة بالبوت ─────────────────────────

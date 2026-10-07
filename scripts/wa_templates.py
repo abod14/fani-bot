@@ -35,6 +35,13 @@ def _tpl_details(name, text, example):
 
 
 TEMPLATES = [
+    # «تم تسجيلك» — للفني اللي سجّله مسوّق على رقمه + زر «حسابي» (بطاقته وحالته ورابط القناة)
+    {"name": "fanni_registered", "language": "ar", "category": "UTILITY",
+     "components": [{"type": "BODY",
+                     "text": "تم تسجيلك في «فنّي» يا {{1}} بمهنة «{{2}}»، وأصبح رقمك يظهر للعملاء "
+                             "الذين يبحثون عن خدمتك في منطقتك.",
+                     "example": {"body_text": [["عبدالله", "سباك"]]}},
+                    {"type": "BUTTONS", "buttons": [{"type": "QUICK_REPLY", "text": "حسابي"}]}]},
     # رمز التحقق (تسجيل فني على رقم آخر) — نص ميتا الجاهز، تصنيف «مصادقة» (الأرخص)
     {"name": "fanni_verify_code", "language": "ar", "category": "AUTHENTICATION",
      "components": [{"type": "BODY", "add_security_recommendation": True},

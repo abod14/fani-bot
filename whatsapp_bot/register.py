@@ -43,7 +43,7 @@ def start(api, wa_id):
     return "r_name", {"r": {}}
 
 
-def _status(api, wa_id, p):
+def _status(api, wa_id, p, extra=""):
     from handlers.search import _professional_card_text
 
     limit = int(db.get_setting("free_contacts_limit", str(db.FREE_CONTACTS_LIMIT))) + (p.get("bonus_contacts") or 0)
@@ -56,7 +56,7 @@ def _status(api, wa_id, p):
         buttons.insert(0, ("R:sub", "💳 اشترك"))
     if not (p.get("telegram_user_id") or 0) > 0:
         buttons.insert(0, ("R:tg:yes", "🔗 اربط بتلغرام"))
-    api.buttons(wa_id, f"أنت مسجّل في «فنّي» 👌\n\n{_professional_card_text(p)}\n\n{line}", buttons)
+    api.buttons(wa_id, f"أنت مسجّل في «فنّي» 👌\n\n{_professional_card_text(p)}\n\n{line}{extra}", buttons)
     return "menu", {}
 
 
@@ -617,6 +617,7 @@ def _save(api, wa_id, data):
     _notify_admin_async(row_id)
     p = db.get_professional_by_id(row_id)
     if other:
+        _notify_registered(api, digits, r["name"], r["pname"])
         # سجّل فنيًا آخر: رسالة وحدة (بطاقة + أزرار) — بدون سؤال ربط تلغرام (يخص صاحب الرقم)
         api.buttons(wa_id, f"🎉 تم تسجيل الفني «{r['name']}» على الرقم +{digits}، وأصبح يظهر للعملاء.\n\n"
                            + _professional_card_text(p),
@@ -630,6 +631,18 @@ def _save(api, wa_id, data):
         [("R:tg:yes", "✅ نعم، أضفها"), ("R:tg:no", "لا، شكرًا")],
     )
     return "r_done", {"r": {"saved_id": row_id}}
+
+
+def _notify_registered(api, phone, name, pname):
+    """يبلّغ الفني بتسجيله (قالب خدمي مدفوع ~4 هللات) — يشتغل بالخلفية عشان ما يأخر رد المسجِّل."""
+    def run():
+        import config
+        for tpl in config.WA_TPL_REGISTERED:
+            r = api.template(phone, tpl.strip(), [name, pname], button_payloads=["R:mine"])
+            if r is not None and getattr(r, "status_code", 500) < 400:
+                break
+
+    threading.Thread(target=run, daemon=True).start()
 
 
 def _telegram_link(api, wa_id, data):
@@ -657,6 +670,12 @@ def on_choice(api, wa_id, rid, state, data):
             return start(api, wa_id)
         from whatsapp_bot import subscribe
         return subscribe.details(api, wa_id, p)
+    if act == "mine":
+        # زر «حسابي» من قالب «تم تسجيلك»: بطاقته وحالته + رابط القناة (الرسالة مجانية بعد ضغطه)
+        p = db.get_professional_for_wa(wa_id)
+        if not p:
+            return start(api, wa_id)
+        return _status(api, wa_id, p, extra=f"\n\n📢 تابع قناة «فنّي» على واتساب: {_flow().CHANNEL_URL}")
     if act == "mute":
         p = db.get_professional_for_wa(wa_id)
         if p:
