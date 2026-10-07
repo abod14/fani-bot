@@ -33,8 +33,10 @@ def _digits(wa_id: str) -> str:
 
 def start(api, wa_id):
     """زر «أنا فني»: لو مسجّل يشوف حالته، وإلا نبدأ التسجيل."""
-    p = db.get_professional_by_wa_id(_digits(wa_id))
-    if p and p.get("status") != db.STATUS_REJECTED:
+    me = _digits(wa_id)
+    p = db.get_professional_by_wa_id(me)
+    # المالك/المسوّق يسجّل فنيين آخرين — ما نوقفه عند حالته هو
+    if p and p.get("status") != db.STATUS_REJECTED and not db.is_wa_registrar(me):
         return _status(api, wa_id, p)
     api.text(wa_id, "مرحبًا بك 🙌 سنسجّلك في «فنّي» مجانًا خلال دقيقة، لتظهر للعملاء في واتساب وتلغرام.\n\n"
                     "✍️ اكتب اسمك (الاسم الذي سيظهر للعملاء):")
@@ -68,7 +70,13 @@ def on_text(api, wa_id, state, data, body):
             api.text(wa_id, "اكتب اسمًا يتراوح طوله بين حرفين و40 حرفًا 🙏")
             return state, data
         r["name"] = name
-        return _ask_top(api, wa_id, data)
+        return _ask_number(api, wa_id, data)
+    if state == "r_num":
+        return _ask_number(api, wa_id, data)
+    if state == "r_phone":
+        return _on_phone_text(api, wa_id, data, body)
+    if state == "r_otp":
+        return _on_otp_text(api, wa_id, data, body)
     if state == "r_prof":
         return _match_profession(api, wa_id, body, data)
     if state == "r_dist":
@@ -95,16 +103,155 @@ def on_text(api, wa_id, state, data, body):
     return _flow()._welcome(api, wa_id, (p or {}).get("full_name") or r.get("name") or "")
 
 
+# ─────────────────────────── رقم الفني (هذا الجوال أو رقم آخر) ───────────────────────────
+
+OTP_TTL = 600          # صلاحية الرمز بالثواني
+OTP_TRIES = 3          # محاولات إدخال الرمز
+OTP_DAILY = 3          # رموز في اليوم لكل مرسل (كل رمز رسالة مدفوعة)
+_CC = ("966", "971", "965", "974", "973", "968", "20")
+
+
+def tech_phone(r: dict, wa_id: str) -> str:
+    """رقم الفني اللي ينحفظ ويظهر للعملاء: الرقم الآخر لو اختاره، وإلا رقم المرسل."""
+    return r.get("phone") or _digits(wa_id)
+
+
+def norm_phone(text: str, sender: str) -> str | None:
+    """يحوّل الرقم المكتوب لصيغة دولية (أرقام فقط): 0501234567 ← 966501234567 حسب دولة المرسل."""
+    t = (text or "").translate(str.maketrans("٠١٢٣٤٥٦٧٨٩۰۱۲۳۴۵۶۷۸۹", "01234567890123456789"))
+    t = re.sub(r"\D", "", t)
+    if t.startswith("00"):
+        t = t[2:]
+    if t.startswith("0"):
+        cc = next((c for c in _CC if sender.startswith(c)), "966")
+        t = cc + t[1:]
+    elif len(t) == 9 and t.startswith("5"):
+        t = "966" + t
+    return t if 10 <= len(t) <= 15 else None
+
+
+def _ask_number(api, wa_id, data):
+    me = _digits(wa_id)
+    api.buttons(
+        wa_id,
+        f"📱 هل تريد التسجيل على هذا الرقم؟\n+{me}\n\n(هو الرقم الذي سيتواصل عليه العملاء عبر واتساب)",
+        [("R:num:me", "✅ نعم، هذا الرقم"), ("R:num:other", "📱 رقم آخر")],
+    )
+    return "r_num", data
+
+
+def _registered(phone: str):
+    p = db.get_professional_for_wa(phone)
+    return p if p and p.get("status") != db.STATUS_REJECTED else None
+
+
+def _on_number_choice(api, wa_id, data, which):
+    r = data["r"]
+    me = _digits(wa_id)
+    if which == "me":
+        p = _registered(me)
+        if p:
+            api.text(wa_id, f"هذا الرقم مسجّل مسبقًا في «فنّي» باسم «{p['full_name']}».")
+            return _ask_number(api, wa_id, data)
+        r.pop("phone", None)
+        return _ask_top(api, wa_id, data)
+    api.text(wa_id, "✍️ اكتب رقم واتساب الفني (مثل: 0501234567 أو 966501234567):")
+    return "r_phone", data
+
+
+def _on_phone_text(api, wa_id, data, body):
+    r = data["r"]
+    me = _digits(wa_id)
+    t = norm_phone(body, me)
+    if not t:
+        api.text(wa_id, "الرقم غير صحيح 🙏 اكتبه مثل: 0501234567 أو 966501234567")
+        return "r_phone", data
+    if t == me:
+        return _on_number_choice(api, wa_id, data, "me")
+    p = _registered(t)
+    if p:
+        api.text(wa_id, f"الرقم +{t} مسجّل مسبقًا في «فنّي» باسم «{p['full_name']}». اكتب رقمًا آخر:")
+        return "r_phone", data
+    if db.is_wa_registrar(me):
+        # المالك والمسوّقون: بدون رمز تحقق
+        r["phone"] = t
+        return _ask_top(api, wa_id, data, note=f"✅ سيُسجَّل الفني على الرقم +{t}\n\n")
+    return _send_otp(api, wa_id, data, t)
+
+
+def _send_otp(api, wa_id, data, t):
+    import secrets
+    import time
+
+    import config
+    import nudges
+
+    r = data["r"]
+    me = _digits(wa_id)
+    if db.count_otp_since(me) >= OTP_DAILY:
+        api.text(wa_id, "⚠️ تجاوزت الحد المسموح لإرسال رموز التحقق اليوم. حاول غدًا، أو سجّل من جوال الفني نفسه.")
+        return "r_phone", data
+    code = f"{secrets.randbelow(900000) + 100000}"
+    ok = False
+    if nudges._in_free_window(t):
+        # صاحب الرقم راسل البوت خلال 24 ساعة — رسالة عادية بدل القالب المدفوع
+        res = api.text(t, f"🔐 رمز التحقق لتسجيلك في «فنّي»: {code}\nلا تشاركه إلا مع الشخص الذي يسجّلك.")
+        ok = res is not None and getattr(res, "status_code", 500) < 400
+    if not ok:
+        for name in config.WA_TPL_VERIFY:
+            res = api.auth_code(t, name.strip(), code)
+            if res is not None and getattr(res, "status_code", 500) < 400:
+                ok = True
+                break
+    if not ok:
+        api.text(wa_id, f"⚠️ تعذّر إرسال الرمز إلى +{t}. تأكد أن الرقم صحيح وعليه واتساب، أو سجّل من جوال الفني نفسه.\n\n"
+                        "✍️ اكتب الرقم مرة أخرى:")
+        return "r_phone", data
+    db.log_otp(me, t)
+    r.update(otp=code, otp_phone=t, otp_at=time.time(), otp_tries=0)
+    api.text(wa_id, f"📩 أرسلنا رمز تحقق إلى واتساب الرقم +{t}.\nاطلب الرمز من صاحب الرقم، واكتبه هنا (صالح 10 دقائق):")
+    return "r_otp", data
+
+
+def _on_otp_text(api, wa_id, data, body):
+    import time
+
+    r = data["r"]
+    t = r.get("otp_phone")
+    if not r.get("otp") or not t:
+        return _ask_number(api, wa_id, data)
+    if time.time() - (r.get("otp_at") or 0) > OTP_TTL:
+        for k in ("otp", "otp_phone", "otp_at", "otp_tries"):
+            r.pop(k, None)
+        api.text(wa_id, "⌛ انتهت صلاحية الرمز. اكتب الرقم مرة أخرى لإرسال رمز جديد:")
+        return "r_phone", data
+    typed = re.sub(r"\D", "", (body or "").translate(str.maketrans("٠١٢٣٤٥٦٧٨٩", "0123456789")))
+    if typed == r["otp"]:
+        for k in ("otp", "otp_phone", "otp_at", "otp_tries"):
+            r.pop(k, None)
+        r["phone"] = t
+        return _ask_top(api, wa_id, data, note=f"✅ تم التحقق من الرقم +{t}\n\n")
+    r["otp_tries"] = (r.get("otp_tries") or 0) + 1
+    left = OTP_TRIES - r["otp_tries"]
+    if left <= 0:
+        for k in ("otp", "otp_phone", "otp_at", "otp_tries"):
+            r.pop(k, None)
+        api.text(wa_id, "❌ تجاوزت عدد المحاولات. اكتب الرقم مرة أخرى لإرسال رمز جديد:")
+        return "r_phone", data
+    api.text(wa_id, f"❌ الرمز غير صحيح. حاول مرة أخرى (المتبقي: {left}):")
+    return "r_otp", data
+
+
 # ─────────────────────────── المهنة ───────────────────────────
 
-def _ask_top(api, wa_id, data, intro=None):
+def _ask_top(api, wa_id, data, intro=None, note=""):
     """الـ9 الأكثر طلبًا + «المزيد» — نفس قائمة البحث."""
     from whatsapp_bot import top
     data.setdefault("r", {}).pop("more", None)
     more_n = max(len(top.all_professions()) - 9, 0)
-    body = intro or (f"أهلًا بك {data['r'].get('name', '')} 👋\n"
+    body = note + (intro or (f"أهلًا بك {data['r'].get('name', '')} 👋\n"
                      f"ما هي مهنتك؟ اختر من القائمة التالية، أو اضغط «المزيد» للقائمة الموسّعة (+{more_n} مهنة)، "
-                     "أو اكتب اسمها (مثل: سباك)")
+                     "أو اكتب اسمها (مثل: سباك)"))
     api.list(wa_id, body, "اختر مهنتك", top.top_rows("R:"), section_title="الأكثر طلبًا")
     return "r_prof", data
 
@@ -416,7 +563,7 @@ def _confirm(api, wa_id, data, note=""):
         wa_id,
         f"{note}راجع بياناتك قبل التسجيل 👇\n\n"
         f"👷 {r['name']}\n🛠️ {r['pname']}\n📋 {services}\n📍 {countries.name(r['country'], 'ar')} / {where}\n"
-        f"📱 رقم التواصل للعملاء: +{_digits(wa_id)}",
+        f"📱 رقم التواصل للعملاء: +{tech_phone(r, wa_id)}",
         [("R:ok", "✅ تأكيد التسجيل")]
         + ([("R:dedit", "📍 تعديل الأحياء")] if r.get("has_d") else [])
         + [("R:redo", "✏️ البدء من جديد")],
@@ -428,7 +575,11 @@ def _save(api, wa_id, data):
     from handlers.search import _professional_card_text
 
     r = data["r"]
-    digits = _digits(wa_id)
+    digits = tech_phone(r, wa_id)
+    other = digits != _digits(wa_id)
+    if _registered(digits):
+        api.text(wa_id, f"الرقم +{digits} مسجّل مسبقًا في «فنّي».")
+        return "menu", {}
     whole = bool(r.get("whole") or not r.get("has_d"))
     chosen = [] if whole else list(r.get("chosen", []))
     names = [db.get_sa_district_by_id(d)["name"] for d in chosen]
@@ -449,9 +600,16 @@ def _save(api, wa_id, data):
         "services": r.get("services") or [],
         "covers_whole_city": whole,
         "source": "whatsapp",
+        "registered_by": _digits(wa_id) if other else None,
     })
     _notify_admin_async(row_id)
     p = db.get_professional_by_id(row_id)
+    if other:
+        # سجّل فنيًا آخر: رسالة وحدة (بطاقة + أزرار) — بدون سؤال ربط تلغرام (يخص صاحب الرقم)
+        api.buttons(wa_id, f"🎉 تم تسجيل الفني «{r['name']}» على الرقم +{digits}، وأصبح يظهر للعملاء.\n\n"
+                           + _professional_card_text(p),
+                    [("R:again", "➕ تسجيل فني آخر"), ("m:search", "🔍 ابحث عن فني")])
+        return "menu", {}
     api.text(wa_id, "🎉 تم تسجيلك! وأصبحت تظهر للعملاء الذين يبحثون في واتساب وتلغرام.\n\nهذه بطاقتك كما يراها العميل:\n\n"
              + _professional_card_text(p))
     api.buttons(
@@ -505,8 +663,12 @@ def on_choice(api, wa_id, rid, state, data):
             return _telegram_link(api, wa_id, data)
         api.text(wa_id, "حسنًا 👍 يمكنك ربطه في أي وقت من «🛠️ أنا فني». اكتب s للعودة إلى القائمة.")
         return "menu", {}
+    if act == "again":
+        return start(api, wa_id)
     if not r.get("name"):            # زر قديم من جلسة منتهية
         return start(api, wa_id)
+    if act == "num":
+        return _on_number_choice(api, wa_id, data, p[1] if len(p) > 1 else "me")
     if act == "top":
         return _ask_more(api, wa_id, data)
     if act == "dpg":

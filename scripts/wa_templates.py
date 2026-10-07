@@ -35,6 +35,11 @@ def _tpl_details(name, text, example):
 
 
 TEMPLATES = [
+    # رمز التحقق (تسجيل فني على رقم آخر) — نص ميتا الجاهز، تصنيف «مصادقة» (الأرخص)
+    {"name": "fanni_verify_code", "language": "ar", "category": "AUTHENTICATION",
+     "components": [{"type": "BODY", "add_security_recommendation": True},
+                    {"type": "FOOTER", "code_expiration_minutes": 10},
+                    {"type": "BUTTONS", "buttons": [{"type": "OTP", "otp_type": "COPY_CODE", "text": "نسخ الرمز"}]}]},
     # كشف حساب بحت بلا ذكر للاشتراك + زر «التفاصيل» فقط — أقرب لتصنيف «خدمة»
     _tpl_details("fanni_account_update",
                  "تحديث حسابك في «فنّي» يا {{1}}: رصيد فرص التواصل المجانية في حسابك انتهى، "
@@ -89,7 +94,8 @@ def main():
             print("اكتب رقمك بعد الأمر، مثال: ... test 2153603535505078 966501234567")
             return
         to = "".join(ch for ch in sys.argv[3] if ch.isdigit())
-        examples = {t["name"]: t["components"][0]["example"]["body_text"][0] for t in TEMPLATES}
+        examples = {t["name"]: t["components"][0]["example"]["body_text"][0] for t in TEMPLATES
+                    if "example" in t["components"][0]}
         st = requests.get(url, headers=headers, params={"fields": "name,status", "limit": 100}, timeout=30).json()
         approved = [t["name"] for t in st.get("data", []) if t.get("status") == "APPROVED" and t["name"] in examples]
         if not approved:

@@ -701,6 +701,23 @@ def admins_page():
     return render_template("admins.html", admins=db.list_admin_users(), active_page="admins")
 
 
+# ─────────────────────────── المسوّقون (تسجيل فنيين على أرقام أخرى) ───────────────────────────
+
+@app.route("/registrars", methods=["GET", "POST"])
+@super_required
+def registrars_page():
+    if request.method == "POST":
+        if request.form.get("action") == "remove":
+            db.remove_wa_registrar(request.form.get("phone", ""))
+            flash("تم حذف الرقم.", "success")
+        elif db.add_wa_registrar(request.form.get("phone", ""), request.form.get("name", "")):
+            flash("تمت إضافة الرقم — يقدر الآن يسجّل فنيين بأرقامهم من بوت واتساب بدون رمز تحقق.", "success")
+        else:
+            flash("اكتب الرقم كاملًا مع رمز الدولة، مثل: 966501234567", "error")
+        return redirect(url_for("registrars_page"))
+    return render_template("registrars.html", rows=db.list_wa_registrars(), active_page="registrars")
+
+
 # ─────────────────────────── المهن الأكثر طلبًا + قائمة الـ9 بواتساب ───────────────────────────
 
 @app.route("/demand", methods=["GET", "POST"])

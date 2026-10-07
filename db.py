@@ -197,7 +197,9 @@ def init_db():
                          ("nudge_first_at", "TEXT"),
                          # الفني ضغط «إيقاف الإشعارات» (تلغرام/واتساب) — الأدمن يقدر يرجّعها من اللوحة
                          ("tg_notify_off", "INTEGER NOT NULL DEFAULT 0"), ("wa_notify_off", "INTEGER NOT NULL DEFAULT 0"),
-                         ("notify_off_at", "TEXT")):
+                         ("notify_off_at", "TEXT"),
+                         # رقم واتساب اللي سجّل الفني (مسوّق/المالك أو شخص تحقق برمز) لو غير رقم الفني نفسه
+                         ("registered_by", "TEXT")):
             if col not in existing_columns:
                 # دورة إشعارات واتساب (المدفوعة): 5 بالشهر، وتوقف تلقائيًا بعد سنة من أول إشعار
                 conn.execute(f"ALTER TABLE professionals ADD COLUMN {col} {ddl}")
@@ -542,6 +544,12 @@ def init_db():
         )
         conn.execute("CREATE INDEX IF NOT EXISTS idx_missed_prof ON missed_searches (professional_id, searched_at)")
 
+        # أرقام مسموح لها تسجيل فنيين على أرقام أخرى بدون رمز تحقق (المالك والمسوّقين) — من اللوحة
+        conn.execute("CREATE TABLE IF NOT EXISTS wa_registrars (phone TEXT PRIMARY KEY, name TEXT, created_at TEXT)")
+        # رموز التحقق المرسلة (لتسجيل فني على رقم آخر) — حد يومي لكل مرسل لأن كل رمز مدفوع
+        conn.execute("CREATE TABLE IF NOT EXISTS otp_log (id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                     "sender TEXT NOT NULL, phone TEXT NOT NULL, sent_at TEXT NOT NULL)")
+
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS activity_minutes (
@@ -702,6 +710,9 @@ def create_registration(data: dict) -> int:
         professional_id = cur.lastrowid
         if data.get("wa_id"):
             conn.execute("UPDATE professionals SET wa_id = ? WHERE id = ?", (data["wa_id"], professional_id))
+        if data.get("registered_by"):
+            conn.execute("UPDATE professionals SET registered_by = ? WHERE id = ?",
+                         (data["registered_by"], professional_id))
         district_ids = data.get("district_ids") or []
         if district_ids:
             conn.executemany(
@@ -2678,3 +2689,54 @@ def nearby_cities_with_professionals(city_id: int, profession_id: str, limit: in
         out.append({"id": r["id"], "name": r["name"], "count": n, "km": round(km)})
     out.sort(key=lambda x: x["km"])
     return out[:limit]
+
+
+# ─────────────────────────── تسجيل فني على رقم آخر (المسوّقون + رمز التحقق) ───────────────────────────
+
+def _phone_digits(phone: str) -> str:
+    return "".join(ch for ch in (phone or "") if ch.isdigit())
+
+
+def is_wa_registrar(phone: str) -> bool:
+    with get_conn() as conn:
+        return bool(conn.execute("SELECT 1 FROM wa_registrars WHERE phone = ?", (_phone_digits(phone),)).fetchone())
+
+
+def add_wa_registrar(phone: str, name: str) -> bool:
+    d = _phone_digits(phone)
+    if len(d) < 9:
+        return False
+    with get_conn() as conn:
+        conn.execute("INSERT OR REPLACE INTO wa_registrars (phone, name, created_at) VALUES (?, ?, ?)",
+                     (d, (name or "").strip()[:40], _now_iso()))
+    return True
+
+
+def remove_wa_registrar(phone: str):
+    with get_conn() as conn:
+        conn.execute("DELETE FROM wa_registrars WHERE phone = ?", (_phone_digits(phone),))
+
+
+def list_wa_registrars() -> list[dict]:
+    """المسوّقون + كم فني سجّل كل واحد (الكل / النشطين)."""
+    with get_conn() as conn:
+        rows = conn.execute(
+            "SELECT r.phone, r.name, r.created_at, "
+            "(SELECT COUNT(*) FROM professionals p WHERE p.registered_by = r.phone) AS total, "
+            "(SELECT COUNT(*) FROM professionals p WHERE p.registered_by = r.phone AND p.status = ?) AS active "
+            "FROM wa_registrars r ORDER BY total DESC, r.created_at", (STATUS_ACTIVE,)
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+
+def count_otp_since(sender: str, hours: int = 24) -> int:
+    since = (datetime.now(timezone.utc) - timedelta(hours=hours)).isoformat()
+    with get_conn() as conn:
+        return conn.execute("SELECT COUNT(*) FROM otp_log WHERE sender = ? AND sent_at >= ?",
+                            (_phone_digits(sender), since)).fetchone()[0]
+
+
+def log_otp(sender: str, phone: str):
+    with get_conn() as conn:
+        conn.execute("INSERT INTO otp_log (sender, phone, sent_at) VALUES (?, ?, ?)",
+                     (_phone_digits(sender), _phone_digits(phone), _now_iso()))

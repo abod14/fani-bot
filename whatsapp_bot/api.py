@@ -121,6 +121,14 @@ class WhatsAppAPI:
         return self._send(to, {"type": "template", "template": {
             "name": name, "language": {"code": lang}, "components": components}})
 
+    def auth_code(self, to: str, name: str, code: str, lang: str = "ar"):
+        """قالب رمز تحقق (AUTHENTICATION) مع زر «نسخ الرمز» — مدفوع دائمًا."""
+        return self._send(to, {"type": "template", "template": {
+            "name": name, "language": {"code": lang}, "components": [
+                {"type": "body", "parameters": [{"type": "text", "text": code}]},
+                {"type": "button", "sub_type": "url", "index": "0", "parameters": [{"type": "text", "text": code}]},
+            ]}})
+
     def cta_url(self, to: str, body: str, display_text: str, url: str, footer: str | None = None):
         inter = {
             "type": "cta_url",

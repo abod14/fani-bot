@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}المسوّقون — لوحة تحكم «فني»{% endblock %}
+{% block content %}
+<h1>المسوّقون</h1>
+<p class="muted">الأرقام هنا تقدر تسجّل فنيين على أرقامهم من بوت واتساب <strong>بدون رمز تحقق</strong>
+(بعد كتابة الاسم يختار «📱 رقم آخر» ويكتب رقم الفني). أضف رقمك أنت أيضًا.
+باقي الناس يقدرون يسجّلون رقمًا آخر لكن برمز تحقق يُرسل لواتساب ذاك الرقم.</p>
+
+<div class="card">
+  <h2>إضافة رقم</h2>
+  <form method="post" style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+    <input name="phone" placeholder="966501234567" required style="direction:ltr; width:180px;">
+    <input name="name" placeholder="الاسم (مثل: أبو فهد)" style="width:200px;">
+    <button type="submit">إضافة</button>
+  </form>
+</div>
+
+<div class="card">
+  <h2>الأرقام المسموح لها</h2>
+  {% if rows %}
+  <table>
+    <thead><tr><th>الاسم</th><th>الرقم</th><th>فنيين سجّلهم</th><th>نشطين منهم</th><th></th></tr></thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td>{{ r.name or '—' }}</td><td style="direction:ltr; text-align:right;">+{{ r.phone }}</td>
+        <td><strong>{{ r.total }}</strong></td><td>{{ r.active }}</td>
+        <td><form method="post" class="inline-form" onsubmit="return confirm('حذف هذا الرقم؟');">
+          <input type="hidden" name="action" value="remove"><input type="hidden" name="phone" value="{{ r.phone }}">
+          <button type="submit" class="secondary">حذف</button></form></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}<p class="muted">ما فيه أرقام بعد.</p>{% endif %}
+</div>
+{% endblock %}
