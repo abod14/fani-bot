@@ -2694,7 +2694,16 @@ def nearby_cities_with_professionals(city_id: int, profession_id: str, limit: in
 # ─────────────────────────── تسجيل فني على رقم آخر (المسوّقون + رمز التحقق) ───────────────────────────
 
 def _phone_digits(phone: str) -> str:
-    return "".join(ch for ch in (phone or "") if ch.isdigit())
+    """أرقام دولية فقط: 0501234567 أو 501234567 أو 00966… ← 966501234567 (الافتراضي سعودي)."""
+    t = (phone or "").translate(str.maketrans("٠١٢٣٤٥٦٧٨٩", "0123456789"))
+    t = "".join(ch for ch in t if ch.isdigit())
+    if t.startswith("00"):
+        t = t[2:]
+    if t.startswith("05") and len(t) == 10:
+        t = "966" + t[1:]
+    elif t.startswith("5") and len(t) == 9:
+        t = "966" + t
+    return t
 
 
 def is_wa_registrar(phone: str) -> bool:
