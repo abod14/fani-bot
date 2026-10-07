@@ -90,7 +90,9 @@ def on_text(api, wa_id, state, data, body):
         return _ask_services(api, wa_id, data, r.get("svc_page", 0))
     if state == "r_confirm":
         return _confirm(api, wa_id, data)
-    return state, data
+    # بعد انتهاء التسجيل (أو أي خطوة ما تنتظر كتابة): أي كتابة = القائمة الرئيسية بدل السكوت
+    p = db.get_professional_by_wa_id(_digits(wa_id))
+    return _flow()._welcome(api, wa_id, (p or {}).get("full_name") or r.get("name") or "")
 
 
 # ─────────────────────────── المهنة ───────────────────────────
