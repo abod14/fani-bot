@@ -865,14 +865,10 @@ def _contact(api, wa_id, pid, call_only, state, data):
                            number=p["whatsapp_number"]))
         return state or "results", data
     searched = data.get("pid")
-    if searched and searched == p.get("profession2_id") and p.get("profession2_name"):
-        pr_name = prof_name(searched, p.get("profession2_name"))
-    elif data.get("pname"):
-        pr_name = prof_name(searched, data.get("pname"))
-    else:
-        pr_name = prof_name(p.get("profession_id"), p.get("profession_name"))
-    # الرسالة الجاهزة للفني بلغة العميل (نفس ترجمات تلغرام)
-    prefill = i18n.t("srch_wa_prefill_text", get_lang(), profession=pr_name)
+    # الرسالة الجاهزة للفني دائمًا بالعربي (طلب المالك) — مهما كانت لغة العميل
+    ar_name = (p.get("profession2_name") if searched and searched == p.get("profession2_id") else None) \
+        or ((db.get_profession_by_id(searched) or {}).get("name") if searched else None) or p.get("profession_name")
+    prefill = i18n.t("srch_wa_prefill_text", "ar", profession=ar_name)
     url = contact_links.wa_link(p["whatsapp_number"], prefill, p.get("country"))
     api.cta_url(wa_id, tr("{card}\n\nاضغط الزر لفتح المحادثة معه 👇\n\n{tip}", card=card, tip=tr(DISAPPEAR_TIP)),
                 tr("💬 فتح المحادثة"), url, footer=tr("يمكنك العودة إلى القائمة واختيار فنّي آخر"))
