@@ -255,9 +255,15 @@ def _dispatch(api, wa_id, name, msg, state, data):
     return _welcome(api, wa_id, name)
 
 
+# أزرار خطوات البحث — لو ضغطها بعد انتهاء المهلة (الجلسة صفرت) نرجعه للقائمة الرئيسية بدل ما نكمّل
+STEP_HEADS = {"prof", "top", "ppg", "dpg", "dom", "loc", "cty", "rpg", "reg", "cpg", "city", "dipg", "ncity", "dist"}
+
+
 def _on_choice(api, wa_id, name, rid, state, data):
     p = rid.split(":")
     head = p[0]
+    if state is None and head in STEP_HEADS:
+        return _welcome(api, wa_id, name)
     if head == "del":
         if p[1] == "yes":
             return _delete_my_data(api, wa_id)

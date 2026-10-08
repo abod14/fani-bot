@@ -818,8 +818,9 @@ def on_choice(api, wa_id, rid, state, data):
         return "menu", {}
     if act == "again":
         return start(api, wa_id)
-    if not r.get("name"):            # زر قديم من جلسة منتهية
-        return start(api, wa_id)
+    if not r.get("name"):            # زر قديم من جلسة منتهية (مرت المهلة) ← القائمة الرئيسية
+        p_ = db.get_professional_by_wa_id(_digits(wa_id))
+        return _flow()._welcome(api, wa_id, (p_ or {}).get("full_name") or "")
     if act == "num":
         return _on_number_choice(api, wa_id, data, p[1] if len(p) > 1 else "me")
     if act == "top":
