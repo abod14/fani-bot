@@ -9,6 +9,7 @@ import math
 import re
 
 import db
+from whatsapp_bot.lang import tr
 
 GROUP_MIN_DISTRICTS = 60   # أقل من كذا: قائمة وحدة بدون مجموعات
 TARGET_GROUP_SIZE = 22
@@ -146,10 +147,12 @@ def ordered_groups(city_id: int, city_name: str, near: tuple | None = None) -> l
     out = []
     for x in groups:
         if x["dir"] is None:
-            title = "📍 أحياء أخرى"
+            title = tr("📍 أحياء أخرى")
         else:
-            base = f"وسط {city_name}" if x["dir"] == "وسط" else f"{x['dir']} {city_name}"
+            # اتجاه المجموعة يُترجم للعرض (اسم المدينة والحي يبقون عربي)
+            base = tr("وسط {city}", city=city_name) if x["dir"] == "وسط" else \
+                tr("{dir} {city}", dir=tr(x["dir"]), city=city_name)
             used[base] = used.get(base, 0) + 1
-            title = f"🧭 {base} — حول {x['landmark']}"
+            title = tr("🧭 {base} — حول {landmark}", base=base, landmark=x["landmark"])
         out.append((title, x["members"]))
     return out

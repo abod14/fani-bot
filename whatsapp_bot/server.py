@@ -128,6 +128,9 @@ def main():
     logging.getLogger("werkzeug").setLevel(logging.WARNING)
     db.init_db()
     db.ensure_extra_professions()
+    # أسماء المهن بالإنجليزي والأردو (نفس تلغرام) — لو بوت تلغرام ما اشتغل قبله على نفس القاعدة
+    from translations_data import DOMAIN_TRANSLATIONS, PROFESSION_TRANSLATIONS
+    db.apply_name_translations(DOMAIN_TRANSLATIONS, PROFESSION_TRANSLATIONS)
     flow.ensure_tables()
     missing = [k for k in ("WA_TOKEN", "WA_PHONE_NUMBER_ID", "WA_VERIFY_TOKEN") if not getattr(config, k)]
     if missing:

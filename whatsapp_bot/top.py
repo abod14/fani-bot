@@ -8,6 +8,7 @@
 
 import db
 import professions_repo as professions
+from whatsapp_bot.lang import get_lang, tr, tr_service
 
 SETTING_KEY = "wa_top9"
 
@@ -39,10 +40,11 @@ def to_number(text: str) -> int | None:
     return int(t) if t.isdigit() and len(t) <= 3 else None
 
 
-def all_professions() -> list[dict]:
+def all_professions(lang: str = "ar") -> list[dict]:
+    """كل المهن بترتيبها الأصلي. lang للعرض فقط — المطابقة والحفظ بالعربي."""
     out = []
-    for d in professions.get_domains("ar"):
-        out.extend(professions.get_professions_by_domain(d["id"], "ar"))
+    for d in professions.get_domains(lang):
+        out.extend(professions.get_professions_by_domain(d["id"], lang))
     return out
 
 
@@ -74,17 +76,17 @@ def rest_by_demand(all_profs: list[dict] | None = None) -> list[dict]:
 
 def desc_for(p: dict) -> str | None:
     if p["id"] in DESCS:
-        return DESCS[p["id"]]
-    services = p.get("services") or []
-    return "، ".join(services[:3]) or None
+        return tr(DESCS[p["id"]])
+    services = [tr_service(s) for s in (p.get("services") or [])[:3]]
+    return (", " if get_lang() == "en" else "، ").join(services) or None
 
 
 def top_rows(prefix: str = "") -> list[tuple]:
     """صفوف قائمة واتساب: 9 مهن + المزيد (10 = حد واتساب)."""
-    all_profs = all_professions()
+    all_profs = all_professions(get_lang())
     top = top_professions(all_profs)
     rows = [(f"{prefix}prof:{p['id']}", p["name"], desc_for(p)) for p in top]
-    rows.append((f"{prefix}top:more", "➕ المزيد", f"باقي المهن ({len(all_profs) - len(top)} مهنة)"))
+    rows.append((f"{prefix}top:more", tr("➕ المزيد"), tr("باقي المهن ({n} مهنة)", n=len(all_profs) - len(top))))
     return rows
 
 
@@ -97,9 +99,9 @@ def rest_fixed(all_profs: list[dict] | None = None) -> list[dict]:
 
 def more_message(intro: str) -> tuple[str, list[str]]:
     """نص رسالة «المزيد» المرقّمة + ترتيب المعرّفات (عشان نعرف وش يقصد بالرقم)."""
-    rest = rest_fixed()
+    rest = rest_fixed(all_professions(get_lang()))
     lines = [f"{i}. {p['name']}" for i, p in enumerate(rest, 1)]
-    text = f"{intro}\n\n" + "\n".join(lines) + "\n\n✍️ اكتب *رقم* المهنة (مثل: 3) أو اسمها."
+    text = f"{intro}\n\n" + "\n".join(lines) + "\n\n" + tr("✍️ اكتب *رقم* المهنة (مثل: 3) أو اسمها.")
     return text, [p["id"] for p in rest]
 
 
