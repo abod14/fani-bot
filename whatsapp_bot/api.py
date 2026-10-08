@@ -102,6 +102,25 @@ class WhatsAppAPI:
             inter["footer"] = {"text": clip(footer, 60)}
         return self._send(to, {"type": "interactive", "interactive": inter})
 
+    def flow(self, to: str, body: str, cta: str, flow_id: str, screen: str, data: dict, token: str,
+             mode: str = "published", header: str | None = None):
+        """نموذج واتساب (Flow): يفتح شاشة فيها مربعات اختيار ☑️ ويرجع الاختيارات برد واحد (nfm_reply)."""
+        params = {
+            "flow_message_version": "3",
+            "flow_token": token[:200],
+            "flow_id": str(flow_id),
+            "flow_cta": clip(cta, 20),
+            "flow_action": "navigate",
+            "flow_action_payload": {"screen": screen, "data": data},
+        }
+        if mode == "draft":
+            params["mode"] = "draft"
+        inter = {"type": "flow", "body": {"text": clip(body, 1024)},
+                 "action": {"name": "flow", "parameters": params}}
+        if header:
+            inter["header"] = {"type": "text", "text": clip(header, 60)}
+        return self._send(to, {"type": "interactive", "interactive": inter})
+
     def location_request(self, to: str, body: str):
         return self._send(to, {"type": "interactive", "interactive": {
             "type": "location_request_message",

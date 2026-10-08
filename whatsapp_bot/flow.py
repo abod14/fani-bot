@@ -206,6 +206,13 @@ def _dispatch(api, wa_id, name, msg, state, data):
         data.pop("_hinted", None)
         inter = msg.get("interactive", {})
         kind = inter.get("type")
+        if kind == "nfm_reply":
+            # رد نموذج مربعات الاختيار (تسجيل الفني: الخدمات/الأحياء)
+            from whatsapp_bot import register, wa_flows
+            parsed = wa_flows.parse_reply(inter)
+            if parsed:
+                return register.on_flow(api, wa_id, parsed[0], parsed[1], state, data)
+            return _welcome(api, wa_id, name)
         rid = (inter.get(kind) or {}).get("id", "")
         if rid.startswith("R:"):
             from whatsapp_bot import register

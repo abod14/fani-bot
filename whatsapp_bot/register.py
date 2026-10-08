@@ -99,7 +99,7 @@ def on_text(api, wa_id, state, data, body):
             wa_id, "📍 شارك موقعك من الزر أدناه (أو 📎 ← الموقع) لنحدد مدينتك وأحياءك."))
     if state == "r_svc":
         return _flow().hint_once(api, wa_id, state, data, lambda: api.text(
-            wa_id, "👆 اختر الخدمات من القائمة أعلاه (زر «اختر الخدمات»)."))
+            wa_id, "👆 اضغط زر «اختر الخدمات» في الرسالة أعلاه."))
     if state == "r_confirm":
         return _flow().hint_once(api, wa_id, state, data, lambda: api.text(
             wa_id, "👆 اضغط «✅ تأكيد التسجيل» في الرسالة أعلاه، أو «✏️ البدء من جديد»."))
@@ -375,6 +375,17 @@ def _ask_services(api, wa_id, data, page=0):
     أول مرة: حتى 9 خدمات + «كل الخدمات». بعد أول اختيار: «✅ تم التحديد» + الباقي + «كل الخدمات»."""
     r = data["r"]
     allsv, chosen = r["all_services"], r.get("services", [])
+    if not chosen:
+        # نموذج بمربعات اختيار ☑️ (يحدد أكثر من خدمة ويرسل مرة وحدة) — وإلا القائمة العادية
+        from whatsapp_bot import wa_flows
+        items = [{"id": "all", "title": "📋 كل الخدمات"}] + [
+            {"id": str(i), "title": wa_flows.clip_title(sv), "description": sv if len(sv) > wa_flows.TITLE_MAX else None}
+            for i, sv in enumerate(allsv)]
+        if wa_flows.send(api, wa_id, "services",
+                         f"ما الخدمات التي تقدمها في مهنة «{r['pname']}»؟ 👇\n"
+                         "اضغط الزر، وحدّد كل خدماتك ☑️ ثم «تم التحديد».",
+                         "اختر الخدمات", "حدّد كل الخدمات التي تقدمها:", items, f"svc:{_digits(wa_id)}"):
+            return "r_svc", data
     left = [(i, sv) for i, sv in enumerate(allsv) if sv not in chosen]
     if not left:
         return _ask_location(api, wa_id, data)
@@ -482,8 +493,25 @@ def _ask_near_districts(api, wa_id, data):
         origin = r.get("origin")
         ids = [origin] if origin else []
         if origin:
-            ids += [d["id"] for d in db.nearest_sa_districts(origin, ids, limit=11)]
+            ids += [d["id"] for d in db.nearest_sa_districts(origin, ids, limit=17)]
         r["near_ids"] = ids
+    if not chosen:
+        # نموذج بمربعات اختيار ☑️: أقرب الأحياء (حتى 18) + «كل المدينة» للمهن النادرة + «حيّي ليس هنا»
+        from whatsapp_bot import wa_flows
+        items = []
+        for did in r["near_ids"][:18]:
+            d = db.get_sa_district_by_id(did)
+            if d:
+                items.append({"id": str(did), "title": wa_flows.clip_title(d["name"]), "description": r["city"]})
+        if r.get("wide"):
+            items.append({"id": "whole", "title": f"🌍 كل {r['city']}", "description": "أخدم المدينة كاملة"})
+        items.append({"id": "full", "title": "📋 حيّي ليس هنا", "description": f"اعرض كل أحياء {r['city']} مرقّمة"})
+        if wa_flows.send(api, wa_id, "districts",
+                         f"📍 {r['city']} — ما الأحياء التي تعمل فيها؟ 👇\n"
+                         f"اضغط الزر، وحدّد أحياءك ☑️ (حتى {MAX_DISTRICTS}) ثم «تم التحديد».",
+                         "اختر أحياءك", f"أقرب الأحياء إلى موقعك — حدّد حتى {MAX_DISTRICTS}:", items,
+                         f"dist:{_digits(wa_id)}"):
+            return "r_dist", data
     rows = []
     if chosen:
         rows.append(("R:ddone", f"✅ تم التحديد ({len(chosen)})", "الانتقال إلى المراجعة"))
@@ -520,7 +548,7 @@ def _district_text_in_list(api, wa_id, data, text):
             data.pop("_hinted", None)
             return _ask_near_districts(api, wa_id, data)
     return f.hint_once(api, wa_id, "r_dist", data, lambda: api.text(
-        wa_id, "👆 اختر الحي من القائمة أعلاه (زر «اختر الحي»)، أو اضغط «📋 قائمة الأحياء كاملة» فيها."))
+        wa_id, "👆 اختر أحياءك من الرسالة أعلاه (زر «اختر الحي» أو «اختر أحياءك»)."))
 
 
 def clip_name(name: str) -> str:
@@ -722,6 +750,34 @@ def _telegram_link(api, wa_id, data):
     api.cta_url(wa_id, "اضغط الزر، ثم اضغط «ابدأ» (Start) في تلغرام — وسيُربط حسابك تلقائيًا ✅",
                 "فتح تلغرام", url)
     return "menu", {}
+
+
+def on_flow(api, wa_id, kind, picked, state, data):
+    """رد نموذج مربعات الاختيار (الخدمات أو الأحياء)."""
+    r = data.setdefault("r", {})
+    if kind == "svc":
+        if not r.get("pid"):
+            return start(api, wa_id)
+        allsv = r.get("all_services") or []
+        if "all" in picked or not picked:
+            r["services"] = list(allsv)
+        else:
+            r["services"] = [allsv[int(i)] for i in picked if i.isdigit() and int(i) < len(allsv)]
+        return _ask_location(api, wa_id, data)
+    if kind == "dist":
+        if not r.get("city_id"):
+            return start(api, wa_id)
+        if "full" in picked:
+            return _ask_districts_numbered(api, wa_id, data)
+        if "whole" in picked and r.get("wide"):
+            r["whole"], r["chosen"] = True, []
+            return _confirm(api, wa_id, data)
+        ids = [int(i) for i in picked if i.isdigit()][:MAX_DISTRICTS]
+        if not ids:
+            return _ask_near_districts(api, wa_id, data)
+        r["chosen"], r["whole"] = ids, False
+        return _confirm(api, wa_id, data)
+    return state, data
 
 
 # ─────────────────────────── الأزرار ───────────────────────────
