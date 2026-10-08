@@ -35,7 +35,13 @@ REG_STEP_TTL = timedelta(minutes=3)       # تسجيل فني ما خلص وتأ
 OTP_STEP_TTL = timedelta(minutes=10)      # ينتظر رمز التحقق من صاحب الرقم الآخر (صلاحية الرمز)
 
 
-def _ttl_for(state: str | None) -> timedelta:
+LONG_LIST_TTL = timedelta(minutes=5)      # قائمة الأحياء الكاملة المرقمة (طويلة وتحتاج قراءة) — طلب المالك
+
+
+def _ttl_for(state: str | None, data: dict | None = None) -> timedelta:
+    data = data or {}
+    if (state == "dist" and len(data.get("ndist") or []) > 9) or (state == "r_dist" and (data.get("r") or {}).get("dlist")):
+        return LONG_LIST_TTL
     if state == "results":
         return RESULTS_TTL
     if state == "r_otp":
@@ -70,11 +76,12 @@ def _load(wa_id: str) -> tuple[str | None, dict]:
     if not row:
         return None, {}
     try:
-        if datetime.now(timezone.utc) - datetime.fromisoformat(row["updated_at"]) > _ttl_for(row["state"]):
+        data = json.loads(row["data"] or "{}")
+        if datetime.now(timezone.utc) - datetime.fromisoformat(row["updated_at"]) > _ttl_for(row["state"], data):
             return None, {}
     except Exception:
         return None, {}
-    return row["state"], json.loads(row["data"] or "{}")
+    return row["state"], data
 
 
 def _save(wa_id: str, state: str | None, data: dict):
@@ -84,6 +91,16 @@ def _save(wa_id: str, state: str | None, data: dict):
             "ON CONFLICT(wa_id) DO UPDATE SET state=excluded.state, data=excluded.data, updated_at=excluded.updated_at",
             (wa_id, state, json.dumps(data, ensure_ascii=False), datetime.now(timezone.utc).isoformat()),
         )
+
+
+def hint_once(api, wa_id, state, data, send):
+    """كلام غير مفهوم بخطوة تنتظر ضغطة/اختيار: نرد عليه مرة وحدة بس بهالخطوة، وبعدها سكوت
+    (كل رد رسالة محسوبة). أي ضغطة زر/قائمة أو موقع يرجّع التنبيه."""
+    if data.get("_hinted") == state:
+        return state, data
+    data["_hinted"] = state
+    send()
+    return state, data
 
 
 def customer_id(wa_id: str) -> int:
@@ -178,6 +195,7 @@ def _dispatch(api, wa_id, name, msg, state, data):
                 subscribe.not_paid_yet(api, wa_id)
                 return state, data
     if mtype == "button":
+        data.pop("_hinted", None)
         # زر «رد سريع» من رسالة قالب (مثل «💳 اشترك الآن» بإشعار خلصت فرصك)
         payload = (msg.get("button") or {}).get("payload", "")
         if payload.startswith("R:"):
@@ -185,6 +203,7 @@ def _dispatch(api, wa_id, name, msg, state, data):
             return register.on_choice(api, wa_id, payload, state, data)
         return _welcome(api, wa_id, name)
     if mtype == "interactive":
+        data.pop("_hinted", None)
         inter = msg.get("interactive", {})
         kind = inter.get("type")
         rid = (inter.get(kind) or {}).get("id", "")
@@ -193,6 +212,7 @@ def _dispatch(api, wa_id, name, msg, state, data):
             return register.on_choice(api, wa_id, rid, state, data)
         return _on_choice(api, wa_id, name, rid, state, data)
     if mtype == "location":
+        data.pop("_hinted", None)
         loc = msg.get("location", {})
         if (state or "").startswith("r_"):
             from whatsapp_bot import register
@@ -221,8 +241,8 @@ def _dispatch(api, wa_id, name, msg, state, data):
         if state == "loc_city" and data.get("pid"):
             return _on_city_text(api, wa_id, body, data)
         if state == "loc" and data.get("pid"):
-            api.buttons(wa_id, "📍 أرسل موقعك (📎 ← الموقع)، أو اختر مدينتك يدويًا:", [("loc:manual", "🏙️ اختيار يدوي")])
-            return state, data
+            return hint_once(api, wa_id, state, data, lambda: api.buttons(
+                wa_id, "📍 أرسل موقعك (📎 ← الموقع)، أو اختر مدينتك يدويًا:", [("loc:manual", "🏙️ اختيار يدوي")]))
         return _welcome(api, wa_id, name)
     # صورة/صوت/ملصق… → القائمة
     return _welcome(api, wa_id, name)
@@ -528,8 +548,7 @@ def _on_region_text(api, wa_id, text, data):
         hit = _name_in(text, regions)
         rid = hit["id"] if hit else None
     if rid is None:
-        api.text(wa_id, f"اكتب رقمًا من 1 إلى {len(ids)} 🙏")
-        return "loc_reg", data
+        return hint_once(api, wa_id, "loc_reg", data, lambda: api.text(wa_id, f"اكتب رقمًا من 1 إلى {len(ids)} 🙏"))
     return _choose_region(api, wa_id, rid, 0, data)
 
 
@@ -554,8 +573,7 @@ def _on_city_text(api, wa_id, text, data):
         hit = _name_in(text, cities)
         cid = hit["id"] if hit else None
     if cid is None:
-        api.text(wa_id, f"اكتب رقمًا من 1 إلى {len(ids)} 🙏")
-        return "loc_city", data
+        return hint_once(api, wa_id, "loc_city", data, lambda: api.text(wa_id, f"اكتب رقمًا من 1 إلى {len(ids)} 🙏"))
     return _choose_city(api, wa_id, cid, 0, data)
 
 
@@ -604,8 +622,8 @@ def _on_district_text(api, wa_id, text, data):
     if top.to_number(t) is not None or not data.get("ndist"):
         if not data.get("ndist"):
             return _match_district(api, wa_id, t, data)
-        api.text(wa_id, f"اكتب رقمًا من 1 إلى {len(data.get('ndist') or [])}، أو # لكل المدينة 🙏")
-        return "dist", data
+        return hint_once(api, wa_id, "dist", data, lambda: api.text(
+            wa_id, f"اكتب رقمًا من 1 إلى {len(data.get('ndist') or [])}، أو # لكل المدينة 🙏"))
     # كتب اسم: لو حي واحد يطابق نبحث فيه مباشرة، وإلا نعرض أرقام المتشابهة (بدون إعادة القائمة)
     q = norm(re.sub(r"^\s*حي\s+", "", t))
     names = {d["id"]: d["name"] for d in db.list_sa_districts_by_city(data["city_id"])}

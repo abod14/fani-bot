@@ -67,12 +67,12 @@ def on_text(api, wa_id, state, data, body):
     if state == "r_name":
         name = re.sub(r"\s+", " ", (body or "").strip())
         if not (2 <= len(name) <= 40):
-            api.text(wa_id, "اكتب اسمًا يتراوح طوله بين حرفين و40 حرفًا 🙏")
-            return state, data
+            return _flow().hint_once(api, wa_id, state, data,
+                                     lambda: api.text(wa_id, "اكتب اسمًا يتراوح طوله بين حرفين و40 حرفًا 🙏"))
         r["name"] = name
         return _ask_number(api, wa_id, data)
     if state == "r_num":
-        return _ask_number(api, wa_id, data)
+        return _flow().hint_once(api, wa_id, state, data, lambda: _ask_number(api, wa_id, data))
     if state == "r_phone":
         return _on_phone_text(api, wa_id, data, body)
     if state == "r_otp":
@@ -87,17 +87,22 @@ def on_text(api, wa_id, state, data, body):
                 return _confirm(api, wa_id, data)
             api.text(wa_id, f"🌍 خيار «المدينة كاملة» متاح للمهن النادرة فقط. اكتب أرقام أحيائك (حتى {MAX_DISTRICTS}) من القائمة 👆")
             return "r_dist", data
+        if not r.get("dlist"):
+            # قائمة أقرب الأحياء (مو المرقمة): اسم حي واضح ← نضيفه، غير كذا تنبيه مرة وحدة
+            return _district_text_in_list(api, wa_id, data, b)
         picked = _pick_district_numbers(api, wa_id, data, body)
         if picked:
             return picked
         return _hint_district_numbers(api, wa_id, data, body)
     if state in ("r_loc", "r_locok"):
-        api.location_request(wa_id, "📍 شارك موقعك من الزر أدناه (أو 📎 ← الموقع) لنحدد مدينتك وأحياءك.")
-        return "r_loc", data
+        return _flow().hint_once(api, wa_id, "r_loc", data, lambda: api.location_request(
+            wa_id, "📍 شارك موقعك من الزر أدناه (أو 📎 ← الموقع) لنحدد مدينتك وأحياءك."))
     if state == "r_svc":
-        return _ask_services(api, wa_id, data, r.get("svc_page", 0))
+        return _flow().hint_once(api, wa_id, state, data, lambda: api.text(
+            wa_id, "👆 اختر الخدمات من القائمة أعلاه (زر «اختر الخدمات»)."))
     if state == "r_confirm":
-        return _confirm(api, wa_id, data)
+        return _flow().hint_once(api, wa_id, state, data, lambda: api.text(
+            wa_id, "👆 اضغط «✅ تأكيد التسجيل» في الرسالة أعلاه، أو «✏️ البدء من جديد»."))
     # بعد انتهاء التسجيل (أو أي خطوة ما تنتظر كتابة): أي كتابة = القائمة الرئيسية بدل السكوت
     p = db.get_professional_by_wa_id(_digits(wa_id))
     return _flow()._welcome(api, wa_id, (p or {}).get("full_name") or r.get("name") or "")
@@ -499,6 +504,23 @@ def _ask_near_districts(api, wa_id, data):
                 f"هذه أقرب الأحياء إلى موقعك. يمكنك اختيار حتى {MAX_DISTRICTS} أحياء (واحدًا بعد الآخر).")
     api.list(wa_id, head, "اختر الحي", rows, section_title="أقرب الأحياء إليك")
     return "r_dist", data
+
+
+def _district_text_in_list(api, wa_id, data, text):
+    r = data["r"]
+    f = _flow()
+    q = f.norm(re.sub(r"^\s*حي\s+", "", text or ""))
+    if len(q) >= 2:
+        hits = [d for d in db.list_sa_districts_by_city(r["city_id"])
+                if f.norm(re.sub(r"^حي\s+", "", d["name"])) == q]
+        if len(hits) == 1:
+            if hits[0]["id"] not in r.setdefault("chosen", []):
+                r["chosen"].append(hits[0]["id"])
+            r["whole"] = False
+            data.pop("_hinted", None)
+            return _ask_near_districts(api, wa_id, data)
+    return f.hint_once(api, wa_id, "r_dist", data, lambda: api.text(
+        wa_id, "👆 اختر الحي من القائمة أعلاه (زر «اختر الحي»)، أو اضغط «📋 قائمة الأحياء كاملة» فيها."))
 
 
 def clip_name(name: str) -> str:
