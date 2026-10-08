@@ -31,12 +31,15 @@ LIST_PAGE = 8          # عناصر كل صفحة بالقوائم الطويل�
 SESSION_TTL = timedelta(hours=3)          # احتياطي لأي حالة ثانية
 SEARCH_STEP_TTL = timedelta(minutes=3)    # بحث ما خلص (مهنة/موقع/حي) وتأخر 3 دقايق → يبدأ من جديد (طلب المالك)
 RESULTS_TTL = timedelta(hours=24)         # بعد ظهور النتائج: صالحة يوم كامل («عرض المزيد» والتواصل)
-REG_STEP_TTL = timedelta(hours=2)         # تسجيل فني ما خلص
+REG_STEP_TTL = timedelta(minutes=3)       # تسجيل فني ما خلص وتأخر 3 دقايق → يبدأ من جديد (نفس البحث، طلب المالك)
+OTP_STEP_TTL = timedelta(minutes=10)      # ينتظر رمز التحقق من صاحب الرقم الآخر (صلاحية الرمز)
 
 
 def _ttl_for(state: str | None) -> timedelta:
     if state == "results":
         return RESULTS_TTL
+    if state == "r_otp":
+        return OTP_STEP_TTL
     if (state or "").startswith("r_"):
         return REG_STEP_TTL
     if state in ("prof", "loc", "loc_reg", "loc_city", "dist"):
