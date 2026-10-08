@@ -2084,8 +2084,10 @@ def _listed_city_sql(alias: str = "") -> str:
 
 def list_sa_regions(country: str = "SA"):
     with get_conn() as conn:
+        # السعودية: الترتيب الرسمي للمناطق (الرياض 1، مكة المكرمة 2، ... = أرقامها في البيانات الرسمية)
+        order = "id" if country == "SA" else "name"
         rows = conn.execute(
-            "SELECT * FROM sa_regions WHERE country = ? ORDER BY name", (country,)
+            f"SELECT * FROM sa_regions WHERE country = ? ORDER BY {order}", (country,)
         ).fetchall()
         return [dict(r) for r in rows]
 
