@@ -365,24 +365,27 @@ def _select_profession(api, wa_id, pid, data):
 
 # ─────────────────────────── الخدمات (اختياري) ───────────────────────────
 
-def _ask_services(api, wa_id, data, page):
+def _ask_services(api, wa_id, data, page=0):
+    """قائمة الخدمات: يختار أكثر من خدمة (ضغطة لكل خدمة)، والمختارة تختفي من القائمة.
+    أول مرة: حتى 9 خدمات + «كل الخدمات». بعد أول اختيار: «✅ تم التحديد» + الباقي + «كل الخدمات»."""
     r = data["r"]
     allsv, chosen = r["all_services"], r.get("services", [])
-    per = 7
-    if page * per >= len(allsv):
-        page = 0
-    r["svc_page"] = page
+    left = [(i, sv) for i, sv in enumerate(allsv) if sv not in chosen]
+    if not left:
+        return _ask_location(api, wa_id, data)
     rows = []
-    for i in range(page * per, min(len(allsv), page * per + per)):
-        mark = "✅ " if allsv[i] in chosen else ""
-        rows.append((f"R:svc:{i}", mark + allsv[i], allsv[i] if len(mark + allsv[i]) > 24 else None))
-    if len(allsv) > per:
-        rows.append((f"R:svcpg:{page + 1}", "المزيد ⬅️", "باقي الخدمات"))
-    rows.append(("R:svcdone", f"✔️ انتهيت ({len(chosen)})" if chosen else "✔️ تخطي", None))
+    if chosen:
+        rows.append(("R:svcdone", f"✅ تم التحديد ({len(chosen)})", "الانتقال إلى الخطوة التالية"))
+    room = 10 - len(rows) - 1
+    for i, sv in left[:room]:
+        rows.append((f"R:svc:{i}", sv, sv if len(sv) > 24 else None))
     rows.append(("R:svcall", "📋 كل الخدمات", "أقدّم جميع خدمات المهنة"))
-    picked = ("\n✅ اخترت: " + "، ".join(chosen)) if chosen else ""
-    api.list(wa_id, f"ما الخدمات التي تقدمها في مهنة «{r['pname']}»؟ اخترها واحدة تلو الأخرى، ثم اضغط «انتهيت» 👇{picked}",
-             "اختر الخدمات", rows, section_title="الخدمات")
+    if chosen:
+        head = ("✅ اخترت: " + "، ".join(chosen) + "\n\nاختر خدمة أخرى، أو اضغط «تم التحديد» 👇")
+    else:
+        head = (f"ما الخدمات التي تقدمها في مهنة «{r['pname']}»؟ 👇\n"
+                "يمكنك اختيار أكثر من خدمة (واحدة بعد الأخرى)، أو «كل الخدمات».")
+    api.list(wa_id, head, "اختر الخدمات", rows, section_title="الخدمات")
     return "r_svc", data
 
 
@@ -405,9 +408,11 @@ def on_location(api, wa_id, data, lat, lon):
     r.update(city_id=city["id"], city=city["name"], country=city.get("country") or "SA",
              origin=district["id"] if district else None, has_d=bool(city.get("has_districts") and district),
              chosen=[], shown=[], lat=lat, lon=lon)
-    api.buttons(wa_id, f"📍 موقعك: {countries.name(r['country'], 'ar')} / {city['name']}\nهل هذا صحيح؟",
-                [("R:locok", "✅ نعم، صحيح"), ("R:locno", "❌ لا، أعد التحديد")])
-    return "r_locok", data
+    # بدون خطوة «هل موقعك صحيح؟» — مباشرة أقرب الأحياء (والمدينة مكتوبة تحت كل حي)
+    if not r["has_d"]:
+        return _confirm(api, wa_id, data)
+    r["whole"] = False
+    return _ask_near_districts(api, wa_id, data)
 
 
 # ─────────────────────────── الأحياء ───────────────────────────
@@ -459,6 +464,45 @@ def _ask_districts(api, wa_id, data, new_page=False):
 
 
 MAX_DISTRICTS = 5   # نفس حد تلغرام
+
+
+def _ask_near_districts(api, wa_id, data):
+    """قائمة أقرب الأحياء لموقعه (حتى 9) — تحت كل حي اسم المدينة، والصف الأخير «قائمة الأحياء كاملة».
+    يضغط حي حي (حتى 5)، وبعد أول اختيار يظهر «✅ تم التحديد»."""
+    r = data["r"]
+    chosen = r.setdefault("chosen", [])
+    if len(chosen) >= MAX_DISTRICTS:
+        return _confirm(api, wa_id, data, f"ℹ️ وصلت إلى الحد الأقصى ({MAX_DISTRICTS} أحياء).\n")
+    if not r.get("near_ids"):
+        origin = r.get("origin")
+        ids = [origin] if origin else []
+        if origin:
+            ids += [d["id"] for d in db.nearest_sa_districts(origin, ids, limit=11)]
+        r["near_ids"] = ids
+    rows = []
+    if chosen:
+        rows.append(("R:ddone", f"✅ تم التحديد ({len(chosen)})", "الانتقال إلى المراجعة"))
+    extra = [("R:dwhole", f"🌍 كل {r['city']}"[:24], "أخدم المدينة كاملة")] if r.get("wide") else []
+    room = 10 - len(rows) - 1 - len(extra)
+    for did in [d for d in r["near_ids"] if d not in chosen][:min(room, 9)]:
+        d = db.get_sa_district_by_id(did)
+        if d:
+            rows.append((f"R:d:{did}", clip_name(d["name"]), r["city"]))
+    rows += extra
+    rows.append(("R:dall", "📋 قائمة الأحياء كاملة", f"كل أحياء {r['city']} مرقّمة"))
+    if chosen:
+        names = [db.get_sa_district_by_id(d)["name"] for d in chosen if db.get_sa_district_by_id(d)]
+        head = ("✅ اخترت: " + "، ".join(names)
+                + f"\n\nاختر حيًّا آخر (حتى {MAX_DISTRICTS})، أو اضغط «تم التحديد» 👇")
+    else:
+        head = (f"📍 {r['city']} — ما الأحياء التي تعمل فيها؟ 👇\n"
+                f"هذه أقرب الأحياء إلى موقعك. يمكنك اختيار حتى {MAX_DISTRICTS} أحياء (واحدًا بعد الآخر).")
+    api.list(wa_id, head, "اختر الحي", rows, section_title="أقرب الأحياء إليك")
+    return "r_dist", data
+
+
+def clip_name(name: str) -> str:
+    return name if len(name) <= 24 else name[:23] + "…"
 WHOLE_CITY_WORDS = ("#", "＃", "كل المدينة", "المدينة كاملة", "كامل المدينة", "كل المدينه")
 
 
@@ -715,10 +759,13 @@ def on_choice(api, wa_id, rid, state, data):
     if act == "svc":
         i = int(p[1])
         if 0 <= i < len(r.get("all_services", [])):
-            s = r["all_services"][i]
+            sv = r["all_services"][i]
             r.setdefault("services", [])
-            r["services"].remove(s) if s in r["services"] else r["services"].append(s)
-        return _ask_services(api, wa_id, data, r.get("svc_page", 0))
+            if sv not in r["services"]:
+                r["services"].append(sv)
+        if r.get("services") and len(r["services"]) >= len(r.get("all_services", [])):
+            return _ask_location(api, wa_id, data)
+        return _ask_services(api, wa_id, data)
     if act == "svcpg":
         return _ask_services(api, wa_id, data, int(p[1]))
     if act == "svcall":
@@ -730,21 +777,24 @@ def on_choice(api, wa_id, rid, state, data):
         return _ask_location(api, wa_id, data)
     if not r.get("city_id"):
         return _ask_location(api, wa_id, data)
-    if act == "locok":
+    if act in ("locok", "dedit"):
         if r.get("has_d"):
             r["chosen"], r["whole"] = [], False
-            return _ask_districts_numbered(api, wa_id, data)
-        return _confirm(api, wa_id, data)
-    if act == "dedit":
-        if r.get("has_d"):
-            r["chosen"], r["whole"] = [], False
-            return _ask_districts_numbered(api, wa_id, data)
+            return _ask_near_districts(api, wa_id, data)
         return _confirm(api, wa_id, data)
     if act == "d":
-        return _add_district(api, wa_id, data, int(p[1]))
+        did = int(p[1])
+        if did not in r.setdefault("chosen", []):
+            r["chosen"].append(did)
+        r["whole"] = False
+        return _ask_near_districts(api, wa_id, data)
+    if act == "dall":
+        return _ask_districts_numbered(api, wa_id, data)
     if act == "dmore":
         return _ask_districts(api, wa_id, data, new_page=True)
     if act == "ddone":
+        if not r.get("chosen") and not r.get("whole"):
+            return _ask_near_districts(api, wa_id, data)
         return _confirm(api, wa_id, data)
     if act == "dwhole":
         r["whole"] = True

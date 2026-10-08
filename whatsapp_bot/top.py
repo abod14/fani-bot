@@ -2,8 +2,8 @@
 #
 # - الـ9 ما تتغير تلقائيًا — المالك يختارها من لوحة التحكم (صفحة «المهن الأكثر طلبًا»)
 #   وتنحفظ بجدول settings بالمفتاح wa_top9.
-# - «المزيد» = رسالة وحدة فيها باقي المهن مرقّمة، مرتبة حسب الأكثر بحثًا (تتغير تلقائيًا)،
-#   والعميل يرد برقم المهنة أو اسمها. نفس الشي بتسجيل الفني.
+# - «المزيد» = رسالة وحدة فيها باقي المهن مرقّمة بترتيب ثابت (ما يتغير — العميل يتعوّد عليه)،
+#   والعميل يرد برقم المهنة أو اسمها. نفس الشي بتسجيل الفني. الأكثر طلبًا يظهر باللوحة فقط.
 # - رسالة وحدة بدل قوائم مجالات متعددة = ردود أقل = تكلفة أقل على واتساب.
 
 import db
@@ -88,9 +88,16 @@ def top_rows(prefix: str = "") -> list[tuple]:
     return rows
 
 
+def rest_fixed(all_profs: list[dict] | None = None) -> list[dict]:
+    """باقي المهن (غير الـ9) بترتيب ثابت (ترتيب المجالات والمهن الأصلي)."""
+    all_profs = all_profs or all_professions()
+    top = {p["id"] for p in top_professions(all_profs)}
+    return [p for p in all_profs if p["id"] not in top]
+
+
 def more_message(intro: str) -> tuple[str, list[str]]:
     """نص رسالة «المزيد» المرقّمة + ترتيب المعرّفات (عشان نعرف وش يقصد بالرقم)."""
-    rest = rest_by_demand()
+    rest = rest_fixed()
     lines = [f"{i}. {p['name']}" for i, p in enumerate(rest, 1)]
     text = f"{intro}\n\n" + "\n".join(lines) + "\n\n✍️ اكتب *رقم* المهنة (مثل: 3) أو اسمها."
     return text, [p["id"] for p in rest]

@@ -330,7 +330,7 @@ def _ask_top(api, wa_id, note: str = ""):
 
 
 def _ask_more(api, wa_id):
-    text, ids = top.more_message("📋 باقي المهن (الأكثر طلبًا أولًا):")
+    text, ids = top.more_message("📋 باقي المهن:")
     api.text(wa_id, text)
     return "prof", {"more": ids}
 
