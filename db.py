@@ -2751,3 +2751,36 @@ def log_otp(sender: str, phone: str):
     with get_conn() as conn:
         conn.execute("INSERT INTO otp_log (sender, phone, sent_at) VALUES (?, ?, ?)",
                      (_phone_digits(sender), _phone_digits(phone), _now_iso()))
+
+
+# ─────────────────────────── الفني يعدّل بياناته من واتساب (الخدمات / الأحياء / الاسم) ───────────────────────────
+
+def update_professional_services(professional_id: int, services: list[str]):
+    with get_conn() as conn:
+        conn.execute("UPDATE professionals SET services_json = ? WHERE id = ?",
+                     (json.dumps(services or [], ensure_ascii=False), professional_id))
+
+
+def update_professional_name(professional_id: int, full_name: str):
+    with get_conn() as conn:
+        conn.execute("UPDATE professionals SET full_name = ? WHERE id = ?", (full_name, professional_id))
+
+
+def update_professional_area(professional_id: int, country: str, city: str, city_id: int,
+                             district_ids: list[int], covers_whole_city: bool):
+    """يستبدل مدينة الفني وأحياءه (نفس شكل التسجيل)."""
+    names = []
+    for did in district_ids:
+        d = get_sa_district_by_id(did)
+        if d:
+            names.append(d["name"])
+    with get_conn() as conn:
+        conn.execute(
+            "UPDATE professionals SET country = ?, city = ?, city_id = ?, neighborhood = ?, covers_whole_city = ? "
+            "WHERE id = ?",
+            (country, city, city_id, "، ".join(names) if names else None, 1 if covers_whole_city else 0,
+             professional_id))
+        conn.execute("DELETE FROM professional_districts WHERE professional_id = ?", (professional_id,))
+        for did in ([] if covers_whole_city else district_ids):
+            conn.execute("INSERT INTO professional_districts (professional_id, district_id) VALUES (?, ?)",
+                         (professional_id, did))

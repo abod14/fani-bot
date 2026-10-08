@@ -55,7 +55,7 @@ def _status(api, wa_id, p, extra=""):
         tr("📊 فرص التواصل المجانية: استخدمت {used} من {limit}", used=p.get("free_contacts_used", 0), limit=limit)
     if not p.get("is_subscribed") and (p.get("free_contacts_used") or 0) >= limit:
         line += "\n\n" + tr("⚠️ انتهت فرصك المجانية — رقمك لا يظهر للعملاء حاليًا. اضغط «💳 اشترك» أدناه لتعود إلى الظهور.")
-    buttons = [("m:search", tr("🔍 ابحث عن فني"))]
+    buttons = [("R:edit", tr("✏️ تعديل بياناتي"))]
     if not p.get("is_subscribed"):
         buttons.insert(0, ("R:sub", tr("💳 اشترك")))
     if not (p.get("telegram_user_id") or 0) > 0:
@@ -76,6 +76,13 @@ def on_text(api, wa_id, state, data, body):
                                      lambda: api.text(wa_id, tr("اكتب اسمًا يتراوح طوله بين حرفين و40 حرفًا 🙏")))
         r["name"] = name
         return _ask_number(api, wa_id, data)
+    if state == "r_ename":
+        name = re.sub(r"\s+", " ", (body or "").strip())
+        if not (2 <= len(name) <= 40) or not r.get("edit_id"):
+            return _flow().hint_once(api, wa_id, state, data,
+                                     lambda: api.text(wa_id, tr("اكتب اسمًا يتراوح طوله بين حرفين و40 حرفًا 🙏")))
+        db.update_professional_name(r["edit_id"], name)
+        return _status(api, wa_id, db.get_professional_by_id(r["edit_id"]), extra="\n\n" + tr("✅ تم تحديث بياناتك."))
     if state == "r_num":
         return _flow().hint_once(api, wa_id, state, data, lambda: _ask_number(api, wa_id, data))
     if state == "r_phone":
@@ -412,6 +419,8 @@ def _ask_services(api, wa_id, data, page=0):
 # ─────────────────────────── الموقع ───────────────────────────
 
 def _ask_location(api, wa_id, data):
+    if data.get("r", {}).get("edit") == "svc":
+        return _save_edit(api, wa_id, data)
     api.location_request(wa_id, tr("📍 شارك موقعك (مكان عملك أو منزلك) من الزر أدناه، لنحدد مدينتك وأقرب الأحياء إليك."))
     return "r_loc", data
 
@@ -668,6 +677,8 @@ def _add_district(api, wa_id, data, did):
 
 def _confirm(api, wa_id, data, note=""):
     r = data["r"]
+    if r.get("edit") == "dist":
+        return _save_edit(api, wa_id, data)
     if r.get("whole") or not r.get("has_d"):
         where = tr("{city} — المدينة كاملة 🌍", city=r["city"])
     else:
@@ -789,12 +800,64 @@ def on_flow(api, wa_id, kind, picked, state, data):
     return state, data
 
 
+# ─────────────────────────── تعديل بيانات الفني المسجّل ───────────────────────────
+# (بدون تعديل المهنة — من يريد مهنة أخرى يحذف حسابه ويسجّل من جديد، طلب المالك)
+
+def _edit_menu(api, wa_id):
+    p = db.get_professional_for_wa(wa_id)
+    if not p:
+        return start(api, wa_id)
+    _, prof = professions.get_profession(p["profession_id"], "ar")
+    buttons = []
+    if prof and prof.get("services"):
+        buttons.append(("R:ed:svc", tr("🛠️ الخدمات")))
+    buttons += [("R:ed:dist", tr("📍 الأحياء")), ("R:ed:name", tr("👷 الاسم"))]
+    api.buttons(wa_id, tr("✏️ ماذا تريد أن تعدّل؟ 👇\n(لتغيير المهنة: احذف حسابك بكتابة d ثم سجّل من جديد)"), buttons)
+    return "menu", {}
+
+
+def _start_edit(api, wa_id, what):
+    p = db.get_professional_for_wa(wa_id)
+    if not p:
+        return start(api, wa_id)
+    _, prof = professions.get_profession(p["profession_id"], "ar")
+    r = {"edit": what, "edit_id": p["id"], "name": p["full_name"], "pid": p["profession_id"],
+         "pname": p["profession_name"], "wide": bool(prof and prof.get("allow_city_wide")),
+         "all_services": (prof or {}).get("services") or [], "services": []}
+    data = {"r": r}
+    if what == "svc" and r["all_services"]:
+        return _ask_services(api, wa_id, data)
+    if what == "name":
+        api.text(wa_id, tr("✍️ اكتب الاسم الجديد (الاسم الذي سيظهر للعملاء):"))
+        return "r_ename", data
+    return _ask_location(api, wa_id, data)
+
+
+def _save_edit(api, wa_id, data):
+    r = data["r"]
+    pid = r.get("edit_id")
+    if not pid:
+        return start(api, wa_id)
+    if r["edit"] == "svc":
+        db.update_professional_services(pid, r.get("services") or [])
+    elif r["edit"] == "dist":
+        whole = bool(r.get("whole") or not r.get("has_d"))
+        db.update_professional_area(pid, r["country"], r["city"], r["city_id"],
+                                    [] if whole else list(r.get("chosen") or []), whole)
+    p = db.get_professional_by_id(pid)
+    return _status(api, wa_id, p, extra="\n\n" + tr("✅ تم تحديث بياناتك."))
+
+
 # ─────────────────────────── الأزرار ───────────────────────────
 
 def on_choice(api, wa_id, rid, state, data):
     p = rid.split(":")[1:]
     act = p[0] if p else ""
     r = data.setdefault("r", {})
+    if act == "edit":
+        return _edit_menu(api, wa_id)
+    if act == "ed":
+        return _start_edit(api, wa_id, p[1] if len(p) > 1 else "")
     if act == "details":
         p = db.get_professional_for_wa(wa_id)
         if not p:
