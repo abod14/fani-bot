@@ -813,6 +813,9 @@ def _run_search(api, wa_id, data):
     if recent:
         data.update(ids=recent, shown=0, note=tr('هؤلاء هم الفنيون الذين عرضناهم لك في هذه المهنة خلال آخر 24 ساعة، ويمكنك البحث عن فنيين آخرين بعد انقضائها.\n'))
         return _show_page(api, wa_id, data)
+    if db.count_recent_places(customer_id(wa_id), pid) >= db.MAX_PLACES_PER_PROFESSION:
+        api.text(wa_id, tr('بحثت في مكانين عن هذه المهنة خلال آخر 24 ساعة، وهو الحد المسموح به. يمكنك البحث في مكان آخر بعد انقضائها، أو البحث من جديد في أحد المكانين لترى الفنيين أنفسهم.\n\nللبحث من جديد اكتب s'))
+        return None, {}
     ids = db.search_active_professional_ids(pid, city, data.get("neighborhood"), data.get("district_id"),
                                             None, data.get("city_id"))
     db.log_search(customer_id(wa_id), pid, pname, city, data.get("neighborhood"), len(ids), data.get("country") or "SA")

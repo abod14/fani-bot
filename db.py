@@ -2823,3 +2823,16 @@ def save_recent_results(customer_id: int, profession_id: str, ids: list[int]):
     with get_conn() as conn:
         conn.execute("INSERT OR REPLACE INTO recent_results (customer_id, profession_id, ids_json, created_at) "
                      "VALUES (?, ?, ?, ?)", (customer_id, str(profession_id), json.dumps(list(ids)), _now_iso()))
+
+
+MAX_PLACES_PER_PROFESSION = 2   # طلب المالك: مكانان (حي/مدينة) فقط لنفس المهنة خلال 24 ساعة
+
+
+def count_recent_places(customer_id: int, profession_id: str) -> int:
+    """كم مكان مختلف (مدينة|حي) بحث فيه العميل عن نفس المهنة خلال 24 ساعة."""
+    since = (datetime.now(timezone.utc) - timedelta(hours=RECENT_RESULTS_HOURS)).isoformat()
+    with get_conn() as conn:
+        row = conn.execute(
+            "SELECT COUNT(*) FROM recent_results WHERE customer_id = ? AND substr(profession_id, 1, ?) = ? AND created_at >= ?",
+            (customer_id, len(str(profession_id)) + 1, f"{profession_id}|", since)).fetchone()
+    return int(row[0] or 0)

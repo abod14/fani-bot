@@ -668,6 +668,11 @@ TEXTS: dict[str, dict[str, str]] = {
         "en": "These are the technicians we showed you for this trade in the last 24 hours. You can search for other technicians once that period ends.",
         "ur": "یہ وہی ٹیکنیشن ہیں جو ہم نے پچھلے 24 گھنٹوں میں اس پیشے کے لیے آپ کو دکھائے تھے۔ یہ مدت ختم ہونے کے بعد آپ دوسرے ٹیکنیشن تلاش کر سکتے ہیں۔",
     },
+    "srch_places_limit": {
+        "ar": 'بحثت في مكانين عن هذه المهنة خلال آخر 24 ساعة، وهو الحد المسموح به. يمكنك البحث في مكان آخر بعد انقضائها، أو البحث من جديد في أحد المكانين لترى الفنيين أنفسهم.',
+        "en": 'You have searched two places for this trade in the last 24 hours, which is the limit. You can search another place once that period ends, or search one of the two places again to see the same technicians.',
+        "ur": 'آپ نے پچھلے 24 گھنٹوں میں اس پیشے کے لیے دو جگہوں پر تلاش کی ہے، جو حد ہے۔ یہ مدت ختم ہونے کے بعد آپ کسی اور جگہ تلاش کر سکتے ہیں، یا انہی دو جگہوں میں سے کسی ایک میں دوبارہ تلاش کر کے وہی ٹیکنیشن دیکھ سکتے ہیں۔',
+    },
     "srch_results_header": {
         "ar": "وجدنا {count} من الفنيين ({profession}) في مدينة «{city}»:",
         "en": "We found {count} professional(s) ({profession}) in «{city}»:",

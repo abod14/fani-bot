@@ -937,6 +937,14 @@ async def _run_search(message, context: ContextTypes.DEFAULT_TYPE, is_edit: bool
         else:
             await message.reply_text(note)
         return await _show_results_page(message, context, is_edit=False)
+    places = await asyncio.to_thread(db.count_recent_places, customer_telegram_id, ud["profession_id"])
+    if places >= db.MAX_PLACES_PER_PROFESSION:
+        text = i18n.t("srch_places_limit", _lang(context))
+        if is_edit:
+            await message.edit_text(text)
+        else:
+            await message.reply_text(text)
+        return ConversationHandler.END
     result_ids = await asyncio.to_thread(
         db.search_active_professional_ids, ud["profession_id"], ud["city"], ud.get("neighborhood"),
         ud.get("district_id"), ud.get("service_filter"), ud.get("city_id"),
