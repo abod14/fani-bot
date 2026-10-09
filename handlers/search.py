@@ -177,8 +177,8 @@ def _district_keyboard(city_id: int, page: int, lang: str) -> InlineKeyboardMark
     districts = db.list_sa_districts_by_city(city_id)
     return _paginated_keyboard(
         districts, page, "srch_dist:", "srch_dist_page:",
-        extra_rows=[[InlineKeyboardButton(i18n.t("srch_skip_district_btn", lang), callback_data=SKIP_NEIGHBORHOOD_CB)]]
-        + _change_country_rows(lang),
+        # بدون «تخطي الحي/كل المدينة» (طلب المالك) — المدينة كلها فقط للمهن النادرة أو لو ما فيه أحد قريب
+        extra_rows=_change_country_rows(lang),
     )
 
 
@@ -215,7 +215,6 @@ def _location_confirm_keyboard(
         buttons.append([InlineKeyboardButton(mark + label, callback_data=f"{LOCATION_TOGGLE_PREFIX}{did}")])
 
     buttons.append([InlineKeyboardButton(i18n.t("srch_svc_done_btn", lang), callback_data=LOCATION_NEARBY_DONE_CB)])
-    buttons.append([InlineKeyboardButton(i18n.t("srch_all_city_districts_btn", lang), callback_data=LOCATION_ALL_CITY_CB)])
     buttons.append([InlineKeyboardButton(i18n.t("srch_location_confirm_no_btn", lang), callback_data=REJECT_LOCATION_CB)])
     buttons.append([InlineKeyboardButton(i18n.t("srch_end_search_btn", lang), callback_data=END_SEARCH_CB)])
     return InlineKeyboardMarkup(buttons)
@@ -550,7 +549,9 @@ async def _advance_location(message, context: ContextTypes.DEFAULT_TYPE, user_id
         ud["country"] = city["country"]
     ud.setdefault("tried_city_ids", []).append(city["id"])
 
-    if city.get("has_districts"):
+    rare = bool(ud.get("profession_id")) and await asyncio.to_thread(
+        db.count_in_city, ud["profession_id"], city["name"], city["id"]) <= db.RARE_IN_CITY
+    if city.get("has_districts") and not rare:   # مهنة نادرة بالمدينة (≤5) → نعرضهم مباشرة بدون سؤال الحي
         return await _render(message, edit, i18n.t("srch_city_step", lang, city=city["name"]),
                              _district_keyboard(city["id"], page=0, lang=lang), SEARCH_NEIGHBORHOOD)
 
@@ -870,7 +871,6 @@ async def district_text_search(update: Update, context: ContextTypes.DEFAULT_TYP
             row = []
     if row:
         buttons.append(row)
-    buttons.append([InlineKeyboardButton(i18n.t("srch_skip_district_btn", lang), callback_data=SKIP_NEIGHBORHOOD_CB)])
     buttons.extend(_change_country_rows(lang))
 
     await update.message.reply_text(i18n.t("matched_results", lang), reply_markup=InlineKeyboardMarkup(buttons))
@@ -925,6 +925,7 @@ RESULTS_PAGE_SIZE = 5
 
 async def _run_search(message, context: ContextTypes.DEFAULT_TYPE, is_edit: bool, customer_telegram_id: int):
     ud = context.user_data
+    ud.pop("nearby_auto", None)
     city_row = await asyncio.to_thread(db.get_sa_city_by_id, ud["city_id"]) if ud.get("city_id") else None
     country = (city_row or {}).get("country") or ud.get("country") or countries.DEFAULT_COUNTRY
     ud["country"] = country
@@ -953,6 +954,21 @@ async def _run_search(message, context: ContextTypes.DEFAULT_TYPE, is_edit: bool
         db.search_active_professional_ids, ud["profession_id"], ud["city"], ud.get("neighborhood"),
         ud.get("district_id"), ud.get("service_filter"), ud.get("city_id"),
     )
+    if not result_ids and ud.get("district_id"):
+        # طلب المالك: ما فيه أحد بحيّه → الأقرب له من الأحياء المجاورة (لا المدينة عشوائيًا)
+        # (أقرب 5 أحياء مجاورة، ثم المدينة كلها)
+        result_ids, scope = await asyncio.to_thread(
+            db.nearest_professional_ids, ud["profession_id"], ud["city"], ud.get("city_id"),
+            ud["district_id"] if isinstance(ud["district_id"], int) else (list(ud["district_id"]) or [None])[0])
+        if result_ids:
+            ud["nearby_auto"] = True
+            note = i18n.t("srch_nearest_note" if scope == "near" else "srch_city_note", _lang(context),
+                          district=_neighborhood_display(ud.get("neighborhood")) or "", city=ud["city"])
+            if is_edit:
+                await message.edit_text(note)
+            else:
+                await message.reply_text(note)
+            is_edit = False
     ud["result_ids"] = result_ids
     ud["shown_count"] = 0
     await asyncio.to_thread(db.save_recent_results, customer_telegram_id, rkey,
@@ -1047,6 +1063,8 @@ async def _offer_nearby_or_end(message, context: ContextTypes.DEFAULT_TYPE):
     lang = _lang(context)
     ud = context.user_data
     district_id = ud.get("district_id")
+    if ud.get("nearby_auto"):   # عرضنا الأقرب تلقائيًا — لا نقترح أحياء/مدن بعدها
+        return SEARCH_RESULTS
 
     if district_id:
         tried_districts = ud.get("tried_district_ids", [district_id])
@@ -1058,7 +1076,6 @@ async def _offer_nearby_or_end(message, context: ContextTypes.DEFAULT_TYPE):
                 [InlineKeyboardButton(f"🏘️ {d['name']}", callback_data=f"{NEARBY_DISTRICT_CB_PREFIX}{d['id']}")]
                 for d in nearby_districts
             ]
-            buttons.append([InlineKeyboardButton(i18n.t("srch_all_city_districts_btn", lang), callback_data=ALL_CITY_DISTRICTS_CB)])
             buttons.append([InlineKeyboardButton(i18n.t("srch_manual_choice_btn", lang), callback_data=MANUAL_DISTRICT_PICK_CB)])
             buttons.append([InlineKeyboardButton(i18n.t("srch_end_search_btn", lang), callback_data=END_SEARCH_CB)])
             await message.reply_text(

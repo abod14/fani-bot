@@ -2843,3 +2843,42 @@ def count_recent_places(customer_id: int, profession_id: str) -> int:
             "SELECT COUNT(*) FROM recent_results WHERE customer_id = ? AND substr(profession_id, 1, ?) = ? AND created_at >= ?",
             (customer_id, len(str(profession_id)) + 1, f"{profession_id}|", since)).fetchone()
     return int(row[0] or 0)
+
+
+NEARBY_DISTRICTS = 5   # طلب المالك: ما فيه أحد بحيّه → أقرب 5 أحياء مجاورة، ثم المدينة كلها
+RARE_IN_CITY = 5       # طلب المالك: مهنة فيها ≤5 فنيين بالمدينة = نادرة → نعرضهم مباشرة بدون سؤال الحي
+
+
+def nearest_professional_ids(profession_id: str, city: str, city_id: int | None, district_id: int | None = None,
+                             lat: float | None = None, lon: float | None = None) -> tuple[list[int], str]:
+    """طلب المالك: ما فيه أحد بحي العميل → فنيو أقرب 5 أحياء مجاورة (الأقرب فالأقرب، وداخل الحي
+    الواحد بالتناوب العادل). ما فيه أحد فيها أيضًا → المدينة كلها. يرجّع (ids, "near"|"city")."""
+    near: list[dict] = []
+    if district_id:
+        near = nearest_sa_districts(district_id, [district_id], NEARBY_DISTRICTS)
+    elif lat is not None and city_id:
+        with get_conn() as conn:
+            rows = [dict(r) for r in conn.execute(
+                "SELECT * FROM sa_districts WHERE city_id = ? AND lat IS NOT NULL", (city_id,)).fetchall()]
+        rows.sort(key=lambda d: _approx_dist_sq(d["lat"], d["lon"], lat, lon))
+        near = rows[:NEARBY_DISTRICTS]
+    if near:
+        rank = {d["id"]: i for i, d in enumerate(near)}
+        ids = search_active_professional_ids(profession_id, city, [d["name"] for d in near],
+                                             [d["id"] for d in near], None, city_id)
+        if ids:
+            q = ",".join("?" * len(ids))
+            with get_conn() as conn:
+                cover: dict[int, int] = {}
+                for pid, did in conn.execute(
+                        f"SELECT professional_id, district_id FROM professional_districts WHERE professional_id IN ({q})",
+                        ids).fetchall():
+                    if did in rank:
+                        cover[pid] = min(cover.get(pid, 99), rank[did])
+            order = {pid: i for i, pid in enumerate(ids)}   # التناوب العادل الأصلي داخل نفس الحي
+            return sorted(ids, key=lambda pid: (cover.get(pid, 0), order[pid])), "near"
+    return search_active_professional_ids(profession_id, city, None, None, None, city_id), "city"
+
+
+def count_in_city(profession_id: str, city: str, city_id: int | None) -> int:
+    return len(search_active_professional_ids(profession_id, city, None, None, None, city_id))

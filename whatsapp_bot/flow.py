@@ -604,7 +604,7 @@ def _on_location(api, wa_id, lat, lon, data):
         pass
     data.update(city_id=city["id"], city=city["name"], country=city.get("country") or "SA",
                 neighborhood=district["name"] if district else None,
-                district_id=district["id"] if district else None)
+                district_id=district["id"] if district else None, lat=lat, lon=lon)
     return _run_search(api, wa_id, data)
 
 
@@ -735,14 +735,18 @@ def _choose_city(api, wa_id, city_id, page, data):
     if not city:
         return _manual_start(api, wa_id, data)
     data.update(city_id=city["id"], city=city["name"], country=city.get("country") or data.get("country") or "SA")
+    data.pop("lat", None); data.pop("lon", None)
     districts = db.list_sa_districts_by_city(city_id) if city.get("has_districts") else []
+    # طلب المالك: مهنة نادرة بالمدينة (≤5 فنيين) → نعرضهم مباشرة بدون سؤال الحي
+    if districts and data.get("pid") and db.count_in_city(data["pid"], city["name"], city["id"]) <= db.RARE_IN_CITY:
+        districts = []
     if not districts:
         data.update(neighborhood=None, district_id=None)
         return _run_search(api, wa_id, data)
     if len(districts) <= 9:
         # أحياء قليلة: قائمة اختيار عادية (أسهل من الأرقام)
-        rows = [("dist:all", tr("🌍 كل {city}", city=city["name"])[:24], tr("كل أحياء المدينة"))]
-        rows += [(f"dist:{d['id']}", d["name"], d["name"] if len(d["name"]) > 24 else None)
+        # بدون خيار «كل المدينة» (طلب المالك) — المدينة كلها فقط للمهن النادرة أو لو ما فيه أحد قريب
+        rows = [(f"dist:{d['id']}", d["name"], d["name"] if len(d["name"]) > 24 else None)
                  for d in sorted(districts, key=lambda d: norm(re.sub(r"^حي\s+", "", d["name"])))]
         data["ndist"] = [d["id"] for d in districts]
         api.list(wa_id, tr("📍 اختر الحي في {city} 👇", city=city["name"]), tr("اختر الحي"), rows,
@@ -758,16 +762,12 @@ def _choose_city(api, wa_id, city_id, page, data):
         head = tr("📍 أحياء {city} — مقسّمة حسب المنطقة 👇", city=city["name"])
     data["ndist"] = [d["id"] for _, ds in groups for d in ds]
     send_numbered(api, wa_id, head, None, tr("✍️ اكتب *رقم* حيّك (أو اسمه)."),
-                  first_line="#. " + tr("🌍 كل {city}", city=city["name"]),
                   groups=[(t, [d["name"] for d in ds]) for t, ds in groups])
     return "dist", data
 
 
 def _on_district_text(api, wa_id, text, data):
     t = (text or "").strip()
-    if t in ("#", "＃"):
-        data.update(neighborhood=None, district_id=None)
-        return _run_search(api, wa_id, data)
     did = _number_in(t, data.get("ndist") or [])
     if did is not None:
         d = db.get_sa_district_by_id(did)
@@ -778,7 +778,7 @@ def _on_district_text(api, wa_id, text, data):
         if not data.get("ndist"):
             return _match_district(api, wa_id, t, data)
         return hint_once(api, wa_id, "dist", data, lambda: api.text(
-            wa_id, tr("اكتب رقمًا من 1 إلى {n}، أو # لكل المدينة 🙏", n=len(data.get("ndist") or []))))
+            wa_id, tr("اكتب رقمًا من 1 إلى {n} 🙏", n=len(data.get("ndist") or []))))
     # كتب اسم: لو حي واحد يطابق نبحث فيه مباشرة، وإلا نعرض أرقام المتشابهة (بدون إعادة القائمة)
     q = norm(re.sub(r"^\s*حي\s+", "", t))
     names = {d["id"]: d["name"] for d in db.list_sa_districts_by_city(data["city_id"])}
@@ -792,7 +792,7 @@ def _on_district_text(api, wa_id, text, data):
         api.text(wa_id, tr("🔎 الأحياء التي تحتوي على «{q}»:\n{lines}\n\n✍️ اكتب *رقم* حيّك.", q=clip_text(t),
                            lines="\n".join(f"{i}. {names[d]}" for i, d in hits[:15])))
     else:
-        api.text(wa_id, tr("✍️ اكتب *رقم* حيّك من القائمة أعلاه 👆 أو # لكل المدينة.")
+        api.text(wa_id, tr("✍️ اكتب *رقم* حيّك من القائمة أعلاه 👆")
                  + ("\n" + tr("لم أجد حيًّا يحتوي على «{q}».", q=clip_text(t)) if len(q) >= 2 else ""))
     return "dist", data
 
@@ -809,10 +809,9 @@ def _match_district(api, wa_id, text, data):
         return _run_search(api, wa_id, data)
     if matches:
         rows = [(f"dist:{d['id']}", d["name"], d["name"] if len(d["name"]) > 24 else None) for d in matches]
-        rows.append(("dist:all", tr("🌍 كل {city}", city=data.get("city", tr("المدينة"))), None))
         api.list(wa_id, tr("اختر حيّك من النتائج 👇"), tr("اختر الحي"), rows, section_title=tr("الأحياء"))
         return "dist", data
-    api.text(wa_id, tr("لم أجد حيًّا باسم «{q}» في {city} 🤔 اكتب رقم الحي من القائمة، أو # لكل المدينة.",
+    api.text(wa_id, tr("لم أجد حيًّا باسم «{q}» في {city} 🤔 اكتب رقم الحي من القائمة.",
                        q=clip_text(text), city=data.get("city", "")))
     return "dist", data
 
@@ -837,13 +836,19 @@ def _run_search(api, wa_id, data):
     _notify_missed_async(dict(data))
 
     note = ""
-    if not ids and data.get("district_id"):
-        # ما فيه بالحي — نوسّع للمدينة كاملة بدل ما نرجّعه فاضي
-        ids = db.search_active_professional_ids(pid, city, None, None, None, data.get("city_id"))
+    if not ids and (data.get("district_id") or data.get("lat") is not None):
+        # طلب المالك: ما فيه أحد بحيّه → الأقرب له من الأحياء المجاورة (لا المدينة عشوائيًا)
+        # (أقرب 5 أحياء مجاورة، ثم المدينة كلها)
+        ids, scope = db.nearest_professional_ids(pid, city, data.get("city_id"), data.get("district_id"),
+                                                 data.get("lat"), data.get("lon"))
         if ids:
-            nb = data["neighborhood"] if str(data["neighborhood"]).startswith("حي") else f"حي {data['neighborhood']}"
-            note = tr("لم نجد نتائج في {nb}، وهذه نتائج {city} كاملة 👇\n", nb=nb, city=city)
-            data.update(neighborhood=None, district_id=None)
+            nb = data["neighborhood"] if str(data["neighborhood"] or "").startswith("حي") else f"حي {data['neighborhood']}"
+            if scope == "near":
+                note = tr("لا يوجد حاليًا فنيون في {nb}، وهؤلاء الأقرب إليك من الأحياء المجاورة 👇\n", nb=nb) \
+                    if data.get("neighborhood") else tr("هؤلاء الأقرب إليك 👇\n")
+            else:
+                note = tr("لم نجد فنيين في {nb} ولا في الأحياء المجاورة، وهذه نتائج {city} كاملة 👇\n", nb=nb, city=city) \
+                    if data.get("neighborhood") else ""
     if not ids:
         return _offer_nearby_cities(api, wa_id, data)
     db.save_recent_results(customer_id(wa_id), rkey, ids[:RESULTS_PER_PAGE])

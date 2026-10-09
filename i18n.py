@@ -758,6 +758,16 @@ TEXTS: dict[str, dict[str, str]] = {
         "en": 'You have already rated this technician, thank you 🌟',
         "ur": 'آپ اس ٹیکنیشن کو پہلے ہی ریٹ کر چکے ہیں، شکریہ 🌟',
     },
+    "srch_nearest_note": {
+        "ar": "لا يوجد حاليًا فنيون في {district}، وهؤلاء الأقرب إليك من الأحياء المجاورة 👇",
+        "en": "No technicians in {district} right now — here are the nearest from neighbouring districts 👇",
+        "ur": "{district} میں فی الحال کوئی ٹیکنیشن نہیں، یہ قریبی محلوں سے آپ کے قریب ترین ہیں 👇",
+    },
+    "srch_city_note": {
+        "ar": "لم نجد فنيين في {district} ولا في الأحياء المجاورة، وهذه نتائج {city} كاملة 👇",
+        "en": "No technicians in {district} or neighbouring districts — here are results for all of {city} 👇",
+        "ur": "{district} اور قریبی محلوں میں کوئی ٹیکنیشن نہیں ملا، یہ پورے {city} کے نتائج ہیں 👇",
+    },
     "srch_results_header": {
         "ar": "وجدنا {count} من الفنيين ({profession}) في مدينة «{city}»:",
         "en": "We found {count} professional(s) ({profession}) in «{city}»:",

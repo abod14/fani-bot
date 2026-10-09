@@ -259,6 +259,11 @@ TEXTS: dict[str, dict[str, str]] = {
     'سبق أن قيّمت هذا الفني، شكرًا لك 🌟': {"en": 'You have already rated this technician, thank you 🌟', "ur": 'آپ اس ٹیکنیشن کو پہلے ہی ریٹ کر چکے ہیں، شکریہ 🌟'},
     '⭐ {avg} من 5 ({n} تقييم)': {"en": '⭐ {avg} of 5 ({n} ratings)', "ur": '⭐ 5 میں سے {avg} ({n} ریٹنگز)'},
     '⭐ تقييمك حتى الآن: {avg} من 5 ({n} تقييم) — يظهر للعملاء بعد 3 تقييمات.': {"en": '⭐ Your rating so far: {avg} of 5 ({n} ratings) — shown to customers after 3 ratings.', "ur": '⭐ اب تک آپ کی ریٹنگ: 5 میں سے {avg} ({n} ریٹنگز) — 3 ریٹنگز کے بعد صارفین کو دکھائی دے گی۔'},
+    'لا يوجد حاليًا فنيون في {nb}، وهؤلاء الأقرب إليك من الأحياء المجاورة 👇\n': {"en": 'No technicians in {nb} right now — here are the nearest from neighbouring districts 👇\n', "ur": '{nb} میں فی الحال کوئی ٹیکنیشن نہیں، یہ قریبی محلوں سے آپ کے قریب ترین ہیں 👇\n'},
+    'هؤلاء الأقرب إليك 👇\n': {"en": 'These are the nearest to you 👇\n', "ur": 'یہ آپ کے قریب ترین ہیں 👇\n'},
+    '✍️ اكتب *رقم* حيّك من القائمة أعلاه 👆': {"en": '✍️ Type your district *number* from the list above 👆', "ur": '✍️ اوپر کی فہرست سے اپنے محلے کا *نمبر* لکھیں 👆'},
+    'لم أجد حيًّا باسم «{q}» في {city} 🤔 اكتب رقم الحي من القائمة.': {"en": "I couldn't find a district named «{q}» in {city} 🤔 Type the district number from the list.", "ur": '{city} میں «{q}» نام کا کوئی محلہ نہیں ملا 🤔 فہرست سے محلے کا نمبر لکھیں۔'},
+    'لم نجد فنيين في {nb} ولا في الأحياء المجاورة، وهذه نتائج {city} كاملة 👇\n': {"en": 'No technicians in {nb} or neighbouring districts — here are results for all of {city} 👇\n', "ur": '{nb} اور قریبی محلوں میں کوئی ٹیکنیشن نہیں ملا، یہ پورے {city} کے نتائج ہیں 👇\n'},
     "بقي {n} من الفنيين": {"en": "{n} more technicians", "ur": "مزید {n} ٹیکنیشن"},
     "وجدنا {n} من فنيي «{pname}» 👍\nاضغط «عرض الفنيين» واختر أحدهم، وسنفتح لك محادثته على واتساب مباشرة.": {
         "en": "We found {n} «{pname}» technicians 👍\nTap «View technicians» and pick one — we'll open a WhatsApp chat with them right away.",
