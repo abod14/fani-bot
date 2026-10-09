@@ -12,6 +12,7 @@ import re
 import threading
 from datetime import datetime, timedelta, timezone
 
+import config
 import contact_links
 import countries
 import db
@@ -912,14 +913,19 @@ def _show_page(api, wa_id, data):
     return "results", data
 
 
+def wa_prefill(ar_name: str) -> str:
+    # بدون كلمة «بوت» — في واتساب «فنّي» رقم خدمة مو بوت (طلب المالك). دائمًا بالعربي.
+    return f"مرحبًا، وجدتك عبر «فنّي» 🛠️ أحتاج خدمة: {ar_name}"
+
+
 def _contact(api, wa_id, pid, call_only, state, data):
     p = db.get_professional_by_id(pid)
     if not db.professional_can_receive_contacts(p):
         api.text(wa_id, tr("عذرًا، هذا الفني غير متاح حاليًا 🙏 اختر فنيًا آخر من القائمة، أو اكتب s لبدء بحث جديد."))
         return state or "results", data
-    db.register_contact(pid, customer_id(wa_id))   # تُخصم فرصة (مرة وحدة لكل عميل/فني خلال 24 ساعة)
     card = card_text(p)   # العربي = نفس نص البطاقة اللي في تلغرام
     if call_only or not p.get("has_whatsapp", 1):
+        db.register_contact(pid, customer_id(wa_id))   # رقم اتصال فقط: يظهر الرقم هنا، فتُحسب الفرصة هنا
         api.text(wa_id, tr("{card}\n\n📞 هذا الرقم للاتصال فقط (بدون واتساب): {number}", card=card,
                            number=p["whatsapp_number"]))
         return state or "results", data
@@ -928,8 +934,13 @@ def _contact(api, wa_id, pid, call_only, state, data):
     ar_name = (p.get("profession2_name") if searched and searched == p.get("profession2_id") else None) \
         or ((db.get_profession_by_id(searched) or {}).get("name") if searched else None) or p.get("profession_name")
     # بدون كلمة «بوت» — في واتساب «فنّي» رقم خدمة مو بوت (طلب المالك)
-    prefill = f"مرحبًا، وجدتك عبر «فنّي» 🛠️ أحتاج خدمة: {ar_name}"
-    url = contact_links.wa_link(p["whatsapp_number"], prefill, p.get("country"))
+    # طلب المالك: الفرصة تُحسب عند فتح محادثة الفني فعلًا (زر «فتح المحادثة») لا عند الضغط على اسمه.
+    # الزر يمر بسيرفرنا لحظة (/wa/c/<رمز>) يسجّل الضغطة ثم يحوّل فورًا لواتساب الفني.
+    slot = 2 if searched and searched == p.get("profession2_id") else 1
+    url = f"{config.WA_PUBLIC_BASE.rstrip('/')}/wa/c/{contact_links.make_token(pid, customer_id(wa_id), 'w', slot)}"
+    if not config.WA_PUBLIC_BASE:   # احتياط: بدون رابط عام نرجع للطريقة القديمة
+        db.register_contact(pid, customer_id(wa_id))
+        url = contact_links.wa_link(p["whatsapp_number"], wa_prefill(ar_name), p.get("country"))
     api.cta_url(wa_id, tr("{card}\n\nاضغط الزر لفتح المحادثة معه 👇", card=card),
                 tr("💬 فتح المحادثة"), url, footer=tr("يمكنك العودة إلى القائمة واختيار فنّي آخر"))
     return state or "results", data

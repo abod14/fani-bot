@@ -72,6 +72,33 @@ h1{font-size:24px}h2{font-size:18px;margin-top:28px}.en{direction:ltr;text-align
 </body></html>"""
 
 
+@app.get("/wa/c/<token>")
+def open_chat(token):
+    """زر «فتح المحادثة» مع الفني: نسجّل التواصل (تُحسب الفرصة الآن فقط — طلب المالك)
+    ثم نحوّل فورًا لمحادثة الفني على واتساب مع الرسالة الجاهزة."""
+    import contact_links
+    from flask import redirect
+    data = contact_links.parse_token(token)
+    p = db.get_professional_by_id(data["professional_id"]) if data and data["channel"] == "w" else None
+    if not p or not p.get("has_whatsapp", 1) or not db.professional_can_receive_contacts(p):
+        return (UNAVAILABLE_HTML, 200)
+    db.register_contact(p["id"], data["customer_id"])
+    target = contact_links.wa_link(p["whatsapp_number"],
+                                   flow.wa_prefill(contact_links.profession_for_slot(p, data["prof_slot"])),
+                                   p.get("country"))
+    resp = redirect(target, code=302)
+    resp.headers["Cache-Control"] = "no-store"
+    return resp
+
+
+UNAVAILABLE_HTML = """<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>فنّي</title>
+<style>body{font-family:system-ui,Tahoma,sans-serif;text-align:center;padding:48px 20px;color:#16233a;background:#f7faf9}
+a{display:inline-block;margin-top:18px;background:#0f766e;color:#fff;padding:12px 22px;border-radius:12px;text-decoration:none}</style>
+</head><body><h2>عذرًا، هذا الفني غير متاح حاليًا 🙏</h2><p>ارجع إلى محادثة «فنّي» واختر فنيًا آخر من القائمة.</p>
+<a href="https://fanniapp.com">fanniapp.com</a></body></html>"""
+
+
 @app.get("/privacy")
 def privacy():
     return PRIVACY_HTML
