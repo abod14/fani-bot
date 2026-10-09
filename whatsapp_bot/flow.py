@@ -807,7 +807,9 @@ def _match_district(api, wa_id, text, data):
 def _run_search(api, wa_id, data):
     pid, pname, city = data["pid"], data["pname"], data["city"]
     # طلب المالك: نفس العميل ونفس المهنة خلال 24 ساعة → نفس الـ5 (ما يعيد البحث ليطلع فنيين أكثر)
-    recent = db.get_recent_results(customer_id(wa_id), f"{pid}|{city}")   # نفس المهنة بنفس المدينة
+    # المفتاح: المهنة + المدينة + الحي (كل حي له خمسته؛ الفني المسجّل بأحياء متقاربة قد يظهر بأكثر من حي)
+    rkey = f"{pid}|{city}|{data.get('district_id') or data.get('neighborhood') or '*'}"
+    recent = db.get_recent_results(customer_id(wa_id), rkey)
     if recent:
         data.update(ids=recent, shown=0, note=tr('هؤلاء هم الفنيون الذين عرضناهم لك في هذه المهنة خلال آخر 24 ساعة، ويمكنك البحث عن فنيين آخرين بعد انقضائها.\n'))
         return _show_page(api, wa_id, data)
@@ -826,7 +828,7 @@ def _run_search(api, wa_id, data):
             data.update(neighborhood=None, district_id=None)
     if not ids:
         return _offer_nearby_cities(api, wa_id, data)
-    db.save_recent_results(customer_id(wa_id), f"{pid}|{city}", ids[:RESULTS_PER_PAGE])
+    db.save_recent_results(customer_id(wa_id), rkey, ids[:RESULTS_PER_PAGE])
     data.update(ids=ids, shown=0, note=note)
     return _show_page(api, wa_id, data)
 

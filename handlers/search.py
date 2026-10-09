@@ -925,7 +925,9 @@ async def _run_search(message, context: ContextTypes.DEFAULT_TYPE, is_edit: bool
     country = (city_row or {}).get("country") or ud.get("country") or countries.DEFAULT_COUNTRY
     ud["country"] = country
     # طلب المالك: نفس العميل ونفس المهنة خلال 24 ساعة → نفس الـ5 (ما يعيد البحث ليطلع فنيين أكثر)
-    recent = await asyncio.to_thread(db.get_recent_results, customer_telegram_id, f'{ud["profession_id"]}|{ud["city"]}')
+    # المفتاح: المهنة + المدينة + الحي (كل حي له خمسته)
+    rkey = f'{ud["profession_id"]}|{ud["city"]}|{ud.get("district_id") or ud.get("neighborhood") or "*"}'
+    recent = await asyncio.to_thread(db.get_recent_results, customer_telegram_id, rkey)
     if recent:
         ud["result_ids"] = recent
         ud["shown_count"] = 0
@@ -941,7 +943,7 @@ async def _run_search(message, context: ContextTypes.DEFAULT_TYPE, is_edit: bool
     )
     ud["result_ids"] = result_ids
     ud["shown_count"] = 0
-    await asyncio.to_thread(db.save_recent_results, customer_telegram_id, f'{ud["profession_id"]}|{ud["city"]}',
+    await asyncio.to_thread(db.save_recent_results, customer_telegram_id, rkey,
                             result_ids[:RESULTS_PAGE_SIZE])
 
     await asyncio.to_thread(
