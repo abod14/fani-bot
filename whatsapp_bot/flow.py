@@ -272,6 +272,9 @@ def _dispatch(api, wa_id, name, msg, state, data):
                 return register.on_flow(api, wa_id, parsed[0], parsed[1], state, data)
             return _welcome(api, wa_id, name)
         rid = (inter.get(kind) or {}).get("id", "")
+        if state is None and not rid.startswith(IDLE_OK):
+            # زر من رسالة قديمة بعد انتهاء المهلة (حتى «ابحث عن فني» / «أنا فني») ← القائمة الرئيسية
+            return _welcome(api, wa_id, name)
         if rid.startswith("R:"):
             from whatsapp_bot import register
             return register.on_choice(api, wa_id, rid, state, data)
@@ -317,6 +320,10 @@ def _dispatch(api, wa_id, name, msg, state, data):
     # صورة/صوت/ملصق… → القائمة
     return _welcome(api, wa_id, name)
 
+
+# أزرار تبقى صالحة حتى بعد انتهاء الجلسة: الاشتراك/الإشعارات/حساب الفني/حذف البيانات/اللغة/التواصل
+IDLE_OK = ("R:sub", "R:mute", "R:details", "R:mine", "R:tg", "R:edit", "R:ed:", "del:", "lang:", "m:lang",
+           "c:", "n:")   # c:/n: = التواصل مع فني من نتائج قديمة (يبقى يشتغل)
 
 # أزرار خطوات البحث — لو ضغطها بعد انتهاء المهلة (الجلسة صفرت) نرجعه للقائمة الرئيسية بدل ما نكمّل
 STEP_HEADS = {"prof", "top", "ppg", "dpg", "dom", "loc", "cty", "rpg", "reg", "cpg", "city", "dipg", "ncity", "dist"}
