@@ -211,6 +211,7 @@ def _delete_my_data(api, wa_id):
         conn.execute("DELETE FROM wa_sessions WHERE wa_id = ?", (wa_id,))
         conn.execute("DELETE FROM search_log WHERE customer_telegram_id = ?", (cid,))
         conn.execute("DELETE FROM contact_clicks WHERE customer_telegram_id = ?", (cid,))
+        conn.execute("DELETE FROM user_countries WHERE telegram_user_id = ?", (cid,))
     api.text(wa_id, tr("✅ تم حذف جميع بياناتك من «فنّي» نهائيًا. يمكنك العودة إلى استخدام الخدمة في أي وقت."))
     lang.forget(wa_id)
     return None, {}
@@ -307,6 +308,8 @@ def _dispatch(api, wa_id, name, msg, state, data):
             return register.on_text(api, wa_id, state, data, body)
         if state == "prof":
             return _match_profession(api, wa_id, body, data)
+        if state in ("loc", "loc_reg", "loc_city", "dist") and data.get("pid") and norm(body) in {norm(w) for w in COUNTRY_WORDS}:
+            return _manual_start(api, wa_id, data, ask_country=True)
         if state == "dist" and data.get("city_id"):
             return _on_district_text(api, wa_id, body, data)
         if state == "loc_reg" and data.get("pid"):
@@ -580,17 +583,28 @@ def _on_location(api, wa_id, lat, lon, data):
         api.text(wa_id, tr("لم نتمكن من تحديد مدينتك من الموقع 😅 اختر يدويًا:"))
         return _manual_start(api, wa_id, data)
     city, district = res
+    try:
+        db.set_user_country(customer_id(wa_id), city.get("country") or "SA")
+    except Exception:  # noqa: BLE001
+        pass
     data.update(city_id=city["id"], city=city["name"], country=city.get("country") or "SA",
                 neighborhood=district["name"] if district else None,
                 district_id=district["id"] if district else None)
     return _run_search(api, wa_id, data)
 
 
-def _manual_start(api, wa_id, data):
+COUNTRY_WORDS = {"دولة", "دوله", "الدولة", "تغيير الدولة", "country", "ملک"}
+
+
+def _manual_start(api, wa_id, data, ask_country=False):
     data.pop("from_near", None)
     enabled = countries.enabled_codes("wa")
     if len(enabled) == 1:
         return _choose_country(api, wa_id, enabled[0], 0, data)
+    # الدولة نسألها مرة وحدة بس — بعدها نتذكرها (يقدر يغيّرها بكتابة «دولة»)
+    saved = None if ask_country else db.get_user_country(customer_id(wa_id))
+    if saved in enabled:
+        return _choose_country(api, wa_id, saved, 0, data)
     rows = [(f"cty:{c}", countries.label(c, get_lang()), None) for c in enabled[:10]]
     api.list(wa_id, tr("اختر الدولة 👇"), tr("اختر الدولة"), rows, section_title=tr("الدول"))
     return "loc", data
@@ -644,14 +658,22 @@ def _name_in(text: str, items: list[dict]):
     return part[0] if len(part) == 1 else None
 
 
+def _country_hint() -> str:
+    return ("\n" + tr("🌍 لتغيير الدولة اكتب: دولة")) if len(countries.enabled_codes("wa")) > 1 else ""
+
+
 def _choose_country(api, wa_id, code, page, data):
     regions = db.list_sa_regions(code)
     data["country"] = code
+    try:
+        db.set_user_country(customer_id(wa_id), code)
+    except Exception:  # noqa: BLE001 — التذكّر ميزة إضافية، ما توقف البحث
+        pass
     if len(regions) == 1:
         return _choose_region(api, wa_id, regions[0]["id"], 0, data)
     data["nreg"] = [r["id"] for r in regions]
     send_numbered(api, wa_id, tr("📍 مناطق {country} 👇", country=countries.name(code, get_lang())),
-                  [r["name"] for r in regions], tr("✍️ اكتب *رقم* المنطقة."))
+                  [r["name"] for r in regions], tr("✍️ اكتب *رقم* المنطقة.") + _country_hint())
     return "loc_reg", data
 
 
@@ -676,7 +698,8 @@ def _choose_region(api, wa_id, region_id, page, data):
         return _choose_country(api, wa_id, data.get("country", "SA"), 0, data)
     data["ncity"] = [c["id"] for c in cities]
     data["nreg_id"] = region_id
-    send_numbered(api, wa_id, tr("🏙️ اختر المدينة 👇"), [c["name"] for c in cities], tr("✍️ اكتب *رقم* المدينة."))
+    send_numbered(api, wa_id, tr("🏙️ اختر المدينة 👇"), [c["name"] for c in cities],
+                  tr("✍️ اكتب *رقم* المدينة.") + _country_hint())
     return "loc_city", data
 
 
