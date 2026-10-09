@@ -8,6 +8,7 @@
 # - SERVICES: أسماء الخدمات للعرض فقط (تنحفظ بالقاعدة عربي دائمًا).
 
 TEXTS: dict[str, dict[str, str]] = {
+    "➕ إضافة مهنة أخرى": {"en": "➕ Add another job", "ur": "➕ دوسرا پیشہ"},
     # ─────────── المهنة الثانية ───────────
     "💡 يمكنك إضافة مهنة ثانية بعد إكمال التسجيل.": {
         "en": "💡 You can add a second profession after finishing registration.",

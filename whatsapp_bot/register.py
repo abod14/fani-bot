@@ -372,6 +372,17 @@ def _select_profession(api, wa_id, pid, data):
     if not prof:
         return _ask_top(api, wa_id, data)
     r = data.setdefault("r", {})
+    if r.get("adding2"):
+        # مهنة ثانية أثناء التسجيل (من شاشة المراجعة): نفس الأحياء — المهنة وخدماتها ثم نرجع للمراجعة
+        if prof["id"] == r.get("pid"):
+            api.text(wa_id, tr("هذه مهنتك الأولى نفسها 🙂 اختر مهنة أخرى."))
+            return _ask_p2(api, wa_id, data)
+        r.update(p2id=prof["id"], p2name=prof["name"], services1=list(r.get("services") or []),
+                 all_services1=list(r.get("all_services") or []),
+                 all_services=prof.get("services") or [], services=[])
+        if r["all_services"]:
+            return _ask_services(api, wa_id, data, 0)
+        return _finish_add2(api, wa_id, data)
     if r.get("edit") == "p2":
         # المهنة الثانية: نفس المدينة والأحياء — بس المهنة وخدماتها
         if prof["id"] == r.get("pid"):
@@ -433,6 +444,8 @@ def _ask_services(api, wa_id, data, page=0):
 def _ask_location(api, wa_id, data):
     if data.get("r", {}).get("edit") in ("svc", "p2"):
         return _save_edit(api, wa_id, data)
+    if data.get("r", {}).get("adding2"):
+        return _finish_add2(api, wa_id, data)
     api.location_request(wa_id, tr("📍 شارك موقعك (مكان عملك أو منزلك) من الزر أدناه، لنحدد مدينتك وأقرب الأحياء إليك."))
     return "r_loc", data
 
@@ -687,6 +700,16 @@ def _add_district(api, wa_id, data, did):
 
 # ─────────────────────────── المراجعة والحفظ ───────────────────────────
 
+def _finish_add2(api, wa_id, data):
+    """خلصت خدمات المهنة الثانية أثناء التسجيل ← ندمجها مع خدمات الأولى ونرجع للمراجعة."""
+    r = data["r"]
+    first = r.pop("services1", []) or []
+    r["services"] = first + [sv for sv in (r.get("services") or []) if sv not in first]
+    r["all_services"] = r.pop("all_services1", r.get("all_services"))
+    r.pop("adding2", None)
+    return _confirm(api, wa_id, data)
+
+
 def _confirm(api, wa_id, data, note=""):
     r = data["r"]
     if r.get("edit") == "dist":
@@ -701,11 +724,13 @@ def _confirm(api, wa_id, data, note=""):
         wa_id,
         tr("{note}راجع بياناتك قبل التسجيل 👇\n\n"
            "👷 {name}\n🛠️ {pname}\n📋 {services}\n📍 {country} / {where}\n"
-           "📱 رقم التواصل للعملاء: +{phone}", note=note, name=r["name"], pname=_pname(r), services=services,
+           "📱 رقم التواصل للعملاء: +{phone}", note=note, name=r["name"],
+           pname=_pname({"pid": r.get("pid"), "pname": r.get("pname")})
+           + (" • " + _flow().prof_name(r["p2id"], r.get("p2name")) if r.get("p2id") else ""), services=services,
            country=countries.name(r["country"], get_lang()), where=where, phone=tech_phone(r, wa_id)),
         [("R:ok", tr("✅ تأكيد التسجيل"))]
         + ([("R:dedit", tr("📍 تعديل الأحياء"))] if r.get("has_d") else [])
-        + [("R:redo", tr("✏️ البدء من جديد"))],
+        + ([("R:redo", tr("✏️ البدء من جديد"))] if r.get("p2id") else [("R:add2", tr("➕ إضافة مهنة أخرى"))]),
     )
     return "r_confirm", data
 
@@ -736,6 +761,8 @@ def _save(api, wa_id, data):
         "profession_id": r["pid"],
         "profession_name": r["pname"],
         "services": r.get("services") or [],
+        "profession2_id": r.get("p2id"),
+        "profession2_name": r.get("p2name"),
         "covers_whole_city": whole,
         "source": "whatsapp",
         "registered_by": _digits(wa_id) if other else None,
@@ -1019,6 +1046,11 @@ def on_choice(api, wa_id, rid, state, data):
         return _confirm(api, wa_id, data)
     if act == "dwhole":
         r["whole"] = True
+        return _confirm(api, wa_id, data)
+    if act == "add2":
+        if r.get("pid") and r.get("city_id") and not r.get("p2id"):
+            r["adding2"] = True
+            return _ask_p2(api, wa_id, data)
         return _confirm(api, wa_id, data)
     if act == "redo":
         return start(api, wa_id)
