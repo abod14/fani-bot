@@ -233,9 +233,9 @@ TEXTS: dict[str, dict[str, str]] = {
         "en": "{card}\n\n📞 This number is for calls only (no WhatsApp): {number}",
         "ur": "{card}\n\n📞 یہ نمبر صرف کال کے لیے ہے (واٹس ایپ نہیں): {number}",
     },
-    "{card}\n\nاضغط الزر لفتح المحادثة معه 👇\n\n{tip}": {
-        "en": "{card}\n\nTap the button to open a chat with them 👇\n\n{tip}",
-        "ur": "{card}\n\nان سے چیٹ کھولنے کے لیے بٹن دبائیں 👇\n\n{tip}",
+    "{card}\n\nاضغط الزر لفتح المحادثة معه 👇": {
+        "en": "{card}\n\nTap the button to open a chat with them 👇",
+        "ur": "{card}\n\nان سے چیٹ کھولنے کے لیے بٹن دبائیں 👇",
     },
     "🧹 هل تريد حذف المحادثة تلقائيًا؟ اضغط على اسم المحادثة في الأعلى ← «الرسائل المؤقتة» ← 24 ساعة": {
         "en": "🧹 Want this chat to clear itself? Tap the chat name at the top → «Disappearing messages» → 24 hours",

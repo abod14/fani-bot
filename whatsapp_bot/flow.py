@@ -878,7 +878,7 @@ def _contact(api, wa_id, pid, call_only, state, data):
     # بدون كلمة «بوت» — في واتساب «فنّي» رقم خدمة مو بوت (طلب المالك)
     prefill = f"مرحبًا، وجدتك عبر «فنّي» 🛠️ أحتاج خدمة: {ar_name}"
     url = contact_links.wa_link(p["whatsapp_number"], prefill, p.get("country"))
-    api.cta_url(wa_id, tr("{card}\n\nاضغط الزر لفتح المحادثة معه 👇\n\n{tip}", card=card, tip=tr(DISAPPEAR_TIP)),
+    api.cta_url(wa_id, tr("{card}\n\nاضغط الزر لفتح المحادثة معه 👇", card=card),
                 tr("💬 فتح المحادثة"), url, footer=tr("يمكنك العودة إلى القائمة واختيار فنّي آخر"))
     return state or "results", data
 
