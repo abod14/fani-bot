@@ -34,6 +34,8 @@ def _pname(r: dict) -> str:
     """اسم المهنة للعرض بلغة المستخدم — r["pname"] يبقى عربي لأنه ينحفظ بالقاعدة."""
     if (r.get("edit") == "p2" or r.get("adding2")) and r.get("p2id"):
         return _flow().prof_name(r["p2id"], r.get("p2name"))
+    if r.get("p2id") and not r.get("edit"):   # اختار مهنتين معًا من النموذج
+        return _flow().prof_name(r.get("pid"), r.get("pname")) + " • " + _flow().prof_name(r["p2id"], r.get("p2name"))
     return _flow().prof_name(r.get("pid"), r.get("pname"))
 
 
@@ -291,6 +293,17 @@ def _ask_top(api, wa_id, data, intro=None, note=""):
                                "ما هي مهنتك؟ اختر من القائمة التالية، أو اضغط «المزيد» للقائمة الموسّعة (+{n} مهنة)، "
                                "أو اكتب اسمها (مثل: سباك)", name=data["r"].get("name", ""), n=more_n)
                    + "\n\n" + tr("💡 يمكنك إضافة مهنة ثانية بعد إكمال التسجيل."))
+    # نموذج مربعات اختيار (لو ميتا سمحت): المهن التسع + «مهنتي ليست هنا» — يحدد مهنة أو مهنتين
+    if not data["r"].get("edit") and not data["r"].get("adding2"):
+        from whatsapp_bot import wa_flows
+        items = [{"id": rid.split(":")[-1], "title": wa_flows.clip_title(t), "description": d}
+                 for rid, t, d in top.top_rows("R:") if ":prof:" in rid]
+        items.append({"id": "more", "title": tr("➕ مهنتي ليست هنا"), "description": tr("اعرض كل المهن")})
+        if wa_flows.send(api, wa_id, "professions",
+                         note + tr("أهلًا بك {name} 👋\nما هي مهنتك؟ اضغط الزر، وحدّد مهنتك ☑️ — "
+                                   "ويمكنك تحديد مهنتين.", name=data["r"].get("name", "")),
+                         tr("اختر مهنتك"), tr("حدّد مهنتك (مهنة أو مهنتان):"), items, f"prof:{_digits(wa_id)}"):
+            return "r_prof", data
     api.list(wa_id, body, tr("اختر مهنتك"), top.top_rows("R:"), section_title=tr("الأكثر طلبًا"))
     return "r_prof", data
 
@@ -367,7 +380,7 @@ def _match_profession(api, wa_id, text, data):
                                          q=_flow().clip_text(text)))
 
 
-def _select_profession(api, wa_id, pid, data):
+def _select_profession(api, wa_id, pid, data, silent=False):
     domain, prof = professions.get_profession(pid, "ar")
     if not prof:
         return _ask_top(api, wa_id, data)
@@ -393,7 +406,9 @@ def _select_profession(api, wa_id, pid, data):
             return _ask_services(api, wa_id, data, 0)
         return _save_edit(api, wa_id, data)
     r.update(pid=prof["id"], pname=prof["name"], domain=(domain or {}).get("name", ""),
-             wide=bool(prof.get("allow_city_wide")), all_services=prof.get("services") or [], services=[])
+             wide=bool(prof.get("allow_city_wide")), all_services=list(prof.get("services") or []), services=[])
+    if silent:
+        return "r_prof", data
     if r["all_services"]:
         return _ask_services(api, wa_id, data, 0)
     return _ask_location(api, wa_id, data)
@@ -814,6 +829,26 @@ def _telegram_link(api, wa_id, data):
 def on_flow(api, wa_id, kind, picked, state, data):
     """رد نموذج مربعات الاختيار (الخدمات أو الأحياء)."""
     r = data.setdefault("r", {})
+    if kind == "prof":
+        if not r.get("name"):
+            return start(api, wa_id)
+        if "more" in picked or not picked:
+            return _ask_more(api, wa_id, data)
+        ids = [i for i in picked if professions.get_profession(i, "ar")[1]][:2]
+        if not ids:
+            return _ask_top(api, wa_id, data)
+        if len(ids) == 2:
+            _, p2 = professions.get_profession(ids[1], "ar")
+            r.update(p2id=p2["id"], p2name=p2["name"])
+            st, data = _select_profession(api, wa_id, ids[0], data, silent=True)
+            r = data["r"]
+            for sv in p2.get("services") or []:
+                if sv not in r["all_services"]:
+                    r["all_services"].append(sv)
+            if r["all_services"]:
+                return _ask_services(api, wa_id, data, 0)
+            return _ask_location(api, wa_id, data)
+        return _select_profession(api, wa_id, ids[0], data)
     if kind == "svc":
         if not r.get("pid"):
             return start(api, wa_id)

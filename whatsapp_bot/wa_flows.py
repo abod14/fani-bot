@@ -13,6 +13,7 @@ import db
 FLOW_VERSION = "7.0"
 SERVICES_SCREEN = "SERVICES"
 DISTRICTS_SCREEN = "DISTRICTS"
+PROFESSIONS_SCREEN = "PROFESSIONS"
 MAX_OPTIONS = 20          # حد واتساب لعدد الخيارات بمربعات الاختيار
 TITLE_MAX = 30
 
@@ -52,7 +53,10 @@ FLOWS = {
     # key ← (اسم النموذج بميتا، JSON)
     "services": ("fanni_services", _flow_json(SERVICES_SCREEN, "الخدمات", "الخدمات التي أقدمها", None, "✅ تم التحديد")),
     "districts": ("fanni_districts", _flow_json(DISTRICTS_SCREEN, "الأحياء", "الأحياء التي أعمل فيها", 5, "✅ تم التحديد")),
+    # تسجيل الفني: المهن التسع + «مهنتي ليست هنا» — يحدد مهنة أو مهنتين بحد أقصى
+    "professions": ("fanni_professions", _flow_json(PROFESSIONS_SCREEN, "المهنة", "مهنتك (مهنة أو مهنتان)", 2, "✅ تم التحديد")),
 }
+SCREENS = {"services": SERVICES_SCREEN, "districts": DISTRICTS_SCREEN, "professions": PROFESSIONS_SCREEN}
 
 
 def flow_id(key: str) -> str | None:
@@ -73,7 +77,7 @@ def send(api, wa_id: str, key: str, body: str, cta: str, heading: str, items: li
     fid = flow_id(key)
     if not fid or not items:
         return False
-    screen = SERVICES_SCREEN if key == "services" else DISTRICTS_SCREEN
+    screen = SCREENS[key]
     items = [{k: v for k, v in it.items() if v} for it in items[:MAX_OPTIONS]]
     r = api.flow(wa_id, body, cta, fid, screen, {"heading": heading, "items": items}, token, mode=mode())
     return r is not None and getattr(r, "status_code", 500) < 400
