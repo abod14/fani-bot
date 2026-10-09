@@ -193,7 +193,7 @@ def _ask_delete(api, wa_id):
         if pro.get("is_subscribed"):
             items.append(tr("• اشتراكك المدفوع الحالي، دون استرجاع المبلغ"))
     items += [tr("• سجل عمليات البحث (ما بحثت عنه وأين)"), tr("• سجل الفنيين الذين تواصلت معهم"),
-              tr("• محادثتك الحالية مع البوت")]
+              tr("• محادثتك الحالية مع «فنّي»")]
     api.buttons(
         wa_id,
         tr("🗑️ هل تريد حذف بياناتك من «فنّي» نهائيًا؟\n\nسيُحذف ما يلي:\n{items}\n\n⚠️ لا يمكن التراجع عن هذا الإجراء.",
@@ -875,7 +875,8 @@ def _contact(api, wa_id, pid, call_only, state, data):
     # الرسالة الجاهزة للفني دائمًا بالعربي (طلب المالك) — مهما كانت لغة العميل
     ar_name = (p.get("profession2_name") if searched and searched == p.get("profession2_id") else None) \
         or ((db.get_profession_by_id(searched) or {}).get("name") if searched else None) or p.get("profession_name")
-    prefill = i18n.t("srch_wa_prefill_text", "ar", profession=ar_name)
+    # بدون كلمة «بوت» — في واتساب «فنّي» رقم خدمة مو بوت (طلب المالك)
+    prefill = f"مرحبًا، وجدتك عبر «فنّي» 🛠️ أحتاج خدمة: {ar_name}"
     url = contact_links.wa_link(p["whatsapp_number"], prefill, p.get("country"))
     api.cta_url(wa_id, tr("{card}\n\nاضغط الزر لفتح المحادثة معه 👇\n\n{tip}", card=card, tip=tr(DISAPPEAR_TIP)),
                 tr("💬 فتح المحادثة"), url, footer=tr("يمكنك العودة إلى القائمة واختيار فنّي آخر"))

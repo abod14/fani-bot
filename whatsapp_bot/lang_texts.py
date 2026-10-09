@@ -58,7 +58,7 @@ TEXTS: dict[str, dict[str, str]] = {
         "en": "• The technicians you contacted",
         "ur": "• جن ٹیکنیشنز سے آپ نے رابطہ کیا ان کا ریکارڈ",
     },
-    "• محادثتك الحالية مع البوت": {"en": "• Your current chat with the bot", "ur": "• بوٹ کے ساتھ آپ کی موجودہ گفتگو"},
+    "• محادثتك الحالية مع «فنّي»": {"en": "• Your current chat with «Fanni»", "ur": "• «فنی» کے ساتھ آپ کی موجودہ گفتگو"},
     "🗑️ هل تريد حذف بياناتك من «فنّي» نهائيًا؟\n\nسيُحذف ما يلي:\n{items}\n\n⚠️ لا يمكن التراجع عن هذا الإجراء.": {
         "en": "🗑️ Do you want to permanently delete your data from «Fanni»?\n\nThe following will be deleted:\n{items}\n\n⚠️ This cannot be undone.",
         "ur": "🗑️ کیا آپ «فنی» سے اپنا ڈیٹا ہمیشہ کے لیے ڈیلیٹ کرنا چاہتے ہیں؟\n\nیہ سب ڈیلیٹ ہو جائے گا:\n{items}\n\n⚠️ یہ عمل واپس نہیں ہو سکتا۔",
