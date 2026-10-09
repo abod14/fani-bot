@@ -336,6 +336,10 @@ def _professional_card_text(p: dict) -> str:
     if services:
         lines.append("📋 " + "، ".join(services))
     lines.append(f"📍 {location}")
+    import ratings   # يظهر بعد 3 تقييمات (لا يؤثر على الترتيب)
+    s = ratings.summary([p["id"]]).get(p["id"]) if p.get("id") else None
+    if s and s[1] >= ratings.MIN_TO_SHOW:
+        lines.append(f"⭐ {s[0]:g} من 5 ({s[1]} تقييم)")
     return "\n".join(lines)
 
 

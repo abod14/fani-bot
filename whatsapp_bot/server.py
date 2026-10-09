@@ -136,7 +136,9 @@ def main():
     if missing:
         log.warning("WhatsApp settings missing in .env: %s", ", ".join(missing))
     import nudges
-    nudges.start_summary_loop()   # الملخص الشهري لإشعارات الفنيين (يفحص كل ساعة)
+    nudges.start_summary_loop()
+    import ratings
+    ratings.start_wa_loop(api)   # أسئلة التقييم المستحقة (كل 5 دقائق)   # الملخص الشهري لإشعارات الفنيين (يفحص كل ساعة)
     log.info("Fanni WhatsApp bot listening on 127.0.0.1:%s", config.WA_PORT)
     app.run(host="127.0.0.1", port=config.WA_PORT, threaded=True)
 

@@ -180,6 +180,10 @@ def card_text(p: dict) -> str:
     if services:
         lines.append("📋 " + join_list(tr_service(s) for s in services))
     lines.append(f"📍 {location}")
+    import ratings
+    s = ratings.summary([p["id"]]).get(p["id"]) if p.get("id") else None
+    if s and s[1] >= ratings.MIN_TO_SHOW:
+        lines.append(tr("⭐ {avg} من 5 ({n} تقييم)", avg=f"{s[0]:g}", n=s[1]))
     return "\n".join(lines)
 
 
@@ -228,6 +232,11 @@ def _page(items: list, page: int, per: int = LIST_PAGE):
 
 def handle(api, wa_id: str, name: str, msg: dict):
     with _lock_for(wa_id):
+        try:
+            import ratings
+            ratings.touch_wa(wa_id)   # آخر رسالة منه (نافذة الـ24 ساعة لسؤال التقييم)
+        except Exception:
+            pass
         state, data = _load(wa_id)
         lg = lang.load(wa_id)
         d = None
@@ -326,7 +335,8 @@ def _dispatch(api, wa_id, name, msg, state, data):
 
 # أزرار تبقى صالحة حتى بعد انتهاء الجلسة: الاشتراك/الإشعارات/حساب الفني/حذف البيانات/اللغة/التواصل
 IDLE_OK = ("R:sub", "R:mute", "R:details", "R:mine", "R:tg", "R:edit", "R:ed:", "del:", "lang:", "m:lang",
-           "c:", "n:")   # c:/n: = التواصل مع فني من نتائج قديمة (يبقى يشتغل)
+           "c:", "n:",   # c:/n: = التواصل مع فني من نتائج قديمة (يبقى يشتغل)
+           "rt:", "rs:")   # التقييم — صالح أسبوعًا
 
 # أزرار خطوات البحث — لو ضغطها بعد انتهاء المهلة (الجلسة صفرت) نرجعه للقائمة الرئيسية بدل ما نكمّل
 STEP_HEADS = {"prof", "top", "ppg", "dpg", "dom", "loc", "cty", "rpg", "reg", "cpg", "city", "dipg", "ncity", "dist"}
@@ -337,6 +347,10 @@ def _on_choice(api, wa_id, name, rid, state, data):
     head = p[0]
     if state is None and head in STEP_HEADS:
         return _welcome(api, wa_id, name)
+    if head in ("rt", "rs"):
+        import ratings
+        ratings.wa_on_choice(api, wa_id, customer_id(wa_id), p)
+        return state, data
     if head == "del":
         if p[1] == "yes":
             return _delete_my_data(api, wa_id)
@@ -861,6 +875,13 @@ def _row_desc(p: dict) -> str:
     except Exception:
         pass
     desc = f"📍 {loc}"
+    try:
+        import ratings
+        b = ratings.badge(p["id"])
+        if b:
+            desc = f"{b} • {desc}"
+    except Exception:
+        pass
     if services:
         desc += " • " + join_list(tr_service(s) for s in services)
     return desc

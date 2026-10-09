@@ -673,6 +673,91 @@ TEXTS: dict[str, dict[str, str]] = {
         "en": 'You have searched two places for this trade in the last 24 hours, which is the limit. You can search another place once that period ends, or search one of the two places again to see the same technicians.',
         "ur": 'آپ نے پچھلے 24 گھنٹوں میں اس پیشے کے لیے دو جگہوں پر تلاش کی ہے، جو حد ہے۔ یہ مدت ختم ہونے کے بعد آپ کسی اور جگہ تلاش کر سکتے ہیں، یا انہی دو جگہوں میں سے کسی ایک میں دوبارہ تلاش کر کے وہی ٹیکنیشن دیکھ سکتے ہیں۔',
     },
+    'rt_ask_one': {
+        "ar": 'مرحبًا 👋\nتواصلتَ {when} عبر «فنّي» مع {name} ({prof}).\nهل تعاملتَ معه؟',
+        "en": 'Hello 👋\nYou contacted {name} ({prof}) via «Fanni» {when}.\nDid you deal with him?',
+        "ur": 'السلام علیکم 👋\nآپ نے {when} «فنّی» کے ذریعے {name} ({prof}) سے رابطہ کیا تھا۔\nکیا آپ نے ان سے کام کروایا؟',
+    },
+    'rt_ask_many': {
+        "ar": 'مرحبًا 👋\nتواصلتَ {when} عبر «فنّي» مع عدد من الفنيين.\nمع أيّهم تعاملت؟',
+        "en": 'Hello 👋\nYou contacted several technicians via «Fanni» {when}.\nWhich one did you deal with?',
+        "ur": 'السلام علیکم 👋\nآپ نے {when} «فنّی» کے ذریعے کئی ٹیکنیشنز سے رابطہ کیا تھا۔\nآپ نے کس سے کام کروایا؟',
+    },
+    'rt_today': {
+        "ar": 'اليوم',
+        "en": 'today',
+        "ur": 'آج',
+    },
+    'rt_yesterday': {
+        "ar": 'أمس',
+        "en": 'yesterday',
+        "ur": 'کل',
+    },
+    'rt_yes': {
+        "ar": 'نعم',
+        "en": 'Yes',
+        "ur": 'ہاں',
+    },
+    'rt_no': {
+        "ar": 'لا',
+        "en": 'No',
+        "ur": 'نہیں',
+    },
+    'rt_none': {
+        "ar": 'لم أتعامل مع أحد',
+        "en": 'None of them',
+        "ur": 'کسی سے نہیں',
+    },
+    'rt_how': {
+        "ar": 'كيف تقيّم عمل {name}؟',
+        "en": "How would you rate {name}'s work?",
+        "ur": 'آپ {name} کے کام کو کیسی ریٹنگ دیں گے؟',
+    },
+    'rt_s5': {
+        "ar": 'ممتاز',
+        "en": 'Excellent',
+        "ur": 'بہترین',
+    },
+    'rt_s4': {
+        "ar": 'جيد جدًا',
+        "en": 'Very good',
+        "ur": 'بہت اچھا',
+    },
+    'rt_s3': {
+        "ar": 'جيد',
+        "en": 'Good',
+        "ur": 'اچھا',
+    },
+    'rt_s2': {
+        "ar": 'مقبول',
+        "en": 'Acceptable',
+        "ur": 'قابل قبول',
+    },
+    'rt_s1': {
+        "ar": 'غير مقبول',
+        "en": 'Unacceptable',
+        "ur": 'ناقابل قبول',
+    },
+    'rt_thanks': {
+        "ar": 'شكرًا لك 🌟 تقييمك يساعد غيرك على اختيار الفني المناسب.',
+        "en": 'Thank you 🌟 Your rating helps others choose the right technician.',
+        "ur": 'شکریہ 🌟 آپ کی ریٹنگ دوسروں کو صحیح ٹیکنیشن چننے میں مدد دیتی ہے۔',
+    },
+    'rt_no_thanks': {
+        "ar": 'شكرًا لك 🙏 إذا احتجت فنيًا في أي وقت، اضغط /start.',
+        "en": 'Thank you 🙏 Whenever you need a technician, tap /start.',
+        "ur": 'شکریہ 🙏 جب بھی ٹیکنیشن کی ضرورت ہو، /start دبائیں۔',
+    },
+    'rt_expired': {
+        "ar": 'انتهت مدة هذا التقييم 🙏',
+        "en": 'This rating has expired 🙏',
+        "ur": 'اس ریٹنگ کی مدت ختم ہو گئی 🙏',
+    },
+    'rt_already': {
+        "ar": 'سبق أن قيّمت هذا الفني، شكرًا لك 🌟',
+        "en": 'You have already rated this technician, thank you 🌟',
+        "ur": 'آپ اس ٹیکنیشن کو پہلے ہی ریٹ کر چکے ہیں، شکریہ 🌟',
+    },
     "srch_results_header": {
         "ar": "وجدنا {count} من الفنيين ({profession}) في مدينة «{city}»:",
         "en": "We found {count} professional(s) ({profession}) in «{city}»:",

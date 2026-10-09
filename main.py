@@ -133,6 +133,10 @@ def main():
         app.add_handler(handler)
     for handler in build_referral_handlers():
         app.add_handler(handler)
+    from handlers.ratings_tg import build_rating_handlers, send_due_job
+    for handler in build_rating_handlers():
+        app.add_handler(handler)
+    app.job_queue.run_repeating(send_due_job, interval=300, first=90)   # أسئلة التقييم المستحقة
 
     # مهمة دورية: فحص الاشتراكات المنتهية وتنبيه الفنيين تلقائيًا بتلغرام (كل ساعة).
     app.job_queue.run_repeating(

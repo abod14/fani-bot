@@ -59,6 +59,10 @@ def _status(api, wa_id, p, extra=""):
         tr("📊 فرص التواصل المجانية: استخدمت {used} من {limit}", used=p.get("free_contacts_used", 0), limit=limit)
     if not p.get("is_subscribed") and (p.get("free_contacts_used") or 0) >= limit:
         line += "\n\n" + tr("⚠️ انتهت فرصك المجانية — رقمك لا يظهر للعملاء حاليًا. اضغط «💳 اشترك» أدناه لتعود إلى الظهور.")
+    import ratings
+    rs = ratings.summary([p["id"]]).get(p["id"])
+    if rs and rs[1] < ratings.MIN_TO_SHOW:
+        line += "\n" + tr("⭐ تقييمك حتى الآن: {avg} من 5 ({n} تقييم) — يظهر للعملاء بعد 3 تقييمات.", avg=f"{rs[0]:g}", n=rs[1])
     buttons = [("R:edit", tr("✏️ تعديل بياناتي"))]
     if not p.get("is_subscribed"):
         buttons.insert(0, ("R:sub", tr("💳 اشترك")))

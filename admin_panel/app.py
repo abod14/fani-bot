@@ -391,6 +391,7 @@ def professional_detail(professional_id):
     return render_template(
         "professional_detail.html", p=p, status_labels=db.STATUS_LABELS_AR, active_page="professionals",
         notif=db.notification_summary(p["id"]), notif_stopped=_nudges_stopped(p),
+        rating=__import__("ratings").summary([p["id"]]).get(p["id"]),
     )
 
 

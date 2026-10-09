@@ -562,6 +562,8 @@ def init_db():
             )
             """
         )
+    import ratings   # جداول التقييم (ratings / rating_requests / wa_last_seen)
+    ratings.ensure_tables()
 
 
 def _now_iso():
@@ -977,6 +979,11 @@ def register_contact(professional_id: int, customer_telegram_id: int) -> bool:
     try:   # لو هذي آخر فرصة مجانية: ننبه الفني فورًا (بخيط منفصل — ما يأخر رد العميل)
         import limit_notice
         limit_notice.notify_if_exhausted_async(professional_id)
+    except Exception:  # noqa: BLE001
+        pass
+    try:   # سؤال التقييم بعد 20 ساعة (ratings.py)
+        import ratings
+        ratings.enqueue(professional_id, customer_telegram_id)
     except Exception:  # noqa: BLE001
         pass
     return True
