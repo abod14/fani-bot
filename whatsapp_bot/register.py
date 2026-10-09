@@ -32,7 +32,7 @@ def _digits(wa_id: str) -> str:
 
 def _pname(r: dict) -> str:
     """اسم المهنة للعرض بلغة المستخدم — r["pname"] يبقى عربي لأنه ينحفظ بالقاعدة."""
-    if r.get("edit") == "p2" and r.get("p2id"):
+    if (r.get("edit") == "p2" or r.get("adding2")) and r.get("p2id"):
         return _flow().prof_name(r["p2id"], r.get("p2name"))
     return _flow().prof_name(r.get("pid"), r.get("pname"))
 
