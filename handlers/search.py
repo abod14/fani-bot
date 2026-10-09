@@ -924,12 +924,25 @@ async def _run_search(message, context: ContextTypes.DEFAULT_TYPE, is_edit: bool
     city_row = await asyncio.to_thread(db.get_sa_city_by_id, ud["city_id"]) if ud.get("city_id") else None
     country = (city_row or {}).get("country") or ud.get("country") or countries.DEFAULT_COUNTRY
     ud["country"] = country
+    # طلب المالك: نفس العميل ونفس المهنة خلال 24 ساعة → نفس الـ5 (ما يعيد البحث ليطلع فنيين أكثر)
+    recent = await asyncio.to_thread(db.get_recent_results, customer_telegram_id, f'{ud["profession_id"]}|{ud["city"]}')
+    if recent:
+        ud["result_ids"] = recent
+        ud["shown_count"] = 0
+        note = i18n.t("srch_recent_note", _lang(context))
+        if is_edit:
+            await message.edit_text(note)
+        else:
+            await message.reply_text(note)
+        return await _show_results_page(message, context, is_edit=False)
     result_ids = await asyncio.to_thread(
         db.search_active_professional_ids, ud["profession_id"], ud["city"], ud.get("neighborhood"),
         ud.get("district_id"), ud.get("service_filter"), ud.get("city_id"),
     )
     ud["result_ids"] = result_ids
     ud["shown_count"] = 0
+    await asyncio.to_thread(db.save_recent_results, customer_telegram_id, f'{ud["profession_id"]}|{ud["city"]}',
+                            result_ids[:RESULTS_PAGE_SIZE])
 
     await asyncio.to_thread(
         db.log_search, customer_telegram_id, ud["profession_id"], ud["profession_name"],
@@ -973,12 +986,14 @@ async def _show_results_page(message, context: ContextTypes.DEFAULT_TYPE, is_edi
         return await _offer_nearby_or_end(message, context)
 
     if shown_count == 0:
-        header = i18n.t("srch_results_header", lang, count=total, profession=ud["profession_name"], city=ud["city"])
+        header = i18n.t("srch_results_header", lang, count=min(total, RESULTS_PAGE_SIZE), profession=ud["profession_name"], city=ud["city"])
         if is_edit:
             await message.edit_text(header)
         else:
             await message.reply_text(header)
 
+    if shown_count > 0:   # زر «المزيد» قديم من قبل التعديل — لا صفحات ثانية
+        return await _offer_nearby_or_end(message, context)
     page_ids = result_ids[shown_count: shown_count + RESULTS_PAGE_SIZE]
     results = await asyncio.to_thread(db.get_professionals_by_ids, page_ids)
 
@@ -997,6 +1012,8 @@ async def _show_results_page(message, context: ContextTypes.DEFAULT_TYPE, is_edi
     ud["shown_count"] = new_shown_count
 
     if new_shown_count < total:
+        # طلب المالك: 5 فنيين فقط بكل بحث بدون «عرض المزيد» — التناوب العادل يعرض الباقين للعملاء التاليين
+        return SEARCH_RESULTS
         more_keyboard = InlineKeyboardMarkup(
             [[InlineKeyboardButton(
                 i18n.t("srch_more_btn", lang, remaining=total - new_shown_count), callback_data=MORE_RESULTS_CB

@@ -547,6 +547,9 @@ def init_db():
         # أرقام مسموح لها تسجيل فنيين على أرقام أخرى بدون رمز تحقق (المالك والمسوّقين) — من اللوحة
         conn.execute("CREATE TABLE IF NOT EXISTS wa_registrars (phone TEXT PRIMARY KEY, name TEXT, created_at TEXT)")
         # رموز التحقق المرسلة (لتسجيل فني على رقم آخر) — حد يومي لكل مرسل لأن كل رمز مدفوع
+        # آخر نتائج بحث لكل عميل/مهنة — نفس الـ5 تتكرر له 24 ساعة (ما يقدر يعيد البحث ليطلع فنيين أكثر)
+        conn.execute("CREATE TABLE IF NOT EXISTS recent_results (customer_id INTEGER NOT NULL, profession_id TEXT NOT NULL, "
+                     "ids_json TEXT NOT NULL, created_at TEXT NOT NULL, PRIMARY KEY (customer_id, profession_id))")
         conn.execute("CREATE TABLE IF NOT EXISTS otp_log (id INTEGER PRIMARY KEY AUTOINCREMENT, "
                      "sender TEXT NOT NULL, phone TEXT NOT NULL, sent_at TEXT NOT NULL)")
 
@@ -2793,3 +2796,30 @@ def set_profession2(professional_id: int, profession2_id: str | None, profession
         conn.execute("UPDATE professionals SET profession2_id = ?, profession2_name = ?, services_json = ? WHERE id = ?",
                      (profession2_id, profession2_name, json.dumps(services or [], ensure_ascii=False),
                       professional_id))
+
+
+RECENT_RESULTS_HOURS = 24
+
+
+def get_recent_results(customer_id: int, profession_id: str) -> list[int] | None:
+    """نتائج آخر بحث لنفس العميل بنفس المفتاح (المهنة|المدينة) خلال 24 ساعة (أو None)."""
+    since = (datetime.now(timezone.utc) - timedelta(hours=RECENT_RESULTS_HOURS)).isoformat()
+    with get_conn() as conn:
+        row = conn.execute(
+            "SELECT ids_json FROM recent_results WHERE customer_id = ? AND profession_id = ? AND created_at >= ?",
+            (customer_id, str(profession_id), since)).fetchone()
+    if not row:
+        return None
+    try:
+        ids = [int(x) for x in json.loads(row[0])]
+    except Exception:
+        return None
+    return ids or None
+
+
+def save_recent_results(customer_id: int, profession_id: str, ids: list[int]):
+    if not ids:
+        return
+    with get_conn() as conn:
+        conn.execute("INSERT OR REPLACE INTO recent_results (customer_id, profession_id, ids_json, created_at) "
+                     "VALUES (?, ?, ?, ?)", (customer_id, str(profession_id), json.dumps(list(ids)), _now_iso()))

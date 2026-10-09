@@ -236,6 +236,7 @@ TEXTS: dict[str, dict[str, str]] = {
     "هؤلاء جميع الفنيين المتاحين 👌": {"en": "That's all the available technicians 👌", "ur": "یہ تمام دستیاب ٹیکنیشن ہیں 👌"},
     "🔄 بحث جديد": {"en": "🔄 New search", "ur": "🔄 نئی تلاش"},
     "⬇️ عرض المزيد": {"en": "⬇️ Show more", "ur": "⬇️ مزید دکھائیں"},
+    'هؤلاء هم الفنيون الذين عرضناهم لك في هذه المهنة خلال آخر 24 ساعة، ويمكنك البحث عن فنيين آخرين بعد انقضائها.\n': {"en": "These are the technicians we showed you for this trade in the last 24 hours. You can search for other technicians once that period ends.\n", "ur": "یہ وہی ٹیکنیشن ہیں جو ہم نے پچھلے 24 گھنٹوں میں اس پیشے کے لیے آپ کو دکھائے تھے۔ یہ مدت ختم ہونے کے بعد آپ دوسرے ٹیکنیشن تلاش کر سکتے ہیں۔\n"},
     "بقي {n} من الفنيين": {"en": "{n} more technicians", "ur": "مزید {n} ٹیکنیشن"},
     "وجدنا {n} من فنيي «{pname}» 👍\nاضغط «عرض الفنيين» واختر أحدهم، وسنفتح لك محادثته على واتساب مباشرة.": {
         "en": "We found {n} «{pname}» technicians 👍\nTap «View technicians» and pick one — we'll open a WhatsApp chat with them right away.",

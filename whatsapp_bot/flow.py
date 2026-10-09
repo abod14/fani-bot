@@ -21,7 +21,7 @@ from whatsapp_bot import lang, top
 from whatsapp_bot.lang import get_lang, tr, tr_service
 
 TELEGRAM_REGISTER_URL = "https://t.me/FanniServiceBot?start=wa_bot"
-RESULTS_PER_PAGE = 9
+RESULTS_PER_PAGE = 5   # طلب المالك: 5 فنيين فقط بكل بحث، بدون «عرض المزيد» — والتناوب العادل يوزّع الباقين على العملاء التاليين
 RESULTS_TTL_MIN = 24 * 60   # بعد يوم: القائمة القديمة ما تعطي أرقام، يلزم بحث جديد
 
 
@@ -806,6 +806,11 @@ def _match_district(api, wa_id, text, data):
 
 def _run_search(api, wa_id, data):
     pid, pname, city = data["pid"], data["pname"], data["city"]
+    # طلب المالك: نفس العميل ونفس المهنة خلال 24 ساعة → نفس الـ5 (ما يعيد البحث ليطلع فنيين أكثر)
+    recent = db.get_recent_results(customer_id(wa_id), f"{pid}|{city}")   # نفس المهنة بنفس المدينة
+    if recent:
+        data.update(ids=recent, shown=0, note=tr('هؤلاء هم الفنيون الذين عرضناهم لك في هذه المهنة خلال آخر 24 ساعة، ويمكنك البحث عن فنيين آخرين بعد انقضائها.\n'))
+        return _show_page(api, wa_id, data)
     ids = db.search_active_professional_ids(pid, city, data.get("neighborhood"), data.get("district_id"),
                                             None, data.get("city_id"))
     db.log_search(customer_id(wa_id), pid, pname, city, data.get("neighborhood"), len(ids), data.get("country") or "SA")
@@ -821,6 +826,7 @@ def _run_search(api, wa_id, data):
             data.update(neighborhood=None, district_id=None)
     if not ids:
         return _offer_nearby_cities(api, wa_id, data)
+    db.save_recent_results(customer_id(wa_id), f"{pid}|{city}", ids[:RESULTS_PER_PAGE])
     data.update(ids=ids, shown=0, note=note)
     return _show_page(api, wa_id, data)
 
@@ -858,23 +864,20 @@ def _row_desc(p: dict) -> str:
 def _show_page(api, wa_id, data):
     ids = data.get("ids") or []
     shown = data.get("shown", 0)
-    page_ids = ids[shown:shown + RESULTS_PER_PAGE]
+    page_ids = ids[:RESULTS_PER_PAGE] if shown == 0 else []   # لا صفحات ثانية (حتى من زر «المزيد» قديم)
     if not page_ids:
         api.buttons(wa_id, tr("هؤلاء جميع الفنيين المتاحين 👌"), [("m:search", tr("🔄 بحث جديد"))])
         return "results", data
     people = db.get_professionals_by_ids(page_ids)
     db.mark_shown([p["id"] for p in people])
-    remaining_after = len(ids) - shown - len(people)
     stamp = _now_minute()   # النتائج صالحة 24 ساعة (الرقم داخل معرّف الصف)
     rows = [((f"c:{p['id']}:{stamp}" if p.get("has_whatsapp", 1) else f"n:{p['id']}:{stamp}"), p["full_name"], _row_desc(p))
             for p in people]
-    if remaining_after > 0:
-        rows.append(("more", tr("⬇️ عرض المزيد"), tr("بقي {n} من الفنيين", n=remaining_after)))
     pname = prof_name(data["pid"], data["pname"])
     if shown == 0:
         body = (data.pop("note", "") or "") + tr(
             "وجدنا {n} من فنيي «{pname}» 👍\nاضغط «عرض الفنيين» واختر أحدهم، وسنفتح لك محادثته على واتساب مباشرة.",
-            n=len(ids), pname=pname)
+            n=len(people), pname=pname)
     else:
         body = tr("بقي {n} من فنيي «{pname}» 👇", n=len(ids) - shown, pname=pname)
     api.list(wa_id, body, tr("عرض الفنيين"), rows, header=f"🛠️ {pname} — {data['city']}",

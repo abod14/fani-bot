@@ -663,6 +663,11 @@ TEXTS: dict[str, dict[str, str]] = {
         "en": "⭐ Subscribe now",
         "ur": "⭐ ابھی سبسکرائب کریں",
     },
+    "srch_recent_note": {
+        "ar": "هؤلاء هم الفنيون الذين عرضناهم لك في هذه المهنة خلال آخر 24 ساعة، ويمكنك البحث عن فنيين آخرين بعد انقضائها.",
+        "en": "These are the technicians we showed you for this trade in the last 24 hours. You can search for other technicians once that period ends.",
+        "ur": "یہ وہی ٹیکنیشن ہیں جو ہم نے پچھلے 24 گھنٹوں میں اس پیشے کے لیے آپ کو دکھائے تھے۔ یہ مدت ختم ہونے کے بعد آپ دوسرے ٹیکنیشن تلاش کر سکتے ہیں۔",
+    },
     "srch_results_header": {
         "ar": "وجدنا {count} من الفنيين ({profession}) في مدينة «{city}»:",
         "en": "We found {count} professional(s) ({profession}) in «{city}»:",
