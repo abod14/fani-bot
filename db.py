@@ -2784,3 +2784,12 @@ def update_professional_area(professional_id: int, country: str, city: str, city
         for did in ([] if covers_whole_city else district_ids):
             conn.execute("INSERT INTO professional_districts (professional_id, district_id) VALUES (?, ?)",
                          (professional_id, did))
+
+
+def set_profession2(professional_id: int, profession2_id: str | None, profession2_name: str | None,
+                    services: list[str]):
+    """يضيف/يغيّر/يحذف المهنة الثانية للفني (نفس مدينته وأحيائه) ويحدّث خدماته."""
+    with get_conn() as conn:
+        conn.execute("UPDATE professionals SET profession2_id = ?, profession2_name = ?, services_json = ? WHERE id = ?",
+                     (profession2_id, profession2_name, json.dumps(services or [], ensure_ascii=False),
+                      professional_id))

@@ -32,6 +32,8 @@ def _digits(wa_id: str) -> str:
 
 def _pname(r: dict) -> str:
     """اسم المهنة للعرض بلغة المستخدم — r["pname"] يبقى عربي لأنه ينحفظ بالقاعدة."""
+    if r.get("edit") == "p2" and r.get("p2id"):
+        return _flow().prof_name(r["p2id"], r.get("p2name"))
     return _flow().prof_name(r.get("pid"), r.get("pname"))
 
 
@@ -287,7 +289,8 @@ def _ask_top(api, wa_id, data, intro=None, note=""):
     more_n = max(len(top.all_professions()) - 9, 0)
     body = note + (intro or tr("أهلًا بك {name} 👋\n"
                                "ما هي مهنتك؟ اختر من القائمة التالية، أو اضغط «المزيد» للقائمة الموسّعة (+{n} مهنة)، "
-                               "أو اكتب اسمها (مثل: سباك)", name=data["r"].get("name", ""), n=more_n))
+                               "أو اكتب اسمها (مثل: سباك)", name=data["r"].get("name", ""), n=more_n)
+                   + "\n\n" + tr("💡 يمكنك إضافة مهنة ثانية بعد إكمال التسجيل."))
     api.list(wa_id, body, tr("اختر مهنتك"), top.top_rows("R:"), section_title=tr("الأكثر طلبًا"))
     return "r_prof", data
 
@@ -369,6 +372,15 @@ def _select_profession(api, wa_id, pid, data):
     if not prof:
         return _ask_top(api, wa_id, data)
     r = data.setdefault("r", {})
+    if r.get("edit") == "p2":
+        # المهنة الثانية: نفس المدينة والأحياء — بس المهنة وخدماتها
+        if prof["id"] == r.get("pid"):
+            api.text(wa_id, tr("هذه مهنتك الأولى نفسها 🙂 اختر مهنة أخرى."))
+            return _ask_p2(api, wa_id, data)
+        r.update(p2id=prof["id"], p2name=prof["name"], all_services=prof.get("services") or [], services=[])
+        if r["all_services"]:
+            return _ask_services(api, wa_id, data, 0)
+        return _save_edit(api, wa_id, data)
     r.update(pid=prof["id"], pname=prof["name"], domain=(domain or {}).get("name", ""),
              wide=bool(prof.get("allow_city_wide")), all_services=prof.get("services") or [], services=[])
     if r["all_services"]:
@@ -419,7 +431,7 @@ def _ask_services(api, wa_id, data, page=0):
 # ─────────────────────────── الموقع ───────────────────────────
 
 def _ask_location(api, wa_id, data):
-    if data.get("r", {}).get("edit") == "svc":
+    if data.get("r", {}).get("edit") in ("svc", "p2"):
         return _save_edit(api, wa_id, data)
     api.location_request(wa_id, tr("📍 شارك موقعك (مكان عملك أو منزلك) من الزر أدناه، لنحدد مدينتك وأقرب الأحياء إليك."))
     return "r_loc", data
@@ -807,13 +819,49 @@ def _edit_menu(api, wa_id):
     p = db.get_professional_for_wa(wa_id)
     if not p:
         return start(api, wa_id)
-    _, prof = professions.get_profession(p["profession_id"], "ar")
-    buttons = []
-    if prof and prof.get("services"):
-        buttons.append(("R:ed:svc", tr("🛠️ الخدمات")))
-    buttons += [("R:ed:dist", tr("📍 الأحياء")), ("R:ed:name", tr("👷 الاسم"))]
-    api.buttons(wa_id, tr("✏️ ماذا تريد أن تعدّل؟ 👇\n(لتغيير المهنة: احذف حسابك بكتابة d ثم سجّل من جديد)"), buttons)
+    rows = []
+    if _services_for(p):
+        rows.append(("R:ed:svc", tr("🛠️ الخدمات"), None))
+    rows += [("R:ed:dist", tr("📍 الأحياء"), None), ("R:ed:name", tr("👷 الاسم"), None)]
+    if p.get("profession2_id"):
+        rows += [("R:ed:p2", tr("🔄 تغيير المهنة الثانية"), _pname_of(p["profession2_id"], p["profession2_name"])),
+                 ("R:ed:p2del", tr("🗑️ حذف المهنة الثانية"), _pname_of(p["profession2_id"], p["profession2_name"]))]
+    else:
+        rows.append(("R:ed:p2", tr("➕ إضافة مهنة ثانية"), tr("بنفس مدينتك وأحيائك")))
+    api.list(wa_id, tr("✏️ ماذا تريد أن تعدّل؟ 👇\n(لتغيير المهنة: احذف حسابك بكتابة d ثم سجّل من جديد)"),
+             tr("اختر"), rows, section_title=tr("تعديل بياناتي"))
     return "menu", {}
+
+
+def _pname_of(pid, ar_name):
+    _, pr = professions.get_profession(pid, _lang()) if pid else (None, None)
+    return (pr or {}).get("name") or ar_name
+
+
+def _lang():
+    from whatsapp_bot.lang import get_lang
+    return get_lang()
+
+
+def _services_for(p) -> list[str]:
+    """كل خدمات مهنتي الفني (الأولى + الثانية) بدون تكرار."""
+    out = []
+    for pid in (p.get("profession_id"), p.get("profession2_id")):
+        if pid:
+            _, pr = professions.get_profession(pid, "ar")
+            for sv in (pr or {}).get("services") or []:
+                if sv not in out:
+                    out.append(sv)
+    return out
+
+
+def _ask_p2(api, wa_id, data):
+    from whatsapp_bot import top
+    data["r"].pop("more", None)
+    api.list(wa_id, tr("➕ اختر مهنتك الثانية 👇 (ستظهر بها للعملاء في نفس مدينتك وأحيائك)\n"
+                       "أو اضغط «المزيد»، أو اكتب اسمها."),
+             tr("اختر مهنتك"), top.top_rows("R:"), section_title=tr("الأكثر طلبًا"))
+    return "r_prof", data
 
 
 def _start_edit(api, wa_id, what):
@@ -824,7 +872,19 @@ def _start_edit(api, wa_id, what):
     r = {"edit": what, "edit_id": p["id"], "name": p["full_name"], "pid": p["profession_id"],
          "pname": p["profession_name"], "wide": bool(prof and prof.get("allow_city_wide")),
          "all_services": (prof or {}).get("services") or [], "services": []}
+    r["all_services"] = _services_for(p) or r["all_services"]
     data = {"r": r}
+    if what == "p2":
+        return _ask_p2(api, wa_id, data)
+    if what == "p2del":
+        keep1 = (prof or {}).get("services") or []
+        cur = []
+        try:
+            cur = json.loads(p.get("services_json") or "[]")
+        except ValueError:
+            pass
+        db.set_profession2(p["id"], None, None, [sv for sv in cur if sv in keep1])
+        return _status(api, wa_id, db.get_professional_by_id(p["id"]), extra="\n\n" + tr("✅ تم تحديث بياناتك."))
     if what == "svc" and r["all_services"]:
         return _ask_services(api, wa_id, data)
     if what == "name":
@@ -840,6 +900,16 @@ def _save_edit(api, wa_id, data):
         return start(api, wa_id)
     if r["edit"] == "svc":
         db.update_professional_services(pid, r.get("services") or [])
+    elif r["edit"] == "p2":
+        p = db.get_professional_by_id(pid)
+        _, pr1 = professions.get_profession(p["profession_id"], "ar")
+        keep1 = (pr1 or {}).get("services") or []
+        try:
+            cur = json.loads(p.get("services_json") or "[]")
+        except ValueError:
+            cur = []
+        merged = [sv for sv in cur if sv in keep1] + [sv for sv in (r.get("services") or []) if sv not in keep1]
+        db.set_profession2(pid, r["p2id"], r["p2name"], merged)
     elif r["edit"] == "dist":
         whole = bool(r.get("whole") or not r.get("has_d"))
         db.update_professional_area(pid, r["country"], r["city"], r["city_id"],
