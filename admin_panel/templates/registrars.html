@@ -33,7 +33,8 @@
       <tr>
         <td>{{ r.name or '—' }}</td><td style="direction:ltr; text-align:right;">+{{ r.phone }}</td>
         <td><strong>{{ r.total }}</strong></td><td>{{ r.active }}</td>
-        <td><form method="post" class="inline-form" onsubmit="return confirm('حذف هذا الرقم؟');">
+        <td style="white-space:nowrap"><a class="btn success" href="{{ url_for('registrar_export', phone=r.phone) }}">⬇️ إحصائياته</a>
+          <form method="post" class="inline-form" onsubmit="return confirm('حذف هذا الرقم؟');">
           <input type="hidden" name="action" value="remove"><input type="hidden" name="phone" value="{{ r.phone }}">
           <button type="submit" class="secondary">حذف</button></form></td>
       </tr>

@@ -864,6 +864,77 @@ def professional_reset_rating(professional_id):
     return redirect(url_for("professional_detail", professional_id=professional_id))
 
 
+@app.route("/registrars/<phone>/export.xlsx")
+@super_required
+def registrar_export(phone):
+    """إحصائيات مسوّق: كل فني سجّله (المهنة/المدينة/الحالة/الاشتراك) + مؤشرات تكشف التسجيلات الوهمية."""
+    import openpyxl
+    from openpyxl.styles import Alignment, Font, PatternFill
+    from urllib.parse import quote
+    from datetime import datetime, timedelta, timezone
+    phone = db._phone_digits(phone)
+    reg = next((r for r in db.list_wa_registrars() if r["phone"] == phone), None)
+    if not reg:
+        flash("المسوّق غير موجود.", "error")
+        return redirect(url_for("registrars_page"))
+    with db.get_conn() as conn:
+        pros = [dict(r) for r in conn.execute(
+            "SELECT p.*, (SELECT COUNT(*) FROM contact_clicks c WHERE c.professional_id = p.id) AS contacts, "
+            "(SELECT 1 FROM wa_last_seen w WHERE w.wa_id = p.wa_id) AS messaged "
+            "FROM professionals p WHERE p.registered_by = ? ORDER BY p.created_at DESC", (phone,)).fetchall()]
+    rmap = __import__("ratings").summary([p["id"] for p in pros])
+    month = datetime.now(timezone.utc).strftime("%Y-%m")
+    head_fill, white = PatternFill("solid", fgColor="0F766E"), Font(bold=True, color="FFFFFF")
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "ملخص"
+    ws.sheet_view.rightToLeft = True
+    n = len(pros)
+    active = sum(1 for p in pros if p["status"] == db.STATUS_ACTIVE)
+    subs = sum(1 for p in pros if p.get("is_subscribed"))
+    msg = sum(1 for p in pros if p.get("messaged"))
+    rows = [("المسوّق", reg.get("name") or ""), ("رقمه", "+" + phone), ("تاريخ التقرير", _riyadh(datetime.now(timezone.utc).isoformat())),
+            ("", ""), ("إجمالي من سجّلهم", n), ("سجّلهم هذا الشهر", sum(1 for p in pros if (p["created_at"] or "").startswith(month))),
+            ("النشطون", active), ("المشتركون (دفعوا)", subs),
+            ("راسلوا البوت بأنفسهم", msg), ("تواصل معهم عميل واحد على الأقل", sum(1 for p in pros if p["contacts"])),
+            ("", ""), ("حسب المهنة", "")]
+    for prof, c in sorted({db.profession_display(p): 0 for p in pros}.items()):
+        rows.append(("   " + prof, sum(1 for p in pros if db.profession_display(p) == prof)))
+    rows += [("", ""), ("حسب المدينة", "")]
+    for city in sorted({p["city"] for p in pros}):
+        rows.append(("   " + city, sum(1 for p in pros if p["city"] == city)))
+    for r in rows:
+        ws.append(list(r))
+    for row in (1, 5, 12):
+        ws.cell(row=row, column=1).font = Font(bold=True)
+    ws.column_dimensions["A"].width = 34
+    ws.column_dimensions["B"].width = 26
+
+    ws2 = wb.create_sheet("الفنيون")
+    ws2.sheet_view.rightToLeft = True
+    ws2.append(["تاريخ التسجيل", "الاسم", "رقمه", "المهنة", "المدينة", "الأحياء", "الحالة", "مشترك",
+                "راسل البوت بنفسه", "عدد تواصل العملاء", "التقييم"])
+    for c in ws2[1]:
+        c.font, c.fill, c.alignment = white, head_fill, Alignment(horizontal="center")
+    for p in pros:
+        r = rmap.get(p["id"])
+        ws2.append([_riyadh(p["created_at"]), p["full_name"], p["whatsapp_number"], db.profession_display(p), p["city"],
+                    "المدينة كاملة" if p.get("covers_whole_city") else (p.get("neighborhood") or ""),
+                    db.STATUS_LABELS_AR.get(p["status"], p["status"]), "نعم" if p.get("is_subscribed") else "لا",
+                    "نعم" if p.get("messaged") else "لا", p["contacts"], f"{r[0]} ({r[1]})" if r else ""])
+        if not p.get("messaged"):
+            ws2.cell(row=ws2.max_row, column=9).font = Font(color="B42318", bold=True)
+    for i, w in enumerate([17, 22, 16, 24, 14, 34, 12, 8, 14, 14, 10], start=1):
+        ws2.column_dimensions[openpyxl.utils.get_column_letter(i)].width = w
+    ws2.freeze_panes = "A2"
+    buf = io.BytesIO()
+    wb.save(buf)
+    name = quote(f"إحصائيات_{reg.get('name') or phone}.xlsx")
+    return Response(buf.getvalue(), mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    headers={"Content-Disposition": f"attachment; filename=registrar_{phone}.xlsx; filename*=UTF-8''{name}"})
+
+
 # ─────────────────────────── المهن الأكثر طلبًا + قائمة الـ9 بواتساب ───────────────────────────
 
 @app.route("/demand", methods=["GET", "POST"])
