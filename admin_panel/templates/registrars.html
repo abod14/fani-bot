@@ -35,7 +35,7 @@
         <td><strong>{{ r.total }}</strong></td><td>{{ r.active }}</td>
         <td style="white-space:nowrap"><a class="btn success" href="{{ url_for('registrar_export', phone=r.phone) }}">⬇️ إحصائياته</a>
           <form method="post" action="{{ url_for('registrar_send', phone=r.phone) }}" class="inline-form"
-                onsubmit="return confirm('إرسال ملخص مختصر لهذا المسوّق على واتساب؟ (مجاني لو راسل البوت آخر 24 ساعة، وإلا رسالة مدفوعة)');">
+                onsubmit="return confirm('إرسال الملخص لهذا المسوّق على واتساب؟');">
             <button type="submit">📤 أرسل له ملخصًا</button></form>
           <form method="post" class="inline-form" onsubmit="return confirm('حذف هذا الرقم؟');">
           <input type="hidden" name="action" value="remove"><input type="hidden" name="phone" value="{{ r.phone }}">

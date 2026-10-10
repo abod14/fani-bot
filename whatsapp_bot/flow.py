@@ -130,6 +130,7 @@ RESET_WORDS = {norm(w) for w in [
 
 
 DISAPPEAR_TIP = "🧹 هل تريد حذف المحادثة تلقائيًا؟ اضغط على اسم المحادثة في الأعلى ← «الرسائل المؤقتة» ← 24 ساعة"
+SUMMARY_WORDS = {norm(w) for w in ["ملخصي", "ملخص", "احصائياتي", "إحصائياتي"]}
 END_WORDS = {norm(w) for w in ["x", "ء", "إنهاء", "انهاء", "انهي", "إنهاء المحادثة", "end"]}
 
 DELETE_WORDS = {norm(w) for w in ["d", "ي", "حذف بياناتي", "احذف بياناتي", "delete my data"]}
@@ -350,6 +351,10 @@ def _dispatch(api, wa_id, name, msg, state, data):
         code = web_join.find_code(body)
         if code:   # تأكيد تسجيل من الموقع (رسالة جاهزة فيها FN-XXXXX)
             return web_join.confirm(api, wa_id, code)
+        if norm(body) in SUMMARY_WORDS and db.is_wa_registrar(wa_id):
+            # المسوّق يطلب ملخص تسجيلاته (أرقام فقط، بلا بيانات الفنيين) — مجاني لأنه هو من راسل
+            api.text(wa_id, db.registrar_summary_text(wa_id))
+            return state, data
         if norm(body) in DELETE_WORDS:
             return _ask_delete(api, wa_id)
         if state == "del_reason" and data.get("arch") and norm(body) not in RESET_WORDS:

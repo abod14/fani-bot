@@ -2930,6 +2930,25 @@ def registrar_stats(phone: str) -> dict:
     }
 
 
+def registrar_summary_text(phone: str) -> str:
+    """نص ملخص المسوّق (يُرسل له على واتساب عند كتابته «ملخصي»، أو من زر المالك خلال نافذة الـ24 ساعة)."""
+    phone = _phone_digits(phone)
+    with get_conn() as conn:
+        row = conn.execute("SELECT name FROM wa_registrars WHERE phone = ?", (phone,)).fetchone()
+    name = (row["name"] if row else "") or ""
+    st = registrar_stats(phone)
+    date = (datetime.now(timezone.utc) + timedelta(hours=3)).strftime("%Y-%m-%d")
+    lines = [f"📊 ملخص تسجيلاتك في «فنّي» حتى {date}" + (f" يا {name}" if name else ""), "",
+             f"• عدد من سجّلتهم: {st['total']} (هذا الشهر: {st['month']})",
+             f"• النشطون: {st['active']}", f"• المشتركون: {st['subscribed']}",
+             f"• راسلوا البوت بأنفسهم: {st['messaged']}"]
+    if st["professions"]:
+        lines += ["", "🛠️ أكثر المهن: " + "، ".join(f"{n} ({c})" for n, c in st["professions"])]
+    if st["cities"]:
+        lines += ["📍 المدن: " + "، ".join(f"{n} ({c})" for n, c in st["cities"])]
+    return "\n".join(lines)
+
+
 def count_otp_since(sender: str, hours: int = 24) -> int:
     since = (datetime.now(timezone.utc) - timedelta(hours=hours)).isoformat()
     with get_conn() as conn:

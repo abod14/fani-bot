@@ -42,12 +42,6 @@ TEMPLATES = [
                              "الذين يبحثون عن خدمتك في منطقتك.",
                      "example": {"body_text": [["عبدالله", "سباك"]]}},
                     {"type": "BUTTONS", "buttons": [{"type": "QUICK_REPLY", "text": "حسابي"}]}]},
-    # ملخص المسوّق (يرسله المالك يدويًا من صفحة «المسوّقون») — بلا أزرار
-    {"name": "fanni_registrar_summary", "language": "ar", "category": "UTILITY",
-     "components": [{"type": "BODY",
-                     "text": "ملخص تسجيلاتك في «فنّي» حتى {{1}}: عدد الفنيين الذين سجّلتهم {{2}}، النشطون منهم {{3}}، "
-                             "والمشتركون {{4}}، وعدد من سجّلتهم هذا الشهر {{5}}.",
-                     "example": {"body_text": [["2026-10-10", "25", "22", "3", "8"]]}}]},
     # رمز التحقق (تسجيل فني على رقم آخر) — نص ميتا الجاهز، تصنيف «مصادقة» (الأرخص)
     {"name": "fanni_verify_code", "language": "ar", "category": "AUTHENTICATION",
      "components": [{"type": "BODY", "add_security_recommendation": True},
