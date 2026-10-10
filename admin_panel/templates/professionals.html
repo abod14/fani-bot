@@ -89,6 +89,7 @@
       <th>الحالة</th>
       <th>الاشتراك</th>
       <th>فرص مستخدمة</th>
+      <th>التقييم</th>
       <th>تاريخ التسجيل</th>
       <th>إجراءات</th>
     </tr>
@@ -111,6 +112,7 @@
         {% endif %}
       </td>
       <td>{{ p.free_contacts_used }}</td>
+      <td>{% set r = ratings.get(p.id) %}{% if r %}<span style="white-space:nowrap; {{ 'color:#b91c1c; font-weight:bold;' if r[1] >= 5 and r[0] < 2.5 else '' }}">⭐ {{ r[0] }}</span> <span class="muted">({{ r[1] }})</span>{% else %}<span class="muted">—</span>{% endif %}</td>
       <td>{{ p.created_at[:10] if p.created_at else '' }}</td>
       <td>
         {% if p.status == 'pending' %}

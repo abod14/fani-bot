@@ -288,6 +288,7 @@ def professionals_list():
         profession_options=_profession_options(),
         status_labels=db.STATUS_LABELS_AR,
         active_page="professionals",
+        ratings=__import__("ratings").summary([p["id"] for p in professionals]),
     )
 
 
@@ -332,8 +333,9 @@ def professionals_export():
     headers = [
         "الاسم", "رقم الواتساب", "رقم تواصل تيليجرام", "المهنة", "المجال",
         "الدولة", "المدينة", "الحي", "الحالة", "مشترك", "تاريخ انتهاء الاشتراك",
-        "فرص مجانية مستخدمة", "مصدر التسجيل", "تاريخ التسجيل",
+        "فرص مجانية مستخدمة", "التقييم", "عدد التقييمات", "مصدر التسجيل", "تاريخ التسجيل",
     ]
+    rmap = __import__("ratings").summary([p["id"] for p in professionals])
     ws.append(headers)
     for cell in ws[1]:
         cell.font = Font(bold=True)
@@ -353,6 +355,8 @@ def professionals_export():
             "نعم" if p["is_subscribed"] else "لا",
             (p["subscription_expires_at"] or "")[:10],
             p["free_contacts_used"],
+            rmap[p["id"]][0] if p["id"] in rmap else "",
+            rmap[p["id"]][1] if p["id"] in rmap else 0,
             p.get("source") or "unknown",
             (p["created_at"] or "")[:16],
         ])
