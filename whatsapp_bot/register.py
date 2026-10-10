@@ -45,9 +45,18 @@ def start(api, wa_id):
     """زر «أنا فني»: لو مسجّل يشوف حالته، وإلا نبدأ التسجيل."""
     me = _digits(wa_id)
     p = db.get_professional_by_wa_id(me)
-    # المالك/المسوّق يسجّل فنيين آخرين — ما نوقفه عند حالته هو
-    if p and p.get("status") != db.STATUS_REJECTED and not db.is_wa_registrar(me):
+    if p and p.get("status") != db.STATUS_REJECTED:
+        if db.is_wa_registrar(me):
+            # المالك/المسوّق مسجّل كفني أيضًا: يختار حسابه (حالته وربط تلغرام) أو تسجيل فني آخر
+            api.buttons(wa_id, tr("ماذا تريد؟ 👇"),
+                        [("R:mine", tr("👤 حسابي")), ("R:new", tr("➕ تسجيل فني آخر"))])
+            return "menu", {}
         return _status(api, wa_id, p)
+    return begin(api, wa_id)
+
+
+def begin(api, wa_id):
+    """بداية تسجيل فني جديد (سؤال الاسم)."""
     api.text(wa_id, tr("مرحبًا بك 🙌 سنسجّلك في «فنّي» مجانًا خلال دقيقة، لتظهر للعملاء في واتساب وتلغرام.\n\n"
                        "✍️ اكتب اسمك بالحروف العربية أو الإنجليزية (لا بحروف الأوردو) — ليسهل على العملاء قراءته والتواصل معك:"))
     return "r_name", {"r": {}}
@@ -1027,8 +1036,8 @@ def on_choice(api, wa_id, rid, state, data):
             return _telegram_link(api, wa_id, data)
         api.text(wa_id, tr("حسنًا 👍 يمكنك ربطه في أي وقت من «🛠️ أنا فني». اكتب s للعودة إلى القائمة."))
         return "menu", {}
-    if act == "again":
-        return start(api, wa_id)
+    if act in ("again", "new"):
+        return begin(api, wa_id) if db.is_wa_registrar(_digits(wa_id)) else start(api, wa_id)
     if not r.get("name"):            # زر قديم من جلسة منتهية (مرت المهلة) ← القائمة الرئيسية
         p_ = db.get_professional_by_wa_id(_digits(wa_id))
         return _flow()._welcome(api, wa_id, (p_ or {}).get("full_name") or "")

@@ -630,6 +630,9 @@ TEXTS: dict[str, dict[str, str]] = {
     "أبواب خشب، خزائن، ديكور": {"en": "Wooden doors, cabinets, decor", "ur": "لکڑی کے دروازے، الماریاں، ڈیکور"},
     "عدم تصريف، تسريب، لا تسخّن": {"en": "Not draining, leaking, not heating", "ur": "پانی نہیں نکلتا، لیکیج، گرم نہیں کرتا"},
     "أفران غاز وكهرباء وبلت إن": {"en": "Gas, electric & built-in ovens", "ur": "گیس، بجلی اور بلٹ اِن اوون"},
+    "ماذا تريد؟ 👇": {"en": "What would you like? 👇", "ur": "آپ کیا چاہتے ہیں؟ 👇"},
+    "👤 حسابي": {"en": "👤 My account", "ur": "👤 میرا اکاؤنٹ"},
+    "➕ تسجيل فني آخر": {"en": "➕ Register another", "ur": "➕ دوسرا کاریگر"},
     # ─────────── أرشيف الفنيين المحذوفين + سبب الحذف ───────────
     "ℹ️ نحتفظ باسمك ورقمك {days} فقط للتواصل معك بشأن سبب الحذف، ثم يُحذفان نهائيًا. ويبقى تقييمك مرتبطًا برقمك بصورة مشفّرة ليعود إليك إن سجّلت من جديد.": {
         "en": "ℹ️ We keep your name and number for {days} only, to contact you about why you left, then they are permanently deleted. Your rating stays linked to your number in encrypted form, so it returns to you if you register again.",
