@@ -1,9 +1,10 @@
 {% extends "base.html" %}
-{% block title %}تسجيل الدخول — لوحة تحكم «فني»{% endblock %}
+{% block title %}تسجيل الدخول — لوحة تحكم «فنّي»{% endblock %}
 {% block content %}
 <div class="login-wrap">
   <div class="login-box">
-    <h1>لوحة تحكم «فني»</h1>
+    <img class="logo" src="{{ url_for('static', filename='img/fanni-lockup.svg') }}" alt="فنّي" width="220" height="52">
+    <h1>لوحة التحكم</h1>
     <form method="post">
       <div class="field">
         <label>اسم المستخدم</label>

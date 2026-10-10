@@ -4,12 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}لوحة تحكم بوت «فني»{% endblock %}</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/fanni-icon.svg') }}">
+  <meta name="theme-color" content="#16233a">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=2">
 </head>
 <body>
   {% if session.get('logged_in') %}
   <div class="topbar">
-    <div class="brand">🛠️ لوحة تحكم «فني»{% if is_support %} — خدمة العملاء{% elif not is_super and manager_country %} — {{ country_label(manager_country) }}{% endif %}</div>
+    <div class="brand"><img src="{{ url_for('static', filename='img/fanni-lockup-white.svg') }}" alt="فنّي" width="126" height="30"><span>لوحة التحكم</span>{% if is_support %}<span class="role">خدمة العملاء</span>{% elif not is_super and manager_country %}<span class="role">{{ country_label(manager_country) }}</span>{% elif is_super %}<span class="role">المدير العام</span>{% endif %}</div>
     <nav>
       {% if is_support %}
       <a href="{{ url_for('professionals_list') }}" class="{{ 'active' if active_page == 'professionals' else '' }}">الفنيون</a>
