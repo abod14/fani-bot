@@ -2908,3 +2908,22 @@ def nearest_professional_ids(profession_id: str, city: str, city_id: int | None,
 
 def count_in_city(profession_id: str, city: str, city_id: int | None) -> int:
     return len(search_active_professional_ids(profession_id, city, None, None, None, city_id))
+
+
+
+# طلب المالك: اسم الفني بالحروف العربية فقط (مهما كانت لغة البوت) — يظهر بالعربي للعملاء ولوحة التحكم.
+_NAME_MAP = str.maketrans({"ی": "ي", "ي": "ي", "ک": "ك", "ہ": "ه", "ۃ": "ة", "ە": "ه"})
+
+
+def arabic_name(text: str, min_len: int = 2, max_len: int = 40) -> str | None:
+    """يرجّع الاسم منظّفًا لو كان كله حروف عربية (مع التشكيل والمسافات)، وإلا None.
+    نحوّل الحروف الفارسية/الأردية المطابقة شكلًا (ی ک ہ ۃ) لنظيرتها العربية، ونرفض غيرها (ٹ ڈ پ گ چ …)."""
+    import re as _re
+    name = _re.sub(r"\s+", " ", (text or "").strip()).translate(_NAME_MAP)
+    if not (min_len <= len(name) <= max_len):
+        return None
+    if not _re.fullmatch(r"[\u0621-\u063A\u0641-\u064A\u0640\u064B-\u0652\u0670 ]+", name):
+        return None
+    if len(_re.sub(r"[^\u0621-\u063A\u0641-\u064A]", "", name)) < 2:
+        return None
+    return name
