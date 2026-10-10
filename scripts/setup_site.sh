@@ -12,6 +12,7 @@ if ! command -v nginx >/dev/null 2>&1 || ! command -v certbot >/dev/null 2>&1; t
 fi
 mkdir -p /var/www/fanniapp && cp -r site/* /var/www/fanniapp/
 WA_PORT=$(grep -E '^WA_PORT=' .env 2>/dev/null | cut -d= -f2); WA_PORT=${WA_PORT:-5070}
+ADMIN_PORT=$(grep -E '^ADMIN_PANEL_PORT=' .env 2>/dev/null | cut -d= -f2); ADMIN_PORT=${ADMIN_PORT:-5050}
 if [ ! -f /etc/letsencrypt/live/$DOMAIN/fullchain.pem ]; then
 cat > /etc/nginx/sites-available/fanniapp <<NGX
 server {
@@ -22,6 +23,8 @@ server {
     index index.html;
     location /wa/ { proxy_pass http://127.0.0.1:$WA_PORT; proxy_set_header Host \$host; proxy_set_header X-Forwarded-For \$remote_addr; }
     location = /privacy { proxy_pass http://127.0.0.1:$WA_PORT; }
+    location /panel/ { proxy_pass http://127.0.0.1:$ADMIN_PORT/; proxy_set_header Host \$host; proxy_set_header X-Forwarded-For \$remote_addr; proxy_set_header X-Forwarded-Proto \$scheme; proxy_set_header X-Forwarded-Prefix /panel; }
+    location = /panel { return 301 /panel/; }
     location / { try_files \$uri \$uri/ =404; }
 }
 NGX
@@ -40,6 +43,21 @@ fi
 if [ ! -f /etc/letsencrypt/live/$DOMAIN/fullchain.pem ]; then
   WWW=""; [ "$(getent ahostsv4 www.$DOMAIN | awk 'NR==1{print $1}')" = "$MYIP" ] && WWW="-d www.$DOMAIN"
   certbot --nginx -d $DOMAIN $WWW --non-interactive --agree-tos --register-unsafely-without-email --redirect >/dev/null
+fi
+# لوحة التحكم على رابط مقفل https://$DOMAIN/panel — نضيفها لإعداد nginx الحالي (اللي عدّله certbot) مرة وحدة
+NGX=/etc/nginx/sites-available/fanniapp
+if ! grep -q "location /panel/" "$NGX"; then
+  cp "$NGX" /root/fanniapp.nginx.bak
+  sed -i "/location \/wa\//a\    location /panel/ { proxy_pass http://127.0.0.1:$ADMIN_PORT/; proxy_set_header Host \$host; proxy_set_header X-Forwarded-For \$remote_addr; proxy_set_header X-Forwarded-Proto \$scheme; proxy_set_header X-Forwarded-Prefix /panel; }" "$NGX"
+  sed -i "/location \/panel\//a\    location = /panel { return 301 /panel/; }" "$NGX"
+  if nginx -t >/dev/null 2>&1; then systemctl reload nginx; else cp /root/fanniapp.nginx.bak "$NGX"; echo "⚠️ ما قدرنا نضيف /panel لإعداد nginx — رجّعنا الإعداد القديم"; fi
+fi
+if grep -q "location /panel/" "$NGX" && curl -s -o /dev/null -w "%{http_code}" --max-time 10 "https://$DOMAIN/panel/login" | grep -q "200"; then
+  touch .panel_https_ok
+  echo "🔒 لوحة التحكم الآن على: https://$DOMAIN/panel  (الرابط القديم يحوّلك لها تلقائيًا)"
+else
+  rm -f .panel_https_ok
+  echo "⚠️ رابط اللوحة المقفل لم يعمل بعد — الرابط القديم يبقى شغّالًا كما هو"
 fi
 echo "✅ الموقع يعمل: https://$DOMAIN"
 echo "   سياسة الخصوصية: https://$DOMAIN/privacy"

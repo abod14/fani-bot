@@ -25,6 +25,8 @@ from whatsapp_bot.api import WhatsAppAPI  # noqa: E402
 log = logging.getLogger("fani.wa")
 app = Flask(__name__)
 api = WhatsAppAPI()
+if not config.WA_APP_SECRET:
+    logging.getLogger("fani.wa").warning("⚠️ WA_APP_SECRET غير مضاف — لا نتحقق من توقيع ميتا على الرسائل الواصلة")
 from whatsapp_bot import web_join  # noqa: E402  — التسجيل من الموقع (/wa/api/join/*)
 app.register_blueprint(web_join.bp)
 

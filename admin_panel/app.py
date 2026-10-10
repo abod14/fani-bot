@@ -4,6 +4,7 @@
 # التشغيل: python admin_panel/app.py  (بعد ضبط ADMIN_PANEL_USERNAME/ADMIN_PANEL_PASSWORD بملف .env)
 
 import functools
+import hmac
 import secrets
 import sys
 from pathlib import Path
@@ -35,6 +36,34 @@ if not config.ADMIN_PANEL_PASSWORD:
 app = Flask(__name__)
 app.secret_key = config.ADMIN_PANEL_SECRET_KEY or secrets.token_hex(32)
 
+# ─── الأمان: اللوحة تعمل خلف nginx على https://fanniapp.com/panel ───
+# ProxyFix: يفهم البادئة /panel وعنوان الزائر الحقيقي من nginx (nginx يكتب X-Forwarded-For بنفسه فلا يُزوَّر).
+from werkzeug.middleware.proxy_fix import ProxyFix  # noqa: E402
+
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=0, x_prefix=1)
+app.config.update(SESSION_COOKIE_HTTPONLY=True, SESSION_COOKIE_SAMESITE="Lax")
+# بعد تجهيز nginx (scripts/setup_site.sh ينشئ هذا الملف) نحوّل أي دخول مباشر على http://IP:5050 إلى الرابط المقفل
+PANEL_HTTPS_FLAG = Path(__file__).resolve().parent.parent / ".panel_https_ok"
+PANEL_HTTPS_URL = (config.WA_PUBLIC_BASE or "https://fanniapp.com").rstrip("/") + "/panel"
+
+
+def _direct_ip() -> str:
+    """عنوان من اتصل بالخادم فعلًا (قبل ProxyFix): 127.0.0.1 = عبر nginx."""
+    orig = request.environ.get("werkzeug.proxy_fix.orig") or {}
+    return orig.get("REMOTE_ADDR") or request.environ.get("REMOTE_ADDR", "")
+
+
+@app.before_request
+def _force_https_panel():
+    # روابط التواصل /c/ (تلغرام) تبقى تعمل على الرابط القديم؛ كل ما عداها ← https
+    if request.path.startswith("/c/") or not PANEL_HTTPS_FLAG.exists():
+        return None
+    if _direct_ip() not in ("127.0.0.1", "::1"):
+        return redirect(PANEL_HTTPS_URL + request.full_path.rstrip("?"), code=301)
+    if request.headers.get("X-Forwarded-Proto") == "https":
+        app.config["SESSION_COOKIE_SECURE"] = True
+    return None
+
 PAGE_SIZE = 20
 
 db.init_db()
@@ -51,6 +80,10 @@ db.seed_saudi_geo_if_empty(
 #   super   — المدير العام (بيانات الدخول من ملف .env): كل شي.
 #   country — مدير دولة (يُضاف من صفحة «المدراء»): يشوف ويدير فنيي دولته فقط، بدون
 #             تنزيل إكسل، ولا إعدادات عامة، ولا تعديل المهن، ولا المدفوعات، ولا المدراء.
+
+LOGIN_MAX_FAILS = 5      # بعد 5 محاولات خاطئة من نفس الجهاز…
+LOGIN_BLOCK_MIN = 15     # …يتوقف الدخول منه 15 دقيقة فقط (أجهزتك الأخرى لا تتأثر)
+
 
 def login_required(view):
     @functools.wraps(view)
@@ -141,7 +174,14 @@ def login():
         username = request.form.get("username", "").strip()
         password = request.form.get("password", "")
         next_url = request.args.get("next")
-        if username == config.ADMIN_PANEL_USERNAME and password == config.ADMIN_PANEL_PASSWORD:
+        ip = request.remote_addr or "?"
+        if db.login_failures(ip) >= LOGIN_MAX_FAILS:
+            flash(f"محاولات دخول خاطئة كثيرة من هذا الجهاز. حاول بعد {LOGIN_BLOCK_MIN} دقيقة.", "error")
+            return render_template("login.html")
+        if next_url and not next_url.startswith("/"):
+            next_url = None   # لا تحويل لمواقع خارجية
+        if username == config.ADMIN_PANEL_USERNAME and hmac.compare_digest(password, config.ADMIN_PANEL_PASSWORD):
+            db.clear_login_failures(ip)
             session.clear()
             session["logged_in"] = True
             session["role"] = "super"
@@ -149,6 +189,7 @@ def login():
             return redirect(next_url or url_for("dashboard"))
         manager = db.get_admin_user_by_username(username)
         if manager and check_password_hash(manager["password_hash"], password):
+            db.clear_login_failures(ip)
             if manager.get("disabled"):
                 flash("هذا الحساب موقوف. تواصل مع المدير العام.", "error")
                 return render_template("login.html")
@@ -163,7 +204,10 @@ def login():
             session["country"] = manager["country"]
             flash(f"أهلًا {manager['username']} — مدير {countries.label(manager['country'])}.", "success")
             return redirect(url_for("dashboard"))
-        flash("اسم المستخدم أو كلمة المرور غير صحيحة.", "error")
+        db.add_login_failure(ip)
+        left = LOGIN_MAX_FAILS - db.login_failures(ip)
+        flash("اسم المستخدم أو كلمة المرور غير صحيحة."
+              + (f" (بقي {left} محاولات قبل الإيقاف المؤقت)" if 0 < left <= 3 else ""), "error")
     return render_template("login.html")
 
 
@@ -182,6 +226,8 @@ def dashboard():
     country = scope_country()
     stats = db.get_admin_stats(country=country)
     health = _server_health() if is_super() else None
+    if is_super() and not config.WA_APP_SECRET:
+        flash("⚠️ أمان: «App Secret» لميتا غير مضاف — البوت لا يتحقق أن رسائل واتساب قادمة من ميتا فعلًا.", "error")
     return render_template(
         "dashboard.html", stats=stats, health=health, selected_country=country,
         unresponsive=db.admin_unresponsive_professionals(3, country),

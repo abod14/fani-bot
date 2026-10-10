@@ -2492,6 +2492,30 @@ def nearest_sa_cities(city_id: int, exclude_ids: list[int], limit: int = 3):
 
 # ─────────────────────────── مدراء الدول (لوحة التحكم) ───────────────────────────
 
+def _login_table(conn):
+    conn.execute("CREATE TABLE IF NOT EXISTS login_failures (ip TEXT NOT NULL, at TEXT NOT NULL)")
+
+
+def login_failures(ip: str, minutes: int = 15) -> int:
+    since = (datetime.now(timezone.utc) - timedelta(minutes=minutes)).isoformat()
+    with get_conn() as conn:
+        _login_table(conn)
+        conn.execute("DELETE FROM login_failures WHERE at < ?", (since,))
+        return conn.execute("SELECT COUNT(*) FROM login_failures WHERE ip = ?", (ip,)).fetchone()[0]
+
+
+def add_login_failure(ip: str):
+    with get_conn() as conn:
+        _login_table(conn)
+        conn.execute("INSERT INTO login_failures (ip, at) VALUES (?, ?)", (ip, _now_iso()))
+
+
+def clear_login_failures(ip: str):
+    with get_conn() as conn:
+        _login_table(conn)
+        conn.execute("DELETE FROM login_failures WHERE ip = ?", (ip,))
+
+
 def list_admin_users():
     with get_conn() as conn:
         rows = conn.execute("SELECT id, username, country, created_at, role, disabled, created_by FROM admin_users "
