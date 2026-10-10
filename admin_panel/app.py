@@ -1015,7 +1015,13 @@ def profession_requests_page():
             if not prof:
                 flash("اختر المهنة التي أضفتها أولًا.", "error")
                 return redirect(url_for("profession_requests_page"))
-            if action == "notify":
+            if action == "notify" and req.get("channel") == "tg" and req.get("tg_id"):
+                ok = _tg_notify_added(req, prof)
+                if not ok:
+                    flash("❌ لم تُرسل الرسالة على تلغرام (ربما أوقف البوت)، حاول مرة أخرى.", "error")
+                    return redirect(url_for("profession_requests_page"))
+                flash("✅ أُرسل له إشعار على تلغرام.", "success")
+            elif action == "notify":
                 import ratings
                 from whatsapp_bot import lang as wlang
                 from whatsapp_bot.api import WhatsAppAPI
@@ -1028,7 +1034,7 @@ def profession_requests_page():
                 wlang.set_lang(lg)
                 pname = (prof.get(f"name_{lg}") if lg != "ar" else None) or prof["name"]
                 r = WhatsAppAPI().buttons(req["phone"], tr("🎉 أضفنا مهنتك «{p}» في «فنّي»! اضغط الزر أدناه لتكمل تسجيلك مجانًا خلال دقيقة.", p=pname),
-                                          [("R:new", tr("🛠️ سجّلني الآن"))])
+                                          [(f"R:cont:{rid}", tr("🛠️ سجّلني الآن"))])
                 wlang.set_lang("ar")
                 if r is None or getattr(r, "status_code", 500) >= 400:
                     flash("❌ لم تُرسل الرسالة، حاول مرة أخرى.", "error")
@@ -1048,7 +1054,7 @@ def profession_requests_page():
         counts[key] = counts.get(key, 0) + (0 if r["notified_at"] else 1)
     for r in rows:
         r["when"] = _riyadh(r["created_at"])
-        r["window"] = ratings.wa_last_seen_ok(r["phone"])
+        r["window"] = bool(r.get("tg_id")) if r.get("channel") == "tg" else ratings.wa_last_seen_ok(r["phone"])
         r["registered"] = r["phone"] in registered
         r["same"] = counts.get(" ".join(r["text"].split()), 0)
         r["notified_name"] = (professions_repo.get_profession(r["notified_pid"], "ar")[1] or {}).get("name") if r.get("notified_pid") else None
@@ -1057,6 +1063,27 @@ def profession_requests_page():
     top_texts = sorted(((k, v) for k, v in counts.items() if v), key=lambda x: -x[1])[:15]
     return render_template("profession_requests.html", rows=rows, options=options, top_texts=top_texts,
                            active_page="prof_requests")
+
+
+def _tg_notify_added(req: dict, prof: dict) -> bool:
+    """إبلاغ فني تلغرام بإضافة مهنته — رسالة مجانية بزر يبدأ التسجيل."""
+    import asyncio
+    import i18n
+    from telegram import Bot, InlineKeyboardButton, InlineKeyboardMarkup
+    lg = req.get("lang") if req.get("lang") in ("ar", "en", "ur") else "ar"
+    pname = (prof.get(f"name_{lg}") if lg != "ar" else None) or prof["name"]
+
+    async def go():
+        async with Bot(config.BOT_TOKEN) as bot:
+            await bot.send_message(int(req["tg_id"]), i18n.t("reg_missing_added", lg, p=pname),
+                                   reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton(
+                                       i18n.t("reg_missing_now_btn", lg), callback_data="start_register")]]))
+    try:
+        asyncio.run(go())
+        return True
+    except Exception:
+        app.logger.exception("tg notify failed")
+        return False
 
 
 def _riyadh(iso: str | None) -> str:

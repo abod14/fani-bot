@@ -396,7 +396,7 @@ def _dispatch(api, wa_id, name, msg, state, data):
 
 
 # أزرار تبقى صالحة حتى بعد انتهاء الجلسة: الاشتراك/الإشعارات/حساب الفني/حذف البيانات/اللغة/التواصل
-IDLE_OK = ("R:sub", "R:mute", "R:details", "R:mine", "R:new", "R:tg", "R:edit", "R:ed:", "del:", "delr:", "lang:", "m:lang",
+IDLE_OK = ("R:sub", "R:mute", "R:details", "R:mine", "R:new", "R:cont:", "R:tg", "R:edit", "R:ed:", "del:", "delr:", "lang:", "m:lang",
            "c:", "n:",   # c:/n: = التواصل مع فني من نتائج قديمة (يبقى يشتغل)
            "rt:", "rs:")   # التقييم — صالح أسبوعًا
 

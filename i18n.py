@@ -346,6 +346,23 @@ TEXTS: dict[str, dict[str, str]] = {
         "en": "⬅️ Back to field selection",
         "ur": "⬅️ شعبے کے انتخاب کی طرف واپس",
     },
+    "reg_missing_btn": {"ar": "🙋 مهنتي غير موجودة", "en": "🙋 My profession isn't listed", "ur": "🙋 میرا پیشہ فہرست میں نہیں"},
+    "reg_missing_ask": {
+        "ar": "✍️ اكتب اسم مهنتك كما تعرفها (مثل: صيانة معدات ثقيلة)، وسنضيفها ونبلغك.",
+        "en": "✍️ Type your profession's name as you know it (e.g. heavy equipment maintenance), and we'll add it and let you know.",
+        "ur": "✍️ اپنے پیشے کا نام لکھیں جیسے آپ جانتے ہیں (جیسے: بھاری مشینری کی مرمت)، ہم اسے شامل کر کے آپ کو بتائیں گے۔",
+    },
+    "reg_missing_thanks": {
+        "ar": "شكرًا لك 🌟 سجّلنا مهنتك «{q}»، وسنراجعها ونضيفها قريبًا بإذن الله، ثم نبلغك هنا لتكمل تسجيلك.",
+        "en": "Thank you 🌟 We've noted your profession «{q}». We'll review and add it soon, then let you know here so you can finish registering.",
+        "ur": "شکریہ 🌟 ہم نے آپ کا پیشہ «{q}» درج کر لیا ہے۔ ہم جلد اس کا جائزہ لے کر اسے شامل کریں گے، پھر یہیں آپ کو بتائیں گے تاکہ آپ رجسٹریشن مکمل کر سکیں۔",
+    },
+    "reg_missing_added": {
+        "ar": "🎉 أضفنا مهنتك «{p}» في «فنّي»! اضغط الزر أدناه لتكمل تسجيلك مجانًا خلال دقيقة.",
+        "en": "🎉 We've added your profession «{p}» to Fanni! Tap the button below to finish your free registration in a minute.",
+        "ur": "🎉 ہم نے آپ کا پیشہ «{p}» «فنی» میں شامل کر دیا ہے! ایک منٹ میں مفت رجسٹریشن مکمل کرنے کے لیے نیچے بٹن دبائیں۔",
+    },
+    "reg_missing_now_btn": {"ar": "🛠️ سجّلني الآن", "en": "🛠️ Register me now", "ur": "🛠️ ابھی رجسٹر کریں"},
     "unknown_option": {
         "ar": "خيار غير معروف، حاول مرة أخرى.",
         "en": "Unknown option, please try again.",

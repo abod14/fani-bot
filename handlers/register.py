@@ -49,6 +49,8 @@ import professions_repo as professions
     CONFIRM,
     SECOND_PROF,
 ) = range(15)
+PROF_MISSING = 15   # «مهنتي غير موجودة»: ينتظر اسم المهنة نصًا
+PROF_MISSING_CB = "reg_prof_missing"
 
 ADD_SECOND_CB = "reg_add_second"
 NO_SECOND_CB = "reg_no_second"
@@ -320,6 +322,8 @@ def _profession_list_grouped_keyboard(lang: str, exclude: str | None = None, ski
                 row = []
         if row:
             buttons.append(row)
+    if not skip_btn:   # المهنة الأولى فقط: آخر خيار «مهنتي غير موجودة» (طلب المالك)
+        buttons.append([InlineKeyboardButton(i18n.t("reg_missing_btn", lang), callback_data=PROF_MISSING_CB)])
     return InlineKeyboardMarkup(buttons)
 
 
@@ -838,6 +842,38 @@ async def profession_list_noop(update: Update, context: ContextTypes.DEFAULT_TYP
     return PROFESSION
 
 
+async def missing_profession(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """زر «مهنتي غير موجودة»: نطلب اسم المهنة نصًا."""
+    lang = _lang(context)
+    query = update.callback_query
+    await query.answer()
+    await query.edit_message_text(i18n.t("reg_missing_ask", lang))
+    return PROF_MISSING
+
+
+async def got_missing_profession(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """كتب اسم مهنته: نحفظ الطلب (صفحة «مهن مقترحة») وننبّه المالك ونشكره — ونبلغه هنا عند إضافتها."""
+    lang = _lang(context)
+    q = " ".join((update.message.text or "").split())[:60]
+    if len(q) < 2 or q.isdigit():
+        await update.message.reply_text(i18n.t("reg_missing_ask", lang))
+        return PROF_MISSING
+    user = update.effective_user
+    name = context.user_data.get("full_name") or ""
+    await asyncio.to_thread(db.add_profession_request, "", name, q, lang, "tg", user.id)
+    try:
+        import ratings
+        uname = f" @{user.username}" if user.username else ""
+        ratings._send_admin(f"🙋 مهنة مقترحة من فني (تلغرام): «{q}»\n👤 {name or '—'}{uname}\n"
+                            "راجعها من لوحة التحكم ← «مهن مقترحة».")
+    except Exception:
+        pass
+    await update.message.reply_text(i18n.t("reg_missing_thanks", lang, q=q))
+    for k in ("full_name", "picking"):
+        context.user_data.pop(k, None)
+    return ConversationHandler.END
+
+
 async def choose_profession(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """اختيار المهنة الأولى أو الثانية (حسب ud["picking"])."""
     lang = _lang(context)
@@ -1158,10 +1194,12 @@ def build_register_conversation() -> ConversationHandler:
                 MessageHandler(filters.CONTACT | (filters.TEXT & ~filters.COMMAND), got_telegram_contact)
             ],
             PROFESSION: [
+                CallbackQueryHandler(missing_profession, pattern=f"^{PROF_MISSING_CB}$"),
                 CallbackQueryHandler(choose_profession, pattern="^reg_prof:"),
                 CallbackQueryHandler(profession_list_noop, pattern=f"^{PROFESSION_NOOP_CB}$"),
                 CallbackQueryHandler(no_second_profession, pattern=f"^{NO_SECOND_CB}$"),
             ],
+            PROF_MISSING: [MessageHandler(filters.TEXT & ~filters.COMMAND, got_missing_profession)],
             SECOND_PROF: [
                 CallbackQueryHandler(add_second_profession, pattern=f"^{ADD_SECOND_CB}$"),
                 CallbackQueryHandler(no_second_profession, pattern=f"^{NO_SECOND_CB}$"),

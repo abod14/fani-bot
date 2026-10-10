@@ -106,6 +106,11 @@ footer{color:var(--muted);font-size:13px;text-align:center;padding:20px 0 36px}
       <h2><span class="num">2</span><span data-t="s_prof"></span></h2>
       <input type="search" id="q1" class="pq" autocomplete="off">
       <label class="f" for="prof1" data-t="prof"></label><select id="prof1"></select>
+      <div id="missBox" hidden style="margin-top:10px">
+        <label class="f" for="miss" data-t="miss_lbl"></label>
+        <input type="text" id="miss" maxlength="60" autocomplete="off">
+        <p class="hint" data-t="miss_hint"></p>
+      </div>
       <button type="button" class="linkbtn" id="add2" data-t="add2"></button>
       <div id="p2box" hidden>
         <input type="search" id="q2" class="pq" autocomplete="off" style="margin-top:6px">
@@ -175,7 +180,10 @@ st1:"اضغط الزر الأخضر، فيفتح واتساب برسالة جا�
 wa_btn:"أكّد عبر واتساب",wa_note:"⚠️ أرسل الرسالة من الرقم الذي تريد أن يتواصل معك العملاء عليه — فهو الرقم الذي سيظهر لهم. الرمز صالح 48 ساعة.",
 code_lbl:"رمز التسجيل:",back:"✏️ تعديل البيانات",home:"العودة إلى الصفحة الرئيسية",home_link:"→ الصفحة الرئيسية",privacy:"سياسة الخصوصية",support:"الدعم على واتساب",
 l_name:"الاسم",l_prof:"المهنة",l_svc:"الخدمات",l_place:"المكان",whole_city:"المدينة كاملة",net:"تعذّر الاتصال، حاول مرة أخرى.",
-e_prof:"اختر مهنتك.",e_city:"اختر مدينتك.",e_dist:"اختر حيًا واحدًا على الأقل.",e_name:"اكتب اسمك."},
+e_prof:"اختر مهنتك.",e_city:"اختر مدينتك.",e_dist:"اختر حيًا واحدًا على الأقل.",e_name:"اكتب اسمك.",
+missing:"🙋 مهنتي غير موجودة",miss_lbl:"اكتب اسم مهنتك",miss_ph:"مثل: صيانة معدات ثقيلة",
+miss_hint:"شكرًا لك 🌟 أكمل بياناتك وأكّد عبر واتساب، وسنضيف مهنتك ونتواصل معك لتكمل تسجيلك خلال دقيقة.",
+e_miss:"اكتب اسم مهنتك.",st3m:"يصلك الرد فورًا، ونبلغك على واتساب عند إضافة مهنتك."},
 en:{title:"Register as a technician on «Fanni»",lead:"Fill in your details once, then confirm with a WhatsApp message — and start appearing to nearby customers. Registration is free.",
 s_name:"Your name",name_hint:"In Arabic or English letters, as customers will see it.",s_prof:"Your profession",pq:"🔍 Type your profession, e.g. Plumber",prof:"Profession (all professions, grouped by field)",
 add2:"➕ Add a second profession (optional)",prof2:"Second profession",rm2:"✕ Remove second profession",
@@ -187,7 +195,10 @@ st1:"Tap the green button; WhatsApp opens with a ready message.",st2:"Tap «Send
 wa_btn:"Confirm via WhatsApp",wa_note:"⚠️ Send the message from the number you want customers to contact — it's the number they will see. The code is valid for 48 hours.",
 code_lbl:"Registration code:",back:"✏️ Edit details",home:"Back to the home page",home_link:"← Home page",privacy:"Privacy policy",support:"Support on WhatsApp",
 l_name:"Name",l_prof:"Profession",l_svc:"Services",l_place:"Location",whole_city:"Whole city",net:"Connection failed, try again.",
-e_prof:"Choose your profession.",e_city:"Choose your city.",e_dist:"Choose at least one district.",e_name:"Enter your name."},
+e_prof:"Choose your profession.",e_city:"Choose your city.",e_dist:"Choose at least one district.",e_name:"Enter your name.",
+missing:"🙋 My profession isn't listed",miss_lbl:"Type your profession",miss_ph:"e.g. Heavy equipment maintenance",
+miss_hint:"Thank you 🌟 Complete your details and confirm via WhatsApp; we'll add your profession and contact you to finish registering in a minute.",
+e_miss:"Type your profession.",st3m:"You'll get an instant reply, and we'll message you on WhatsApp once your profession is added."},
 ur:{title:"«فنی» میں بطور کاریگر رجسٹر ہوں",lead:"اپنی معلومات ایک بار بھریں، پھر واٹس ایپ پیغام سے تصدیق کریں — اور قریبی گاہکوں کو نظر آنا شروع کریں۔ رجسٹریشن مفت ہے۔",
 s_name:"آپ کا نام",name_hint:"عربی یا انگریزی حروف میں، جیسا گاہکوں کو نظر آئے گا (اردو حروف نہیں)۔",s_prof:"آپ کا پیشہ",pq:"🔍 اپنا پیشہ لکھیں، مثلاً: پلمبر",prof:"پیشہ (تمام پیشے، شعبے کے لحاظ سے)",
 add2:"➕ دوسرا پیشہ شامل کریں (اختیاری)",prof2:"دوسرا پیشہ",rm2:"✕ دوسرا پیشہ ہٹائیں",
@@ -199,7 +210,10 @@ st1:"سبز بٹن دبائیں؛ واٹس ایپ تیار پیغام کے سا�
 wa_btn:"واٹس ایپ سے تصدیق کریں",wa_note:"⚠️ پیغام اسی نمبر سے بھیجیں جس پر گاہک آپ سے رابطہ کریں — یہی نمبر انہیں نظر آئے گا۔ کوڈ 48 گھنٹے تک درست ہے۔",
 code_lbl:"رجسٹریشن کوڈ:",back:"✏️ معلومات میں ترمیم",home:"ہوم پیج پر واپس جائیں",home_link:"→ ہوم پیج",privacy:"رازداری کی پالیسی",support:"واٹس ایپ پر سپورٹ",
 l_name:"نام",l_prof:"پیشہ",l_svc:"خدمات",l_place:"جگہ",whole_city:"پورا شہر",net:"رابطہ نہیں ہو سکا، دوبارہ کوشش کریں۔",
-e_prof:"اپنا پیشہ منتخب کریں۔",e_city:"اپنا شہر منتخب کریں۔",e_dist:"کم از کم ایک محلہ منتخب کریں۔",e_name:"اپنا نام لکھیں۔"}};
+e_prof:"اپنا پیشہ منتخب کریں۔",e_city:"اپنا شہر منتخب کریں۔",e_dist:"کم از کم ایک محلہ منتخب کریں۔",e_name:"اپنا نام لکھیں۔",
+missing:"🙋 میرا پیشہ فہرست میں نہیں",miss_lbl:"اپنے پیشے کا نام لکھیں",miss_ph:"مثلاً: بھاری مشینری کی مرمت",
+miss_hint:"شکریہ 🌟 اپنی معلومات مکمل کریں اور واٹس ایپ سے تصدیق کریں؛ ہم آپ کا پیشہ شامل کر کے آپ سے رابطہ کریں گے تاکہ آپ ایک منٹ میں رجسٹریشن مکمل کر سکیں۔",
+e_miss:"اپنے پیشے کا نام لکھیں۔",st3m:"فوراً جواب آئے گا، اور آپ کا پیشہ شامل ہوتے ہی ہم واٹس ایپ پر بتائیں گے۔"}};
 
 var API="/wa/api/join/", L="ar", M=null, MAX=5, state={d:[]};
 var $=function(id){return document.getElementById(id)};
@@ -216,7 +230,7 @@ function texts(){
   document.documentElement.lang=L;document.documentElement.dir=L==="en"?"ltr":"rtl";
   document.title=t("title")+" — Fanni";
   [].forEach.call(document.querySelectorAll("[data-t]"),function(el){el.textContent=t(el.dataset.t)});
-  $("dsearch").placeholder=t("dsearch");$("q1").placeholder=$("q2").placeholder=t("pq");
+  $("dsearch").placeholder=t("dsearch");$("miss").placeholder=t("miss_ph");$("q1").placeholder=$("q2").placeholder=t("pq");
   [].forEach.call(document.querySelectorAll(".langs button"),function(b){b.setAttribute("aria-pressed",b.dataset.l===L)});
   [].forEach.call(document.querySelectorAll('a[href="/"],a[href^="/?lang"]'),function(a){a.href=L==="ar"?"/":"/?lang="+L});
 }
@@ -233,6 +247,7 @@ function fillProf(sel,q){
     if(!ps.length)return;
     html+='<optgroup label="'+esc(d.name)+'">'+ps.map(function(p){if(p.id!==v){n++;only=p.id}return '<option value="'+esc(p.id)+'">'+esc(p.name)+'</option>'}).join("")+'</optgroup>';
   });
+  if(sel.id==="prof1")html+='<option value="__missing">'+esc(t("missing"))+'</option>';
   sel.innerHTML=html;
   if(v&&sel.querySelector('option[value="'+v+'"]'))sel.value=v;
   if(qq&&n===1&&!v){sel.value=only;sel.onchange()}
@@ -240,7 +255,12 @@ function fillProf(sel,q){
 function fillDomains(){fillProf($("prof1"),$("q1").value);fillProf($("prof2"),$("q2").value)}
 $("q1").oninput=function(){fillProf($("prof1"),this.value)};
 $("q2").oninput=function(){fillProf($("prof2"),this.value)};
-$("prof1").onchange=$("prof2").onchange=function(){renderSvcs();renderWhole()};
+function isMiss(){return $("prof1").value==="__missing"}
+$("prof1").onchange=$("prof2").onchange=function(){
+  var m=isMiss();$("missBox").hidden=!m;$("add2").hidden=m||!$("p2box").hidden;
+  if(m&&!$("p2box").hidden)$("rm2").onclick();
+  if(m)setTimeout(function(){$("miss").focus()},50);
+  renderSvcs();renderWhole()};
 $("add2").onclick=function(){$("p2box").hidden=false;this.hidden=true};
 $("rm2").onclick=function(){$("p2box").hidden=true;$("add2").hidden=false;$("q2").value="";$("prof2").value="";fillProf($("prof2"),"");renderSvcs();renderWhole()};
 
@@ -294,22 +314,25 @@ $("form").onsubmit=function(e){
   var name=$("name").value.trim(), cityOk=!!$("city").value;
   if(!name)return showErr(t("e_name"));
   if(!$("prof1").value)return showErr(t("e_prof"));
+  var miss=isMiss()?$("miss").value.trim():"";
+  if(isMiss()&&miss.length<2){$("miss").focus();return showErr(t("e_miss"))}
   if(!cityOk)return showErr(t("e_city"));
   var dists=[].map.call(document.querySelectorAll("#dists input:checked"),function(i){return +i.value});
   var whole=$("whole").checked&&wide();
   if(!$("distBox").hidden&&!whole&&!dists.length)return showErr(t("e_dist"));
   var body={lang:L,name:name,pid:$("prof1").value,p2id:$("p2box").hidden?"":$("prof2").value,services:selectedSvcs(),
-            city_id:+$("city").value,districts:dists,whole:whole};
+            city_id:+$("city").value,districts:dists,whole:whole,missing:miss};
   $("go").disabled=true;$("go").textContent=t("sending");
   fetch(API+"submit",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)})
    .then(function(r){return r.json()}).then(function(j){
      if(!j.ok)return showErr(j.error||t("net"));
-     var p1=prof(body.pid),p2=prof(body.p2id),cityName=$("city").selectedOptions[0].textContent;
+     var p1=prof(body.pid)||{name:miss},p2=prof(body.p2id),cityName=$("city").selectedOptions[0].textContent;
      var where=whole||$("distBox").hidden?t("whole_city"):dists.map(function(id){return document.querySelector('#dists input[value="'+id+'"]').parentNode.dataset.n}).join("، ");
      var svcNames=[].map.call(document.querySelectorAll("#svcs input:checked"),function(i){return i.nextSibling.textContent});
      $("sum").innerHTML="<li><b>"+esc(t("l_name"))+"</b> "+esc(name)+"</li><li><b>"+esc(t("l_prof"))+"</b> "+esc(p1.name+(p2?" • "+p2.name:""))+"</li>"
        +(svcNames.length?"<li><b>"+esc(t("l_svc"))+"</b> "+esc(svcNames.join("، "))+"</li>":"")
        +"<li><b>"+esc(t("l_place"))+"</b> "+esc(cityName+" — "+where)+"</li>";
+     document.querySelector('[data-t="st3"],[data-t="st3m"]').dataset.t=miss?"st3m":"st3";texts();
      $("waBtn").href=j.wa_url;$("code").textContent=j.code;
      $("form").hidden=true;$("done").hidden=false;window.scrollTo({top:0,behavior:"smooth"});
    }).catch(function(){showErr(t("net"))})

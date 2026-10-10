@@ -4,7 +4,8 @@
 <h1>🙋 مهن مقترحة</h1>
 <p class="muted">فنيون لم يجدوا مهنتهم أثناء التسجيل فاختاروا «مهنتي غير موجودة» وكتبوا اسمها.
 أضف المهنة من صفحة «المهن»، ثم ارجع هنا واختر المهنة التي أضفتها واضغط «أبلغه» — تصله رسالة مجانية فيها زر «سجّلني الآن».
-الرسالة المجانية ممكنة فقط خلال 24 ساعة من آخر رسالة منه للبوت؛ بعدها اتصل به أو راسله من جوالك ثم اضغط «تم إبلاغه».</p>
+في واتساب (ومن سجّل من الموقع) الرسالة المجانية ممكنة فقط خلال 24 ساعة من آخر رسالة منه للبوت؛ بعدها اتصل به أو راسله من جوالك ثم اضغط «تم إبلاغه».
+في تلغرام الإبلاغ مجاني دائمًا. ومن سجّل من الموقع يكمل بضغطة: مدينته وأحياؤه محفوظة، فيختار خدماته ويؤكّد فقط.</p>
 
 {% if top_texts %}
 <div class="card">
@@ -22,7 +23,9 @@
       <tr>
         <td>{{ r.when }}</td>
         <td><strong>{{ r.text }}</strong>{% if r.same > 1 and not r.notified_at %}<br><span class="muted">طلبها {{ r.same }} فنيين</span>{% endif %}</td>
-        <td>{{ r.name or '—' }}<br><a style="direction:ltr; display:inline-block;" href="https://wa.me/{{ r.phone }}" target="_blank">+{{ r.phone }}</a></td>
+        <td>{{ r.name or '—' }}{% if r.city %} <span class="muted">• {{ r.city }}</span>{% endif %}<br>
+          {% if r.phone %}<a style="direction:ltr; display:inline-block;" href="https://wa.me/{{ r.phone }}" target="_blank">+{{ r.phone }}</a>{% endif %}
+          <span class="badge">{{ {'wa': 'واتساب', 'web': 'الموقع', 'tg': 'تلغرام'}.get(r.channel, r.channel) }}</span></td>
         <td>
           {% if r.notified_at %}<span class="badge active">✅ أُبلغ</span>{% if r.notified_name %}<br><span class="muted">{{ r.notified_name }}</span>{% endif %}
           {% else %}<span class="badge">بانتظار الإضافة</span>{% endif %}
@@ -38,7 +41,7 @@
             </select>
             <div style="display:flex; gap:6px; flex-wrap:wrap;">
               {% if r.window %}<button type="submit" name="action" value="notify" class="success">📤 أبلغه (مجانًا)</button>
-              {% else %}<span class="muted">⏳ خارج نافذة 24 ساعة — اتصل به</span>{% endif %}
+              {% elif r.channel == 'tg' %}<span class="muted">لا يمكن الإرسال له</span>{% else %}<span class="muted">⏳ خارج نافذة 24 ساعة — اتصل به</span>{% endif %}
               <button type="submit" name="action" value="mark" class="secondary">تم إبلاغه</button>
             </div>
           </form>

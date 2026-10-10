@@ -417,18 +417,51 @@ def _save_missing(api, wa_id, data, text):
     q = " ".join((text or "").split())[:60]
     if len(q) < 2 or q.isdigit():
         return _flow().hint_once(api, wa_id, "r_missing", data, lambda: _ask_missing(api, wa_id, data))
-    r = data.get("r") or {}
+    return save_missing_request(api, wa_id, q, (data.get("r") or {}).get("name") or "")
+
+
+def save_missing_request(api, wa_id, q, name, channel="wa", city="", saved=None):
+    """يحفظ الطلب، ينبّه المالك، ويشكر الفني. من الموقع (saved) نحفظ مدينته وأحياءه ليكمل لاحقًا بضغطة."""
     phone = _digits(wa_id)
-    db.add_profession_request(phone, r.get("name") or "", q, get_lang())
+    db.add_profession_request(phone, name, q, get_lang(), channel=channel, city=city, data=saved)
     try:
         import ratings
-        ratings._send_admin(f"🙋 مهنة مقترحة من فني: «{q}»\n👤 {r.get('name') or '—'} • +{phone}\n"
-                            f"راجعها من لوحة التحكم ← «مهن مقترحة».")
+        src = {"web": "الموقع", "wa": "واتساب"}.get(channel, channel)
+        ratings._send_admin(f"🙋 مهنة مقترحة من فني ({src}): «{q}»\n👤 {name or '—'} • +{phone}"
+                            + (f" • {city}" if city else "") + "\nراجعها من لوحة التحكم ← «مهن مقترحة».")
     except Exception:
         pass
-    api.text(wa_id, tr("شكرًا لك 🌟 سجّلنا مهنتك «{q}»، وسنراجعها ونضيفها قريبًا بإذن الله، "
-                       "ثم نبلغك هنا لتكمل تسجيلك.", q=_flow().clip_text(q)))
+    if city:
+        api.text(wa_id, tr("شكرًا لك يا {name} 🌟\nوصلنا طلبك، وسجّلنا مهنتك «{q}» في {city}.\n"
+                           "هذه المهنة غير موجودة في «فنّي» حاليًا، وسنراجعها ونضيفها قريبًا بإذن الله، "
+                           "ثم نبلغك هنا لتكمل تسجيلك خلال دقيقة.", name=name, q=_flow().clip_text(q), city=city))
+    else:
+        api.text(wa_id, tr("شكرًا لك 🌟 سجّلنا مهنتك «{q}»، وسنراجعها ونضيفها قريبًا بإذن الله، "
+                           "ثم نبلغك هنا لتكمل تسجيلك.", q=_flow().clip_text(q)))
     return None, {}
+
+
+def continue_request(api, wa_id, req_id):
+    """زر «سجّلني الآن» بعد إضافة المهنة: من الموقع نكمل ببياناته المحفوظة (الخدمات ثم التأكيد)، وإلا تسجيل عادي."""
+    req = db.get_profession_request(req_id) if req_id else None
+    me = _digits(wa_id)
+    p = db.get_professional_by_wa_id(me)
+    if p and p.get("status") != db.STATUS_REJECTED:
+        return _status(api, wa_id, p)
+    if not req or req.get("phone") != me or not req.get("notified_pid") or not req.get("data_json"):
+        return start(api, wa_id)
+    domain, prof = professions.get_profession(req["notified_pid"], "ar")
+    if not prof:
+        return start(api, wa_id)
+    r = json.loads(req["data_json"])
+    r.pop("missing", None)
+    r.update(pid=prof["id"], pname=prof["name"], domain=(domain or {}).get("name", ""), p2id=None, p2name=None,
+             wide=bool(prof.get("allow_city_wide")), all_services=list(prof.get("services") or []), services=[],
+             prefilled=True)
+    data = {"r": r}
+    if r["all_services"]:
+        return _ask_services(api, wa_id, data, 0)
+    return _confirm(api, wa_id, data)
 
 
 def _select_profession(api, wa_id, pid, data, silent=False):
@@ -512,6 +545,8 @@ def _ask_location(api, wa_id, data):
         return _save_edit(api, wa_id, data)
     if data.get("r", {}).get("adding2"):
         return _finish_add2(api, wa_id, data)
+    if data.get("r", {}).get("prefilled"):   # أكمل من طلب «مهنتي غير موجودة» بالموقع: مدينته وأحياؤه محفوظة
+        return _confirm(api, wa_id, data)
     api.location_request(wa_id, tr("📍 شارك موقعك (مكان عملك أو منزلك) من الزر أدناه، لنحدد مدينتك وأقرب الأحياء إليك."))
     return "r_loc", data
 
@@ -1071,6 +1106,11 @@ def on_choice(api, wa_id, rid, state, data):
             return _telegram_link(api, wa_id, data)
         api.text(wa_id, tr("حسنًا 👍 يمكنك ربطه في أي وقت من «🛠️ أنا فني». اكتب s للعودة إلى القائمة."))
         return "menu", {}
+    if act == "cont":
+        try:
+            return continue_request(api, wa_id, int(p[1]) if len(p) > 1 else 0)
+        except ValueError:
+            return start(api, wa_id)
     if act in ("again", "new"):
         return begin(api, wa_id) if db.is_wa_registrar(_digits(wa_id)) else start(api, wa_id)
     if not r.get("name"):            # زر قديم من جلسة منتهية (مرت المهلة) ← القائمة الرئيسية

@@ -415,6 +415,10 @@ TEXTS: dict[str, dict[str, str]] = {
         "en": "🎉 We've added your trade «{p}» to Fanni! Tap the button below to finish your free registration in a minute.",
         "ur": "🎉 ہم نے آپ کا کام «{p}» «فنی» میں شامل کر دیا ہے! ایک منٹ میں مفت رجسٹریشن مکمل کرنے کے لیے نیچے بٹن دبائیں۔",
     },
+    "شكرًا لك يا {name} 🌟\nوصلنا طلبك، وسجّلنا مهنتك «{q}» في {city}.\nهذه المهنة غير موجودة في «فنّي» حاليًا، وسنراجعها ونضيفها قريبًا بإذن الله، ثم نبلغك هنا لتكمل تسجيلك خلال دقيقة.": {
+        "en": "Thank you, {name} 🌟\nWe've received your request and noted your profession «{q}» in {city}.\nThis profession isn't on «Fanni» yet; we'll review and add it soon, then let you know here so you can finish registering in a minute.",
+        "ur": "شکریہ {name} 🌟\nآپ کی درخواست مل گئی، اور ہم نے {city} میں آپ کا پیشہ «{q}» درج کر لیا ہے۔\nیہ پیشہ ابھی «فنی» میں موجود نہیں؛ ہم جلد اس کا جائزہ لے کر اسے شامل کریں گے، پھر یہیں آپ کو بتائیں گے تاکہ آپ ایک منٹ میں رجسٹریشن مکمل کر سکیں۔",
+    },
     "🛠️ سجّلني الآن": {"en": "🛠️ Register me now", "ur": "🛠️ ابھی رجسٹر کریں"},
     "ما الخدمات التي تقدمها في مهنة «{pname}»؟ 👇\nاضغط الزر، وحدّد كل خدماتك ☑️ ثم «تم التحديد».": {
         "en": "Which «{pname}» services do you offer? 👇\nTap the button, tick all your services ☑️ then «✅ تم التحديد» (Done).",

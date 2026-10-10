@@ -582,6 +582,11 @@ def init_db():
         conn.execute("""CREATE TABLE IF NOT EXISTS profession_requests (
             id INTEGER PRIMARY KEY AUTOINCREMENT, phone TEXT NOT NULL, name TEXT, text TEXT NOT NULL,
             lang TEXT NOT NULL DEFAULT 'ar', created_at TEXT NOT NULL, notified_at TEXT, notified_pid TEXT)""")
+        rqcols = {r[1] for r in conn.execute("PRAGMA table_info(profession_requests)").fetchall()}
+        for col, ddl in (("channel", "TEXT NOT NULL DEFAULT 'wa'"), ("tg_id", "INTEGER"), ("city", "TEXT"),
+                         ("data_json", "TEXT")):
+            if col not in rqcols:   # wa / web / tg — وبيانات نموذج الموقع (المدينة والأحياء) ليكمل بضغطة
+                conn.execute(f"ALTER TABLE profession_requests ADD COLUMN {col} {ddl}")
         # مهنة عُدّلت من اللوحة (اسمها/خدماتها) — مزامنة ملف المهن عند تشغيل البوت لا تمسح تعديلات المالك
         pcols = {r[1] for r in conn.execute("PRAGMA table_info(professions)").fetchall()}
         if pcols and "custom" not in pcols:
@@ -2560,18 +2565,29 @@ def set_admin_user_disabled(user_id: int, disabled: bool):
 
 # ─────────────────────────── سجل التواصل مع الفني + نشاط الموظفين ───────────────────────────
 
-def add_profession_request(phone: str, name: str, text: str, lang: str = "ar"):
-    """فني طلب مهنة غير موجودة — طلب واحد مفتوح لكل رقم ونص (التكرار يحدّث التاريخ فقط)."""
+def add_profession_request(phone: str, name: str, text: str, lang: str = "ar", channel: str = "wa",
+                           tg_id: int | None = None, city: str = "", data: dict | None = None) -> int:
+    """فني طلب مهنة غير موجودة — طلب واحد مفتوح لكل رقم/حساب ونص (التكرار يحدّث البيانات فقط)."""
     now = datetime.now(timezone.utc).isoformat()
+    dj = json.dumps(data, ensure_ascii=False) if data else None
     with get_conn() as conn:
-        row = conn.execute("SELECT id FROM profession_requests WHERE phone=? AND text=? AND notified_at IS NULL",
-                           (phone, text)).fetchone()
+        row = conn.execute(
+            "SELECT id FROM profession_requests WHERE text=? AND notified_at IS NULL AND "
+            "((phone != '' AND phone=?) OR (tg_id IS NOT NULL AND tg_id=?))", (text, phone, tg_id)).fetchone()
         if row:
-            conn.execute("UPDATE profession_requests SET created_at=?, name=COALESCE(NULLIF(?, ''), name) WHERE id=?",
-                         (now, name, row["id"]))
-        else:
-            conn.execute("INSERT INTO profession_requests (phone, name, text, lang, created_at) VALUES (?,?,?,?,?)",
-                         (phone, name, text, lang, now))
+            conn.execute("UPDATE profession_requests SET created_at=?, name=COALESCE(NULLIF(?, ''), name), lang=?, "
+                         "channel=?, city=COALESCE(NULLIF(?, ''), city), data_json=COALESCE(?, data_json) WHERE id=?",
+                         (now, name, lang, channel, city, dj, row["id"]))
+            return row["id"]
+        cur = conn.execute("INSERT INTO profession_requests (phone, name, text, lang, created_at, channel, tg_id, city, data_json) "
+                           "VALUES (?,?,?,?,?,?,?,?,?)", (phone or "", name, text, lang, now, channel, tg_id, city, dj))
+        return cur.lastrowid
+
+
+def get_profession_request(req_id: int) -> dict | None:
+    with get_conn() as conn:
+        r = conn.execute("SELECT * FROM profession_requests WHERE id=?", (req_id,)).fetchone()
+        return dict(r) if r else None
 
 
 def list_profession_requests() -> list[dict]:

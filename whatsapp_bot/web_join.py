@@ -25,6 +25,7 @@ CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"   # بلا 0/O/1/I/L المت�
 VALID_HOURS = 48
 MAX_DISTRICTS = 5
 LANGS = ("ar", "en", "ur")
+MISSING = "__missing"
 
 CONFIRM_TEXT = {
     "ar": "تأكيد تسجيلي في «فنّي»: {code}",
@@ -132,6 +133,7 @@ ERR = {
     "dist": {"ar": "اختر حيًا واحدًا على الأقل (حتى 5)، أو «المدينة كاملة» إن كانت متاحة لمهنتك.",
              "en": "Choose at least one district (up to 5), or «Whole city» if available for your profession.",
              "ur": "کم از کم ایک محلہ منتخب کریں (زیادہ سے زیادہ 5)، یا «پورا شہر» اگر آپ کے پیشے کے لیے دستیاب ہو۔"},
+    "miss": {"ar": "اكتب اسم مهنتك.", "en": "Type your profession.", "ur": "اپنے پیشے کا نام لکھیں۔"},
     "busy": {"ar": "محاولات كثيرة، حاول بعد قليل.", "en": "Too many attempts, try again later.",
              "ur": "بہت زیادہ کوششیں، تھوڑی دیر بعد کوشش کریں۔"},
 }
@@ -151,7 +153,16 @@ def submit():
     if not name:
         return _err("name", lang)
 
-    dom1, p1 = professions.get_profession(str(f.get("pid") or ""), "ar")
+    missing = ""
+    if str(f.get("pid") or "") == MISSING:
+        # «مهنتي غير موجودة»: نحفظ الطلب مع مدينته وأحيائه، ونبلغه عند إضافة المهنة ليكمل بضغطة
+        missing = " ".join(str(f.get("missing") or "").split())[:60]
+        if len(missing) < 2:
+            return _err("miss", lang)
+        dom1, p1 = None, {"id": None, "name": missing, "services": [], "allow_city_wide": False}
+        f["p2id"] = None
+    else:
+        dom1, p1 = professions.get_profession(str(f.get("pid") or ""), "ar")
     if not p1:
         return _err("prof", lang)
     dom2, p2 = professions.get_profession(str(f.get("p2id") or ""), "ar") if f.get("p2id") else (None, None)
@@ -187,6 +198,8 @@ def submit():
          "p2id": p2["id"] if p2 else None, "p2name": p2["name"] if p2 else None,
          "city": city["name"], "city_id": city["id"], "country": city.get("country") or "SA",
          "has_d": has_d, "whole": whole or not has_d, "chosen": chosen}
+    if missing:
+        r["missing"] = missing
     ensure_table()
     purge_old()
     code = "FN-" + "".join(secrets.choice(CODE_ALPHABET) for _ in range(5))
@@ -231,6 +244,13 @@ def confirm(api, wa_id: str, code: str):
         api.text(wa_id, tr("رقمك مسجّل مسبقًا في «فنّي» 👇"))
         return register._status(api, wa_id, p)
     r = json.loads(row["data_json"])
+    if r.get("missing"):
+        # مهنته غير موجودة: لا يُسجَّل الآن — نحفظ طلبه (برقمه الحقيقي) ونشكره وننبّه المالك
+        with db.get_conn() as conn:
+            conn.execute("UPDATE web_registrations SET used_at=?, used_by=? WHERE code=?",
+                         (datetime.now(timezone.utc).isoformat(), register._digits(wa_id), code))
+        return register.save_missing_request(api, wa_id, r["missing"], r.get("name") or "", channel="web",
+                                             city=r.get("city") or "", saved=r)
     state, data = register._save(api, wa_id, {"r": r})
     with db.get_conn() as conn:
         conn.execute("UPDATE web_registrations SET used_at=?, used_by=? WHERE code=?",
