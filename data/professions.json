@@ -228,6 +228,15 @@
             "ديكورات جبسية",
             "تركيب إضاءة مخفية بالجبس"
           ]
+        },
+        {
+          "id": "p22",
+          "name": "بناء هناجر",
+          "subcategory": "هياكل معدنية",
+          "isco_code": "7214",
+          "official_name_en": "Structural-Metal Preparers and Erectors",
+          "status": "يحتاج تحقق",
+          "services": []
         }
       ]
     },
@@ -325,15 +334,6 @@
       "id": "d3",
       "name": "المعادن والميكانيكا",
       "professions": [
-        {
-          "id": "p22",
-          "name": "بناء هناجر",
-          "subcategory": "هياكل معدنية",
-          "isco_code": "7214",
-          "official_name_en": "Structural-Metal Preparers and Erectors",
-          "status": "يحتاج تحقق",
-          "services": []
-        },
         {
           "id": "p23",
           "name": "حداد",
