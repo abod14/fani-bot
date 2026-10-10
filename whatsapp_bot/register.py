@@ -49,7 +49,7 @@ def start(api, wa_id):
     if p and p.get("status") != db.STATUS_REJECTED and not db.is_wa_registrar(me):
         return _status(api, wa_id, p)
     api.text(wa_id, tr("مرحبًا بك 🙌 سنسجّلك في «فنّي» مجانًا خلال دقيقة، لتظهر للعملاء في واتساب وتلغرام.\n\n"
-                       "✍️ اكتب اسمك (الاسم الذي سيظهر للعملاء):"))
+                       "✍️ اكتب اسمك بالحروف العربية (الاسم الذي سيظهر للعملاء):"))
     return "r_name", {"r": {}}
 
 
@@ -81,17 +81,17 @@ def _status(api, wa_id, p, extra=""):
 def on_text(api, wa_id, state, data, body):
     r = data.setdefault("r", {})
     if state == "r_name":
-        name = re.sub(r"\s+", " ", (body or "").strip())
-        if not (2 <= len(name) <= 40):
+        name = db.arabic_name(body)   # طلب المالك: الاسم بالحروف العربية فقط
+        if not name:
             return _flow().hint_once(api, wa_id, state, data,
-                                     lambda: api.text(wa_id, tr("اكتب اسمًا يتراوح طوله بين حرفين و40 حرفًا 🙏")))
+                                     lambda: api.text(wa_id, tr("✍️ اكتب اسمك بالحروف العربية فقط (من حرفين إلى 40 حرفًا)، مثل: محمد أحمد 🙏")))
         r["name"] = name
         return _ask_number(api, wa_id, data)
     if state == "r_ename":
-        name = re.sub(r"\s+", " ", (body or "").strip())
-        if not (2 <= len(name) <= 40) or not r.get("edit_id"):
+        name = db.arabic_name(body)
+        if not name or not r.get("edit_id"):
             return _flow().hint_once(api, wa_id, state, data,
-                                     lambda: api.text(wa_id, tr("اكتب اسمًا يتراوح طوله بين حرفين و40 حرفًا 🙏")))
+                                     lambda: api.text(wa_id, tr("✍️ اكتب اسمك بالحروف العربية فقط (من حرفين إلى 40 حرفًا)، مثل: محمد أحمد 🙏")))
         db.update_professional_name(r["edit_id"], name)
         return _status(api, wa_id, db.get_professional_by_id(r["edit_id"]), extra="\n\n" + tr("✅ تم تحديث بياناتك."))
     if state == "r_num":
@@ -957,7 +957,7 @@ def _start_edit(api, wa_id, what):
     if what == "svc" and r["all_services"]:
         return _ask_services(api, wa_id, data)
     if what == "name":
-        api.text(wa_id, tr("✍️ اكتب الاسم الجديد (الاسم الذي سيظهر للعملاء):"))
+        api.text(wa_id, tr("✍️ اكتب الاسم الجديد بالحروف العربية (الاسم الذي سيظهر للعملاء):"))
         return "r_ename", data
     return _ask_location(api, wa_id, data)
 
