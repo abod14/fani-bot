@@ -103,7 +103,7 @@ a{display:inline-block;margin-top:18px;background:#0f766e;color:#fff;padding:12p
 def privacy():
     import db
     n = db.archive_days()   # المدة التي يختارها المالك بصفحة «المحذوفون» — النص يطابقها دائمًا
-    ar = (f"وإن كنت فنيًا نحتفظ باسمك ورقمك وسبب الحذف إن ذكرته مدة {db.days_text(n)} فقط، ثم تُحذف نهائيًا حتى من الأرشيف." if n
+    ar = (f"وإن كنت فنيًا نحتفظ باسمك ورقمك وسبب الحذف إن ذكرته {db.days_text(n)} فقط، ثم تُحذف نهائيًا حتى من الأرشيف." if n
           else "وإن كنت فنيًا يُحذف اسمك ورقمك فورًا.")
     en = (f"For technicians, we keep your name, number and deletion reason (if given) for {db.days_text(n, 'en')} only, "
           "then they are permanently deleted, including from our archive." if n
