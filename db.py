@@ -2910,6 +2910,26 @@ def list_wa_registrars() -> list[dict]:
         return [dict(r) for r in rows]
 
 
+def registrar_stats(phone: str) -> dict:
+    """أرقام مختصرة لمسوّق (للإرسال على واتساب): الإجمالي/هذا الشهر/النشطون/المشتركون/راسلوا البوت + أكثر المهن والمدن."""
+    from collections import Counter
+    phone = _phone_digits(phone)
+    month = datetime.now(timezone.utc).strftime("%Y-%m")
+    with get_conn() as conn:
+        pros = [dict(r) for r in conn.execute(
+            "SELECT p.*, (SELECT 1 FROM wa_last_seen w WHERE w.wa_id = p.wa_id) AS messaged "
+            "FROM professionals p WHERE p.registered_by = ?", (phone,)).fetchall()]
+    return {
+        "total": len(pros),
+        "month": sum(1 for p in pros if (p.get("created_at") or "").startswith(month)),
+        "active": sum(1 for p in pros if p["status"] == STATUS_ACTIVE),
+        "subscribed": sum(1 for p in pros if p.get("is_subscribed")),
+        "messaged": sum(1 for p in pros if p.get("messaged")),
+        "professions": Counter(profession_display(p) for p in pros).most_common(5),
+        "cities": Counter(p["city"] for p in pros).most_common(5),
+    }
+
+
 def count_otp_since(sender: str, hours: int = 24) -> int:
     since = (datetime.now(timezone.utc) - timedelta(hours=hours)).isoformat()
     with get_conn() as conn:

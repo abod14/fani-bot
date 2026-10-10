@@ -68,6 +68,8 @@ WA_TPL_MONTHLY_SUMMARY = os.environ.get("WA_TPL_MONTHLY_SUMMARY", "fanni_monthly
 WA_TPL_VERIFY = os.environ.get("WA_TPL_VERIFY", "fanni_verify_code").split(",")
 # إشعار «تم تسجيلك» للفني اللي سجّله مسوّق/شخص آخر على رقمه (خدمي)
 WA_TPL_REGISTERED = os.environ.get("WA_TPL_REGISTERED", "fanni_registered").split(",")
+# ملخص المسوّق (يرسله المالك من صفحة «المسوّقون») — يُستخدم فقط إذا المسوّق ما راسل البوت آخر 24 ساعة
+WA_TPL_REGISTRAR_SUMMARY = os.environ.get("WA_TPL_REGISTRAR_SUMMARY", "fanni_registrar_summary").split(",")
 WA_TPL_CUSTOMER_SEARCHING = os.environ.get("WA_TPL_CUSTOMER_SEARCHING", "fanni_request_alert,fanni_customer_searching").split(",")
 
 # ───────────────────────── قناة تلغرام المرتبطة بالبوت ─────────────────────────

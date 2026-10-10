@@ -42,6 +42,12 @@ TEMPLATES = [
                              "الذين يبحثون عن خدمتك في منطقتك.",
                      "example": {"body_text": [["عبدالله", "سباك"]]}},
                     {"type": "BUTTONS", "buttons": [{"type": "QUICK_REPLY", "text": "حسابي"}]}]},
+    # ملخص المسوّق (يرسله المالك يدويًا من صفحة «المسوّقون») — بلا أزرار
+    {"name": "fanni_registrar_summary", "language": "ar", "category": "UTILITY",
+     "components": [{"type": "BODY",
+                     "text": "ملخص تسجيلاتك في «فنّي» حتى {{1}}: عدد الفنيين الذين سجّلتهم {{2}}، النشطون منهم {{3}}، "
+                             "والمشتركون {{4}}، وعدد من سجّلتهم هذا الشهر {{5}}.",
+                     "example": {"body_text": [["2026-10-10", "25", "22", "3", "8"]]}}]},
     # رمز التحقق (تسجيل فني على رقم آخر) — نص ميتا الجاهز، تصنيف «مصادقة» (الأرخص)
     {"name": "fanni_verify_code", "language": "ar", "category": "AUTHENTICATION",
      "components": [{"type": "BODY", "add_security_recommendation": True},
@@ -111,8 +117,10 @@ def main():
         send_url = f"https://graph.facebook.com/{config.WA_GRAPH_VERSION}/{config.WA_PHONE_NUMBER_ID}/messages"
         for name in approved:
             comps = [{"type": "body", "parameters": [{"type": "text", "text": v} for v in examples[name]]}]
+            nbtn = sum(len(c.get("buttons", [])) for t in TEMPLATES if t["name"] == name
+                       for c in t["components"] if c.get("type") == "BUTTONS")
             comps += [{"type": "button", "sub_type": "quick_reply", "index": str(i),
-                       "parameters": [{"type": "payload", "payload": p}]} for i, p in enumerate(["R:sub", "R:mute"])]
+                       "parameters": [{"type": "payload", "payload": p}]} for i, p in enumerate(["R:sub", "R:mute"][:nbtn])]
             r = requests.post(send_url, headers=headers, timeout=30, json={
                 "messaging_product": "whatsapp", "to": to, "type": "template",
                 "template": {"name": name, "language": {"code": "ar"}, "components": comps}})

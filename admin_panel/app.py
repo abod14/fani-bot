@@ -864,6 +864,54 @@ def professional_reset_rating(professional_id):
     return redirect(url_for("professional_detail", professional_id=professional_id))
 
 
+@app.route("/registrars/<phone>/send", methods=["POST"])
+@super_required
+def registrar_send(phone):
+    """يرسل للمسوّق ملخصًا مختصرًا على واتساب: نصًا مجانيًا لو راسل البوت آخر 24 ساعة، وإلا قالبًا (مدفوعًا)."""
+    from datetime import datetime, timezone
+    import ratings
+    from whatsapp_bot.api import WhatsAppAPI
+    phone = db._phone_digits(phone)
+    reg = next((r for r in db.list_wa_registrars() if r["phone"] == phone), None)
+    if not reg:
+        flash("المسوّق غير موجود.", "error")
+        return redirect(url_for("registrars_page"))
+    st = db.registrar_stats(phone)
+    date = _riyadh(datetime.now(timezone.utc).isoformat())[:10]
+    api = WhatsAppAPI()
+    if ratings.wa_last_seen_ok(phone):
+        lines = [f"📊 ملخص تسجيلاتك في «فنّي» حتى {date}" + (f" يا {reg['name']}" if reg.get("name") else ""), "",
+                 f"• عدد من سجّلتهم: {st['total']} (هذا الشهر: {st['month']})",
+                 f"• النشطون: {st['active']}", f"• المشتركون: {st['subscribed']}",
+                 f"• راسلوا البوت بأنفسهم: {st['messaged']}"]
+        if st["professions"]:
+            lines += ["", "🛠️ أكثر المهن: " + "، ".join(f"{n} ({c})" for n, c in st["professions"])]
+        if st["cities"]:
+            lines += ["📍 المدن: " + "، ".join(f"{n} ({c})" for n, c in st["cities"])]
+        r = api.text(phone, "\n".join(lines))
+        how = "رسالة نصية مجانية (راسل البوت خلال آخر 24 ساعة)"
+    else:
+        r = None
+        for tpl in config.WA_TPL_REGISTRAR_SUMMARY:
+            r = api.template(phone, tpl.strip(), [date, str(st["total"]), str(st["active"]), str(st["subscribed"]),
+                                                   str(st["month"])])
+            if r is not None and getattr(r, "status_code", 500) < 400:
+                break
+        how = "قالب واتساب (رسالة مدفوعة بسعر رسائل الخدمة)"
+    if r is not None and getattr(r, "status_code", 500) < 400:
+        flash(f"✅ أُرسل الملخص إلى +{phone} — {how}.", "success")
+    else:
+        err = ""
+        try:
+            err = (r.json().get("error") or {}).get("message", "") if r is not None else ""
+        except Exception:
+            pass
+        flash("❌ لم يُرسل الملخص. " + ("قالب «fanni_registrar_summary» لم تقبله ميتا بعد، أو " if "template" in err.lower() or not err else "")
+              + "اطلب من المسوّق أن يرسل أي رسالة للبوت ثم أعد المحاولة خلال 24 ساعة (تصبح مجانية)." + (f" [{err}]" if err else ""),
+              "error")
+    return redirect(url_for("registrars_page"))
+
+
 @app.route("/registrars/<phone>/export.xlsx")
 @super_required
 def registrar_export(phone):
