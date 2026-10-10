@@ -69,6 +69,11 @@ h2{font-size:34px;line-height:1.35;font-weight:800}
 .nav ul a{text-decoration:none;color:var(--ink);font-weight:600;font-size:15px}
 .nav ul a:hover{color:var(--brand)}
 .nav .btn{padding:9px 18px;font-size:15px}
+.navr{display:flex;align-items:center;gap:10px}
+.langs{display:flex;gap:2px;background:var(--raised);border:1px solid var(--line);border-radius:999px;padding:3px}
+.langs button{border:0;background:none;font:inherit;font-size:13px;font-weight:600;color:var(--muted);padding:3px 10px;border-radius:999px;cursor:pointer;line-height:1.6}
+.langs button[aria-pressed=true]{background:var(--brand);color:#fff}
+html[dir=ltr] .hero h1{letter-spacing:-.5px}
 
 /* hero */
 .hero{padding:56px 0 72px;overflow:hidden}
@@ -180,7 +185,12 @@ footer .legal{border-top:1px solid rgba(255,255,255,.12);margin-top:32px;padding
   .phone{width:272px}
   .cta .box{padding:40px 22px;border-radius:24px}
   .cta h2{font-size:26px}
-  .nav .brand img{height:32px}
+  .nav .brand img{height:28px}
+  .nav .wrap{height:64px}
+  .navr{gap:6px}
+  .nav .btn{padding:7px 10px;font-size:12.5px;gap:6px}
+  .nav .btn svg{display:none}
+  .langs button{padding:2px 7px;font-size:12px}
 }
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.btn{transition:none}}
 </style>
@@ -191,11 +201,14 @@ footer .legal{border-top:1px solid rgba(255,255,255,.12);margin-top:32px;padding
   <div class="wrap">
     <a class="brand" href="/" aria-label="فنّي — الصفحة الرئيسية"><img src="/img/fanni-lockup.svg" alt="فنّي" width="160" height="38"></a>
     <ul>
-      <li><a href="#how">كيف يعمل</a></li>
-      <li><a href="#pros">للفنيين</a></li>
-      <li><a href="#profs">المهن</a></li>
+      <li><a href="#how" data-i18n="nav_how">كيف يعمل</a></li>
+      <li><a href="#pros" data-i18n="nav_pros">للفنيين</a></li>
+      <li><a href="#profs" data-i18n="nav_profs">المهن</a></li>
     </ul>
-    <a class="btn btn-primary" href="https://wa.me/15556341384?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1 2.7c.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3z"/></svg>ابدأ الآن</a>
+    <div class="navr">
+      <div class="langs" role="group" aria-label="Language"><button type="button" data-l="ar" aria-pressed="true">ع</button><button type="button" data-l="en" aria-pressed="false">EN</button><button type="button" data-l="ur" aria-pressed="false">اردو</button></div>
+      <a class="btn btn-primary join-link" href="/join.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h12l4 4v12H4z"/><path d="M8 12h8M8 16h5"/></svg><span data-i18n="nav_join">سجّل الآن عبر الموقع</span></a>
+    </div>
   </div>
 </header>
 
@@ -203,17 +216,18 @@ footer .legal{border-top:1px solid rgba(255,255,255,.12);margin-top:32px;padding
 <section class="hero">
   <div class="wrap">
     <div>
-      <span class="eyebrow"><i></i>بلا وسيط وبلا عمولة</span>
-      <h1>أقرب <em>فنّي</em> إليك…<br>بخطوتين</h1>
-      <p class="lead">اختر المهنة، وشارك موقعك، ونعرض لك أقرب الفنيين والحِرفيين في حيّك — ثم تتواصل معهم مباشرة عبر واتساب.</p>
+      <span class="eyebrow"><i></i><span data-i18n="eyebrow">بلا وسيط وبلا عمولة</span></span>
+      <h1 data-i18n-html="h1">أقرب <em>فنّي</em> إليك…<br>بخطوتين</h1>
+      <p class="lead" data-i18n="hero_lead">اختر المهنة، وشارك موقعك، ونعرض لك أقرب الفنيين والحِرفيين في حيّك — ثم تتواصل معهم مباشرة عبر واتساب.</p>
       <div class="btns stack">
-        <a class="btn btn-wa" href="https://wa.me/15556341384?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1 2.7c.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3z"/></svg>ابدأ عبر واتساب</a>
-        <a class="btn btn-ghost" href="https://t.me/FanniServiceBot"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.3-5 9.2-8.3c.4-.4-.1-.6-.6-.2L6.2 13.1l-4.9-1.5c-1-.3-1.1-1 .2-1.5L20.6 2.8c.9-.3 1.6.2 1.3 1.5z"/></svg>أو عبر تلغرام</a>
+        <a class="btn btn-wa" href="https://wa.me/15556341384?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1 2.7c.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3z"/></svg><span data-i18n="start_wa">ابدأ عبر واتساب</span></a>
+        <a class="btn btn-ghost" href="https://t.me/FanniServiceBot"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.3-5 9.2-8.3c.4-.4-.1-.6-.6-.2L6.2 13.1l-4.9-1.5c-1-.3-1.1-1 .2-1.5L20.6 2.8c.9-.3 1.6.2 1.3 1.5z"/></svg><span data-i18n="or_tg">أو عبر تلغرام</span></a>
+        <a class="btn btn-ghost join-link" href="/join.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h12l4 4v12H4z"/><path d="M8 12h8M8 16h5"/></svg><span data-i18n="reg_web_pro">سجّل كفنّي عبر الموقع</span></a>
       </div>
       <ul class="checks">
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>مجاني للعملاء</li>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>قرابة 70 مهنة</li>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>تواصل مباشر مع الفني</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg><span data-i18n="chk1">مجاني للعملاء</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg><span data-i18n="chk2">قرابة 70 مهنة</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg><span data-i18n="chk3">تواصل مباشر مع الفني</span></li>
       </ul>
     </div>
 
@@ -221,15 +235,15 @@ footer .legal{border-top:1px solid rgba(255,255,255,.12);margin-top:32px;padding
       <div class="ring"></div>
       <div class="phone">
         <div class="screen">
-          <div class="chat-top"><img src="/img/fanni-icon.svg" alt=""><div><b>فنّي</b><small>حساب أعمال</small></div></div>
+          <div class="chat-top"><img src="/img/fanni-icon.svg" alt=""><div><b>فنّي</b><small data-i18n="mk_biz">حساب أعمال</small></div></div>
           <div class="msgs">
-            <div class="m me">السلام عليكم</div>
-            <div class="m bot">أهلًا بك في «فنّي» 🛠️<br>ما المهنة التي تحتاجها؟</div>
-            <div class="opts"><span>فني تكييف وتبريد</span><span>سبّاك</span><span>كهربائي منازل</span></div>
-            <div class="m me">فني تكييف وتبريد</div>
-            <div class="m bot">📍 هذه أقرب النتائج إليك:</div>
-            <div class="res"><div><b>فني تكييف</b><small>حي النرجس</small></div><span class="km">1.2 كم</span></div>
-            <div class="res"><div><b>فني تكييف</b><small>حي الياسمين</small></div><span class="km">2.8 كم</span></div>
+            <div class="m me" data-i18n="mk_hi">السلام عليكم</div>
+            <div class="m bot" data-i18n-html="mk_welcome">أهلًا بك في «فنّي» 🛠️<br>ما المهنة التي تحتاجها؟</div>
+            <div class="opts"><span data-i18n="p_ac">فني تكييف وتبريد</span><span data-i18n="p_plumb">سبّاك</span><span data-i18n="p_elec">كهربائي منازل</span></div>
+            <div class="m me" data-i18n="p_ac">فني تكييف وتبريد</div>
+            <div class="m bot" data-i18n="mk_res">📍 هذه أقرب النتائج إليك:</div>
+            <div class="res"><div><b data-i18n="mk_ac">فني تكييف</b><small data-i18n="mk_d1">حي النرجس</small></div><span class="km" data-i18n="km1">1.2 كم</span></div>
+            <div class="res"><div><b data-i18n="mk_ac">فني تكييف</b><small data-i18n="mk_d2">حي الياسمين</small></div><span class="km" data-i18n="km2">2.8 كم</span></div>
           </div>
         </div>
       </div>
@@ -238,19 +252,19 @@ footer .legal{border-top:1px solid rgba(255,255,255,.12);margin-top:32px;padding
 </section>
 
 <div class="countries">
-  <div class="wrap"><b>متاح في</b><span>السعودية</span><span>مصر</span><span>الإمارات</span><span>الكويت</span><span>قطر</span><span>البحرين</span><span>عُمان</span></div>
+  <div class="wrap"><b data-i18n="avail">متاح في</b><span data-i18n="c_sa">السعودية</span><span data-i18n="c_eg">مصر</span><span data-i18n="c_ae">الإمارات</span><span data-i18n="c_kw">الكويت</span><span data-i18n="c_qa">قطر</span><span data-i18n="c_bh">البحرين</span><span data-i18n="c_om">عُمان</span></div>
 </div>
 
 <section id="how">
   <div class="wrap">
     <div class="head center">
-      <h2>كيف يعمل «فنّي»؟</h2>
-      <p class="lead">خطوتان منك، ثم تتواصل مع الفني مباشرة — دون تطبيق تنزّله ولا حساب تنشئه.</p>
+      <h2 data-i18n="how_h">كيف يعمل «فنّي»؟</h2>
+      <p class="lead" data-i18n="how_lead">خطوتان منك، ثم تتواصل مع الفني مباشرة — دون تطبيق تنزّله ولا حساب تنشئه.</p>
     </div>
     <div class="steps">
-      <div class="step"><div class="n">1</div><h3>اختر المهنة</h3><p>سبّاك، كهربائي، فني تكييف، نقل عفش… أو اكتب ما تحتاجه.</p></div>
-      <div class="step"><div class="n">2</div><h3>شارك موقعك</h3><p>أو اختر مدينتك وحيّك، فنعرض لك أقرب الفنيين إليك.</p></div>
-      <div class="step"><div class="n">3</div><h3>تواصل مباشرة</h3><p>اضغط على الفني فتُفتح محادثته في واتساب فورًا، وتتفق معه بنفسك.</p></div>
+      <div class="step"><div class="n">1</div><h3 data-i18n="st1h">اختر المهنة</h3><p data-i18n="st1p">سبّاك، كهربائي، فني تكييف، نقل عفش… أو اكتب ما تحتاجه.</p></div>
+      <div class="step"><div class="n">2</div><h3 data-i18n="st2h">شارك موقعك</h3><p data-i18n="st2p">أو اختر مدينتك وحيّك، فنعرض لك أقرب الفنيين إليك.</p></div>
+      <div class="step"><div class="n">3</div><h3 data-i18n="st3h">تواصل مباشرة</h3><p data-i18n="st3p">اضغط على الفني فتُفتح محادثته في واتساب فورًا، وتتفق معه بنفسك.</p></div>
     </div>
   </div>
 </section>
@@ -258,21 +272,21 @@ footer .legal{border-top:1px solid rgba(255,255,255,.12);margin-top:32px;padding
 <section class="pros" id="pros">
   <div class="wrap">
     <div>
-      <span class="eyebrow"><i></i>للفنيين والحِرفيين</span>
-      <h2 style="margin-top:16px">عملاء من حيّك… بلا عمولة</h2>
-      <p class="lead">سجّل مهنتك والأحياء التي تعمل فيها، وابدأ بالظهور لكل من يبحث عن خدمتك بالقرب منك.</p>
+      <span class="eyebrow"><i></i><span data-i18n="pros_eb">للفنيين والحِرفيين</span></span>
+      <h2 style="margin-top:16px" data-i18n="pros_h">عملاء من حيّك… بلا عمولة</h2>
+      <p class="lead" data-i18n="pros_lead">سجّل مهنتك والأحياء التي تعمل فيها، وابدأ بالظهور لكل من يبحث عن خدمتك بالقرب منك.</p>
       <div class="btns">
-        <a class="btn btn-primary" href="https://wa.me/15556341384?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1 2.7c.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3z"/></svg>سجّل كفنّي عبر واتساب</a>
-        <a class="btn btn-ghost" href="https://t.me/FanniServiceBot"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.3-5 9.2-8.3c.4-.4-.1-.6-.6-.2L6.2 13.1l-4.9-1.5c-1-.3-1.1-1 .2-1.5L20.6 2.8c.9-.3 1.6.2 1.3 1.5z"/></svg>أو عبر تلغرام</a>
-        <a class="btn btn-ghost" href="/join.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h12l4 4v12H4z"/><path d="M8 12h8M8 16h5"/></svg>سجّل من الموقع</a>
+        <a class="btn btn-primary" href="https://wa.me/15556341384?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1 2.7c.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3z"/></svg><span data-i18n="reg_wa">سجّل كفنّي عبر واتساب</span></a>
+        <a class="btn btn-ghost" href="https://t.me/FanniServiceBot"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.3-5 9.2-8.3c.4-.4-.1-.6-.6-.2L6.2 13.1l-4.9-1.5c-1-.3-1.1-1 .2-1.5L20.6 2.8c.9-.3 1.6.2 1.3 1.5z"/></svg><span data-i18n="or_tg">أو عبر تلغرام</span></a>
+        <a class="btn btn-ghost join-link" href="/join.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h12l4 4v12H4z"/><path d="M8 12h8M8 16h5"/></svg><span data-i18n="reg_web">سجّل من الموقع</span></a>
       </div>
-      <p style="margin:14px 0 0;color:var(--muted);font-size:15px">لديك سؤال قبل التسجيل؟ <a href="https://wa.me/966530990046">راسل الدعم على واتساب</a></p>
+      <p style="margin:14px 0 0;color:var(--muted);font-size:15px" data-i18n-html="pros_q">لديك سؤال قبل التسجيل؟ <a href="https://wa.me/966530990046">راسل الدعم على واتساب</a></p>
     </div>
     <ul class="feat">
-      <li><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><div><b>تسجيل خلال دقيقة</b><span>اسمك ومهنتك وخدماتك والأحياء التي تغطيها — وتظهر للعملاء مباشرة.</span></div></li>
-      <li><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></span><div><b>عملاء قريبون منك</b><span>تظهر لمن يبحث عن مهنتك في منطقتك، ويتواصلون معك على رقمك.</span></div></li>
-      <li><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h16M12 4v16" transform="rotate(45 12 12)"/><circle cx="12" cy="12" r="9"/></svg></span><div><b>بلا عمولة</b><span>الاتفاق والدفع بينك وبين العميل، و«فنّي» لا يأخذ أي نسبة من عملك — فقط اشتراك رمزي.</span></div></li>
-      <li><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h10M4 17h7"/></svg></span><div><b>عدّل بياناتك متى شئت</b><span>أضف خدمات أو أحياء أو مهنة ثانية في أي وقت.</span></div></li>
+      <li><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><div><b data-i18n="f1h">تسجيل خلال دقيقة</b><span data-i18n="f1p">اسمك ومهنتك وخدماتك والأحياء التي تغطيها — وتظهر للعملاء مباشرة.</span></div></li>
+      <li><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></span><div><b data-i18n="f2h">عملاء قريبون منك</b><span data-i18n="f2p">تظهر لمن يبحث عن مهنتك في منطقتك، ويتواصلون معك على رقمك.</span></div></li>
+      <li><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h16M12 4v16" transform="rotate(45 12 12)"/><circle cx="12" cy="12" r="9"/></svg></span><div><b data-i18n="f3h">بلا عمولة</b><span data-i18n="f3p">الاتفاق والدفع بينك وبين العميل، و«فنّي» لا يأخذ أي نسبة من عملك — فقط اشتراك رمزي.</span></div></li>
+      <li><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h10M4 17h7"/></svg></span><div><b data-i18n="f4h">عدّل بياناتك متى شئت</b><span data-i18n="f4p">أضف خدمات أو أحياء أو مهنة ثانية في أي وقت.</span></div></li>
     </ul>
   </div>
 </section>
@@ -280,10 +294,10 @@ footer .legal{border-top:1px solid rgba(255,255,255,.12);margin-top:32px;padding
 <section id="profs">
   <div class="wrap">
     <div class="head center">
-      <h2>بعض المهن المتاحة</h2>
-      <p class="lead">من صيانة المنزل إلى نقل العفش وسحب السيارات.</p>
+      <h2 data-i18n="profs_h">بعض المهن المتاحة</h2>
+      <p class="lead" data-i18n="profs_lead">من صيانة المنزل إلى نقل العفش وسحب السيارات.</p>
     </div>
-    <div class="profs">
+    <div class="profs" id="topProfs">
       <span>فني تكييف وتبريد</span><span>سبّاك</span><span>كهربائي منازل</span><span>مكافحة حشرات</span><span>نقل عفش</span>
       <span>نجّار</span><span>دهّان</span><span>فني ستالايت وكاميرات</span><span>فني ألمنيوم</span><span>سطحة (سحب سيارات)</span>
       <span>صيانة أجهزة منزلية</span><span>بنّاء</span><button type="button" class="more" id="allBtn" aria-expanded="false" aria-controls="allProfs">عرض كل المهن (68)</button>
@@ -315,12 +329,12 @@ footer .legal{border-top:1px solid rgba(255,255,255,.12);margin-top:32px;padding
     <div class="box">
       <span class="deco" aria-hidden="true"></span><span class="dot" aria-hidden="true"></span>
       <div style="position:relative">
-        <h2>تحتاج فنّيًا الآن؟</h2>
-        <p>ابدأ المحادثة على واتساب، واحصل على أقرب الفنيين إليك خلال ثوانٍ.</p>
+        <h2 data-i18n="cta_h">تحتاج فنّيًا الآن؟</h2>
+        <p data-i18n="cta_p">ابدأ المحادثة على واتساب، واحصل على أقرب الفنيين إليك خلال ثوانٍ.</p>
       </div>
       <div class="btns">
-        <a class="btn btn-light" href="https://wa.me/15556341384?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1 2.7c.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3z"/></svg>ابدأ عبر واتساب</a>
-        <a class="btn btn-outline-light" href="https://t.me/FanniServiceBot"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.3-5 9.2-8.3c.4-.4-.1-.6-.6-.2L6.2 13.1l-4.9-1.5c-1-.3-1.1-1 .2-1.5L20.6 2.8c.9-.3 1.6.2 1.3 1.5z"/></svg>تلغرام</a>
+        <a class="btn btn-light" href="https://wa.me/15556341384?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1 2.7c.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3z"/></svg><span data-i18n="start_wa">ابدأ عبر واتساب</span></a>
+        <a class="btn btn-outline-light" href="https://t.me/FanniServiceBot"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.3-5 9.2-8.3c.4-.4-.1-.6-.6-.2L6.2 13.1l-4.9-1.5c-1-.3-1.1-1 .2-1.5L20.6 2.8c.9-.3 1.6.2 1.3 1.5z"/></svg><span data-i18n="tg">تلغرام</span></a>
       </div>
     </div>
   </div>
@@ -333,14 +347,14 @@ footer .legal{border-top:1px solid rgba(255,255,255,.12);margin-top:32px;padding
       <img src="/img/fanni-lockup-white.svg" alt="فنّي" width="170" height="40">
       <nav>
         <a href="mailto:info@fanniapp.com">info@fanniapp.com</a>
-        <a href="https://wa.me/15556341384?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7">واتساب</a>
-        <a href="https://t.me/FanniServiceBot">تلغرام</a>
-        <a href="https://whatsapp.com/channel/0029Vb8goHR6BIEYsJmZTY3x">قناة واتساب</a>
-        <a href="https://wa.me/966530990046">💬 الدعم</a>
-        <a href="/privacy">سياسة الخصوصية</a>
+        <a href="https://wa.me/15556341384?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7" data-i18n="wa">واتساب</a>
+        <a href="https://t.me/FanniServiceBot" data-i18n="tg">تلغرام</a>
+        <a href="https://whatsapp.com/channel/0029Vb8goHR6BIEYsJmZTY3x" data-i18n="channel">قناة واتساب</a>
+        <a href="https://wa.me/966530990046" data-i18n="support">💬 الدعم</a>
+        <a href="/privacy" data-i18n="privacy">سياسة الخصوصية</a>
       </nav>
     </div>
-    <div class="legal">
+    <div class="legal" data-i18n-html="legal">
       «فنّي» منصة رقمية يطوّرها ويديرها سعيد منصور مرعي القحطاني — عمل حر، المملكة العربية السعودية.<br>
       © 2026 فنّي — fanniapp.com
     </div>
@@ -348,10 +362,95 @@ footer .legal{border-top:1px solid rgba(255,255,255,.12);margin-top:32px;padding
 </footer>
 
 <script>
-  var nav=document.getElementById('nav');
-  addEventListener('scroll',function(){nav.classList.toggle('scrolled',scrollY>8)},{passive:true});
-  var bt=document.getElementById('allBtn'),al=document.getElementById('allProfs');
-  bt.addEventListener('click',function(){var o=al.hidden;al.hidden=!o;bt.setAttribute('aria-expanded',o);bt.textContent=o?'إخفاء القائمة':'عرض كل المهن (68)';if(o)al.scrollIntoView({behavior:'smooth',block:'start'})});
+(function(){
+var nav=document.getElementById('nav');
+addEventListener('scroll',function(){nav.classList.toggle('scrolled',scrollY>8)},{passive:true});
+var T={
+en:{nav_how:"How it works",nav_pros:"For technicians",nav_profs:"Professions",nav_join:"Register now on the website",
+eyebrow:"No middleman, no commission",h1:"The nearest <em>technician</em>…<br>in two steps",
+hero_lead:"Choose the profession, share your location, and we show you the nearest technicians and craftsmen in your area — then you contact them directly on WhatsApp.",
+start_wa:"Start on WhatsApp",or_tg:"or on Telegram",chk1:"Free for customers",chk2:"About 70 professions",chk3:"Direct contact with the technician",
+mk_biz:"Business account",mk_hi:"Hello",mk_welcome:"Welcome to «Fanni» 🛠️<br>Which profession do you need?",p_ac:"AC & Refrigeration",p_plumb:"Plumber",p_elec:"Home Electrician",
+mk_res:"📍 Here are the nearest results:",mk_ac:"AC technician",mk_d1:"Al Narjis",mk_d2:"Al Yasmin",km1:"1.2 km",km2:"2.8 km",
+avail:"Available in",c_sa:"Saudi Arabia",c_eg:"Egypt",c_ae:"UAE",c_kw:"Kuwait",c_qa:"Qatar",c_bh:"Bahrain",c_om:"Oman",
+how_h:"How does «Fanni» work?",how_lead:"Two steps from you, then you contact the technician directly — no app to download, no account to create.",
+st1h:"Choose the profession",st1p:"Plumber, electrician, AC technician, furniture moving… or type what you need.",
+st2h:"Share your location",st2p:"Or choose your city and district, and we show you the nearest technicians.",
+st3h:"Contact directly",st3p:"Tap a technician to open a WhatsApp chat instantly and agree with them yourself.",
+pros_eb:"For technicians & craftsmen",pros_h:"Customers from your area… no commission",
+pros_lead:"Register your profession and the districts you work in, and start appearing to everyone looking for your service nearby.",
+reg_wa:"Register on WhatsApp",reg_web:"Register on the website",reg_web_pro:"Register as a technician on the website",pros_q:'Have a question before registering? <a href="https://wa.me/966530990046">Message support on WhatsApp</a>',
+f1h:"Register in a minute",f1p:"Your name, profession, services and the districts you cover — and you appear to customers right away.",
+f2h:"Customers near you",f2p:"You appear to people searching for your profession in your area, and they contact you on your number.",
+f3h:"No commission",f3p:"The deal and payment are between you and the customer; «Fanni» takes no cut of your work — just a small subscription.",
+f4h:"Edit your details anytime",f4p:"Add services, districts or a second profession at any time.",
+profs_h:"Some available professions",profs_lead:"From home maintenance to furniture moving and car towing.",more:"Show all professions",less:"Hide the list",
+cta_h:"Need a technician now?",cta_p:"Start the chat on WhatsApp and get the nearest technicians within seconds.",tg:"Telegram",
+wa:"WhatsApp",channel:"WhatsApp channel",support:"💬 Support",privacy:"Privacy policy",
+legal:"«Fanni» is a digital platform developed and run by Saeed Mansour Marei Al-Qahtani — freelance, Kingdom of Saudi Arabia.<br>© 2026 Fanni — fanniapp.com",
+title:"Fanni — the nearest technician to you on WhatsApp and Telegram"},
+ur:{nav_how:"یہ کیسے کام کرتا ہے",nav_pros:"کاریگروں کے لیے",nav_profs:"پیشے",nav_join:"ابھی ویب سائٹ پر رجسٹر ہوں",
+eyebrow:"کوئی دلال نہیں، کوئی کمیشن نہیں",h1:"آپ کے قریب ترین <em>کاریگر</em>…<br>دو قدموں میں",
+hero_lead:"پیشہ منتخب کریں، اپنا مقام بھیجیں، اور ہم آپ کے علاقے کے قریب ترین کاریگر دکھائیں گے — پھر آپ واٹس ایپ پر ان سے براہ راست رابطہ کریں۔",
+start_wa:"واٹس ایپ پر شروع کریں",or_tg:"یا ٹیلیگرام پر",chk1:"گاہکوں کے لیے مفت",chk2:"تقریباً 70 پیشے",chk3:"کاریگر سے براہ راست رابطہ",
+mk_biz:"بزنس اکاؤنٹ",mk_hi:"السلام علیکم",mk_welcome:"«فنی» میں خوش آمدید 🛠️<br>آپ کو کون سا پیشہ چاہیے؟",p_ac:"اے سی اور ریفریجریشن",p_plumb:"پلمبر",p_elec:"گھریلو الیکٹریشن",
+mk_res:"📍 یہ قریب ترین نتائج ہیں:",mk_ac:"اے سی ٹیکنیشن",mk_d1:"النرجس",mk_d2:"الیاسمین",km1:"1.2 کلومیٹر",km2:"2.8 کلومیٹر",
+avail:"دستیاب ہے",c_sa:"سعودی عرب",c_eg:"مصر",c_ae:"امارات",c_kw:"کویت",c_qa:"قطر",c_bh:"بحرین",c_om:"عمان",
+how_h:"«فنی» کیسے کام کرتا ہے؟",how_lead:"آپ کے دو قدم، پھر کاریگر سے براہ راست رابطہ — نہ کوئی ایپ ڈاؤن لوڈ، نہ کوئی اکاؤنٹ۔",
+st1h:"پیشہ منتخب کریں",st1p:"پلمبر، الیکٹریشن، اے سی ٹیکنیشن، سامان کی منتقلی… یا اپنی ضرورت لکھیں۔",
+st2h:"اپنا مقام بھیجیں",st2p:"یا اپنا شہر اور محلہ منتخب کریں، ہم قریب ترین کاریگر دکھائیں گے۔",
+st3h:"براہ راست رابطہ",st3p:"کاریگر پر ٹیپ کریں، واٹس ایپ چیٹ فوراً کھل جائے گی اور آپ خود بات طے کریں۔",
+pros_eb:"کاریگروں اور ہنرمندوں کے لیے",pros_h:"آپ کے علاقے کے گاہک… بغیر کمیشن",
+pros_lead:"اپنا پیشہ اور کام کے محلے رجسٹر کریں، اور قریب سے آپ کی خدمت تلاش کرنے والوں کو نظر آنا شروع کریں۔",
+reg_wa:"واٹس ایپ پر رجسٹر ہوں",reg_web:"ویب سائٹ پر رجسٹر ہوں",reg_web_pro:"بطور کاریگر ویب سائٹ پر رجسٹر ہوں",pros_q:'رجسٹریشن سے پہلے کوئی سوال؟ <a href="https://wa.me/966530990046">واٹس ایپ پر سپورٹ سے رابطہ کریں</a>',
+f1h:"ایک منٹ میں رجسٹریشن",f1p:"آپ کا نام، پیشہ، خدمات اور محلے — اور آپ فوراً گاہکوں کو نظر آئیں گے۔",
+f2h:"آپ کے قریب گاہک",f2p:"آپ اپنے علاقے میں اپنا پیشہ تلاش کرنے والوں کو نظر آتے ہیں، اور وہ آپ کے نمبر پر رابطہ کرتے ہیں۔",
+f3h:"کوئی کمیشن نہیں",f3p:"معاملہ اور ادائیگی آپ اور گاہک کے درمیان ہے؛ «فنی» آپ کے کام سے کوئی حصہ نہیں لیتا — صرف معمولی سبسکرپشن۔",
+f4h:"جب چاہیں معلومات بدلیں",f4p:"کسی بھی وقت خدمات، محلے یا دوسرا پیشہ شامل کریں۔",
+profs_h:"کچھ دستیاب پیشے",profs_lead:"گھر کی مرمت سے لے کر سامان کی منتقلی اور گاڑی کھینچنے تک۔",more:"تمام پیشے دکھائیں",less:"فہرست چھپائیں",
+cta_h:"ابھی کاریگر چاہیے؟",cta_p:"واٹس ایپ پر بات شروع کریں اور سیکنڈوں میں قریب ترین کاریگر پائیں۔",tg:"ٹیلیگرام",
+wa:"واٹس ایپ",channel:"واٹس ایپ چینل",support:"💬 سپورٹ",privacy:"رازداری کی پالیسی",
+legal:"«فنی» ایک ڈیجیٹل پلیٹ فارم ہے جسے سعید منصور مرعی القحطانی تیار اور چلاتے ہیں — فری لانس، سعودی عرب۔<br>© 2026 فنی — fanniapp.com",
+title:"فنی — واٹس ایپ اور ٹیلیگرام پر آپ کا قریب ترین کاریگر"}};
+var L="ar",AR={},bt=document.getElementById('allBtn'),al=document.getElementById('allProfs'),nameMap=null,cache={};
+[].forEach.call(document.querySelectorAll('[data-i18n],[data-i18n-html]'),function(el){AR[el.dataset.i18n||el.dataset.i18nHtml]=el.innerHTML});
+AR.title=document.title;AR.more=bt.textContent.replace(/\s*\(\d+\)\s*$/,'');AR.less='إخفاء القائمة';
+var total=(bt.textContent.match(/\((\d+)\)/)||[])[1]||'';
+function tx(k){return L==="ar"?AR[k]:((T[L]||{})[k]||AR[k])}
+function norm(s){return (s||"").replace(/[ً-ْٰ]/g,"").trim()}
+function moreTxt(){return al.hidden?tx('more')+(total?' ('+total+')':''):tx('less')}
+bt.addEventListener('click',function(){var o=al.hidden;al.hidden=!o;bt.setAttribute('aria-expanded',o);bt.textContent=moreTxt();if(o)al.scrollIntoView({behavior:'smooth',block:'start'})});
+// أسماء المهن والمجالات من قاعدة البيانات (نفس ترجمات البوت)
+function profNames(){
+  if(nameMap)return Promise.resolve(nameMap);
+  return Promise.all(["ar","en","ur"].map(function(l){return fetch("/wa/api/join/meta?lang="+l).then(function(r){return r.json()})})).then(function(a){
+    nameMap={};a[0].domains.forEach(function(d,i){
+      var e=a[1].domains[i]||{},u=a[2].domains[i]||{};nameMap[norm(d.name)]={en:e.name,ur:u.name};
+      d.professions.forEach(function(p,j){nameMap[norm(p.name)]={en:((e.professions||[])[j]||{}).name,ur:((u.professions||[])[j]||{}).name}});});
+    return nameMap;});
+}
+function chips(){
+  var els=document.querySelectorAll('#topProfs span, #allProfs span, #allProfs h3');
+  if(L==="ar"){[].forEach.call(els,function(el){if(el.dataset.ar)el.textContent=el.dataset.ar});return}
+  profNames().then(function(m){[].forEach.call(els,function(el){
+    if(!el.dataset.ar)el.dataset.ar=el.textContent;
+    var hit=m[norm(el.dataset.ar)]||m[norm(el.dataset.ar.replace(/\s*\(.*\)\s*$/,''))];
+    el.textContent=(hit&&hit[L])||el.dataset.ar;});}).catch(function(){});
+}
+function setLang(l){
+  L=(l==="en"||l==="ur")?l:"ar";
+  try{localStorage.setItem("fanni_lang",L)}catch(e){}
+  document.documentElement.lang=L;document.documentElement.dir=L==="en"?"ltr":"rtl";
+  [].forEach.call(document.querySelectorAll('[data-i18n],[data-i18n-html]'),function(el){el.innerHTML=tx(el.dataset.i18n||el.dataset.i18nHtml)});
+  document.title=tx('title');bt.textContent=moreTxt();
+  [].forEach.call(document.querySelectorAll('.langs button'),function(b){b.setAttribute('aria-pressed',b.dataset.l===L)});
+  [].forEach.call(document.querySelectorAll('a.join-link'),function(a){a.href="/join.html"+(L==="ar"?"":"?lang="+L)});
+  chips();
+}
+[].forEach.call(document.querySelectorAll('.langs button'),function(b){b.addEventListener('click',function(){setLang(b.dataset.l)})});
+var saved=null;try{saved=new URLSearchParams(location.search).get("lang")||localStorage.getItem("fanni_lang")}catch(e){}
+if(saved&&saved!=="ar")setLang(saved);
+})();
 </script>
 </body>
 </html>
