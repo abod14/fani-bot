@@ -16,7 +16,10 @@ log = logging.getLogger("fani.wa")
 # اتصال دائم مع ميتا بدل فتح اتصال جديد لكل رسالة (يوفّر جزء من الثانية بكل رد).
 # ميتا تقفل الاتصال الخامل بسرعة، فنخلي مدة الإبقاء قصيرة (20 ثانية) ونعيد المحاولة مرة
 # وحدة لو لقينا الاتصال مقفول (كان يسبب إن البوت ما يرد بعد ما يسكت دقيقتين).
-_client = httpx.Client(timeout=20, http2=False, limits=httpx.Limits(max_keepalive_connections=10, keepalive_expiry=20))
+# local_address="0.0.0.0" = IPv4 فقط: على السيرفر كانت أول رسالة بعد فترة سكون تتأخر ~12 ثانية
+# (محاولة اتصال IPv6 تفشل بصمت قبل الرجوع لـ IPv4)، والرسائل اللي بعدها سريعة.
+_client = httpx.Client(timeout=20, http2=False, transport=httpx.HTTPTransport(local_address="0.0.0.0", retries=1),
+                       limits=httpx.Limits(max_keepalive_connections=10, keepalive_expiry=20))
 _RETRYABLE = (httpx.RemoteProtocolError, httpx.ConnectError, httpx.ReadError, httpx.WriteError, httpx.PoolTimeout)
 
 
