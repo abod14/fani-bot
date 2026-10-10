@@ -126,4 +126,8 @@ PROFESSION_TRANSLATIONS = {
     "p70": {"en": "Dishwasher Repair", "ur": "ڈش واشر مرمت"},
     "p71": {"en": "Oven Repair", "ur": "اوون مرمت"},
     "p72": {"en": "Formwork Carpenter", "ur": "شٹرنگ کارپینٹر"},
+    # مهن أُضيفت لاحقًا بملف المهن
+    "p66": {"en": "Tow Truck (Car Towing)", "ur": "ریکوری وین (گاڑی کھینچنا)"},
+    "p67": {"en": "Goods Mover (Local Transport)", "ur": "سامان کی منتقلی (مقامی)"},
+    "p68": {"en": "Makeup Artist", "ur": "میک اپ آرٹسٹ"},
 }
