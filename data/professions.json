@@ -237,6 +237,23 @@
           "official_name_en": "Structural-Metal Preparers and Erectors",
           "status": "يحتاج تحقق",
           "services": []
+        },
+        {
+          "id": "p23",
+          "name": "حداد",
+          "subcategory": "الحدادة",
+          "isco_code": "7221",
+          "official_name_en": "Blacksmiths, Hammersmiths and Forging Press Workers",
+          "status": "مؤكد",
+          "services": [
+            "حدادة المباني (تسليح الخرسانة)",
+            "الأبواب الحديدية",
+            "النوافذ والحواجز",
+            "الدرابزين",
+            "المظلات",
+            "السلالم الحديدية",
+            "أعمال الحديد المختلفة"
+          ]
         }
       ]
     },
@@ -334,21 +351,6 @@
       "id": "d3",
       "name": "المعادن والميكانيكا",
       "professions": [
-        {
-          "id": "p23",
-          "name": "حداد",
-          "subcategory": "الحدادة",
-          "isco_code": "7221",
-          "official_name_en": "Blacksmiths, Hammersmiths and Forging Press Workers",
-          "status": "مؤكد",
-          "services": [
-            "الأبواب الحديدية",
-            "النوافذ والحواجز",
-            "المظلات",
-            "السلالم الحديدية",
-            "أعمال الحديد المختلفة"
-          ]
-        },
         {
           "id": "p24",
           "name": "ميكانيكي سيارات",
