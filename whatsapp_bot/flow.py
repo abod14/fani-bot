@@ -280,10 +280,16 @@ def handle(api, wa_id: str, name: str, msg: dict):
         state, data = _load(wa_id)
         lg = lang.load(wa_id)
         d = None
-        if not lg and msg.get("type") == "text":
-            d = lang.detect((msg.get("text") or {}).get("body", ""))
-            if d:
+        if not lg:
+            if state is not None:
+                # المحادثة جارية بالعربي: نثبّت العربية ولا نغيّرها بسبب نص لاتيني (اسم مثل Mohammed أو كتابة عشوائية)
+                d = "ar"
                 lang.save(wa_id, d)
+            elif msg.get("type") == "text":
+                # التخمين من أول رسالة فقط (بداية محادثة جديدة)
+                d = lang.detect((msg.get("text") or {}).get("body", ""))
+                if d:
+                    lang.save(wa_id, d)
         lang.set_lang(lg or d or "ar")
         state, data = _dispatch(api, wa_id, name, msg, state, data)
         _save(wa_id, state, data)
