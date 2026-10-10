@@ -100,16 +100,12 @@ footer{color:var(--muted);font-size:13px;text-align:center;padding:20px 0 36px}
 
     <section class="card">
       <h2><span class="num">2</span><span data-t="s_prof"></span></h2>
-      <div class="row2">
-        <div><label class="f" for="dom1" data-t="domain"></label><select id="dom1"></select></div>
-        <div><label class="f" for="prof1" data-t="prof"></label><select id="prof1" disabled></select></div>
-      </div>
+      <input type="search" id="q1" class="pq" autocomplete="off">
+      <label class="f" for="prof1" data-t="prof"></label><select id="prof1"></select>
       <button type="button" class="linkbtn" id="add2" data-t="add2"></button>
       <div id="p2box" hidden>
-        <div class="row2">
-          <div><label class="f" for="dom2" data-t="domain2"></label><select id="dom2"></select></div>
-          <div><label class="f" for="prof2" data-t="prof2"></label><select id="prof2" disabled></select></div>
-        </div>
+        <input type="search" id="q2" class="pq" autocomplete="off" style="margin-top:6px">
+        <label class="f" for="prof2" data-t="prof2"></label><select id="prof2"></select>
         <button type="button" class="linkbtn" id="rm2" data-t="rm2"></button>
       </div>
     </section>
@@ -164,8 +160,8 @@ footer{color:var(--muted);font-size:13px;text-align:center;padding:20px 0 36px}
 (function(){
 var T={
 ar:{title:"سجّل كفنّي في «فنّي»",lead:"عبّئ بياناتك مرة واحدة، ثم أكّد برسالة واتساب — وتبدأ بالظهور للعملاء القريبين منك. التسجيل مجاني.",
-s_name:"اسمك",name_hint:"بالحروف العربية أو الإنجليزية، كما سيظهر للعملاء.",s_prof:"مهنتك",domain:"المجال",prof:"المهنة",
-add2:"➕ إضافة مهنة ثانية (اختياري)",domain2:"مجال المهنة الثانية",prof2:"المهنة الثانية",rm2:"✕ إزالة المهنة الثانية",
+s_name:"اسمك",name_hint:"بالحروف العربية أو الإنجليزية، كما سيظهر للعملاء.",s_prof:"مهنتك",pq:"🔍 اكتب مهنتك، مثل: سباك",prof:"المهنة (كل المهن مرتبة حسب المجال)",
+add2:"➕ إضافة مهنة ثانية (اختياري)",prof2:"المهنة الثانية",rm2:"✕ إزالة المهنة الثانية",
 s_svc:"خدماتك",svc_hint:"اختر الخدمات التي تقدمها (اختياري).",all:"تحديد كل الخدمات",
 s_place:"مكان عملك",country:"الدولة",region:"المنطقة",city:"المدينة",districts:"الأحياء التي تخدمها (حتى 5)",
 dsearch:"🔍 ابحث عن حي…",chosen:"المختار:",whole:"أخدم المدينة كاملة 🌍",no_dist:"لا توجد أحياء لهذه المدينة — ستظهر لكل من يبحث فيها.",
@@ -176,8 +172,8 @@ code_lbl:"رمز التسجيل:",back:"✏️ تعديل البيانات",priv
 l_name:"الاسم",l_prof:"المهنة",l_svc:"الخدمات",l_place:"المكان",whole_city:"المدينة كاملة",net:"تعذّر الاتصال، حاول مرة أخرى.",
 e_prof:"اختر مهنتك.",e_city:"اختر مدينتك.",e_dist:"اختر حيًا واحدًا على الأقل.",e_name:"اكتب اسمك."},
 en:{title:"Register as a technician on «Fanni»",lead:"Fill in your details once, then confirm with a WhatsApp message — and start appearing to nearby customers. Registration is free.",
-s_name:"Your name",name_hint:"In Arabic or English letters, as customers will see it.",s_prof:"Your profession",domain:"Field",prof:"Profession",
-add2:"➕ Add a second profession (optional)",domain2:"Second profession field",prof2:"Second profession",rm2:"✕ Remove second profession",
+s_name:"Your name",name_hint:"In Arabic or English letters, as customers will see it.",s_prof:"Your profession",pq:"🔍 Type your profession, e.g. Plumber",prof:"Profession (all professions, grouped by field)",
+add2:"➕ Add a second profession (optional)",prof2:"Second profession",rm2:"✕ Remove second profession",
 s_svc:"Your services",svc_hint:"Choose the services you offer (optional).",all:"Select all services",
 s_place:"Where you work",country:"Country",region:"Region",city:"City",districts:"Districts you serve (up to 5)",
 dsearch:"🔍 Search a district…",chosen:"Selected:",whole:"I serve the whole city 🌍",no_dist:"This city has no districts — you'll appear to everyone searching in it.",
@@ -188,8 +184,8 @@ code_lbl:"Registration code:",back:"✏️ Edit details",privacy:"Privacy policy
 l_name:"Name",l_prof:"Profession",l_svc:"Services",l_place:"Location",whole_city:"Whole city",net:"Connection failed, try again.",
 e_prof:"Choose your profession.",e_city:"Choose your city.",e_dist:"Choose at least one district.",e_name:"Enter your name."},
 ur:{title:"«فنی» میں بطور کاریگر رجسٹر ہوں",lead:"اپنی معلومات ایک بار بھریں، پھر واٹس ایپ پیغام سے تصدیق کریں — اور قریبی گاہکوں کو نظر آنا شروع کریں۔ رجسٹریشن مفت ہے۔",
-s_name:"آپ کا نام",name_hint:"عربی یا انگریزی حروف میں، جیسا گاہکوں کو نظر آئے گا (اردو حروف نہیں)۔",s_prof:"آپ کا پیشہ",domain:"شعبہ",prof:"پیشہ",
-add2:"➕ دوسرا پیشہ شامل کریں (اختیاری)",domain2:"دوسرے پیشے کا شعبہ",prof2:"دوسرا پیشہ",rm2:"✕ دوسرا پیشہ ہٹائیں",
+s_name:"آپ کا نام",name_hint:"عربی یا انگریزی حروف میں، جیسا گاہکوں کو نظر آئے گا (اردو حروف نہیں)۔",s_prof:"آپ کا پیشہ",pq:"🔍 اپنا پیشہ لکھیں، مثلاً: پلمبر",prof:"پیشہ (تمام پیشے، شعبے کے لحاظ سے)",
+add2:"➕ دوسرا پیشہ شامل کریں (اختیاری)",prof2:"دوسرا پیشہ",rm2:"✕ دوسرا پیشہ ہٹائیں",
 s_svc:"آپ کی خدمات",svc_hint:"اپنی خدمات منتخب کریں (اختیاری)۔",all:"تمام خدمات منتخب کریں",
 s_place:"کام کی جگہ",country:"ملک",region:"علاقہ",city:"شہر",districts:"محلے جہاں آپ کام کرتے ہیں (زیادہ سے زیادہ 5)",
 dsearch:"🔍 محلہ تلاش کریں…",chosen:"منتخب:",whole:"میں پورے شہر میں کام کرتا ہوں 🌍",no_dist:"اس شہر کے محلے نہیں ہیں — آپ یہاں تلاش کرنے والے سب کو نظر آئیں گے۔",
@@ -215,21 +211,32 @@ function texts(){
   document.documentElement.lang=L;document.documentElement.dir=L==="en"?"ltr":"rtl";
   document.title=t("title")+" — Fanni";
   [].forEach.call(document.querySelectorAll("[data-t]"),function(el){el.textContent=t(el.dataset.t)});
-  $("dsearch").placeholder=t("dsearch");
+  $("dsearch").placeholder=t("dsearch");$("q1").placeholder=$("q2").placeholder=t("pq");
   [].forEach.call(document.querySelectorAll(".langs button"),function(b){b.setAttribute("aria-pressed",b.dataset.l===L)});
 }
 function prof(id){var f=null;(M?M.domains:[]).forEach(function(d){d.professions.forEach(function(p){if(p.id===id)f=p})});return f}
 function profsOf(domId){var d=(M?M.domains:[]).filter(function(x){return x.id===domId})[0];return d?d.professions:[]}
 
 // ── المهن
-function fillDomains(){opts($("dom1"),M.domains,true);opts($("dom2"),M.domains,true);
-  if($("dom1").value)opts($("prof1"),profsOf($("dom1").value),true);
-  if($("dom2").value)opts($("prof2"),profsOf($("dom2").value),true);}
-$("dom1").onchange=function(){opts($("prof1"),profsOf(this.value));renderSvcs();renderWhole()};
-$("dom2").onchange=function(){opts($("prof2"),profsOf(this.value));renderSvcs();renderWhole()};
+function nrm(x){return (x||"").toLowerCase().replace(/[\u064B-\u0652\u0670]/g,"").replace(/[أإآ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي").trim()}
+// كل المهن في قائمة واحدة مقسّمة بالمجالات + بحث فوقها (بدل اختيار المجال ثم المهنة)
+function fillProf(sel,q){
+  var v=sel.value,qq=nrm(q),html='<option value="">'+esc(t("choose"))+'</option>',n=0,only=null;
+  M.domains.forEach(function(d){
+    var ps=d.professions.filter(function(p){return !qq||p.id===v||nrm(p.name).indexOf(qq)>-1||nrm(d.name).indexOf(qq)>-1});
+    if(!ps.length)return;
+    html+='<optgroup label="'+esc(d.name)+'">'+ps.map(function(p){if(p.id!==v){n++;only=p.id}return '<option value="'+esc(p.id)+'">'+esc(p.name)+'</option>'}).join("")+'</optgroup>';
+  });
+  sel.innerHTML=html;
+  if(v&&sel.querySelector('option[value="'+v+'"]'))sel.value=v;
+  if(qq&&n===1&&!v){sel.value=only;sel.onchange()}
+}
+function fillDomains(){fillProf($("prof1"),$("q1").value);fillProf($("prof2"),$("q2").value)}
+$("q1").oninput=function(){fillProf($("prof1"),this.value)};
+$("q2").oninput=function(){fillProf($("prof2"),this.value)};
 $("prof1").onchange=$("prof2").onchange=function(){renderSvcs();renderWhole()};
 $("add2").onclick=function(){$("p2box").hidden=false;this.hidden=true};
-$("rm2").onclick=function(){$("p2box").hidden=true;$("add2").hidden=false;$("dom2").value="";opts($("prof2"),[]);renderSvcs();renderWhole()};
+$("rm2").onclick=function(){$("p2box").hidden=true;$("add2").hidden=false;$("q2").value="";$("prof2").value="";fillProf($("prof2"),"");renderSvcs();renderWhole()};
 
 // ── الخدمات
 function selectedSvcs(){return [].map.call(document.querySelectorAll("#svcs input:checked"),function(i){return i.value})}
