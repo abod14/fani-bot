@@ -5,7 +5,7 @@
 DOMAIN_TRANSLATIONS = {
     "d1": {"en": "Construction & Building", "ur": "تعمیرات"},
     "d2": {"en": "Electrical & Electronics", "ur": "الیکٹریکل اور الیکٹرانکس"},
-    "d3": {"en": "Metalwork & Mechanics", "ur": "دھات کا کام اور مکینکس"},
+    "d3": {"en": "Car Services", "ur": "گاڑیوں کی خدمات"},
     "d4": {"en": "Carpentry & Furniture", "ur": "بڑھئی اور فرنیچر"},
     "d5": {"en": "Crafts & Printing", "ur": "دستکاری اور پرنٹنگ"},
     "d6": {"en": "Health & Beauty", "ur": "صحت اور خوبصورتی"},
@@ -53,7 +53,7 @@ PROFESSION_TRANSLATIONS = {
     "p57": {"en": "Water Filter Technician", "ur": "واٹر فلٹر ٹیکنیشن"},
     "p58": {"en": "Home Appliance Technician", "ur": "گھریلو آلات کا ٹیکنیشن"},
 
-    # d3 — المعادن والميكانيكا
+    # d3 — خدمات السيارات
     "p22": {"en": "Steel Structure Builder", "ur": "اسٹیل ڈھانچہ ساز"},
     "p23": {"en": "Blacksmith", "ur": "لوہار"},
     "p24": {"en": "Car Mechanic", "ur": "کار مکینک"},
@@ -130,4 +130,7 @@ PROFESSION_TRANSLATIONS = {
     "p66": {"en": "Tow Truck (Car Towing)", "ur": "ریکوری وین (گاڑی کھینچنا)"},
     "p67": {"en": "Goods Mover (Local Transport)", "ur": "سامان کی منتقلی (مقامی)"},
     "p68": {"en": "Makeup Artist", "ur": "میک اپ آرٹسٹ"},
+    "p73": {"en": "Mobile Tire Repair", "ur": "موبائل ٹائر پنکچر سروس"},
+    "p74": {"en": "Heavy Equipment Tire Repair", "ur": "بھاری مشینری کے ٹائر پنکچر"},
+    "p75": {"en": "Used Auto Parts (Scrapyard)", "ur": "پرانی گاڑیوں کے پرزے (اسکریپ یارڈ)"},
 }

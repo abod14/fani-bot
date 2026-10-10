@@ -254,6 +254,21 @@
             "السلالم الحديدية",
             "أعمال الحديد المختلفة"
           ]
+        },
+        {
+          "id": "p59",
+          "name": "فني ألمنيوم",
+          "subcategory": "الألمنيوم",
+          "isco_code": "7214",
+          "official_name_en": "Structural-Metal Preparers and Erectors",
+          "status": "يحتاج تحقق",
+          "services": [
+            "تفصيل وتركيب الأبواب",
+            "تفصيل وتركيب النوافذ",
+            "إصلاح الألمنيوم",
+            "تركيب المطابخ",
+            "أعمال الألمنيوم المختلفة"
+          ]
         }
       ]
     },
@@ -349,7 +364,7 @@
     },
     {
       "id": "d3",
-      "name": "المعادن والميكانيكا",
+      "name": "خدمات السيارات",
       "professions": [
         {
           "id": "p24",
@@ -369,35 +384,64 @@
           ]
         },
         {
-          "id": "p25",
-          "name": "فني صيانة معدات صناعية وزراعية",
-          "subcategory": "صيانة معدات ثقيلة",
-          "isco_code": "7233",
-          "official_name_en": "Agricultural and Industrial Machinery Mechanics and Repairers",
-          "status": "يحتاج تحقق",
-          "services": []
-        },
-        {
-          "id": "p59",
-          "name": "فني ألمنيوم",
-          "subcategory": "الألمنيوم",
-          "isco_code": "7214",
-          "official_name_en": "Structural-Metal Preparers and Erectors",
-          "status": "يحتاج تحقق",
-          "services": [
-            "تفصيل وتركيب الأبواب",
-            "تفصيل وتركيب النوافذ",
-            "إصلاح الألمنيوم",
-            "تركيب المطابخ",
-            "أعمال الألمنيوم المختلفة"
-          ]
-        },
-        {
           "id": "p60",
           "name": "سمكري سيارات",
           "subcategory": "سمكرة سيارات",
           "isco_code": "7213",
           "official_name_en": "Sheet-Metal Workers (أقرب فئة)",
+          "status": "يحتاج تحقق",
+          "services": []
+        },
+        {
+          "id": "p73",
+          "name": "بنشري سيارات متنقل",
+          "subcategory": "خدمات السيارات",
+          "isco_code": null,
+          "official_name_en": "",
+          "status": "مضافة يدويًا",
+          "services": [
+            "إصلاح البنشر في الموقع",
+            "تبديل الكفرات",
+            "نفخ الكفرات وضبط الضغط",
+            "تركيب الاستبنة",
+            "كفرات جديدة ومستعملة"
+          ]
+        },
+        {
+          "id": "p74",
+          "name": "بنشري معدات ثقيلة",
+          "subcategory": "خدمات السيارات",
+          "isco_code": null,
+          "official_name_en": "",
+          "status": "مضافة يدويًا",
+          "services": [
+            "كفرات الشاحنات والتريلات",
+            "كفرات المعدات الثقيلة (شيول، بوكلين، قلاب)",
+            "إصلاح البنشر في الموقع",
+            "تبديل وتركيب الكفرات",
+            "نفخ الكفرات وضبط الضغط"
+          ]
+        },
+        {
+          "id": "p75",
+          "name": "تشليح سيارات",
+          "subcategory": "خدمات السيارات",
+          "isco_code": null,
+          "official_name_en": "",
+          "status": "مضافة يدويًا",
+          "services": [
+            "قطع غيار مستعملة",
+            "محركات وقيرات مستعملة",
+            "فك القطع حسب الطلب",
+            "شراء السيارات التالفة"
+          ]
+        },
+        {
+          "id": "p25",
+          "name": "فني صيانة معدات صناعية وزراعية",
+          "subcategory": "صيانة معدات ثقيلة",
+          "isco_code": "7233",
+          "official_name_en": "Agricultural and Industrial Machinery Mechanics and Repairers",
           "status": "يحتاج تحقق",
           "services": []
         }
