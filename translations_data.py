@@ -130,6 +130,7 @@ PROFESSION_TRANSLATIONS = {
     "p66": {"en": "Tow Truck (Car Towing)", "ur": "ریکوری وین (گاڑی کھینچنا)"},
     "p67": {"en": "Goods Mover (Local Transport)", "ur": "سامان کی منتقلی (مقامی)"},
     "p68": {"en": "Makeup Artist", "ur": "میک اپ آرٹسٹ"},
+    "p76": {"en": "Carpet & Moquette Installer", "ur": "قالین اور موکیٹ بچھانے والا"},
     "p73": {"en": "Mobile Tire Repair", "ur": "موبائل ٹائر پنکچر سروس"},
     "p74": {"en": "Heavy Equipment Tire Repair", "ur": "بھاری مشینری کے ٹائر پنکچر"},
     "p75": {"en": "Used Auto Parts (Scrapyard)", "ur": "پرانی گاڑیوں کے پرزے (اسکریپ یارڈ)"},
