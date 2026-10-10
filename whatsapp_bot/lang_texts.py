@@ -40,9 +40,9 @@ TEXTS: dict[str, dict[str, str]] = {
     "✏️ ماذا تريد أن تعدّل؟ 👇\n(لتغيير المهنة: احذف حسابك بكتابة d ثم سجّل من جديد)": {
         "en": "✏️ What would you like to edit? 👇\n(To change your profession: delete your account by typing d, then register again)",
         "ur": "✏️ آپ کیا تبدیل کرنا چاہتے ہیں؟ 👇\n(پیشہ بدلنے کے لیے: d لکھ کر اپنا اکاؤنٹ حذف کریں، پھر دوبارہ رجسٹر کریں)"},
-    "✍️ اكتب الاسم الجديد بالحروف العربية (الاسم الذي سيظهر للعملاء):": {
-        "en": "✍️ Type the new name in Arabic letters (the name customers will see), e.g. محمد أحمد:",
-        "ur": "✍️ نیا نام عربی حروف میں لکھیں (وہ نام جو گاہکوں کو نظر آئے گا)، مثلاً: محمد أحمد:"},
+    "✍️ اكتب الاسم الجديد بالحروف العربية — أغلب العملاء عرب، والاسم العربي يسهّل عليهم التعرّف عليك والتواصل معك:": {
+        "en": "✍️ Type the new name in Arabic letters — most customers are Arab, and an Arabic name makes it easy for them to recognize and contact you. E.g. محمد أحمد:",
+        "ur": "✍️ نیا نام عربی حروف میں لکھیں — زیادہ تر گاہک عرب ہیں، اور عربی نام سے انہیں آپ کو پہچاننے اور رابطہ کرنے میں آسانی ہوتی ہے۔ مثلاً: محمد أحمد:"},
     "✅ تم تحديث بياناتك.": {"en": "✅ Your info has been updated.", "ur": "✅ آپ کی معلومات اپ ڈیٹ ہو گئیں۔"},
     # ─────────── القائمة الرئيسية ───────────
     "أهلًا {name} 👋": {"en": "Hi {name} 👋", "ur": "السلام علیکم {name} 👋"},
@@ -265,7 +265,7 @@ TEXTS: dict[str, dict[str, str]] = {
     'لم أجد حيًّا باسم «{q}» في {city} 🤔 اكتب رقم الحي من القائمة.': {"en": "I couldn't find a district named «{q}» in {city} 🤔 Type the district number from the list.", "ur": '{city} میں «{q}» نام کا کوئی محلہ نہیں ملا 🤔 فہرست سے محلے کا نمبر لکھیں۔'},
     'لم نجد فنيين في {nb} ولا في الأحياء المجاورة، وهذه نتائج {city} كاملة 👇\n': {"en": 'No technicians in {nb} or neighbouring districts — here are results for all of {city} 👇\n', "ur": '{nb} اور قریبی محلوں میں کوئی ٹیکنیشن نہیں ملا، یہ پورے {city} کے نتائج ہیں 👇\n'},
     "💬 للاستفسار أو أي مشكلة: {url}": {"en": "💬 Questions or any problem: {url}", "ur": "💬 سوال یا کوئی مسئلہ: {url}"},
-    '✍️ اكتب اسمك بالحروف العربية فقط (من حرفين إلى 40 حرفًا)، مثل: محمد أحمد 🙏': {"en": '✍️ Please write your name in Arabic letters only (2–40 characters), e.g. محمد أحمد 🙏', "ur": '✍️ براہ کرم اپنا نام صرف عربی حروف میں لکھیں (2 سے 40 حروف)، مثلاً: محمد أحمد 🙏'},
+    "✍️ نعتذر، نطلب الاسم بالحروف العربية فقط حتى يسهل على العملاء التواصل معك. اكتبه هكذا مثلًا: محمد أحمد 🙏": {"en": "✍️ Sorry, we need your name in Arabic letters only so customers can easily contact you. Write it like this, e.g.: محمد أحمد 🙏", "ur": "✍️ معذرت، ہمیں آپ کا نام صرف عربی حروف میں چاہیے تاکہ گاہک آسانی سے آپ سے رابطہ کر سکیں۔ مثلاً اس طرح لکھیں: محمد أحمد 🙏"},
     "بقي {n} من الفنيين": {"en": "{n} more technicians", "ur": "مزید {n} ٹیکنیشن"},
     "وجدنا {n} من فنيي «{pname}» 👍\nاضغط «عرض الفنيين» واختر أحدهم، وسنفتح لك محادثته على واتساب مباشرة.": {
         "en": "We found {n} «{pname}» technicians 👍\nTap «View technicians» and pick one — we'll open a WhatsApp chat with them right away.",
@@ -302,9 +302,9 @@ TEXTS: dict[str, dict[str, str]] = {
     },
 
     # ─────────── تسجيل الفني ───────────
-    "مرحبًا بك 🙌 سنسجّلك في «فنّي» مجانًا خلال دقيقة، لتظهر للعملاء في واتساب وتلغرام.\n\n✍️ اكتب اسمك بالحروف العربية (الاسم الذي سيظهر للعملاء):": {
-        "en": "Welcome 🙌 We'll register you on «Fanni» for free in a minute, so customers can find you on WhatsApp and Telegram.\n\n✍️ Type your name in Arabic letters (the name customers will see), e.g. محمد أحمد:",
-        "ur": "خوش آمدید 🙌 ہم ایک منٹ میں آپ کو «فنی» پر مفت رجسٹر کریں گے، تاکہ واٹس ایپ اور ٹیلیگرام پر گاہک آپ کو دیکھ سکیں۔\n\n✍️ اپنا نام عربی حروف میں لکھیں (جو نام گاہکوں کو نظر آئے گا)، مثلاً: محمد أحمد:",
+    "مرحبًا بك 🙌 سنسجّلك في «فنّي» مجانًا خلال دقيقة، لتظهر للعملاء في واتساب وتلغرام.\n\n✍️ اكتب اسمك بالحروف العربية — أغلب العملاء عرب، والاسم العربي يسهّل عليهم التعرّف عليك والتواصل معك:": {
+        "en": "Welcome 🙌 We'll register you on «Fanni» for free in a minute, so customers can find you on WhatsApp and Telegram.\n\n✍️ Type your name in Arabic letters — most customers are Arab, and an Arabic name makes it easy for them to recognize and contact you. E.g. محمد أحمد:",
+        "ur": "خوش آمدید 🙌 ہم ایک منٹ میں آپ کو «فنی» پر مفت رجسٹر کریں گے، تاکہ واٹس ایپ اور ٹیلیگرام پر گاہک آپ کو دیکھ سکیں۔\n\n✍️ اپنا نام عربی حروف میں لکھیں — زیادہ تر گاہک عرب ہیں، اور عربی نام سے انہیں آپ کو پہچاننے اور رابطہ کرنے میں آسانی ہوتی ہے۔ مثلاً: محمد أحمد:",
     },
     "اكتب اسمًا يتراوح طوله بين حرفين و40 حرفًا 🙏": {
         "en": "Please type a name between 2 and 40 characters 🙏",

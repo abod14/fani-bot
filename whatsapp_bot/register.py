@@ -49,7 +49,7 @@ def start(api, wa_id):
     if p and p.get("status") != db.STATUS_REJECTED and not db.is_wa_registrar(me):
         return _status(api, wa_id, p)
     api.text(wa_id, tr("مرحبًا بك 🙌 سنسجّلك في «فنّي» مجانًا خلال دقيقة، لتظهر للعملاء في واتساب وتلغرام.\n\n"
-                       "✍️ اكتب اسمك بالحروف العربية (الاسم الذي سيظهر للعملاء):"))
+                       "✍️ اكتب اسمك بالحروف العربية — أغلب العملاء عرب، والاسم العربي يسهّل عليهم التعرّف عليك والتواصل معك:"))
     return "r_name", {"r": {}}
 
 
@@ -84,14 +84,14 @@ def on_text(api, wa_id, state, data, body):
         name = db.arabic_name(body)   # طلب المالك: الاسم بالحروف العربية فقط
         if not name:
             return _flow().hint_once(api, wa_id, state, data,
-                                     lambda: api.text(wa_id, tr("✍️ اكتب اسمك بالحروف العربية فقط (من حرفين إلى 40 حرفًا)، مثل: محمد أحمد 🙏")))
+                                     lambda: api.text(wa_id, tr("✍️ نعتذر، نطلب الاسم بالحروف العربية فقط حتى يسهل على العملاء التواصل معك. اكتبه هكذا مثلًا: محمد أحمد 🙏")))
         r["name"] = name
         return _ask_number(api, wa_id, data)
     if state == "r_ename":
         name = db.arabic_name(body)
         if not name or not r.get("edit_id"):
             return _flow().hint_once(api, wa_id, state, data,
-                                     lambda: api.text(wa_id, tr("✍️ اكتب اسمك بالحروف العربية فقط (من حرفين إلى 40 حرفًا)، مثل: محمد أحمد 🙏")))
+                                     lambda: api.text(wa_id, tr("✍️ نعتذر، نطلب الاسم بالحروف العربية فقط حتى يسهل على العملاء التواصل معك. اكتبه هكذا مثلًا: محمد أحمد 🙏")))
         db.update_professional_name(r["edit_id"], name)
         return _status(api, wa_id, db.get_professional_by_id(r["edit_id"]), extra="\n\n" + tr("✅ تم تحديث بياناتك."))
     if state == "r_num":
@@ -957,7 +957,7 @@ def _start_edit(api, wa_id, what):
     if what == "svc" and r["all_services"]:
         return _ask_services(api, wa_id, data)
     if what == "name":
-        api.text(wa_id, tr("✍️ اكتب الاسم الجديد بالحروف العربية (الاسم الذي سيظهر للعملاء):"))
+        api.text(wa_id, tr("✍️ اكتب الاسم الجديد بالحروف العربية — أغلب العملاء عرب، والاسم العربي يسهّل عليهم التعرّف عليك والتواصل معك:"))
         return "r_ename", data
     return _ask_location(api, wa_id, data)
 

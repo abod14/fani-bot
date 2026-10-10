@@ -84,14 +84,14 @@ TEXTS: dict[str, dict[str, str]] = {
 
     # ─────────────────────────── /register ───────────────────────────
     "reg_start": {
-        "ar": "لنبدأ تسجيلك كفني 📝\n\nأرسل اسمك الكامل بالحروف العربية:",
-        "en": "Let's start your registration 📝\n\nSend your full name in Arabic letters (e.g. محمد أحمد):",
-        "ur": "آئیے آپ کی رجسٹریشن شروع کرتے ہیں 📝\n\nاپنا پورا نام عربی حروف میں بھیجیں (مثلاً: محمد أحمد):",
+        "ar": "لنبدأ تسجيلك كفني 📝\n\nأرسل اسمك الكامل بالحروف العربية — أغلب العملاء عرب، والاسم العربي يسهّل عليهم التعرّف عليك والتواصل معك:",
+        "en": "Let's start your registration 📝\n\nSend your full name in Arabic letters — most customers are Arab, and an Arabic name makes it easy for them to recognize and contact you. E.g. محمد أحمد:",
+        "ur": "آئیے آپ کی رجسٹریشن شروع کرتے ہیں 📝\n\nاپنا پورا نام عربی حروف میں بھیجیں — زیادہ تر گاہک عرب ہیں، اور عربی نام سے انہیں آپ کو پہچاننے اور رابطہ کرنے میں آسانی ہوتی ہے۔ مثلاً: محمد أحمد:",
     },
     "reg_name_arabic": {
-        "ar": "✍️ اكتب اسمك الكامل بالحروف العربية فقط، مثل: محمد أحمد 🙏",
-        "en": "✍️ Please write your full name in Arabic letters only, e.g. محمد أحمد 🙏",
-        "ur": "✍️ براہ کرم اپنا پورا نام صرف عربی حروف میں لکھیں، مثلاً: محمد أحمد 🙏",
+        "ar": "✍️ نعتذر، نطلب الاسم بالحروف العربية فقط حتى يسهل على العملاء التواصل معك. اكتبه هكذا مثلًا: محمد أحمد 🙏",
+        "en": "✍️ Sorry, we need your name in Arabic letters only so customers can easily contact you. Write it like this, e.g.: محمد أحمد 🙏",
+        "ur": "✍️ معذرت، ہمیں آپ کا نام صرف عربی حروف میں چاہیے تاکہ گاہک آسانی سے آپ سے رابطہ کر سکیں۔ مثلاً اس طرح لکھیں: محمد أحمد 🙏",
     },
     "reg_name_short": {
         "ar": "الاسم قصير جدًا، أرسل اسمك الكامل من فضلك:",
@@ -436,9 +436,9 @@ TEXTS: dict[str, dict[str, str]] = {
         "ur": "👀 جب کوئی گاہک آپ کا پیشہ تلاش کرے گا تو آپ کا کارڈ بالکل ایسا نظر آئے گا:",
     },
     "reg_restart": {
-        "ar": "حسنًا، لنبدأ التسجيل من جديد.\nأرسل اسمك الكامل بالحروف العربية:",
-        "en": "Okay, let's start the registration over.\nSend your full name in Arabic letters (e.g. محمد أحمد):",
-        "ur": "ٹھیک ہے، رجسٹریشن دوبارہ شروع کرتے ہیں۔\nاپنا پورا نام عربی حروف میں بھیجیں (مثلاً: محمد أحمد):",
+        "ar": "حسنًا، لنبدأ التسجيل من جديد.\nأرسل اسمك الكامل بالحروف العربية — أغلب العملاء عرب، والاسم العربي يسهّل عليهم التعرّف عليك والتواصل معك:",
+        "en": "Okay, let's start the registration over.\nSend your full name in Arabic letters — most customers are Arab, and an Arabic name makes it easy for them to recognize and contact you. E.g. محمد أحمد:",
+        "ur": "ٹھیک ہے، رجسٹریشن دوبارہ شروع کرتے ہیں۔\nاپنا پورا نام عربی حروف میں بھیجیں — زیادہ تر گاہک عرب ہیں، اور عربی نام سے انہیں آپ کو پہچاننے اور رابطہ کرنے میں آسانی ہوتی ہے۔ مثلاً: محمد أحمد:",
     },
     "reg_success": {
         "ar": "✅ تم تسجيلك بنجاح وتفعيل حسابك مباشرة!\n\nالاسم: {name}\nالمدينة: {city}\nالمهنة: {profession}\n\nأنت الآن تظهر للعملاء عند البحث عن هذه المهنة في مدينتك.",
