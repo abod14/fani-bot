@@ -757,6 +757,68 @@ def deleted_page():
     return render_template("deleted.html", rows=rows, active_page="deleted", days=db.archive_days())
 
 
+def _riyadh(iso: str | None) -> str:
+    """تاريخ ووقت بتوقيت الرياض (المخزّن UTC)."""
+    from datetime import datetime, timedelta
+    try:
+        return (datetime.fromisoformat(iso) + timedelta(hours=3)).strftime("%Y-%m-%d %H:%M")
+    except (TypeError, ValueError):
+        return (iso or "")[:16]
+
+
+@app.route("/deleted/export.xlsx")
+@super_required
+def deleted_export():
+    """قائمة المحذوفين كملف إكسل — لخدمة العملاء للتواصل معهم عن سبب الحذف."""
+    import openpyxl
+    from openpyxl.styles import Alignment, Font, PatternFill
+    from urllib.parse import quote
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "المحذوفون"
+    ws.sheet_view.rightToLeft = True
+    ws.append(["تاريخ الحذف", "الاسم", "رقم الواتساب", "رابط المحادثة", "المهنة", "المدينة", "سجّل من",
+               "من حذفه", "التقييم", "عدد التقييمات", "سبب الحذف", "كتب السبب", "ملاحظات الإدارة",
+               "نتيجة التواصل (لخدمة العملاء)"])
+    for cell in ws[1]:
+        cell.font = Font(bold=True, color="FFFFFF")
+        cell.fill = PatternFill("solid", fgColor="0F766E")
+        cell.alignment = Alignment(horizontal="center")
+    for r in db.list_deleted_professionals(limit=100000):
+        phone = r.get("phone") or ""
+        ws.append([
+            _riyadh(r.get("deleted_at")),
+            r.get("full_name") or "",
+            ("+" + phone) if phone else "",
+            f"https://wa.me/{phone}" if phone else "",
+            r.get("profession_name") or "",
+            r.get("city") or "",
+            "واتساب" if r.get("channel") == "wa" else "تلغرام",
+            "المشرف" if r.get("deleted_by") == "admin" else "الفني نفسه",
+            r.get("rating_avg") if r.get("rating_count") else "",
+            r.get("rating_count") or 0,
+            r.get("reason") or "",
+            {"pro": "الفني", "admin": "المشرف"}.get(r.get("reason_by") or "", ""),
+            r.get("admin_note") or "",
+            "",
+        ])
+        link = ws.cell(row=ws.max_row, column=4)
+        if link.value:
+            link.hyperlink = link.value
+            link.font = Font(color="0563C1", underline="single")
+    widths = [17, 22, 16, 30, 22, 14, 10, 12, 9, 12, 30, 10, 30, 32]
+    for i, w in enumerate(widths, start=1):
+        ws.column_dimensions[openpyxl.utils.get_column_letter(i)].width = w
+    ws.freeze_panes = "A2"
+    buf = io.BytesIO()
+    wb.save(buf)
+    name = quote("المحذوفون.xlsx")
+    return Response(buf.getvalue(),
+                    mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    headers={"Content-Disposition": f"attachment; filename=deleted.xlsx; filename*=UTF-8''{name}"})
+
+
 @app.route("/professionals/<int:professional_id>/reset-rating", methods=["POST"])
 @super_required
 def professional_reset_rating(professional_id):

@@ -17,6 +17,8 @@
 </div>
 
 <div class="card">
+  <p><a class="btn success" href="{{ url_for('deleted_export') }}">⬇️ تصدير إكسل</a>
+  <span class="muted">— لإرساله لخدمة العملاء. ⚠️ فيه أرقام جوالات: أرسله لهم مباشرة، ولا تنشره في مجموعات، واحذفه بعد الانتهاء.</span></p>
   {% if rows %}
   <table>
     <thead><tr><th>تاريخ الحذف</th><th>الاسم</th><th>الرقم</th><th>المهنة / المدينة</th><th>التقييم</th><th>سبب الحذف وملاحظاتك</th><th></th></tr></thead>
