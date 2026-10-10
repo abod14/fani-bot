@@ -25,6 +25,8 @@ from whatsapp_bot.api import WhatsAppAPI  # noqa: E402
 log = logging.getLogger("fani.wa")
 app = Flask(__name__)
 api = WhatsAppAPI()
+from whatsapp_bot import web_join  # noqa: E402  — التسجيل من الموقع (/wa/api/join/*)
+app.register_blueprint(web_join.bp)
 
 # ميتا ممكن تعيد إرسال نفس الرسالة لو تأخر ردنا — نتجاهل المكرر
 _seen: deque = deque(maxlen=5000)

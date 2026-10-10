@@ -346,6 +346,10 @@ def _dispatch(api, wa_id, name, msg, state, data):
         return _welcome(api, wa_id, name)
     if mtype == "text":
         body = (msg.get("text") or {}).get("body", "")
+        from whatsapp_bot import web_join
+        code = web_join.find_code(body)
+        if code:   # تأكيد تسجيل من الموقع (رسالة جاهزة فيها FN-XXXXX)
+            return web_join.confirm(api, wa_id, code)
         if norm(body) in DELETE_WORDS:
             return _ask_delete(api, wa_id)
         if state == "del_reason" and data.get("arch") and norm(body) not in RESET_WORDS:

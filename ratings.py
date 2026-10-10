@@ -406,6 +406,11 @@ def purge_daily():
         if db.get_setting("archive_purged_on", "") == today:
             return
         n = db.purge_expired_archive()
+        try:
+            from whatsapp_bot import web_join
+            web_join.purge_old()   # طلبات تسجيل من الموقع لم تُؤكَّد خلال 48 ساعة
+        except Exception:
+            log.exception("web join purge failed")
         db.set_setting("archive_purged_on", today)
         if n:
             log.info("purged %s expired deleted-professional archive rows", n)

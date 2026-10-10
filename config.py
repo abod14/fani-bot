@@ -55,6 +55,8 @@ WA_PORT = int(os.environ.get("WA_PORT", "5070"))
 SUPPORT_WA = os.environ.get("SUPPORT_WA", "966530990046").strip()
 SUPPORT_URL = f"https://wa.me/{SUPPORT_WA}" if SUPPORT_WA else ""
 WA_PUBLIC_BASE = os.environ.get("WA_PUBLIC_BASE", "https://fanniapp.com").strip()
+# رقم بوت واتساب (للروابط wa.me — مثل تأكيد التسجيل من الموقع). يتغيّر عند ربط رقم البوت الحقيقي.
+WA_BOT_NUMBER = os.environ.get("WA_BOT_NUMBER", "15556341384").strip().lstrip("+")
 WA_WABA_ID = os.environ.get("WA_WABA_ID", "").strip()   # حساب واتساب للأعمال — لإنشاء القوالب
 # أسماء قوالب الإشعارات المدفوعة (تُنشأ مرة وحدة بـ scripts/wa_templates.py وتنتظر موافقة ميتا)
 # ميتا صنّفت النسخة الأولى «تسويق» (أغلى) — النسخة الإخبارية (خدمة) تُجرَّب أول، ولو مو مقبولة

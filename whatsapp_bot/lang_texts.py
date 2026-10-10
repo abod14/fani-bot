@@ -633,6 +633,13 @@ TEXTS: dict[str, dict[str, str]] = {
     "ماذا تريد؟ 👇": {"en": "What would you like? 👇", "ur": "آپ کیا چاہتے ہیں؟ 👇"},
     "👤 حسابي": {"en": "👤 My account", "ur": "👤 میرا اکاؤنٹ"},
     "➕ تسجيل فني آخر": {"en": "➕ Register another", "ur": "➕ دوسرا کاریگر"},
+    # ─────────── التسجيل من الموقع ───────────
+    "لم نجد طلب التسجيل لهذا الرمز، أو انتهت صلاحيته (48 ساعة) 🙏\nسجّل من جديد من الموقع، أو اضغط «🛠️ أنا فني» هنا.": {
+        "en": "We couldn't find a registration for this code, or it has expired (48 hours) 🙏\nRegister again on the website, or tap «🛠️ I'm a technician» here.",
+        "ur": "اس کوڈ کی رجسٹریشن نہیں ملی، یا اس کی مدت ختم ہو گئی (48 گھنٹے) 🙏\nویب سائٹ سے دوبارہ رجسٹر کریں، یا یہاں «🛠️ میں ٹیکنیشن ہوں» دبائیں۔"},
+    "هذا الرمز استُخدم من قبل.": {"en": "This code has already been used.", "ur": "یہ کوڈ پہلے استعمال ہو چکا ہے۔"},
+    "رقمك مسجّل مسبقًا في «فنّي» 👇": {"en": "Your number is already registered on «Fanni» 👇",
+                                     "ur": "آپ کا نمبر «فنی» میں پہلے سے رجسٹرڈ ہے 👇"},
     # ─────────── أرشيف الفنيين المحذوفين + سبب الحذف ───────────
     "ℹ️ نحتفظ باسمك ورقمك {days} فقط للتواصل معك بشأن سبب الحذف، ثم يُحذفان نهائيًا. ويبقى تقييمك مرتبطًا برقمك بصورة مشفّرة ليعود إليك إن سجّلت من جديد.": {
         "en": "ℹ️ We keep your name and number for {days} only, to contact you about why you left, then they are permanently deleted. Your rating stays linked to your number in encrypted form, so it returns to you if you register again.",

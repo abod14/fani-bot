@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>سجّل كفنّي — فنّي</title>
+<meta name="description" content="سجّل مهنتك والأحياء التي تعمل فيها في «فنّي» خلال دقيقة، وابدأ بالظهور للعملاء القريبين منك.">
+<link rel="icon" type="image/svg+xml" href="/img/fanni-icon.svg">
+<meta property="og:title" content="سجّل كفنّي في «فنّي» — عملاء من حيّك بلا عمولة">
+<meta property="og:image" content="https://fanniapp.com/img/fanni-lockup.png">
+<meta name="theme-color" content="#0f766e">
+<style>
+@font-face{font-family:Alexandria;src:url(/fonts/Alexandria-800.woff) format("woff");font-weight:800;font-display:swap}
+@font-face{font-family:Alexandria;src:url(/fonts/Alexandria-700.woff) format("woff");font-weight:700;font-display:swap}
+@font-face{font-family:"IBM Plex Sans Arabic";src:url(/fonts/IBMPlexSansArabic-Regular.woff) format("woff");font-weight:400;font-display:swap}
+@font-face{font-family:"IBM Plex Sans Arabic";src:url(/fonts/IBMPlexSansArabic-SemiBold.woff) format("woff");font-weight:600;font-display:swap}
+:root{
+  --brand:#0f766e;--brand-deep:#115e59;--spark:#f6b23c;--tint:#e3f2ef;--surface:#f7faf9;--raised:#fff;
+  --ink:#16233a;--muted:#5b6b7f;--line:#dbe5e3;--err:#b42318;--err-bg:#fef3f2;
+  --display:Alexandria,"IBM Plex Sans Arabic",Tahoma,sans-serif;
+  --text:"IBM Plex Sans Arabic",Tahoma,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:var(--text);font-size:16px;line-height:1.7;color:var(--ink);background:var(--surface);-webkit-font-smoothing:antialiased}
+a{color:var(--brand)}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px;border-radius:4px}
+.wrap{max-width:680px;margin:0 auto;padding:0 16px}
+header{background:rgba(247,250,249,.92);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+header .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+header img{height:34px;width:auto;display:block}
+.langs{display:flex;gap:4px;background:var(--raised);border:1px solid var(--line);border-radius:999px;padding:3px}
+.langs button{border:0;background:none;font:inherit;font-size:14px;font-weight:600;color:var(--muted);padding:4px 12px;border-radius:999px;cursor:pointer}
+.langs button[aria-pressed=true]{background:var(--brand);color:#fff}
+h1{font-family:var(--display);font-weight:800;font-size:30px;line-height:1.4;margin:28px 0 4px}
+.lead{color:var(--muted);margin:0 0 20px}
+.card{background:var(--raised);border:1px solid var(--line);border-radius:16px;padding:20px;margin:0 0 14px}
+.card h2{font-family:var(--display);font-weight:700;font-size:18px;margin:0 0 12px;display:flex;align-items:center;gap:10px}
+.num{width:28px;height:28px;border-radius:50%;background:var(--tint);color:var(--brand-deep);display:inline-flex;align-items:center;justify-content:center;font-size:14px;flex:none}
+label.f{display:block;font-weight:600;font-size:14px;margin:10px 0 4px}
+input[type=text],input[type=search],select{width:100%;font:inherit;font-size:16px;color:var(--ink);background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;min-height:46px}
+input:focus,select:focus{border-color:var(--brand);outline:none}
+.hint{color:var(--muted);font-size:13px;margin:4px 0 0}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{position:relative}
+.chip input{position:absolute;opacity:0;inset:0;cursor:pointer}
+.chip span{display:inline-block;border:1.5px solid var(--line);border-radius:999px;padding:6px 14px;font-size:14px;background:#fff;cursor:pointer;user-select:none}
+.chip input:checked+span{background:var(--tint);border-color:var(--brand);color:var(--brand-deep);font-weight:600}
+.chip input:checked+span::before{content:"✓ "}
+.chip input:disabled+span{opacity:.4;cursor:not-allowed}
+.chip input:focus-visible+span{outline:2px solid var(--brand);outline-offset:2px}
+.linkbtn{background:none;border:0;color:var(--brand);font:inherit;font-weight:600;cursor:pointer;padding:6px 0}
+.dbox{max-height:300px;overflow-y:auto;border:1.5px solid var(--line);border-radius:10px;padding:10px;margin-top:8px}
+.count{font-size:14px;color:var(--muted);margin:8px 0 0}
+.count b{color:var(--brand-deep)}
+.whole{display:flex;align-items:center;gap:8px;margin:10px 0 0;font-weight:600}
+.whole input{width:20px;height:20px;accent-color:var(--brand)}
+.err{background:var(--err-bg);color:var(--err);border-radius:10px;padding:10px 14px;margin:0 0 14px;font-weight:600}
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;border:0;border-radius:14px;padding:15px 20px;font:inherit;font-size:18px;font-weight:600;cursor:pointer;text-decoration:none}
+.btn-primary{background:var(--brand);color:#fff}
+.btn-primary:hover{background:var(--brand-deep)}
+.btn-primary:disabled{opacity:.6;cursor:wait}
+.btn-wa{background:#1f9d55;color:#fff;font-size:19px}
+.btn-wa:hover{background:#17803f}
+.btn svg{width:24px;height:24px;flex:none}
+.sum{list-style:none;margin:0;padding:0}
+.sum li{padding:6px 0;border-bottom:1px dashed var(--line)}
+.sum li:last-child{border:0}
+.sum b{display:inline-block;min-width:90px;color:var(--muted);font-weight:600}
+.steps{margin:14px 0;padding:0 18px;color:var(--ink)}
+.steps li{margin:4px 0}
+.note{background:#fff8e8;border:1px solid #f6dfa8;border-radius:10px;padding:10px 14px;font-size:14px;margin:12px 0 0}
+footer{color:var(--muted);font-size:13px;text-align:center;padding:20px 0 36px}
+[hidden]{display:none!important}
+@media (max-width:480px){h1{font-size:25px}.row2{grid-template-columns:1fr}.card{padding:16px}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <a href="/" aria-label="فنّي"><img src="/img/fanni-lockup.svg" alt="فنّي" width="144" height="34"></a>
+  <div class="langs" role="group" aria-label="Language">
+    <button type="button" data-l="ar" aria-pressed="true">ع</button>
+    <button type="button" data-l="en" aria-pressed="false">EN</button>
+    <button type="button" data-l="ur" aria-pressed="false">اردو</button>
+  </div>
+</div></header>
+
+<main class="wrap">
+  <h1 data-t="title"></h1>
+  <p class="lead" data-t="lead"></p>
+
+  <form id="form" novalidate>
+    <div class="err" id="err" role="alert" hidden></div>
+
+    <section class="card">
+      <h2><span class="num">1</span><span data-t="s_name"></span></h2>
+      <input type="text" id="name" autocomplete="name" maxlength="40">
+      <p class="hint" data-t="name_hint"></p>
+    </section>
+
+    <section class="card">
+      <h2><span class="num">2</span><span data-t="s_prof"></span></h2>
+      <div class="row2">
+        <div><label class="f" for="dom1" data-t="domain"></label><select id="dom1"></select></div>
+        <div><label class="f" for="prof1" data-t="prof"></label><select id="prof1" disabled></select></div>
+      </div>
+      <button type="button" class="linkbtn" id="add2" data-t="add2"></button>
+      <div id="p2box" hidden>
+        <div class="row2">
+          <div><label class="f" for="dom2" data-t="domain2"></label><select id="dom2"></select></div>
+          <div><label class="f" for="prof2" data-t="prof2"></label><select id="prof2" disabled></select></div>
+        </div>
+        <button type="button" class="linkbtn" id="rm2" data-t="rm2"></button>
+      </div>
+    </section>
+
+    <section class="card" id="svcCard" hidden>
+      <h2><span class="num">3</span><span data-t="s_svc"></span></h2>
+      <p class="hint" style="margin:0 0 10px" data-t="svc_hint"></p>
+      <div class="chips" id="svcs"></div>
+      <button type="button" class="linkbtn" id="svcAll" data-t="all"></button>
+    </section>
+
+    <section class="card">
+      <h2><span class="num">4</span><span data-t="s_place"></span></h2>
+      <div id="ctryBox"><label class="f" for="ctry" data-t="country"></label><select id="ctry"></select></div>
+      <div class="row2">
+        <div><label class="f" for="region" data-t="region"></label><select id="region" disabled></select></div>
+        <div><label class="f" for="city" data-t="city"></label><select id="city" disabled></select></div>
+      </div>
+      <div id="distBox" hidden>
+        <label class="whole" id="wholeRow" hidden><input type="checkbox" id="whole"><span data-t="whole"></span></label>
+        <div id="distPick">
+          <label class="f" for="dsearch" data-t="districts"></label>
+          <input type="search" id="dsearch">
+          <div class="dbox"><div class="chips" id="dists"></div></div>
+          <p class="count"><span data-t="chosen"></span> <b id="dcount">0</b> / <span id="dmax">5</span></p>
+        </div>
+      </div>
+      <p class="hint" id="noDist" hidden data-t="no_dist"></p>
+    </section>
+
+    <button type="submit" class="btn btn-primary" id="go" data-t="next"></button>
+  </form>
+
+  <section id="done" hidden>
+    <div class="card">
+      <h2><span class="num">✓</span><span data-t="review"></span></h2>
+      <ul class="sum" id="sum"></ul>
+    </div>
+    <div class="card">
+      <h2><span class="num">5</span><span data-t="s_confirm"></span></h2>
+      <ol class="steps"><li data-t="st1"></li><li data-t="st2"></li><li data-t="st3"></li></ol>
+      <a class="btn btn-wa" id="waBtn" href="#" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1 2.7c.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3z"/></svg><span data-t="wa_btn"></span></a>
+      <p class="note" data-t="wa_note"></p>
+      <p class="hint" style="text-align:center;margin-top:10px"><span data-t="code_lbl"></span> <b id="code" dir="ltr"></b></p>
+    </div>
+    <button type="button" class="linkbtn" id="back" data-t="back"></button>
+  </section>
+</main>
+<footer><a href="/privacy" data-t="privacy"></a> · <a href="https://wa.me/966530990046" data-t="support"></a></footer>
+
+<script>
+(function(){
+var T={
+ar:{title:"سجّل كفنّي في «فنّي»",lead:"عبّئ بياناتك مرة واحدة، ثم أكّد برسالة واتساب — وتبدأ بالظهور للعملاء القريبين منك. التسجيل مجاني.",
+s_name:"اسمك",name_hint:"بالحروف العربية أو الإنجليزية، كما سيظهر للعملاء.",s_prof:"مهنتك",domain:"المجال",prof:"المهنة",
+add2:"➕ إضافة مهنة ثانية (اختياري)",domain2:"مجال المهنة الثانية",prof2:"المهنة الثانية",rm2:"✕ إزالة المهنة الثانية",
+s_svc:"خدماتك",svc_hint:"اختر الخدمات التي تقدمها (اختياري).",all:"تحديد كل الخدمات",
+s_place:"مكان عملك",country:"الدولة",region:"المنطقة",city:"المدينة",districts:"الأحياء التي تخدمها (حتى 5)",
+dsearch:"🔍 ابحث عن حي…",chosen:"المختار:",whole:"أخدم المدينة كاملة 🌍",no_dist:"لا توجد أحياء لهذه المدينة — ستظهر لكل من يبحث فيها.",
+choose:"— اختر —",next:"متابعة",sending:"لحظة…",review:"راجع بياناتك",s_confirm:"أكّد تسجيلك عبر واتساب",
+st1:"اضغط الزر الأخضر، فيفتح واتساب برسالة جاهزة.",st2:"اضغط «إرسال» دون تعديل الرسالة.",st3:"يصلك الرد فورًا: «🎉 تم تسجيلك».",
+wa_btn:"أكّد عبر واتساب",wa_note:"⚠️ أرسل الرسالة من الرقم الذي تريد أن يتواصل معك العملاء عليه — فهو الرقم الذي سيظهر لهم. الرمز صالح 48 ساعة.",
+code_lbl:"رمز التسجيل:",back:"✏️ تعديل البيانات",privacy:"سياسة الخصوصية",support:"الدعم على واتساب",
+l_name:"الاسم",l_prof:"المهنة",l_svc:"الخدمات",l_place:"المكان",whole_city:"المدينة كاملة",net:"تعذّر الاتصال، حاول مرة أخرى.",
+e_prof:"اختر مهنتك.",e_city:"اختر مدينتك.",e_dist:"اختر حيًا واحدًا على الأقل.",e_name:"اكتب اسمك."},
+en:{title:"Register as a technician on «Fanni»",lead:"Fill in your details once, then confirm with a WhatsApp message — and start appearing to nearby customers. Registration is free.",
+s_name:"Your name",name_hint:"In Arabic or English letters, as customers will see it.",s_prof:"Your profession",domain:"Field",prof:"Profession",
+add2:"➕ Add a second profession (optional)",domain2:"Second profession field",prof2:"Second profession",rm2:"✕ Remove second profession",
+s_svc:"Your services",svc_hint:"Choose the services you offer (optional).",all:"Select all services",
+s_place:"Where you work",country:"Country",region:"Region",city:"City",districts:"Districts you serve (up to 5)",
+dsearch:"🔍 Search a district…",chosen:"Selected:",whole:"I serve the whole city 🌍",no_dist:"This city has no districts — you'll appear to everyone searching in it.",
+choose:"— Choose —",next:"Continue",sending:"One moment…",review:"Review your details",s_confirm:"Confirm via WhatsApp",
+st1:"Tap the green button; WhatsApp opens with a ready message.",st2:"Tap «Send» without changing the message.",st3:"You'll get an instant reply: «🎉 You're registered».",
+wa_btn:"Confirm via WhatsApp",wa_note:"⚠️ Send the message from the number you want customers to contact — it's the number they will see. The code is valid for 48 hours.",
+code_lbl:"Registration code:",back:"✏️ Edit details",privacy:"Privacy policy",support:"Support on WhatsApp",
+l_name:"Name",l_prof:"Profession",l_svc:"Services",l_place:"Location",whole_city:"Whole city",net:"Connection failed, try again.",
+e_prof:"Choose your profession.",e_city:"Choose your city.",e_dist:"Choose at least one district.",e_name:"Enter your name."},
+ur:{title:"«فنی» میں بطور کاریگر رجسٹر ہوں",lead:"اپنی معلومات ایک بار بھریں، پھر واٹس ایپ پیغام سے تصدیق کریں — اور قریبی گاہکوں کو نظر آنا شروع کریں۔ رجسٹریشن مفت ہے۔",
+s_name:"آپ کا نام",name_hint:"عربی یا انگریزی حروف میں، جیسا گاہکوں کو نظر آئے گا (اردو حروف نہیں)۔",s_prof:"آپ کا پیشہ",domain:"شعبہ",prof:"پیشہ",
+add2:"➕ دوسرا پیشہ شامل کریں (اختیاری)",domain2:"دوسرے پیشے کا شعبہ",prof2:"دوسرا پیشہ",rm2:"✕ دوسرا پیشہ ہٹائیں",
+s_svc:"آپ کی خدمات",svc_hint:"اپنی خدمات منتخب کریں (اختیاری)۔",all:"تمام خدمات منتخب کریں",
+s_place:"کام کی جگہ",country:"ملک",region:"علاقہ",city:"شہر",districts:"محلے جہاں آپ کام کرتے ہیں (زیادہ سے زیادہ 5)",
+dsearch:"🔍 محلہ تلاش کریں…",chosen:"منتخب:",whole:"میں پورے شہر میں کام کرتا ہوں 🌍",no_dist:"اس شہر کے محلے نہیں ہیں — آپ یہاں تلاش کرنے والے سب کو نظر آئیں گے۔",
+choose:"— منتخب کریں —",next:"آگے بڑھیں",sending:"ایک لمحہ…",review:"اپنی معلومات دیکھیں",s_confirm:"واٹس ایپ سے تصدیق کریں",
+st1:"سبز بٹن دبائیں؛ واٹس ایپ تیار پیغام کے ساتھ کھلے گا۔",st2:"پیغام بدلے بغیر «بھیجیں» دبائیں۔",st3:"فوراً جواب آئے گا: «🎉 آپ رجسٹر ہو گئے»۔",
+wa_btn:"واٹس ایپ سے تصدیق کریں",wa_note:"⚠️ پیغام اسی نمبر سے بھیجیں جس پر گاہک آپ سے رابطہ کریں — یہی نمبر انہیں نظر آئے گا۔ کوڈ 48 گھنٹے تک درست ہے۔",
+code_lbl:"رجسٹریشن کوڈ:",back:"✏️ معلومات میں ترمیم",privacy:"رازداری کی پالیسی",support:"واٹس ایپ پر سپورٹ",
+l_name:"نام",l_prof:"پیشہ",l_svc:"خدمات",l_place:"جگہ",whole_city:"پورا شہر",net:"رابطہ نہیں ہو سکا، دوبارہ کوشش کریں۔",
+e_prof:"اپنا پیشہ منتخب کریں۔",e_city:"اپنا شہر منتخب کریں۔",e_dist:"کم از کم ایک محلہ منتخب کریں۔",e_name:"اپنا نام لکھیں۔"}};
+
+var API="/wa/api/join/", L="ar", M=null, MAX=5, state={d:[]};
+var $=function(id){return document.getElementById(id)};
+function t(k){return (T[L]||T.ar)[k]||T.ar[k]||""}
+function esc(s){var d=document.createElement("div");d.textContent=s;return d.innerHTML}
+function getJSON(u){return fetch(API+u).then(function(r){if(!r.ok)throw 0;return r.json()})}
+function opts(sel,items,keepVal){
+  var v=keepVal?sel.value:"";
+  sel.innerHTML='<option value="">'+esc(t("choose"))+'</option>'+items.map(function(i){return '<option value="'+esc(String(i.id))+'">'+esc(i.name)+'</option>'}).join("");
+  if(v&&items.some(function(i){return String(i.id)===v}))sel.value=v;
+  sel.disabled=!items.length;
+}
+function texts(){
+  document.documentElement.lang=L;document.documentElement.dir=L==="en"?"ltr":"rtl";
+  document.title=t("title")+" — Fanni";
+  [].forEach.call(document.querySelectorAll("[data-t]"),function(el){el.textContent=t(el.dataset.t)});
+  $("dsearch").placeholder=t("dsearch");
+  [].forEach.call(document.querySelectorAll(".langs button"),function(b){b.setAttribute("aria-pressed",b.dataset.l===L)});
+}
+function prof(id){var f=null;(M?M.domains:[]).forEach(function(d){d.professions.forEach(function(p){if(p.id===id)f=p})});return f}
+function profsOf(domId){var d=(M?M.domains:[]).filter(function(x){return x.id===domId})[0];return d?d.professions:[]}
+
+// ── المهن
+function fillDomains(){opts($("dom1"),M.domains,true);opts($("dom2"),M.domains,true);
+  if($("dom1").value)opts($("prof1"),profsOf($("dom1").value),true);
+  if($("dom2").value)opts($("prof2"),profsOf($("dom2").value),true);}
+$("dom1").onchange=function(){opts($("prof1"),profsOf(this.value));renderSvcs();renderWhole()};
+$("dom2").onchange=function(){opts($("prof2"),profsOf(this.value));renderSvcs();renderWhole()};
+$("prof1").onchange=$("prof2").onchange=function(){renderSvcs();renderWhole()};
+$("add2").onclick=function(){$("p2box").hidden=false;this.hidden=true};
+$("rm2").onclick=function(){$("p2box").hidden=true;$("add2").hidden=false;$("dom2").value="";opts($("prof2"),[]);renderSvcs();renderWhole()};
+
+// ── الخدمات
+function selectedSvcs(){return [].map.call(document.querySelectorAll("#svcs input:checked"),function(i){return i.value})}
+function renderSvcs(){
+  var keep=selectedSvcs(),seen={},list=[];
+  [$("prof1").value,$("p2box").hidden?"":$("prof2").value].forEach(function(id){var p=prof(id);if(p)p.services.forEach(function(s){if(!seen[s.ar]){seen[s.ar]=1;list.push(s)}})});
+  $("svcs").innerHTML=list.map(function(s){return '<label class="chip"><input type="checkbox" value="'+esc(s.ar)+'"'+(keep.indexOf(s.ar)>-1?" checked":"")+'><span>'+esc(s.name)+'</span></label>'}).join("");
+  $("svcCard").hidden=!list.length;
+}
+$("svcAll").onclick=function(){[].forEach.call(document.querySelectorAll("#svcs input"),function(i){i.checked=true})};
+
+// ── المكان
+function wide(){var a=prof($("prof1").value),b=$("p2box").hidden?null:prof($("prof2").value);return !!((a&&a.wide)||(b&&b.wide))}
+function renderWhole(){$("wholeRow").hidden=!wide();if(!wide())$("whole").checked=false;$("distPick").style.opacity=$("whole").checked?.35:1}
+$("whole").onchange=renderWhole;
+function loadRegions(){
+  var c=$("ctry").value||"SA";opts($("region"),[]);opts($("city"),[]);$("distBox").hidden=true;$("noDist").hidden=true;
+  getJSON("regions?country="+encodeURIComponent(c)).then(function(j){opts($("region"),j.regions)});
+}
+$("ctry").onchange=loadRegions;
+$("region").onchange=function(){
+  opts($("city"),[]);$("distBox").hidden=true;$("noDist").hidden=true;state.cities=[];
+  if(!this.value)return;
+  getJSON("cities?region="+this.value).then(function(j){state.cities=j.cities;opts($("city"),j.cities)});
+};
+$("city").onchange=function(){
+  $("distBox").hidden=true;$("noDist").hidden=true;$("dists").innerHTML="";state.d=[];updCount();
+  var c=(state.cities||[]).filter(function(x){return String(x.id)===$("city").value})[0];
+  if(!c)return;
+  if(!c.has_d){$("noDist").hidden=false;return}
+  getJSON("districts?city="+c.id).then(function(j){
+    $("dists").innerHTML=j.districts.map(function(d){return '<label class="chip" data-n="'+esc(d.name)+'"><input type="checkbox" value="'+d.id+'"><span>'+esc(d.name)+'</span></label>'}).join("");
+    $("distBox").hidden=false;renderWhole();updCount();
+  });
+};
+$("dists").addEventListener("change",updCount);
+function updCount(){
+  var sel=[].filter.call(document.querySelectorAll("#dists input"),function(i){return i.checked});
+  $("dcount").textContent=sel.length;
+  [].forEach.call(document.querySelectorAll("#dists input"),function(i){i.disabled=!i.checked&&sel.length>=MAX});
+}
+$("dsearch").oninput=function(){var q=this.value.trim();
+  [].forEach.call(document.querySelectorAll("#dists .chip"),function(l){l.hidden=!!q&&l.dataset.n.indexOf(q)<0&&!l.querySelector("input").checked})};
+
+// ── الإرسال
+function showErr(m){$("err").textContent=m;$("err").hidden=!m;if(m)$("err").scrollIntoView({behavior:"smooth",block:"center"})}
+$("form").onsubmit=function(e){
+  e.preventDefault();showErr("");
+  var name=$("name").value.trim(), cityOk=!!$("city").value;
+  if(!name)return showErr(t("e_name"));
+  if(!$("prof1").value)return showErr(t("e_prof"));
+  if(!cityOk)return showErr(t("e_city"));
+  var dists=[].map.call(document.querySelectorAll("#dists input:checked"),function(i){return +i.value});
+  var whole=$("whole").checked&&wide();
+  if(!$("distBox").hidden&&!whole&&!dists.length)return showErr(t("e_dist"));
+  var body={lang:L,name:name,pid:$("prof1").value,p2id:$("p2box").hidden?"":$("prof2").value,services:selectedSvcs(),
+            city_id:+$("city").value,districts:dists,whole:whole};
+  $("go").disabled=true;$("go").textContent=t("sending");
+  fetch(API+"submit",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)})
+   .then(function(r){return r.json()}).then(function(j){
+     if(!j.ok)return showErr(j.error||t("net"));
+     var p1=prof(body.pid),p2=prof(body.p2id),cityName=$("city").selectedOptions[0].textContent;
+     var where=whole||$("distBox").hidden?t("whole_city"):dists.map(function(id){return document.querySelector('#dists input[value="'+id+'"]').parentNode.dataset.n}).join("، ");
+     var svcNames=[].map.call(document.querySelectorAll("#svcs input:checked"),function(i){return i.nextSibling.textContent});
+     $("sum").innerHTML="<li><b>"+esc(t("l_name"))+"</b> "+esc(name)+"</li><li><b>"+esc(t("l_prof"))+"</b> "+esc(p1.name+(p2?" • "+p2.name:""))+"</li>"
+       +(svcNames.length?"<li><b>"+esc(t("l_svc"))+"</b> "+esc(svcNames.join("، "))+"</li>":"")
+       +"<li><b>"+esc(t("l_place"))+"</b> "+esc(cityName+" — "+where)+"</li>";
+     $("waBtn").href=j.wa_url;$("code").textContent=j.code;
+     $("form").hidden=true;$("done").hidden=false;window.scrollTo({top:0,behavior:"smooth"});
+   }).catch(function(){showErr(t("net"))})
+   .then(function(){$("go").disabled=false;$("go").textContent=t("next")});
+};
+$("back").onclick=function(){$("done").hidden=true;$("form").hidden=false};
+
+// ── اللغة
+function setLang(l){
+  L=T[l]?l:"ar";try{localStorage.setItem("fanni_lang",L)}catch(e){}
+  texts();
+  getJSON("meta?lang="+L).then(function(j){
+    var first=!M;M=j;MAX=j.max_districts||5;$("dmax").textContent=MAX;
+    fillDomains();renderSvcs();
+    if(first){opts($("ctry"),j.countries.map(function(c){return {id:c.code,name:c.name}}));
+      $("ctry").value=j.countries[0]?j.countries[0].code:"SA";$("ctryBox").hidden=j.countries.length<2;loadRegions();}
+    else{var v=$("ctry").value;opts($("ctry"),j.countries.map(function(c){return {id:c.code,name:c.name}}));$("ctry").value=v}
+  }).catch(function(){showErr(t("net"))});
+}
+[].forEach.call(document.querySelectorAll(".langs button"),function(b){b.onclick=function(){setLang(b.dataset.l)}});
+var saved=null;try{saved=new URLSearchParams(location.search).get("lang")||localStorage.getItem("fanni_lang")}catch(e){}
+setLang(saved||"ar");
+})();
+</script>
+</body>
+</html>
