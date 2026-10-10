@@ -364,7 +364,7 @@
     },
     {
       "id": "d3",
-      "name": "خدمات السيارات",
+      "name": "خدمات السيارات والمعدات",
       "professions": [
         {
           "id": "p24",
@@ -395,7 +395,7 @@
         {
           "id": "p73",
           "name": "بنشري سيارات متنقل",
-          "subcategory": "خدمات السيارات",
+          "subcategory": "خدمات السيارات والمعدات",
           "isco_code": null,
           "official_name_en": "",
           "status": "مضافة يدويًا",
@@ -410,7 +410,7 @@
         {
           "id": "p74",
           "name": "بنشري معدات ثقيلة",
-          "subcategory": "خدمات السيارات",
+          "subcategory": "خدمات السيارات والمعدات",
           "isco_code": null,
           "official_name_en": "",
           "status": "مضافة يدويًا",
@@ -425,7 +425,7 @@
         {
           "id": "p75",
           "name": "تشليح سيارات",
-          "subcategory": "خدمات السيارات",
+          "subcategory": "خدمات السيارات والمعدات",
           "isco_code": null,
           "official_name_en": "",
           "status": "مضافة يدويًا",

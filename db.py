@@ -640,11 +640,12 @@ def ensure_extra_professions():
                     (pid, domain_id, name, json.dumps(services, ensure_ascii=False), max_order + 1),
                 )
             conn.execute("INSERT OR REPLACE INTO settings (key, value) VALUES (?, '1')", (flag,))
-        # مرة واحدة: مجال d3 صار «خدمات السيارات» — نحدّث ترجمته القديمة (تعبئة الفارغ وحدها ما تكفي)
-        if not conn.execute("SELECT 1 FROM settings WHERE key = 'rename_d3_cars'").fetchone():
+        # مرة واحدة: مجال d3 صار «خدمات السيارات والمعدات» — نحدّث ترجمته القديمة (تعبئة الفارغ وحدها ما تكفي)
+        if not conn.execute("SELECT 1 FROM settings WHERE key = 'rename_d3_cars_equip'").fetchone():
             if conn.execute("SELECT 1 FROM domains WHERE id = 'd3'").fetchone():
-                conn.execute("UPDATE domains SET name_en = 'Car Services', name_ur = 'گاڑیوں کی خدمات' WHERE id = 'd3'")
-                conn.execute("INSERT OR REPLACE INTO settings (key, value) VALUES ('rename_d3_cars', '1')")
+                conn.execute("UPDATE domains SET name_en = 'Vehicle & Equipment Services', "
+                             "name_ur = 'گاڑیوں اور مشینری کی خدمات' WHERE id = 'd3'")
+                conn.execute("INSERT OR REPLACE INTO settings (key, value) VALUES ('rename_d3_cars_equip', '1')")
         # مرة واحدة: البنشري المتنقل/المعدات والتشليح مهن نادرة تغطي المدينة كاملة (المالك يقدر يغيّرها من اللوحة)
         for pid in CITY_WIDE_SEED:
             flag = f"seed_wide_{pid}"

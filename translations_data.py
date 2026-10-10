@@ -5,7 +5,7 @@
 DOMAIN_TRANSLATIONS = {
     "d1": {"en": "Construction & Building", "ur": "تعمیرات"},
     "d2": {"en": "Electrical & Electronics", "ur": "الیکٹریکل اور الیکٹرانکس"},
-    "d3": {"en": "Car Services", "ur": "گاڑیوں کی خدمات"},
+    "d3": {"en": "Vehicle & Equipment Services", "ur": "گاڑیوں اور مشینری کی خدمات"},
     "d4": {"en": "Carpentry & Furniture", "ur": "بڑھئی اور فرنیچر"},
     "d5": {"en": "Crafts & Printing", "ur": "دستکاری اور پرنٹنگ"},
     "d6": {"en": "Health & Beauty", "ur": "صحت اور خوبصورتی"},
@@ -53,7 +53,7 @@ PROFESSION_TRANSLATIONS = {
     "p57": {"en": "Water Filter Technician", "ur": "واٹر فلٹر ٹیکنیشن"},
     "p58": {"en": "Home Appliance Technician", "ur": "گھریلو آلات کا ٹیکنیشن"},
 
-    # d3 — خدمات السيارات
+    # d3 — خدمات السيارات والمعدات
     "p22": {"en": "Steel Structure Builder", "ur": "اسٹیل ڈھانچہ ساز"},
     "p23": {"en": "Blacksmith", "ur": "لوہار"},
     "p24": {"en": "Car Mechanic", "ur": "کار مکینک"},
