@@ -97,12 +97,17 @@ def rest_fixed(all_profs: list[dict] | None = None) -> list[dict]:
     return [p for p in all_profs if p["id"] not in top]
 
 
-def more_message(intro: str) -> tuple[str, list[str]]:
-    """نص رسالة «المزيد» المرقّمة + ترتيب المعرّفات (عشان نعرف وش يقصد بالرقم)."""
+def more_message(intro: str, last: tuple[str, str] | None = None) -> tuple[str, list[str]]:
+    """نص رسالة «المزيد» المرقّمة + ترتيب المعرّفات (عشان نعرف وش يقصد بالرقم).
+    last=(المعرّف، النص): خيار إضافي بآخر رقم (مثل «مهنتي غير موجودة» بتسجيل الفني)."""
     rest = rest_fixed(all_professions(get_lang()))
     lines = [f"{i}. {p['name']}" for i, p in enumerate(rest, 1)]
+    ids = [p["id"] for p in rest]
+    if last:
+        lines.append(f"{len(rest) + 1}. {last[1]}")
+        ids.append(last[0])
     text = f"{intro}\n\n" + "\n".join(lines) + "\n\n" + tr("✍️ اكتب *رقم* المهنة (مثل: 3) أو اسمها.")
-    return text, [p["id"] for p in rest]
+    return text, ids
 
 
 def pick_by_number(n: int, data_more: list | None) -> str | None:

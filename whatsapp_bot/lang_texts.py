@@ -398,10 +398,24 @@ TEXTS: dict[str, dict[str, str]] = {
     },
     "اختر مهنتك 👇": {"en": "Choose your trade 👇", "ur": "اپنا کام منتخب کریں 👇"},
     "اختر مهنتك من النتائج 👇": {"en": "Choose your trade from the results 👇", "ur": "نتائج میں سے اپنا کام منتخب کریں 👇"},
-    "لم أجد مهنة باسم «{q}» 🤔\n\nاختر مهنتك من القائمة 👇 أو اكتب رقمها أو اسمها بصيغة أخرى": {
-        "en": "I couldn't find a trade called «{q}» 🤔\n\nChoose your trade from the list 👇 or type its number or another name for it",
-        "ur": "«{q}» نام کا کوئی کام نہیں ملا 🤔\n\nلسٹ سے اپنا کام منتخب کریں 👇 یا اس کا نمبر یا کوئی دوسرا نام لکھیں",
+    "لم أجد مهنة باسم «{q}» 🤔\n\nاختر مهنتك من القائمة 👇 أو اكتب رقمها أو اسمها بصيغة أخرى. وإن لم تجدها فاضغط «المزيد» واختر آخر رقم: «🙋 مهنتي غير موجودة».": {
+        "en": "I couldn't find a trade called «{q}» 🤔\n\nChoose your trade from the list 👇 or type its number or another name for it. If it isn't there, tap «More» and choose the last number: «🙋 My trade isn't listed».",
+        "ur": "«{q}» نام کا کوئی کام نہیں ملا 🤔\n\nلسٹ سے اپنا کام منتخب کریں 👇 یا اس کا نمبر یا کوئی دوسرا نام لکھیں۔ اگر نہ ملے تو «مزید» دبائیں اور آخری نمبر منتخب کریں: «🙋 میرا کام فہرست میں نہیں»۔",
     },
+    "🙋 مهنتي غير موجودة": {"en": "🙋 My trade isn't listed", "ur": "🙋 میرا کام فہرست میں نہیں"},
+    "✍️ اكتب اسم مهنتك كما تعرفها (مثل: صيانة معدات ثقيلة)، وسنضيفها ونبلغك.": {
+        "en": "✍️ Type your trade's name as you know it (e.g. heavy equipment maintenance), and we'll add it and let you know.",
+        "ur": "✍️ اپنے کام کا نام لکھیں جیسے آپ جانتے ہیں (جیسے: بھاری مشینری کی مرمت)، ہم اسے شامل کر کے آپ کو بتائیں گے۔",
+    },
+    "شكرًا لك 🌟 سجّلنا مهنتك «{q}»، وسنراجعها ونضيفها قريبًا بإذن الله، ثم نبلغك هنا لتكمل تسجيلك.": {
+        "en": "Thank you 🌟 We've noted your trade «{q}». We'll review and add it soon, then let you know here so you can finish registering.",
+        "ur": "شکریہ 🌟 ہم نے آپ کا کام «{q}» درج کر لیا ہے۔ ہم جلد اس کا جائزہ لے کر اسے شامل کریں گے، پھر یہیں آپ کو بتائیں گے تاکہ آپ رجسٹریشن مکمل کر سکیں۔",
+    },
+    "🎉 أضفنا مهنتك «{p}» في «فنّي»! اضغط الزر أدناه لتكمل تسجيلك مجانًا خلال دقيقة.": {
+        "en": "🎉 We've added your trade «{p}» to Fanni! Tap the button below to finish your free registration in a minute.",
+        "ur": "🎉 ہم نے آپ کا کام «{p}» «فنی» میں شامل کر دیا ہے! ایک منٹ میں مفت رجسٹریشن مکمل کرنے کے لیے نیچے بٹن دبائیں۔",
+    },
+    "🛠️ سجّلني الآن": {"en": "🛠️ Register me now", "ur": "🛠️ ابھی رجسٹر کریں"},
     "ما الخدمات التي تقدمها في مهنة «{pname}»؟ 👇\nاضغط الزر، وحدّد كل خدماتك ☑️ ثم «تم التحديد».": {
         "en": "Which «{pname}» services do you offer? 👇\nTap the button, tick all your services ☑️ then «✅ تم التحديد» (Done).",
         "ur": "«{pname}» میں آپ کون سی سروسز دیتے ہیں؟ 👇\nبٹن دبائیں، اپنی تمام سروسز پر ☑️ لگائیں پھر «تم التحديد» دبائیں۔",

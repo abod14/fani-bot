@@ -26,6 +26,7 @@
       <a href="{{ url_for('payments_list') }}" class="{{ 'active' if active_page == 'payments' else '' }}">الاشتراكات والمدفوعات</a>
       <a href="{{ url_for('demand_page') }}" class="{{ 'active' if active_page == 'demand' else '' }}">الأكثر طلبًا</a>
       <a href="{{ url_for('professions_page') }}" class="{{ 'active' if active_page == 'professions' else '' }}">المهن</a>
+      <a href="{{ url_for('profession_requests_page') }}" class="{{ 'active' if active_page == 'prof_requests' else '' }}">مهن مقترحة</a>
       <a href="{{ url_for('deleted_page') }}" class="{{ 'active' if active_page == 'deleted' else '' }}">المحذوفون</a>
       <a href="{{ url_for('registrars_page') }}" class="{{ 'active' if active_page == 'registrars' else '' }}">المسوّقون</a>
       <a href="{{ url_for('admins_page') }}" class="{{ 'active' if active_page == 'admins' else '' }}">المدراء والموظفون</a>

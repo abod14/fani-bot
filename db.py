@@ -578,6 +578,10 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT, professional_id INTEGER NOT NULL,
             author TEXT NOT NULL, body TEXT NOT NULL, created_at TEXT NOT NULL)""")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_notes_pro ON professional_notes (professional_id)")
+        # «مهنتي غير موجودة»: مهن يطلبها فنيون أثناء التسجيل (صفحة «مهن مقترحة» باللوحة)
+        conn.execute("""CREATE TABLE IF NOT EXISTS profession_requests (
+            id INTEGER PRIMARY KEY AUTOINCREMENT, phone TEXT NOT NULL, name TEXT, text TEXT NOT NULL,
+            lang TEXT NOT NULL DEFAULT 'ar', created_at TEXT NOT NULL, notified_at TEXT, notified_pid TEXT)""")
         # مهنة عُدّلت من اللوحة (اسمها/خدماتها) — مزامنة ملف المهن عند تشغيل البوت لا تمسح تعديلات المالك
         pcols = {r[1] for r in conn.execute("PRAGMA table_info(professions)").fetchall()}
         if pcols and "custom" not in pcols:
@@ -2555,6 +2559,37 @@ def set_admin_user_disabled(user_id: int, disabled: bool):
 
 
 # ─────────────────────────── سجل التواصل مع الفني + نشاط الموظفين ───────────────────────────
+
+def add_profession_request(phone: str, name: str, text: str, lang: str = "ar"):
+    """فني طلب مهنة غير موجودة — طلب واحد مفتوح لكل رقم ونص (التكرار يحدّث التاريخ فقط)."""
+    now = datetime.now(timezone.utc).isoformat()
+    with get_conn() as conn:
+        row = conn.execute("SELECT id FROM profession_requests WHERE phone=? AND text=? AND notified_at IS NULL",
+                           (phone, text)).fetchone()
+        if row:
+            conn.execute("UPDATE profession_requests SET created_at=?, name=COALESCE(NULLIF(?, ''), name) WHERE id=?",
+                         (now, name, row["id"]))
+        else:
+            conn.execute("INSERT INTO profession_requests (phone, name, text, lang, created_at) VALUES (?,?,?,?,?)",
+                         (phone, name, text, lang, now))
+
+
+def list_profession_requests() -> list[dict]:
+    with get_conn() as conn:
+        return [dict(r) for r in conn.execute(
+            "SELECT * FROM profession_requests ORDER BY (notified_at IS NOT NULL), created_at DESC LIMIT 500").fetchall()]
+
+
+def mark_profession_request_notified(req_id: int, pid: str):
+    with get_conn() as conn:
+        conn.execute("UPDATE profession_requests SET notified_at=?, notified_pid=? WHERE id=?",
+                     (datetime.now(timezone.utc).isoformat(), pid, req_id))
+
+
+def delete_profession_request(req_id: int):
+    with get_conn() as conn:
+        conn.execute("DELETE FROM profession_requests WHERE id=?", (req_id,))
+
 
 def add_professional_note(professional_id: int, author: str, body: str):
     body = (body or "").strip()[:2000]

@@ -111,6 +111,8 @@ def on_text(api, wa_id, state, data, body):
         return _on_otp_text(api, wa_id, data, body)
     if state == "r_prof":
         return _match_profession(api, wa_id, body, data)
+    if state == "r_missing":
+        return _save_missing(api, wa_id, data, body)
     if state == "r_dist":
         b = (body or "").strip()
         if b in WHOLE_CITY_WORDS or _flow().norm(b) in {_flow().norm(w) for w in WHOLE_CITY_WORDS}:
@@ -324,9 +326,13 @@ def _ask_top(api, wa_id, data, intro=None, note=""):
     return "r_prof", data
 
 
+MISSING = "missing"   # آخر رقم بقائمة «المزيد»: «مهنتي غير موجودة» (طلب المالك)
+MISSING_WORDS = ("مهنتي غير موجودة", "مهنتي غير موجوده", "مهنتي ليست موجودة", "مهنتي مو موجودة", "مهنتي مب موجودة")
+
+
 def _ask_more(api, wa_id, data):
     from whatsapp_bot import top
-    text, ids = top.more_message(tr("📋 باقي المهن:"))
+    text, ids = top.more_message(tr("📋 باقي المهن:"), last=(MISSING, tr("🙋 مهنتي غير موجودة")))
     api.text(wa_id, text)
     data.setdefault("r", {})["more"] = ids
     return "r_prof", data
@@ -370,10 +376,14 @@ def _match_profession(api, wa_id, text, data):
         if n == 10 and not more:
             return _ask_more(api, wa_id, data)
         pid = top.pick_by_number(n, more)
+        if pid == MISSING:
+            return _ask_missing(api, wa_id, data)
         if pid:
             return _select_profession(api, wa_id, pid, data)
         api.text(wa_id, tr("هذا الرقم غير موجود في القائمة 🤔 اكتب رقمًا صحيحًا أو اسم المهنة."))
         return "r_prof", data
+    if _flow().norm(text) in {_flow().norm(w) for w in MISSING_WORDS}:
+        return _ask_missing(api, wa_id, data)
     syn = top.synonym_profession(text)
     if syn and professions.get_profession(syn, "ar")[1]:
         db.log_search_term(text, syn, professions.get_profession(syn, "ar")[1]["name"], "register")
@@ -392,8 +402,33 @@ def _match_profession(api, wa_id, text, data):
         rows.append(("R:top:more", tr("📋 كل المهن"), None))
         api.list(wa_id, tr("اختر مهنتك من النتائج 👇"), tr("اختر المهنة"), rows, section_title=tr("المهن"))
         return "r_prof", data
-    return _ask_top(api, wa_id, data, tr("لم أجد مهنة باسم «{q}» 🤔\n\nاختر مهنتك من القائمة 👇 أو اكتب رقمها أو اسمها بصيغة أخرى",
+    return _ask_top(api, wa_id, data, tr("لم أجد مهنة باسم «{q}» 🤔\n\nاختر مهنتك من القائمة 👇 أو اكتب رقمها أو اسمها بصيغة أخرى. "
+                                         "وإن لم تجدها فاضغط «المزيد» واختر آخر رقم: «🙋 مهنتي غير موجودة».",
                                          q=_flow().clip_text(text)))
+
+
+def _ask_missing(api, wa_id, data):
+    api.text(wa_id, tr("✍️ اكتب اسم مهنتك كما تعرفها (مثل: صيانة معدات ثقيلة)، وسنضيفها ونبلغك."))
+    return "r_missing", data
+
+
+def _save_missing(api, wa_id, data, text):
+    """الفني كتب مهنة غير موجودة: نحفظها برقمه (صفحة «مهن مقترحة» باللوحة) وننبّه المالك."""
+    q = " ".join((text or "").split())[:60]
+    if len(q) < 2 or q.isdigit():
+        return _flow().hint_once(api, wa_id, "r_missing", data, lambda: _ask_missing(api, wa_id, data))
+    r = data.get("r") or {}
+    phone = _digits(wa_id)
+    db.add_profession_request(phone, r.get("name") or "", q, get_lang())
+    try:
+        import ratings
+        ratings._send_admin(f"🙋 مهنة مقترحة من فني: «{q}»\n👤 {r.get('name') or '—'} • +{phone}\n"
+                            f"راجعها من لوحة التحكم ← «مهن مقترحة».")
+    except Exception:
+        pass
+    api.text(wa_id, tr("شكرًا لك 🌟 سجّلنا مهنتك «{q}»، وسنراجعها ونضيفها قريبًا بإذن الله، "
+                       "ثم نبلغك هنا لتكمل تسجيلك.", q=_flow().clip_text(q)))
+    return None, {}
 
 
 def _select_profession(api, wa_id, pid, data, silent=False):

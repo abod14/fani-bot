@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}مهن مقترحة — لوحة تحكم «فني»{% endblock %}
+{% block content %}
+<h1>🙋 مهن مقترحة</h1>
+<p class="muted">فنيون لم يجدوا مهنتهم أثناء التسجيل فاختاروا «مهنتي غير موجودة» وكتبوا اسمها.
+أضف المهنة من صفحة «المهن»، ثم ارجع هنا واختر المهنة التي أضفتها واضغط «أبلغه» — تصله رسالة مجانية فيها زر «سجّلني الآن».
+الرسالة المجانية ممكنة فقط خلال 24 ساعة من آخر رسالة منه للبوت؛ بعدها اتصل به أو راسله من جوالك ثم اضغط «تم إبلاغه».</p>
+
+{% if top_texts %}
+<div class="card">
+  <h2>الأكثر طلبًا (غير المُبلَّغة)</h2>
+  <p>{% for t, c in top_texts %}<span class="badge">{{ t }} × {{ c }}</span> {% endfor %}</p>
+</div>
+{% endif %}
+
+<div class="card">
+  {% if rows %}
+  <table>
+    <thead><tr><th>التاريخ</th><th>المهنة كما كتبها</th><th>الفني</th><th>الحالة</th><th>إبلاغه</th><th></th></tr></thead>
+    <tbody>
+    {% for r in rows %}
+      <tr>
+        <td>{{ r.when }}</td>
+        <td><strong>{{ r.text }}</strong>{% if r.same > 1 and not r.notified_at %}<br><span class="muted">طلبها {{ r.same }} فنيين</span>{% endif %}</td>
+        <td>{{ r.name or '—' }}<br><a style="direction:ltr; display:inline-block;" href="https://wa.me/{{ r.phone }}" target="_blank">+{{ r.phone }}</a></td>
+        <td>
+          {% if r.notified_at %}<span class="badge active">✅ أُبلغ</span>{% if r.notified_name %}<br><span class="muted">{{ r.notified_name }}</span>{% endif %}
+          {% else %}<span class="badge">بانتظار الإضافة</span>{% endif %}
+          {% if r.registered %}<br><span class="badge active">سجّل في فنّي</span>{% endif %}
+        </td>
+        <td>
+          {% if not r.notified_at %}
+          <form method="post" style="display:flex; flex-direction:column; gap:6px; min-width:200px;">
+            <input type="hidden" name="id" value="{{ r.id }}">
+            <select name="pid" required>
+              <option value="">— المهنة التي أضفتها —</option>
+              {% for p in options %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}
+            </select>
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+              {% if r.window %}<button type="submit" name="action" value="notify" class="success">📤 أبلغه (مجانًا)</button>
+              {% else %}<span class="muted">⏳ خارج نافذة 24 ساعة — اتصل به</span>{% endif %}
+              <button type="submit" name="action" value="mark" class="secondary">تم إبلاغه</button>
+            </div>
+          </form>
+          {% endif %}
+        </td>
+        <td>
+          <form method="post" onsubmit="return confirm('حذف هذا الطلب؟');">
+            <input type="hidden" name="id" value="{{ r.id }}"><input type="hidden" name="action" value="delete">
+            <button type="submit" class="danger">حذف</button>
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">لا توجد طلبات بعد.</p>
+  {% endif %}
+</div>
+{% endblock %}

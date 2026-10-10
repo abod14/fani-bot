@@ -994,6 +994,71 @@ def deleted_page():
     return render_template("deleted.html", rows=rows, active_page="deleted", days=db.archive_days())
 
 
+# ─────────────────────────── مهن مقترحة («مهنتي غير موجودة») ───────────────────────────
+
+@app.route("/profession-requests", methods=["GET", "POST"])
+@super_required
+def profession_requests_page():
+    if request.method == "POST":
+        rid = int(request.form.get("id") or 0)
+        action = request.form.get("action")
+        req = next((r for r in db.list_profession_requests() if r["id"] == rid), None)
+        if not req:
+            flash("الطلب غير موجود.", "error")
+            return redirect(url_for("profession_requests_page"))
+        if action == "delete":
+            db.delete_profession_request(rid)
+            flash("تم حذف الطلب.", "success")
+        elif action in ("notify", "mark"):
+            pid = request.form.get("pid") or ""
+            _, prof = professions_repo.get_profession(pid, "ar") if pid else (None, None)
+            if not prof:
+                flash("اختر المهنة التي أضفتها أولًا.", "error")
+                return redirect(url_for("profession_requests_page"))
+            if action == "notify":
+                import ratings
+                from whatsapp_bot import lang as wlang
+                from whatsapp_bot.api import WhatsAppAPI
+                from whatsapp_bot.lang import tr
+                if not ratings.wa_last_seen_ok(req["phone"]):
+                    flash("⏳ لا يمكن الإرسال المجاني: مضى أكثر من 24 ساعة على آخر رسالة منه للبوت. "
+                          "اتصل به أو راسله من جوالك، ثم اضغط «تم إبلاغه».", "error")
+                    return redirect(url_for("profession_requests_page"))
+                lg = req.get("lang") if req.get("lang") in ("ar", "en", "ur") else "ar"
+                wlang.set_lang(lg)
+                pname = (prof.get(f"name_{lg}") if lg != "ar" else None) or prof["name"]
+                r = WhatsAppAPI().buttons(req["phone"], tr("🎉 أضفنا مهنتك «{p}» في «فنّي»! اضغط الزر أدناه لتكمل تسجيلك مجانًا خلال دقيقة.", p=pname),
+                                          [("R:new", tr("🛠️ سجّلني الآن"))])
+                wlang.set_lang("ar")
+                if r is None or getattr(r, "status_code", 500) >= 400:
+                    flash("❌ لم تُرسل الرسالة، حاول مرة أخرى.", "error")
+                    return redirect(url_for("profession_requests_page"))
+                flash(f"✅ أُرسل له إشعار مجاني على +{req['phone']}.", "success")
+            else:
+                flash("تم تعليمه كمُبلَّغ.", "success")
+            db.mark_profession_request_notified(rid, prof["id"])
+        return redirect(url_for("profession_requests_page"))
+    import ratings
+    rows = db.list_profession_requests()
+    with db.get_conn() as conn:
+        registered = {db._phone_digits(r[0] or "") for r in conn.execute("SELECT whatsapp_number FROM professionals").fetchall()}
+    counts: dict = {}
+    for r in rows:
+        key = " ".join(r["text"].split())
+        counts[key] = counts.get(key, 0) + (0 if r["notified_at"] else 1)
+    for r in rows:
+        r["when"] = _riyadh(r["created_at"])
+        r["window"] = ratings.wa_last_seen_ok(r["phone"])
+        r["registered"] = r["phone"] in registered
+        r["same"] = counts.get(" ".join(r["text"].split()), 0)
+        r["notified_name"] = (professions_repo.get_profession(r["notified_pid"], "ar")[1] or {}).get("name") if r.get("notified_pid") else None
+    options = sorted([p for d in professions_repo.get_domains("ar") for p in professions_repo.get_professions_by_domain(d["id"], "ar")],
+                     key=lambda p: p["name"])
+    top_texts = sorted(((k, v) for k, v in counts.items() if v), key=lambda x: -x[1])[:15]
+    return render_template("profession_requests.html", rows=rows, options=options, top_texts=top_texts,
+                           active_page="prof_requests")
+
+
 def _riyadh(iso: str | None) -> str:
     """تاريخ ووقت بتوقيت الرياض (المخزّن UTC)."""
     from datetime import datetime, timedelta
