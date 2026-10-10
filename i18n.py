@@ -947,6 +947,11 @@ TEXTS: dict[str, dict[str, str]] = {
     },
 
     # ─────────────────────────── /help ───────────────────────────
+    "menu_support": {
+        "ar": "💬 تواصل مع الدعم",
+        "en": "💬 Contact support",
+        "ur": "💬 سپورٹ سے رابطہ",
+    },
     "help_text": {
         "ar": (
             "بوت «فني» — دليل المهنيين والفنيين\n\n"
@@ -958,7 +963,8 @@ TEXTS: dict[str, dict[str, str]] = {
             "/language — تغيير لغة الواجهة\n"
             "/delete_account — حذف بياناتك نهائيًا من البوت\n"
             "/cancel — إلغاء أي عملية جارية\n"
-            "/help — عرض هذه الرسالة"
+            "/help — عرض هذه الرسالة\n\n"
+            "💬 الدعم والاستفسارات (واتساب): https://wa.me/966530990046"
         ),
         "en": (
             "«Fani» bot — professionals directory\n\n"
@@ -970,7 +976,8 @@ TEXTS: dict[str, dict[str, str]] = {
             "/language — Change interface language\n"
             "/delete_account — Permanently delete your data\n"
             "/cancel — Cancel any ongoing process\n"
-            "/help — Show this message"
+            "/help — Show this message\n\n"
+            "💬 Support (WhatsApp): https://wa.me/966530990046"
         ),
         "ur": (
             "«فنی» بوٹ — کاریگروں کی ڈائریکٹری\n\n"
@@ -982,7 +989,8 @@ TEXTS: dict[str, dict[str, str]] = {
             "/language — زبان تبدیل کریں\n"
             "/delete_account — اپنا ڈیٹا مستقل طور پر حذف کریں\n"
             "/cancel — کوئی بھی جاری عمل منسوخ کریں\n"
-            "/help — یہ پیغام دکھائیں"
+            "/help — یہ پیغام دکھائیں\n\n"
+            "💬 سپورٹ (واٹس ایپ): https://wa.me/966530990046"
         ),
     },
 

@@ -47,9 +47,9 @@ TEXTS: dict[str, dict[str, str]] = {
     # ─────────── القائمة الرئيسية ───────────
     "أهلًا {name} 👋": {"en": "Hi {name} 👋", "ur": "السلام علیکم {name} 👋"},
     "أهلًا بك 👋": {"en": "Welcome 👋", "ur": "خوش آمدید 👋"},
-    "{hi}\nهنا «فنّي» 🛠️ نصلك بأقرب فنّي: سبّاك، كهربائي، تكييف، نجّار، وأكثر من 60 مهنة في السعودية ومصر ودول الخليج.\n\n📢 قناة فنّي: {url}\n\nماذا تريد أن تفعل؟": {
-        "en": "{hi}\nThis is «Fanni» 🛠️ We connect you with the nearest technician: plumber, electrician, AC, carpenter and 60+ trades in Saudi Arabia, Egypt and the Gulf.\n\n📢 Fanni channel: {url}\n\nWhat would you like to do?",
-        "ur": "{hi}\nیہ «فنی» ہے 🛠️ ہم آپ کو قریب ترین ٹیکنیشن سے ملاتے ہیں: پلمبر، الیکٹریشن، اے سی، بڑھئی اور 60 سے زیادہ کام، سعودی عرب، مصر اور خلیجی ممالک میں۔\n\n📢 فنی چینل: {url}\n\nآپ کیا کرنا چاہتے ہیں؟",
+    "{hi}\nهنا «فنّي» 🛠️ نصلك بأقرب فنّي: سبّاك، كهربائي، تكييف، نجّار، وأكثر من 60 مهنة في السعودية ومصر ودول الخليج.\n\n📢 قناة فنّي: {url}\n💬 الدعم والاستفسارات: {support}\n\nماذا تريد أن تفعل؟": {
+        "en": "{hi}\nThis is «Fanni» 🛠️ We connect you with the nearest technician: plumber, electrician, AC, carpenter and 60+ trades in Saudi Arabia, Egypt and the Gulf.\n\n📢 Fanni channel: {url}\n💬 Support & questions: {support}\n\nWhat would you like to do?",
+        "ur": "{hi}\nیہ «فنی» ہے 🛠️ ہم آپ کو قریب ترین ٹیکنیشن سے ملاتے ہیں: پلمبر، الیکٹریشن، اے سی، بڑھئی اور 60 سے زیادہ کام، سعودی عرب، مصر اور خلیجی ممالک میں۔\n\n📢 فنی چینل: {url}\n💬 سپورٹ اور سوالات: {support}\n\nآپ کیا کرنا چاہتے ہیں؟",
     },
     "🔍 ابحث عن فني": {"en": "🔍 Find a technician", "ur": "🔍 ٹیکنیشن تلاش کریں"},
     "🛠️ أنا فني": {"en": "🛠️ I'm a technician", "ur": "🛠️ میں ٹیکنیشن ہوں"},
@@ -264,6 +264,7 @@ TEXTS: dict[str, dict[str, str]] = {
     '✍️ اكتب *رقم* حيّك من القائمة أعلاه 👆': {"en": '✍️ Type your district *number* from the list above 👆', "ur": '✍️ اوپر کی فہرست سے اپنے محلے کا *نمبر* لکھیں 👆'},
     'لم أجد حيًّا باسم «{q}» في {city} 🤔 اكتب رقم الحي من القائمة.': {"en": "I couldn't find a district named «{q}» in {city} 🤔 Type the district number from the list.", "ur": '{city} میں «{q}» نام کا کوئی محلہ نہیں ملا 🤔 فہرست سے محلے کا نمبر لکھیں۔'},
     'لم نجد فنيين في {nb} ولا في الأحياء المجاورة، وهذه نتائج {city} كاملة 👇\n': {"en": 'No technicians in {nb} or neighbouring districts — here are results for all of {city} 👇\n', "ur": '{nb} اور قریبی محلوں میں کوئی ٹیکنیشن نہیں ملا، یہ پورے {city} کے نتائج ہیں 👇\n'},
+    "💬 للاستفسار أو أي مشكلة: {url}": {"en": "💬 Questions or any problem: {url}", "ur": "💬 سوال یا کوئی مسئلہ: {url}"},
     "بقي {n} من الفنيين": {"en": "{n} more technicians", "ur": "مزید {n} ٹیکنیشن"},
     "وجدنا {n} من فنيي «{pname}» 👍\nاضغط «عرض الفنيين» واختر أحدهم، وسنفتح لك محادثته على واتساب مباشرة.": {
         "en": "We found {n} «{pname}» technicians 👍\nTap «View technicians» and pick one — we'll open a WhatsApp chat with them right away.",

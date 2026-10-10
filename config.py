@@ -51,6 +51,9 @@ WA_APP_SECRET = os.environ.get("WA_APP_SECRET", "").strip()  # اختياري: �
 WA_GRAPH_VERSION = os.environ.get("WA_GRAPH_VERSION", "v23.0").strip()
 WA_PORT = int(os.environ.get("WA_PORT", "5070"))
 # الرابط العام لسيرفر واتساب (nginx يوجّه /wa/ له) — زر «فتح المحادثة» يمر به لتسجيل الضغطة
+# رقم «دعم فنّي» (واتساب للأعمال — يرد عليه المالك بنفسه)
+SUPPORT_WA = os.environ.get("SUPPORT_WA", "966530990046").strip()
+SUPPORT_URL = f"https://wa.me/{SUPPORT_WA}" if SUPPORT_WA else ""
 WA_PUBLIC_BASE = os.environ.get("WA_PUBLIC_BASE", "https://fanniapp.com").strip()
 WA_WABA_ID = os.environ.get("WA_WABA_ID", "").strip()   # حساب واتساب للأعمال — لإنشاء القوالب
 # أسماء قوالب الإشعارات المدفوعة (تُنشأ مرة وحدة بـ scripts/wa_templates.py وتنتظر موافقة ميتا)

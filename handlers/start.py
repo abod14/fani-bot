@@ -35,6 +35,8 @@ def _main_menu_keyboard(lang: str, show_register: bool = True, show_invite: bool
             [InlineKeyboardButton(i18n.t("menu_register", lang), callback_data=CB_START_REGISTER)]
         )
     buttons.append([InlineKeyboardButton(i18n.t("menu_channel", lang), url=config.CHANNEL_URL)])
+    if config.SUPPORT_URL:
+        buttons.append([InlineKeyboardButton(i18n.t("menu_support", lang), url=config.SUPPORT_URL)])
     return InlineKeyboardMarkup(buttons)
 
 

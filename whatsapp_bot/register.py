@@ -68,6 +68,9 @@ def _status(api, wa_id, p, extra=""):
         buttons.insert(0, ("R:sub", tr("💳 اشترك")))
     if not (p.get("telegram_user_id") or 0) > 0:
         buttons.insert(0, ("R:tg:yes", tr("🔗 اربط بتلغرام")))
+    import config
+    if config.SUPPORT_URL:
+        line += "\n\n" + tr("💬 للاستفسار أو أي مشكلة: {url}", url=config.SUPPORT_URL)
     api.buttons(wa_id, tr("أنت مسجّل في «فنّي» 👌\n\n{card}\n\n{line}", card=_flow().card_text(p), line=line) + extra,
                 buttons)
     return "menu", {}
