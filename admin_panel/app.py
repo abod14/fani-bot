@@ -805,8 +805,14 @@ def professions_page():
 @super_required
 def domain_add():
     name = request.form.get("name", "").strip()
+    name_en = request.form.get("name_en", "").strip()
+    name_ur = request.form.get("name_ur", "").strip()
+    if name and (not name_en or not name_ur):
+        flash("أضف ترجمة اسم المجال بالإنجليزي والأردو — البوت يعمل بهذه اللغات أيضًا.", "error")
+        return redirect(url_for("professions_page"))
     if name:
-        db.create_domain(name)
+        did = db.create_domain(name)
+        db.set_domain_translations(did, name_en, name_ur)
         flash("تمت إضافة المجال.", "success")
     return redirect(url_for("professions_page"))
 
@@ -817,6 +823,8 @@ def domain_rename(domain_id):
     name = request.form.get("name", "").strip()
     if name:
         db.rename_domain(domain_id, name)
+        if request.form.get("name_en") is not None:
+            db.set_domain_translations(domain_id, request.form.get("name_en"), request.form.get("name_ur"))
         flash("تم تعديل اسم المجال.", "success")
     return redirect(url_for("professions_page"))
 
@@ -841,8 +849,14 @@ def profession_add(domain_id):
     name = request.form.get("name", "").strip()
     isco_code = request.form.get("isco_code", "").strip() or None
     services = _parse_services(request.form.get("services", ""))
+    name_en = request.form.get("name_en", "").strip()
+    name_ur = request.form.get("name_ur", "").strip()
+    if name and (not name_en or not name_ur):
+        flash("أضف ترجمة اسم المهنة بالإنجليزي والأردو — البوت يعمل بهذه اللغات أيضًا.", "error")
+        return redirect(url_for("professions_page"))
     if name:
-        db.create_profession(domain_id, name, isco_code, services)
+        pid = db.create_profession(domain_id, name, isco_code, services)
+        db.set_profession_translations(pid, name_en, name_ur)
         flash("تمت إضافة المهنة.", "success")
     return redirect(url_for("professions_page"))
 
@@ -860,8 +874,14 @@ def profession_edit_page(profession_id):
         isco_code = request.form.get("isco_code", "").strip() or None
         services = _parse_services(request.form.get("services", ""))
         allow_city_wide = request.form.get("allow_city_wide") == "1"
+        name_en = request.form.get("name_en", "").strip()
+        name_ur = request.form.get("name_ur", "").strip()
+        if name and (not name_en or not name_ur):
+            flash("أضف ترجمة اسم المهنة بالإنجليزي والأردو — البوت يعمل بهذه اللغات أيضًا.", "error")
+            return redirect(url_for("profession_edit_page", profession_id=profession_id))
         if name:
             db.update_profession(profession_id, name, isco_code, services, allow_city_wide=allow_city_wide)
+            db.set_profession_translations(profession_id, name_en, name_ur)
             flash("تم حفظ تعديلات المهنة.", "success")
             return redirect(url_for("professions_page"))
         flash("اسم المهنة مطلوب.", "error")
@@ -873,6 +893,8 @@ def profession_edit_page(profession_id):
         "isco_code": prof.get("isco_code"),
         "services": _json.loads(prof["services_json"]) if prof.get("services_json") else [],
         "allow_city_wide": bool(prof.get("allow_city_wide")),
+        "name_en": prof.get("name_en") or "",
+        "name_ur": prof.get("name_ur") or "",
     }
     return render_template("profession_edit.html", profession=prof_view, active_page="professions")
 

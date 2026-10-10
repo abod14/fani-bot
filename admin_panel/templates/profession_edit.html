@@ -12,6 +12,16 @@
     </div>
     <br>
     <div class="field">
+      <label>الاسم بالإنجليزي (مطلوب)</label>
+      <input type="text" name="name_en" value="{{ profession.name_en }}" required dir="ltr" placeholder="e.g. Plumber">
+    </div>
+    <br>
+    <div class="field">
+      <label>الاسم بالأردو (مطلوب)</label>
+      <input type="text" name="name_ur" value="{{ profession.name_ur }}" required placeholder="مثال: پلمبر">
+    </div>
+    <br>
+    <div class="field">
       <label>كود ISCO (اختياري)</label>
       <input type="text" name="isco_code" value="{{ profession.isco_code or '' }}">
     </div>

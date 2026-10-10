@@ -33,11 +33,14 @@ def _profession_dict(row: dict, lang: str = "ar") -> dict:
         "status": row.get("status"),
         "services": json.loads(row["services_json"]) if row.get("services_json") else [],
         "allow_city_wide": bool(row.get("allow_city_wide")),
+        "name_en": row.get("name_en") or "",
+        "name_ur": row.get("name_ur") or "",
     }
 
 
 def _domain_dict(row: dict, lang: str = "ar") -> dict:
-    return {"id": row["id"], "name": _localized_name(row, lang)}
+    return {"id": row["id"], "name": _localized_name(row, lang),
+            "name_en": row.get("name_en") or "", "name_ur": row.get("name_ur") or ""}
 
 
 def get_domains(lang: str = "ar"):

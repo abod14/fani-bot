@@ -11,6 +11,14 @@
       <label>اسم المجال</label>
       <input type="text" name="name" required placeholder="مثال: أعمال الكهرباء">
     </div>
+    <div class="field">
+      <label>بالإنجليزي (مطلوب)</label>
+      <input type="text" name="name_en" required dir="ltr" placeholder="e.g. Electrical Works">
+    </div>
+    <div class="field">
+      <label>بالأردو (مطلوب)</label>
+      <input type="text" name="name_ur" required>
+    </div>
     <br>
     <button type="submit">إضافة المجال</button>
   </form>
@@ -21,6 +29,8 @@
   <div class="domain-head">
     <form method="post" action="{{ url_for('domain_rename', domain_id=domain.id) }}" class="inline-form" style="display:flex; gap:6px;">
       <input type="text" name="name" value="{{ domain.name }}">
+      <input type="text" name="name_en" value="{{ domain.name_en }}" dir="ltr" placeholder="English" required>
+      <input type="text" name="name_ur" value="{{ domain.name_ur }}" placeholder="اردو" required>
       <button type="submit" class="secondary">حفظ الاسم</button>
     </form>
     <form method="post" action="{{ url_for('domain_delete', domain_id=domain.id) }}" class="inline-form"
@@ -34,6 +44,7 @@
     <div>
       <strong>{{ prof.name }}</strong>
       {% if prof.isco_code %}<span class="muted">— ISCO {{ prof.isco_code }}</span>{% endif %}
+      {% if not prof.name_en or not prof.name_ur %}<span class="badge" style="background:#fde68a;color:#7c2d12">⚠️ بدون ترجمة</span>{% endif %}
       {% if prof.allow_city_wide %}<span class="badge sub-yes">🌍 يسمح بتغطية المدينة كاملة</span>{% endif %}
       {% if prof.services %}<div class="muted">الخدمات: {{ prof.services|join('، ') }}</div>{% endif %}
     </div>
@@ -54,6 +65,14 @@
       <div class="field">
         <label>مهنة جديدة</label>
         <input type="text" name="name" required placeholder="اسم المهنة">
+      </div>
+      <div class="field">
+        <label>بالإنجليزي (مطلوب)</label>
+        <input type="text" name="name_en" required dir="ltr" placeholder="e.g. Plumber">
+      </div>
+      <div class="field">
+        <label>بالأردو (مطلوب)</label>
+        <input type="text" name="name_ur" required placeholder="مثال: پلمبر">
       </div>
       <div class="field">
         <label>كود ISCO (اختياري)</label>

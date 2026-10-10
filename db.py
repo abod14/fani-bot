@@ -1290,12 +1290,15 @@ def apply_name_translations(domain_translations: dict, profession_translations: 
     with get_conn() as conn:
         for domain_id, tr in domain_translations.items():
             conn.execute(
-                "UPDATE domains SET name_en = ?, name_ur = ? WHERE id = ?",
+                # تعبئة الفارغ فقط — ما نكتب فوق ترجمة عدّلها المالك من لوحة التحكم
+                "UPDATE domains SET name_en = COALESCE(NULLIF(name_en, ''), ?), "
+                "name_ur = COALESCE(NULLIF(name_ur, ''), ?) WHERE id = ?",
                 (tr.get("en"), tr.get("ur"), domain_id),
             )
         for profession_id, tr in profession_translations.items():
             conn.execute(
-                "UPDATE professions SET name_en = ?, name_ur = ? WHERE id = ?",
+                "UPDATE professions SET name_en = COALESCE(NULLIF(name_en, ''), ?), "
+                "name_ur = COALESCE(NULLIF(name_ur, ''), ?) WHERE id = ?",
                 (tr.get("en"), tr.get("ur"), profession_id),
             )
 
@@ -1441,6 +1444,19 @@ def update_profession(
                 "UPDATE professions SET name = ?, isco_code = ?, services_json = ?, allow_city_wide = ? WHERE id = ?",
                 (name, isco_code, json.dumps(services, ensure_ascii=False), 1 if allow_city_wide else 0, profession_id),
             )
+
+
+def set_domain_translations(domain_id: str, name_en: str | None, name_ur: str | None):
+    with get_conn() as conn:
+        conn.execute("UPDATE domains SET name_en = ?, name_ur = ? WHERE id = ?",
+                     ((name_en or "").strip() or None, (name_ur or "").strip() or None, domain_id))
+
+
+def set_profession_translations(profession_id: str, name_en: str | None, name_ur: str | None):
+    """ترجمة اسم المهنة (لوحة التحكم) — طلب المالك: أي مهنة جديدة تُترجم لكل لغات البوت."""
+    with get_conn() as conn:
+        conn.execute("UPDATE professions SET name_en = ?, name_ur = ? WHERE id = ?",
+                     ((name_en or "").strip() or None, (name_ur or "").strip() or None, profession_id))
 
 
 def delete_profession(profession_id: str) -> bool:
