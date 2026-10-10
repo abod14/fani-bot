@@ -926,15 +926,17 @@ TEXTS: dict[str, dict[str, str]] = {
         "ur": "فی الحال آپ کے نام کوئی ڈیٹا محفوظ نہیں ہے۔",
     },
     "privacy_confirm_prompt": {
-        "ar": "⚠️ سيتم حذف كل بياناتك من بوت «فني» نهائيًا وبلا رجعة:\nتسجيلك كفني (إن وجد) وأرقام تواصلك، وسجلات بحثك وتواصلك السابقة.\n\nℹ️ إن كنت فنيًا: نحتفظ باسمك ورقمك تسعين يومًا ثم يُحذفان نهائيًا، ويبقى تقييمك مرتبطًا برقمك بصورة مشفّرة ليعود إليك إن سجّلت من جديد.\n\nهل أنت متأكد؟",
-        "en": "⚠️ All your data on «Fani» bot will be permanently deleted:\nYour professional registration (if any) and contact numbers, plus your search and contact history.\n\nℹ️ If you are a technician: we keep your name and number for 90 days, then they are permanently deleted. Your rating stays linked to your number in encrypted form, so it returns to you if you register again.\n\nAre you sure?",
-        "ur": "⚠️ «فنی» بوٹ پر آپ کا سارا ڈیٹا مستقل طور پر حذف کر دیا جائے گا:\nآپ کی کاریگر رجسٹریشن (اگر ہو) اور رابطہ نمبرز، نیز آپ کی تلاش اور رابطے کی سابقہ تاریخ۔\n\nℹ️ اگر آپ کاریگر ہیں: ہم آپ کا نام اور نمبر نوے دن تک رکھتے ہیں، پھر یہ ہمیشہ کے لیے حذف ہو جاتے ہیں۔ آپ کی ریٹنگ آپ کے نمبر سے خفیہ (انکرپٹڈ) شکل میں منسلک رہتی ہے، تاکہ دوبارہ رجسٹر ہونے پر آپ کو واپس مل جائے۔\n\nکیا آپ کو یقین ہے؟",
+        "ar": "⚠️ سيتم حذف كل بياناتك من بوت «فني» نهائيًا وبلا رجعة:\nتسجيلك كفني (إن وجد) وأرقام تواصلك، وسجلات بحثك وتواصلك السابقة.\n\nهل أنت متأكد؟",
+        "en": "⚠️ All your data on «Fani» bot will be permanently deleted:\nYour professional registration (if any) and contact numbers, plus your search and contact history.\n\nAre you sure?",
+        "ur": "⚠️ «فنی» بوٹ پر آپ کا سارا ڈیٹا مستقل طور پر حذف کر دیا جائے گا:\nآپ کی کاریگر رجسٹریشن (اگر ہو) اور رابطہ نمبرز، نیز آپ کی تلاش اور رابطے کی سابقہ تاریخ۔\n\nکیا آپ کو یقین ہے؟",
     },
     "privacy_confirm_btn": {
         "ar": "✅ نعم، احذف بياناتي نهائيًا",
         "en": "✅ Yes, delete my data permanently",
         "ur": "✅ جی ہاں، میرا ڈیٹا مستقل طور پر حذف کریں",
     },
+    "privacy_pro_note": {"ar": "ℹ️ نحتفظ باسمك ورقمك {days} فقط للتواصل معك بشأن سبب الحذف، ثم يُحذفان نهائيًا. ويبقى تقييمك مرتبطًا برقمك بصورة مشفّرة ليعود إليك إن سجّلت من جديد.", "en": "ℹ️ We keep your name and number for {days} only, to contact you about why you left, then they are permanently deleted. Your rating stays linked to your number in encrypted form, so it returns to you if you register again.", "ur": "ℹ️ ہم آپ کا نام اور نمبر صرف {days} تک رکھتے ہیں تاکہ حذف کی وجہ کے بارے میں آپ سے رابطہ کر سکیں، پھر یہ ہمیشہ کے لیے حذف ہو جاتے ہیں۔ آپ کی ریٹنگ آپ کے نمبر سے خفیہ (انکرپٹڈ) شکل میں منسلک رہتی ہے، تاکہ دوبارہ رجسٹر ہونے پر آپ کو واپس مل جائے۔"},
+    "privacy_pro_note0": {"ar": "ℹ️ يُحذف اسمك ورقمك فورًا، ويبقى تقييمك فقط مرتبطًا برقمك بصورة مشفّرة ليعود إليك إن سجّلت من جديد.", "en": "ℹ️ Your name and number are deleted immediately; only your rating stays linked to your number in encrypted form, so it returns to you if you register again.", "ur": "ℹ️ آپ کا نام اور نمبر فوراً حذف ہو جاتے ہیں؛ صرف آپ کی ریٹنگ آپ کے نمبر سے خفیہ (انکرپٹڈ) شکل میں منسلک رہتی ہے، تاکہ دوبارہ رجسٹر ہونے پر آپ کو واپس مل جائے۔"},
     "privacy_confirm_all_btn": {
         "ar": "🧹 احذف كل شيء",
         "en": "🧹 Delete everything",

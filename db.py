@@ -1703,6 +1703,13 @@ def archive_professional(professional_id: int, deleted_by: str = "self") -> int 
     p = get_professional_by_id(professional_id)
     if not p:
         return None
+    if archive_days() == 0:   # المالك اختار عدم الاحتفاظ إطلاقًا
+        try:
+            import ratings
+            ratings.forget_professional(professional_id)
+        except Exception:
+            pass
+        return None
     try:
         import ratings
         phone = _phone_digits(p.get("whatsapp_number") or "")
@@ -1740,7 +1747,28 @@ def list_deleted_professionals(limit: int = 300) -> list[dict]:
             "SELECT * FROM deleted_professionals ORDER BY id DESC LIMIT ?", (limit,)).fetchall()]
 
 
-ARCHIVE_DAYS = 90   # طلب المالك + نظام حماية البيانات (م18): أرشيف المحذوفين وتقييماتهم يُحذف بعد 90 يومًا
+ARCHIVE_DAYS_MAX = 90
+
+
+def archive_days() -> int:
+    """مدة بقاء الفني المحذوف في قائمة «المحذوفون» — يختارها المالك من اللوحة (0 = لا أرشيف إطلاقًا).
+    تُكتب للفني في رسالة الحذف وفي صفحة الخصوصية تلقائيًا، فيبقى كلامنا له صادقًا دائمًا."""
+    try:
+        return max(0, min(ARCHIVE_DAYS_MAX, int(get_setting("archive_days", "1"))))
+    except (TypeError, ValueError):
+        return 1
+
+
+def days_text(n: int, lang: str = "ar") -> str:
+    if lang == "en":
+        return "1 day" if n == 1 else f"{n} days"
+    if lang == "ur":
+        return f"{n} دن"
+    if n == 1:
+        return "يومًا واحدًا"
+    if n == 2:
+        return "يومين"
+    return f"{n} أيام" if 3 <= n <= 10 else f"{n} يومًا"
 
 
 def purge_archive(archive_ids: list[int]):
@@ -1751,8 +1779,9 @@ def purge_archive(archive_ids: list[int]):
             conn.execute("DELETE FROM deleted_professionals WHERE id=?", (aid,))
 
 
-def purge_expired_archive(days: int = ARCHIVE_DAYS) -> int:
+def purge_expired_archive(days: int | None = None) -> int:
     from datetime import datetime as _dt, timedelta as _td, timezone as _tz
+    days = archive_days() if days is None else days
     cutoff = (_dt.now(_tz.utc) - _td(days=days)).isoformat()
     with get_conn() as conn:
         ids = [r[0] for r in conn.execute("SELECT id FROM deleted_professionals WHERE deleted_at < ?", (cutoff,)).fetchall()]

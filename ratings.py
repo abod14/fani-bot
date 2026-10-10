@@ -400,9 +400,9 @@ def wa_on_choice(api, wa_id: str, cust: int, parts: list[str]):
 
 
 def purge_daily():
-    """مرة يوميًا: حذف أرشيف المحذوفين (وتقييماتهم) بعد 90 يومًا."""
+    """مرة كل ساعة: حذف من انتهت مدته في قائمة «المحذوفون» (المدة يحددها المالك)."""
     try:
-        today = datetime.now(timezone.utc).date().isoformat()
+        today = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H")
         if db.get_setting("archive_purged_on", "") == today:
             return
         n = db.purge_expired_archive()

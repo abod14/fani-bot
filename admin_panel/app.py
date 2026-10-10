@@ -731,7 +731,17 @@ def deleted_page():
     if request.method == "POST":
         aid = int(request.form.get("id") or 0)
         action = request.form.get("action")
-        if action == "save":
+        if action == "days":
+            try:
+                n = max(0, min(db.ARCHIVE_DAYS_MAX, int(request.form.get("days") or 0)))
+            except ValueError:
+                n = 1
+            db.set_setting("archive_days", str(n))
+            purged = db.purge_expired_archive()
+            flash(f"تم الحفظ: {('يُحذف فورًا' if n == 0 else 'مدة الاحتفاظ ' + db.days_text(n))}. "
+                  f"وتغيّرت رسالة الحذف وصفحة الخصوصية تلقائيًا." + (f" حُذف {purged} سجلًا انتهت مدته." if purged else ""),
+                  "success")
+        elif action == "save":
             db.set_deletion_reason(aid, request.form.get("reason", ""), "admin")
             db.set_deletion_note(aid, request.form.get("note", ""))
             flash("تم الحفظ.", "success")
@@ -744,7 +754,7 @@ def deleted_page():
         back = {db._phone_digits(r[0] or "") for r in conn.execute("SELECT whatsapp_number FROM professionals").fetchall()}
     for r in rows:
         r["returned"] = r.get("phone") in back
-    return render_template("deleted.html", rows=rows, active_page="deleted")
+    return render_template("deleted.html", rows=rows, active_page="deleted", days=db.archive_days())
 
 
 @app.route("/professionals/<int:professional_id>/reset-rating", methods=["POST"])

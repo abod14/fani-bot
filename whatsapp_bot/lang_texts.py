@@ -631,9 +631,12 @@ TEXTS: dict[str, dict[str, str]] = {
     "عدم تصريف، تسريب، لا تسخّن": {"en": "Not draining, leaking, not heating", "ur": "پانی نہیں نکلتا، لیکیج، گرم نہیں کرتا"},
     "أفران غاز وكهرباء وبلت إن": {"en": "Gas, electric & built-in ovens", "ur": "گیس، بجلی اور بلٹ اِن اوون"},
     # ─────────── أرشيف الفنيين المحذوفين + سبب الحذف ───────────
-    "ℹ️ نحتفظ باسمك ورقمك تسعين يومًا ثم يُحذفان نهائيًا، ويبقى تقييمك مرتبطًا برقمك بصورة مشفّرة ليعود إليك إن سجّلت من جديد.": {
-        "en": "ℹ️ We keep your name and number for 90 days, then they are permanently deleted. Your rating stays linked to your number in encrypted form, so it returns to you if you register again.",
-        "ur": "ℹ️ ہم آپ کا نام اور نمبر نوے دن تک رکھتے ہیں، پھر یہ ہمیشہ کے لیے حذف ہو جاتے ہیں۔ آپ کی ریٹنگ آپ کے نمبر سے خفیہ (انکرپٹڈ) شکل میں منسلک رہتی ہے، تاکہ دوبارہ رجسٹر ہونے پر آپ کو واپس مل جائے۔"},
+    "ℹ️ نحتفظ باسمك ورقمك {days} فقط للتواصل معك بشأن سبب الحذف، ثم يُحذفان نهائيًا. ويبقى تقييمك مرتبطًا برقمك بصورة مشفّرة ليعود إليك إن سجّلت من جديد.": {
+        "en": "ℹ️ We keep your name and number for {days} only, to contact you about why you left, then they are permanently deleted. Your rating stays linked to your number in encrypted form, so it returns to you if you register again.",
+        "ur": "ℹ️ ہم آپ کا نام اور نمبر صرف {days} تک رکھتے ہیں تاکہ حذف کی وجہ کے بارے میں آپ سے رابطہ کر سکیں، پھر یہ ہمیشہ کے لیے حذف ہو جاتے ہیں۔ آپ کی ریٹنگ آپ کے نمبر سے خفیہ (انکرپٹڈ) شکل میں منسلک رہتی ہے، تاکہ دوبارہ رجسٹر ہونے پر آپ کو واپس مل جائے۔"},
+    "ℹ️ يُحذف اسمك ورقمك فورًا، ويبقى تقييمك فقط مرتبطًا برقمك بصورة مشفّرة ليعود إليك إن سجّلت من جديد.": {
+        "en": "ℹ️ Your name and number are deleted immediately; only your rating stays linked to your number in encrypted form, so it returns to you if you register again.",
+        "ur": "ℹ️ آپ کا نام اور نمبر فوراً حذف ہو جاتے ہیں؛ صرف آپ کی ریٹنگ آپ کے نمبر سے خفیہ (انکرپٹڈ) شکل میں منسلک رہتی ہے، تاکہ دوبارہ رجسٹر ہونے پر آپ کو واپس مل جائے۔"},
     "🧹 احذف كل شيء": {"en": "🧹 Delete everything", "ur": "🧹 سب کچھ حذف کریں"},
     "✅ تم حذف حسابك من «فنّي»، ولن تظهر للعملاء بعد الآن. يمكنك التسجيل من جديد في أي وقت.": {
         "en": "✅ Your «Fanni» account has been deleted and you will no longer appear to customers. You can register again anytime.",

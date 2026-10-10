@@ -26,7 +26,7 @@ def _stars_kb(req_id: int, lang: str) -> InlineKeyboardMarkup:
 
 
 async def send_due_job(context: ContextTypes.DEFAULT_TYPE):
-    await asyncio.to_thread(ratings.purge_daily)   # أرشيف المحذوفين بعد 90 يومًا (مرة يوميًا)
+    await asyncio.to_thread(ratings.purge_daily)   # قائمة «المحذوفون» بعد انتهاء مدتها (مرة كل ساعة)
     batches = await asyncio.to_thread(ratings._due_batches, "tg")
     for cust, reqs in batches:
         ids = [r["id"] for r in reqs]

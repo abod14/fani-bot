@@ -28,7 +28,13 @@ async def delete_account_command(update: Update, context: ContextTypes.DEFAULT_T
     rows = [[InlineKeyboardButton(i18n.t("privacy_confirm_btn", lang), callback_data=CONFIRM_CB)]]
     rows.append([InlineKeyboardButton(i18n.t("privacy_cancel_btn", lang), callback_data=CANCEL_CB)])
     keyboard = InlineKeyboardMarkup(rows)
-    await update.message.reply_text(i18n.t("privacy_confirm_prompt", lang), reply_markup=keyboard)
+    text = i18n.t("privacy_confirm_prompt", lang)
+    if is_pro:
+        days = await asyncio.to_thread(db.archive_days)
+        note = (i18n.t("privacy_pro_note", lang, days=db.days_text(days, lang)) if days
+                else i18n.t("privacy_pro_note0", lang))
+        text = text.replace("\n\n", "\n\n" + note + "\n\n", 1) if "\n\n" in text else text + "\n\n" + note
+    await update.message.reply_text(text, reply_markup=keyboard)
 
 
 async def confirm_delete_account(update: Update, context: ContextTypes.DEFAULT_TYPE):
