@@ -631,9 +631,9 @@ TEXTS: dict[str, dict[str, str]] = {
     "عدم تصريف، تسريب، لا تسخّن": {"en": "Not draining, leaking, not heating", "ur": "پانی نہیں نکلتا، لیکیج، گرم نہیں کرتا"},
     "أفران غاز وكهرباء وبلت إن": {"en": "Gas, electric & built-in ovens", "ur": "گیس، بجلی اور بلٹ اِن اوون"},
     # ─────────── أرشيف الفنيين المحذوفين + سبب الحذف ───────────
-    "ℹ️ نحتفظ باسمك ورقمك وتقييمك تسعين يومًا، لتعود إليك تقييماتك إن سجّلت من جديد، ثم تُحذف نهائيًا. ويمكنك حذفها كلها الآن بزر «احذف كل شيء».": {
-        "en": "ℹ️ We keep your name, number and rating for 90 days, so your ratings return if you register again, then they are permanently deleted. You can delete everything now with the «Delete everything» button.",
-        "ur": "ℹ️ ہم آپ کا نام، نمبر اور ریٹنگ نوے دن تک رکھتے ہیں، تاکہ دوبارہ رجسٹر ہونے پر آپ کی ریٹنگ واپس مل جائے، پھر یہ ہمیشہ کے لیے حذف ہو جاتے ہیں۔ آپ «سب کچھ حذف کریں» کے بٹن سے ابھی سب کچھ حذف کر سکتے ہیں۔"},
+    "ℹ️ نحتفظ باسمك ورقمك تسعين يومًا ثم يُحذفان نهائيًا، ويمكنك حذفهما الآن بزر «احذف كل شيء». أما تقييمك فيبقى مرتبطًا برقمك بصورة مشفّرة لا تكشفه، ويعود إليك إن سجّلت من جديد.": {
+        "en": "ℹ️ We keep your name and number for 90 days, then they are permanently deleted; you can delete them now with the «Delete everything» button. Your rating stays linked to your number in encrypted form (your number is not revealed) and returns to you if you register again.",
+        "ur": "ℹ️ ہم آپ کا نام اور نمبر نوے دن تک رکھتے ہیں، پھر یہ ہمیشہ کے لیے حذف ہو جاتے ہیں؛ آپ «سب کچھ حذف کریں» کے بٹن سے انہیں ابھی حذف کر سکتے ہیں۔ آپ کی ریٹنگ آپ کے نمبر سے خفیہ (انکرپٹڈ) شکل میں منسلک رہتی ہے جس سے نمبر ظاہر نہیں ہوتا، اور دوبارہ رجسٹر ہونے پر آپ کو واپس مل جاتی ہے۔"},
     "🧹 احذف كل شيء": {"en": "🧹 Delete everything", "ur": "🧹 سب کچھ حذف کریں"},
     "✅ تم حذف حسابك من «فنّي»، ولن تظهر للعملاء بعد الآن. يمكنك التسجيل من جديد في أي وقت.": {
         "en": "✅ Your «Fanni» account has been deleted and you will no longer appear to customers. You can register again anytime.",

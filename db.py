@@ -1706,7 +1706,8 @@ def archive_professional(professional_id: int, deleted_by: str = "self") -> int 
     try:
         import ratings
         phone = _phone_digits(p.get("whatsapp_number") or "")
-        avg, cnt = ratings.summary_by_phones([phone]).get(phone, (None, 0))
+        key = ratings.phone_key(phone)
+        avg, cnt = ratings.summary_by_phones([key]).get(key, (None, 0))
         ratings.forget_professional(professional_id)
     except Exception:
         phone, avg, cnt = _phone_digits(p.get("whatsapp_number") or ""), None, 0
@@ -1743,14 +1744,10 @@ ARCHIVE_DAYS = 90   # طلب المالك + نظام حماية البيانات
 
 
 def purge_archive(archive_ids: list[int]):
-    """حذف كلي فوري (زر «احذف كل شيء» أو انتهاء الـ90 يومًا): سجل الأرشيف + تقييماته المربوطة برقمه
-    (إلا لو رجع وسجّل بنفس الرقم — تقييماته صارت تخص تسجيله الحالي)."""
+    """حذف كلي (زر «احذف كل شيء» أو انتهاء الـ90 يومًا): يُحذف سجل الأرشيف (الاسم والرقم المقروء والسبب).
+    التقييمات لا تُحذف — محفوظة ببصمة مشفّرة للرقم، حتى لا يهرب الفني من تقييم سيئ بإعادة التسجيل."""
     with get_conn() as conn:
-        active = {_phone_digits(r[0] or "") for r in conn.execute("SELECT whatsapp_number FROM professionals").fetchall()}
         for aid in archive_ids:
-            row = conn.execute("SELECT phone FROM deleted_professionals WHERE id=?", (aid,)).fetchone()
-            if row and row[0] and row[0] not in active:
-                conn.execute("DELETE FROM ratings WHERE phone=?", (row[0],))
             conn.execute("DELETE FROM deleted_professionals WHERE id=?", (aid,))
 
 
@@ -1765,7 +1762,7 @@ def purge_expired_archive(days: int = ARCHIVE_DAYS) -> int:
 
 
 def remove_deleted_archive(archive_id: int):
-    """حذف السجل من الأرشيف نفسه (لو طلب الفني حذف بياناته كليًا) — مع تقييماته."""
+    """حذف السجل من الأرشيف نفسه (لو طلب الفني حذف بياناته كليًا) — التقييم يبقى مشفّرًا."""
     purge_archive([archive_id])
 
 

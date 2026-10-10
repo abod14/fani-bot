@@ -59,13 +59,24 @@ def ensure_tables():
             conn.execute("ALTER TABLE ratings ADD COLUMN voided INTEGER NOT NULL DEFAULT 0")
         for rid, num in conn.execute("SELECT r.id, p.whatsapp_number FROM ratings r JOIN professionals p "
                                      "ON p.id = r.professional_id WHERE r.phone IS NULL").fetchall():
-            conn.execute("UPDATE ratings SET phone=? WHERE id=?", (db._phone_digits(num or ""), rid))
+            conn.execute("UPDATE ratings SET phone=? WHERE id=?", (phone_key(num or ""), rid))
+        # الرقم يُخزَّن مشفّرًا (بصمة لا تُعكس) — نحوّل أي رقم قديم مخزّن بشكل مقروء
+        for rid, ph in conn.execute("SELECT id, phone FROM ratings WHERE phone IS NOT NULL AND length(phone) != 64").fetchall():
+            conn.execute("UPDATE ratings SET phone=? WHERE id=?", (phone_key(ph), rid))
         conn.execute("CREATE INDEX IF NOT EXISTS idx_ratings_phone ON ratings (phone, voided)")
+
+
+def phone_key(phone: str) -> str:
+    """بصمة مشفّرة لرقم الفني (SHA-256) — تربط تقييمه برقمه دون تخزين الرقم نفسه.
+    طلب المالك: التقييم لا يُحذف أبدًا (حتى مع «احذف كل شيء») حتى لا يهرب الفني من تقييم سيئ بإعادة التسجيل."""
+    import hashlib
+    d = db._phone_digits(phone or "")
+    return hashlib.sha256(f"fanni-rating:{d}".encode()).hexdigest() if d else ""
 
 
 def pro_phone(professional_id: int) -> str:
     p = db.get_professional_by_id(professional_id) or {}
-    return db._phone_digits(p.get("whatsapp_number") or "")
+    return phone_key(p.get("whatsapp_number") or "")
 
 
 def _rated_by_phone(conn, phone: str, customer_id: int) -> bool:
