@@ -438,7 +438,7 @@ async def channel_check(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def got_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = _lang(context)
-    name = db.arabic_name(update.message.text, min_len=3)   # طلب المالك: بالحروف العربية فقط
+    name = db.arabic_name(update.message.text, min_len=3)   # طلب المالك: عربي أو إنجليزي فقط (لا الأوردو)
     if not name:
         await update.message.reply_text(i18n.t("reg_name_arabic", lang))
         return NAME
