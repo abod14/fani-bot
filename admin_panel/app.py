@@ -89,7 +89,7 @@ def login_required(view):
     @functools.wraps(view)
     def wrapped(*args, **kwargs):
         if not session.get("logged_in"):
-            return redirect(url_for("login", next=request.full_path))
+            return redirect(url_for("login", next=request.script_root + request.full_path.rstrip("?")))
         return view(*args, **kwargs)
     return wrapped
 
@@ -186,7 +186,7 @@ def login():
             session["logged_in"] = True
             session["role"] = "super"
             flash("تم تسجيل الدخول بنجاح.", "success")
-            return redirect(next_url or url_for("dashboard"))
+            return redirect(next_url if next_url and next_url.startswith(request.script_root + "/") else url_for("dashboard"))
         manager = db.get_admin_user_by_username(username)
         if manager and check_password_hash(manager["password_hash"], password):
             db.clear_login_failures(ip)
