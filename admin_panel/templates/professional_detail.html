@@ -33,7 +33,8 @@
     </div>
     <div class="field">
       <label>الحي</label>
-      <input type="text" name="neighborhood" value="{{ p.neighborhood or '' }}">
+      <span class="muted">{% if p.covers_whole_city %}المدينة كاملة 🌍{% else %}{{ p.neighborhood or '—' }}{% endif %}
+        — <a href="#districts">تعديل الأحياء ↓</a></span>
     </div>
     <div class="field">
       <label>رقم واتساب/اتصال</label>
@@ -49,6 +50,53 @@
     <br>
     <button type="submit">حفظ التعديلات</button>
   </form>
+</div>
+
+<div class="card" id="districts">
+  <h2>📍 الأحياء — {{ p.city }}</h2>
+  {% if city_districts %}
+  <form method="post" action="{{ url_for('professional_districts', professional_id=p.id) }}">
+    <label style="display:block; margin-bottom:8px;">
+      <input type="checkbox" name="whole" value="1" id="whole" {% if p.covers_whole_city %}checked{% endif %}>
+      يغطي المدينة كاملة 🌍 <span class="muted">(للمهن النادرة — يظهر في كل أحياء المدينة)</span></label>
+    <div id="dbox">
+      <input type="search" id="dsearch" placeholder="🔍 ابحث عن حي…" style="width:100%; max-width:320px; margin-bottom:6px;">
+      <p class="muted" style="margin:4px 0;">المختار: <strong id="dcount">0</strong> من {{ max_districts }} —
+        <span id="dsel"></span></p>
+      <div style="max-height:320px; overflow-y:auto; border:1px solid #e5e7eb; border-radius:8px; padding:6px 10px;
+                  display:grid; grid-template-columns:repeat(auto-fill, minmax(170px, 1fr)); gap:2px 12px;">
+        {% for d in city_districts %}
+        <label class="dopt" data-name="{{ d.name }}" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+          <input type="checkbox" name="district_ids" value="{{ d.id }}" {% if d.id in selected_districts %}checked{% endif %}>
+          {{ d.name }}</label>
+        {% endfor %}
+      </div>
+    </div>
+    <p style="margin-top:10px;"><button type="submit">حفظ الأحياء</button></p>
+  </form>
+  <script>
+  (function(){
+    var max={{ max_districts }}, boxes=[].slice.call(document.querySelectorAll('input[name=district_ids]'));
+    var whole=document.getElementById('whole'), dbox=document.getElementById('dbox');
+    function upd(){
+      var sel=boxes.filter(function(b){return b.checked;});
+      document.getElementById('dcount').textContent=sel.length;
+      document.getElementById('dsel').textContent=sel.map(function(b){return b.parentNode.dataset.name;}).join('، ');
+      boxes.forEach(function(b){ b.disabled=!b.checked && sel.length>=max; });
+      dbox.style.opacity=whole.checked?0.4:1;
+    }
+    boxes.forEach(function(b){b.addEventListener('change',upd);}); whole.addEventListener('change',upd);
+    document.getElementById('dsearch').addEventListener('input',function(){
+      var q=this.value.trim();
+      [].forEach.call(document.querySelectorAll('.dopt'),function(l){
+        l.style.display=(!q||l.dataset.name.indexOf(q)>-1||l.querySelector('input').checked)?'':'none';});
+    });
+    upd();
+  })();
+  </script>
+  {% else %}
+  <p class="muted">هذا الفني بلا مدينة مربوطة بقائمة المدن، فلا تتوفر قائمة أحياء له.</p>
+  {% endif %}
 </div>
 
 <div class="card">

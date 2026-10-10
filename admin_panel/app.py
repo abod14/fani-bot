@@ -396,7 +396,40 @@ def professional_detail(professional_id):
         "professional_detail.html", p=p, status_labels=db.STATUS_LABELS_AR, active_page="professionals",
         notif=db.notification_summary(p["id"]), notif_stopped=_nudges_stopped(p),
         rating=__import__("ratings").summary([p["id"]]).get(p["id"]),
+        city_districts=db.list_sa_districts_by_city(p["city_id"]) if p.get("city_id") else [],
+        selected_districts={d["id"] for d in db.get_districts_for_professional(p["id"])},
+        max_districts=MAX_ADMIN_DISTRICTS,
     )
+
+
+MAX_ADMIN_DISTRICTS = 5   # نفس حد التسجيل (قرار نهائي: 5 أحياء) — عدالة الظهور بين الفنيين
+
+
+@app.route("/professionals/<int:professional_id>/districts", methods=["POST"])
+@login_required
+def professional_districts(professional_id):
+    """تعديل أحياء الفني من اللوحة (قائمة أحياء مدينته) — بنفس منطق التسجيل."""
+    p = _professional_or_404(professional_id)
+    if not p:
+        flash("الفني غير موجود.", "error")
+        return redirect(url_for("professionals_list"))
+    back = redirect(url_for("professional_detail", professional_id=professional_id) + "#districts")
+    if not p.get("city_id"):
+        flash("هذا الفني بلا مدينة مربوطة بقائمة المدن — لا يمكن اختيار الأحياء له.", "error")
+        return back
+    valid = {d["id"] for d in db.list_sa_districts_by_city(p["city_id"])}
+    ids = [int(x) for x in request.form.getlist("district_ids") if x.isdigit() and int(x) in valid]
+    whole = request.form.get("whole") == "1"
+    if not whole and not ids:
+        flash("اختر حيًا واحدًا على الأقل، أو «يغطي المدينة كاملة».", "error")
+        return back
+    if not whole and len(ids) > MAX_ADMIN_DISTRICTS:
+        flash(f"الحد الأقصى {MAX_ADMIN_DISTRICTS} أحياء (اخترت {len(ids)}).", "error")
+        return back
+    db.update_professional_area(professional_id, p.get("country") or countries.DEFAULT_COUNTRY, p["city"],
+                                p["city_id"], ids, whole)
+    flash("تم حفظ الأحياء: المدينة كاملة 🌍" if whole else f"تم حفظ الأحياء ({len(ids)}).", "success")
+    return back
 
 
 def _nudges_stopped(p) -> dict:
@@ -486,7 +519,7 @@ def professional_edit(professional_id):
         professional_id,
         full_name=request.form.get("full_name") or None,
         city=request.form.get("city") or None,
-        neighborhood=request.form.get("neighborhood") or "",
+        neighborhood=None,   # الأحياء تُعدّل من بطاقة «الأحياء» (قائمة أحياء المدينة)
         whatsapp_number=wa,
         telegram_contact_number=tg,
         has_whatsapp=request.form.get("has_whatsapp") == "1",
