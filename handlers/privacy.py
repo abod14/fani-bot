@@ -26,8 +26,6 @@ async def delete_account_command(update: Update, context: ContextTypes.DEFAULT_T
 
     is_pro = await asyncio.to_thread(db.get_professional_by_telegram_id, user_id)
     rows = [[InlineKeyboardButton(i18n.t("privacy_confirm_btn", lang), callback_data=CONFIRM_CB)]]
-    if is_pro:
-        rows.append([InlineKeyboardButton(i18n.t("privacy_confirm_all_btn", lang), callback_data=CONFIRM_ALL_CB)])
     rows.append([InlineKeyboardButton(i18n.t("privacy_cancel_btn", lang), callback_data=CANCEL_CB)])
     keyboard = InlineKeyboardMarkup(rows)
     await update.message.reply_text(i18n.t("privacy_confirm_prompt", lang), reply_markup=keyboard)
