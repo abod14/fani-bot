@@ -578,6 +578,12 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT, professional_id INTEGER NOT NULL,
             author TEXT NOT NULL, body TEXT NOT NULL, created_at TEXT NOT NULL)""")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_notes_pro ON professional_notes (professional_id)")
+        # مهنة عُدّلت من اللوحة (اسمها/خدماتها) — مزامنة ملف المهن عند تشغيل البوت لا تمسح تعديلات المالك
+        pcols = {r[1] for r in conn.execute("PRAGMA table_info(professions)").fetchall()}
+        if pcols and "custom" not in pcols:
+            conn.execute("ALTER TABLE professions ADD COLUMN custom INTEGER NOT NULL DEFAULT 0")
+        # ترجمات الخدمات المضافة من اللوحة (العربي هو المفتاح)
+        conn.execute("CREATE TABLE IF NOT EXISTS service_translations (ar TEXT PRIMARY KEY, en TEXT, ur TEXT)")
         # سجل نشاط موظفي اللوحة (رقابة: من عدّل ماذا ومتى)
         conn.execute("""CREATE TABLE IF NOT EXISTS admin_activity (
             id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL, action TEXT NOT NULL,
@@ -1298,9 +1304,12 @@ def sync_professions_from_json(json_path):
                         (id, domain_id, name, isco_code, status, services_json, sort_order)
                     VALUES (?, ?, ?, ?, ?, ?, ?)
                     ON CONFLICT(id) DO UPDATE SET
-                        domain_id = excluded.domain_id, name = excluded.name,
+                        domain_id = excluded.domain_id,
+                        name = CASE WHEN professions.custom = 1 THEN professions.name ELSE excluded.name END,
                         isco_code = excluded.isco_code, status = excluded.status,
-                        services_json = excluded.services_json, sort_order = excluded.sort_order
+                        services_json = CASE WHEN professions.custom = 1 THEN professions.services_json
+                                             ELSE excluded.services_json END,
+                        sort_order = excluded.sort_order
                     """,
                     (
                         prof["id"], domain["id"], prof["name"], prof.get("isco_code"),
@@ -1471,6 +1480,7 @@ def update_profession(
     allow_city_wide: bool | None = None,
 ):
     with get_conn() as conn:
+        conn.execute("UPDATE professions SET custom = 1 WHERE id = ?", (profession_id,))   # تعديل من اللوحة لا يُمسح عند إعادة التشغيل
         if allow_city_wide is None:
             conn.execute(
                 "UPDATE professions SET name = ?, isco_code = ?, services_json = ? WHERE id = ?",
@@ -3080,6 +3090,63 @@ def log_otp(sender: str, phone: str):
 
 
 # ─────────────────────────── الفني يعدّل بياناته من واتساب (الخدمات / الأحياء / الاسم) ───────────────────────────
+
+def service_translation(ar: str, lang: str) -> str | None:
+    if lang not in ("en", "ur"):
+        return None
+    try:
+        with get_conn() as conn:
+            r = conn.execute(f"SELECT {lang} FROM service_translations WHERE ar = ?", (ar,)).fetchone()
+        return r[0] if r and r[0] else None
+    except Exception:
+        return None
+
+
+def add_profession_service(profession_id: str, ar: str, en: str, ur: str) -> bool:
+    """يضيف خدمة لقائمة خدمات المهنة (مع ترجمتها) — من لوحة التحكم."""
+    ar = (ar or "").strip()[:60]
+    if not ar:
+        return False
+    with get_conn() as conn:
+        row = conn.execute("SELECT services_json FROM professions WHERE id = ?", (profession_id,)).fetchone()
+        if not row:
+            return False
+        svcs = json.loads(row[0] or "[]")
+        if ar not in svcs:
+            svcs.append(ar)
+        conn.execute("UPDATE professions SET services_json = ?, custom = 1 WHERE id = ?",
+                     (json.dumps(svcs, ensure_ascii=False), profession_id))
+        conn.execute("INSERT INTO service_translations (ar, en, ur) VALUES (?, ?, ?) "
+                     "ON CONFLICT(ar) DO UPDATE SET en = excluded.en, ur = excluded.ur",
+                     (ar, (en or "").strip() or None, (ur or "").strip() or None))
+    return True
+
+
+def remove_profession_service(profession_id: str, ar: str) -> int:
+    """يحذف الخدمة من قائمة المهنة، ومن خدمات الفنيين أصحاب هذه المهنة (إلا لو مهنتهم الأخرى فيها الخدمة نفسها).
+    يرجّع عدد الفنيين الذين أُزيلت منهم."""
+    with get_conn() as conn:
+        row = conn.execute("SELECT services_json FROM professions WHERE id = ?", (profession_id,)).fetchone()
+        if not row:
+            return 0
+        svcs = [s for s in json.loads(row[0] or "[]") if s != ar]
+        conn.execute("UPDATE professions SET services_json = ?, custom = 1 WHERE id = ?",
+                     (json.dumps(svcs, ensure_ascii=False), profession_id))
+        other = {r[0]: json.loads(r[1] or "[]") for r in conn.execute("SELECT id, services_json FROM professions").fetchall()}
+        n = 0
+        for p in conn.execute("SELECT id, profession_id, profession2_id, services_json FROM professionals "
+                              "WHERE profession_id = ? OR profession2_id = ?", (profession_id, profession_id)).fetchall():
+            mine = json.loads(p["services_json"] or "[]")
+            if ar not in mine:
+                continue
+            second = p["profession2_id"] if p["profession_id"] == profession_id else p["profession_id"]
+            if second and ar in other.get(second, []):
+                continue
+            conn.execute("UPDATE professionals SET services_json = ? WHERE id = ?",
+                         (json.dumps([s for s in mine if s != ar], ensure_ascii=False), p["id"]))
+            n += 1
+    return n
+
 
 def update_professional_services(professional_id: int, services: list[str]):
     with get_conn() as conn:

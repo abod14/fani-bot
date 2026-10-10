@@ -113,6 +113,7 @@ def log(action: str, professional_id: int | None = None, target: str = ""):
 
 # خدمة العملاء: كل الدول، يرى ويعدّل بيانات الفنيين فقط — بلا مال ولا حذف ولا إيقاف ولا إعدادات ولا إكسل
 SUPPORT_ENDPOINTS = {"login", "logout", "static", "professionals_list", "professional_detail", "professional_edit",
+                     "professional_services",
                      "professional_districts", "professional_notify_on", "professional_add_note", "deleted_page"}
 
 
@@ -482,6 +483,8 @@ def professional_detail(professional_id):
         city_districts=db.list_sa_districts_by_city(p["city_id"]) if p.get("city_id") else [],
         selected_districts={d["id"] for d in db.get_districts_for_professional(p["id"])},
         notes=[dict(n, when=_riyadh(n["created_at"])) for n in db.list_professional_notes(p["id"])],
+        svc_groups=_service_groups(p),
+        my_services=set(_json_list(p.get("services_json"))),
         max_districts=MAX_ADMIN_DISTRICTS,
     )
 
@@ -496,6 +499,74 @@ def professional_add_note(professional_id):
         log("كتب ملاحظة تواصل", p["id"], p["full_name"])
         flash("تم حفظ الملاحظة.", "success")
     return redirect(url_for("professional_detail", professional_id=p["id"]) + "#notes")
+
+
+def _json_list(raw) -> list:
+    import json as _j
+    try:
+        return list(_j.loads(raw or "[]"))
+    except ValueError:
+        return []
+
+
+def _service_groups(p) -> list[dict]:
+    """خدمات مهنة الفني (ومهنته الثانية) لعرضها كمربعات اختيار — مع خدماته القديمة غير الموجودة بالقائمة."""
+    groups, seen = [], set()
+    for pid in (p.get("profession_id"), p.get("profession2_id")):
+        if not pid:
+            continue
+        row = db.get_profession_by_id(pid)
+        if not row:
+            continue
+        svcs = _json_list(row.get("services_json"))
+        groups.append({"pid": pid, "name": row["name"], "services": svcs})
+        seen.update(svcs)
+    extra = [s for s in _json_list(p.get("services_json")) if s not in seen]
+    if extra:
+        groups.append({"pid": "", "name": "خدمات أخرى مسجّلة للفني", "services": extra})
+    return groups
+
+
+@app.route("/professionals/<int:professional_id>/services", methods=["POST"])
+@login_required
+def professional_services(professional_id):
+    """حفظ خدمات الفني (مربعات الاختيار) — ومن المدير العام: إضافة خدمة جديدة للمهنة أو حذف خدمة منها."""
+    p = _professional_or_404(professional_id)
+    if not p:
+        return redirect(url_for("professionals_list"))
+    back = redirect(url_for("professional_detail", professional_id=professional_id) + "#services")
+    action = request.form.get("action", "save")
+    allowed_pids = {p.get("profession_id"), p.get("profession2_id")} - {None, ""}
+    if action in ("add", "remove") and not is_super():
+        flash("إضافة الخدمات للمهنة وحذفها للمدير العام فقط.", "error")
+        return back
+    if action == "add":
+        pid = request.form.get("pid") or p.get("profession_id")
+        ar, en, ur = (request.form.get(k, "").strip() for k in ("ar", "en", "ur"))
+        if pid not in allowed_pids or not ar or not en or not ur:
+            flash("اكتب اسم الخدمة بالعربي والإنجليزي والأوردو (حتى تظهر مترجمة لكل الفنيين والعملاء).", "error")
+            return back
+        db.add_profession_service(pid, ar, en, ur)
+        mine = _json_list(p.get("services_json"))
+        if ar not in mine:
+            db.update_professional_services(p["id"], mine + [ar])
+        log(f"أضاف خدمة «{ar}» للمهنة", p["id"], p["full_name"])
+        flash(f"أُضيفت خدمة «{ar}» للمهنة، وعُلّمت لهذا الفني.", "success")
+        return back
+    if action == "remove":
+        pid, ar = request.form.get("pid"), request.form.get("ar", "")
+        if pid not in allowed_pids:
+            return back
+        n = db.remove_profession_service(pid, ar)
+        log(f"حذف خدمة «{ar}» من المهنة", p["id"], p["full_name"])
+        flash(f"حُذفت خدمة «{ar}» من المهنة" + (f"، وأُزيلت من {n} فني" if n else "") + ".", "success")
+        return back
+    valid = {s for g in _service_groups(p) for s in g["services"]}
+    chosen = [s for s in request.form.getlist("services") if s in valid]
+    db.update_professional_services(p["id"], chosen)
+    log("عدّل الخدمات", p["id"], p["full_name"])
+    flash(f"تم حفظ الخدمات ({len(chosen)}).", "success")
+    return back
 
 
 MAX_ADMIN_DISTRICTS = 5   # نفس حد التسجيل (قرار نهائي: 5 أحياء) — عدالة الظهور بين الفنيين

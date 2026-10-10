@@ -71,7 +71,7 @@ def _svc_name(ar: str, lang: str) -> str:
     if lang == "ar":
         return ar
     from whatsapp_bot.lang_texts import SERVICES
-    return (SERVICES.get(ar) or {}).get(lang) or ar
+    return (SERVICES.get(ar) or {}).get(lang) or db.service_translation(ar, lang) or ar
 
 
 def bot_number() -> str:

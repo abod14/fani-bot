@@ -41,7 +41,8 @@ def tr_service(ar: str) -> str:
     if lang == "ar":
         return ar
     from whatsapp_bot.lang_texts import SERVICES
-    return (SERVICES.get(ar) or {}).get(lang) or ar
+    import db
+    return (SERVICES.get(ar) or {}).get(lang) or db.service_translation(ar, lang) or ar
 
 
 # ─────────── التخزين ───────────
