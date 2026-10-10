@@ -530,37 +530,11 @@ def _service_groups(p) -> list[dict]:
 @app.route("/professionals/<int:professional_id>/services", methods=["POST"])
 @login_required
 def professional_services(professional_id):
-    """حفظ خدمات الفني (مربعات الاختيار) — ومن المدير العام: إضافة خدمة جديدة للمهنة أو حذف خدمة منها."""
+    """حفظ خدمات الفني (مربعات الاختيار). إضافة/حذف خدمات المهنة نفسها من صفحة «المهن» ← تعديل."""
     p = _professional_or_404(professional_id)
     if not p:
         return redirect(url_for("professionals_list"))
     back = redirect(url_for("professional_detail", professional_id=professional_id) + "#services")
-    action = request.form.get("action", "save")
-    allowed_pids = {p.get("profession_id"), p.get("profession2_id")} - {None, ""}
-    if action in ("add", "remove") and not is_super():
-        flash("إضافة الخدمات للمهنة وحذفها للمدير العام فقط.", "error")
-        return back
-    if action == "add":
-        pid = request.form.get("pid") or p.get("profession_id")
-        ar, en, ur = (request.form.get(k, "").strip() for k in ("ar", "en", "ur"))
-        if pid not in allowed_pids or not ar or not en or not ur:
-            flash("اكتب اسم الخدمة بالعربي والإنجليزي والأوردو (حتى تظهر مترجمة لكل الفنيين والعملاء).", "error")
-            return back
-        db.add_profession_service(pid, ar, en, ur)
-        mine = _json_list(p.get("services_json"))
-        if ar not in mine:
-            db.update_professional_services(p["id"], mine + [ar])
-        log(f"أضاف خدمة «{ar}» للمهنة", p["id"], p["full_name"])
-        flash(f"أُضيفت خدمة «{ar}» للمهنة، وعُلّمت لهذا الفني.", "success")
-        return back
-    if action == "remove":
-        pid, ar = request.form.get("pid"), request.form.get("ar", "")
-        if pid not in allowed_pids:
-            return back
-        n = db.remove_profession_service(pid, ar)
-        log(f"حذف خدمة «{ar}» من المهنة", p["id"], p["full_name"])
-        flash(f"حُذفت خدمة «{ar}» من المهنة" + (f"، وأُزيلت من {n} فني" if n else "") + ".", "success")
-        return back
     valid = {s for g in _service_groups(p) for s in g["services"]}
     chosen = [s for s in request.form.getlist("services") if s in valid]
     db.update_professional_services(p["id"], chosen)
@@ -1329,6 +1303,7 @@ def profession_add(domain_id):
 @app.route("/professions/<profession_id>/edit", methods=["GET", "POST"])
 @super_required
 def profession_edit_page(profession_id):
+    import json as _json
     prof = db.get_profession_by_id(profession_id)
     if not prof:
         flash("المهنة غير موجودة.", "error")
@@ -1337,7 +1312,7 @@ def profession_edit_page(profession_id):
     if request.method == "POST":
         name = request.form.get("name", "").strip()
         isco_code = request.form.get("isco_code", "").strip() or None
-        services = _parse_services(request.form.get("services", ""))
+        services = _json.loads(prof["services_json"]) if prof.get("services_json") else []   # الخدمات تُدار من بطاقتها بالأسفل
         allow_city_wide = request.form.get("allow_city_wide") == "1"
         name_en = request.form.get("name_en", "").strip()
         name_ur = request.form.get("name_ur", "").strip()
@@ -1351,7 +1326,7 @@ def profession_edit_page(profession_id):
             return redirect(url_for("professions_page"))
         flash("اسم المهنة مطلوب.", "error")
 
-    import json as _json
+    from whatsapp_bot.lang_texts import SERVICES
     prof_view = {
         "id": prof["id"],
         "name": prof["name"],
@@ -1361,7 +1336,35 @@ def profession_edit_page(profession_id):
         "name_en": prof.get("name_en") or "",
         "name_ur": prof.get("name_ur") or "",
     }
+    prof_view["svc_rows"] = [{"ar": s,
+                              "en": (SERVICES.get(s) or {}).get("en") or db.service_translation(s, "en") or "",
+                              "ur": (SERVICES.get(s) or {}).get("ur") or db.service_translation(s, "ur") or "",
+                              "count": db.count_professionals_with_service(profession_id, s)}
+                             for s in prof_view["services"]]
     return render_template("profession_edit.html", profession=prof_view, active_page="professions")
+
+
+@app.route("/professions/<profession_id>/services", methods=["POST"])
+@super_required
+def profession_services(profession_id):
+    """إضافة خدمة للمهنة (بالعربي والإنجليزي والأوردو) أو حذفها — تظهر/تختفي لكل أصحاب المهنة."""
+    if not db.get_profession_by_id(profession_id):
+        return redirect(url_for("professions_page"))
+    back = redirect(url_for("profession_edit_page", profession_id=profession_id) + "#services")
+    if request.form.get("action") == "remove":
+        ar = request.form.get("ar", "")
+        n = db.remove_profession_service(profession_id, ar)
+        log(f"حذف خدمة «{ar}» من مهنة {profession_id}")
+        flash(f"حُذفت خدمة «{ar}» من المهنة" + (f"، وأُزيلت من {n} فني كانوا يقدّمونها" if n else "") + ".", "success")
+        return back
+    ar, en, ur = (request.form.get(k, "").strip() for k in ("ar", "en", "ur"))
+    if not ar or not en or not ur:
+        flash("اكتب اسم الخدمة بالعربي والإنجليزي والأوردو (حتى تظهر مترجمة للجميع).", "error")
+        return back
+    db.add_profession_service(profession_id, ar, en, ur)
+    log(f"أضاف خدمة «{ar}» لمهنة {profession_id}")
+    flash(f"أُضيفت خدمة «{ar}» — تظهر الآن لكل أصحاب هذه المهنة ليعلّموها إن كانوا يقدّمونها.", "success")
+    return back
 
 
 @app.route("/professions/<profession_id>/delete", methods=["POST"])

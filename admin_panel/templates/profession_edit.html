@@ -27,11 +27,6 @@
     </div>
     <br>
     <div class="field">
-      <label>الخدمات (مفصولة بفاصلة)</label>
-      <input type="text" name="services" value="{{ profession.services|join('، ') }}">
-    </div>
-    <br>
-    <div class="field">
       <label>
         <input type="checkbox" name="allow_city_wide" value="1" {{ 'checked' if profession.allow_city_wide }}>
         مهنة نادرة — تسمح للفني يختار تغطية المدينة كاملة بدل حصره بـ٥ أحياء
@@ -39,6 +34,40 @@
     </div>
     <br>
     <button type="submit">حفظ التعديلات</button>
+  </form>
+</div>
+
+<div class="card" id="services">
+  <h2>🛠️ خدمات المهنة ({{ profession.services|length }})</h2>
+  <p class="muted">أي خدمة تضيفها هنا تظهر لكل أصحاب هذه المهنة (في صفحة كل فني، وعند التسجيل في البوت والموقع) ليعلّموها إن كانوا يقدّمونها.
+  والحذف يزيلها من المهنة ومن كل الفنيين.</p>
+  {% if profession.svc_rows %}
+  <table>
+    <thead><tr><th>الخدمة</th><th>English</th><th>اردو</th><th>فنيون يقدّمونها</th><th></th></tr></thead>
+    <tbody>
+      {% for s in profession.svc_rows %}
+      <tr>
+        <td><strong>{{ s.ar }}</strong></td>
+        <td dir="ltr" style="text-align:left">{{ s.en or '⚠️' }}</td>
+        <td>{{ s.ur or '⚠️' }}</td>
+        <td>{{ s.count }}</td>
+        <td><form method="post" action="{{ url_for('profession_services', profession_id=profession.id) }}" class="inline-form"
+                  onsubmit="return confirm('حذف خدمة «{{ s.ar }}» من المهنة؟{% if s.count %} سيُزال من {{ s.count }} فني يقدّمونها.{% endif %}');">
+          <input type="hidden" name="action" value="remove"><input type="hidden" name="ar" value="{{ s.ar }}">
+          <button type="submit" class="danger">حذف</button></form></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}<p class="muted">لا توجد خدمات بعد.</p>{% endif %}
+
+  <h2 style="margin-top:18px">➕ إضافة خدمة</h2>
+  <form method="post" action="{{ url_for('profession_services', profession_id=profession.id) }}" class="filters">
+    <input type="hidden" name="action" value="add">
+    <div class="field"><label>اسم الخدمة (عربي)</label><input type="text" name="ar" required maxlength="60" placeholder="مثال: تركيب سخانات"></div>
+    <div class="field"><label>English</label><input type="text" name="en" required maxlength="60" dir="ltr" placeholder="Water heater installation"></div>
+    <div class="field"><label>اردو</label><input type="text" name="ur" required maxlength="60" placeholder="واٹر ہیٹر کی تنصیب"></div>
+    <div class="field"><button type="submit" class="success">إضافة</button></div>
   </form>
 </div>
 {% endblock %}

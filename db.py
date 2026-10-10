@@ -3122,6 +3122,13 @@ def add_profession_service(profession_id: str, ar: str, en: str, ur: str) -> boo
     return True
 
 
+def count_professionals_with_service(profession_id: str, ar: str) -> int:
+    with get_conn() as conn:
+        rows = conn.execute("SELECT services_json FROM professionals WHERE profession_id = ? OR profession2_id = ?",
+                            (profession_id, profession_id)).fetchall()
+    return sum(1 for r in rows if ar in json.loads(r[0] or "[]"))
+
+
 def remove_profession_service(profession_id: str, ar: str) -> int:
     """يحذف الخدمة من قائمة المهنة، ومن خدمات الفنيين أصحاب هذه المهنة (إلا لو مهنتهم الأخرى فيها الخدمة نفسها).
     يرجّع عدد الفنيين الذين أُزيلت منهم."""

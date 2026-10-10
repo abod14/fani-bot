@@ -111,8 +111,6 @@
       {% for s in g.services %}
       <span style="white-space:nowrap">
         <label><input type="checkbox" name="services" value="{{ s }}" {% if s in my_services %}checked{% endif %}> {{ s }}</label>
-        {% if is_super and g.pid %}<button type="submit" form="rm-{{ loop.index }}-{{ g.pid }}" title="حذف الخدمة من المهنة"
-          style="background:none; color:#b42318; padding:0 4px; font-size:13px;">✕</button>{% endif %}
       </span>
       {% endfor %}
     </div>
@@ -122,30 +120,8 @@
       <button type="submit">حفظ الخدمات</button>
     </p>
   </form>
-  {% if is_super %}
-  {% for g in svc_groups if g.pid %}{% for s in g.services %}
-  <form method="post" action="{{ url_for('professional_services', professional_id=p.id) }}" id="rm-{{ loop.index }}-{{ g.pid }}"
-        onsubmit="return confirm('حذف خدمة «{{ s }}» من مهنة «{{ g.name }}» نهائيًا؟ ستُحذف من قائمة المهنة لكل الفنيين.');">
-    <input type="hidden" name="action" value="remove"><input type="hidden" name="pid" value="{{ g.pid }}"><input type="hidden" name="ar" value="{{ s }}">
-  </form>
-  {% endfor %}{% endfor %}
-  <details style="margin-top:12px">
-    <summary style="cursor:pointer; font-weight:600; color:#0f766e;">➕ إضافة خدمة جديدة للمهنة</summary>
-    <form method="post" action="{{ url_for('professional_services', professional_id=p.id) }}" class="filters" style="margin-top:10px">
-      <input type="hidden" name="action" value="add">
-      {% set real = svc_groups|selectattr('pid')|list %}
-      {% if real|length > 1 %}
-      <div class="field"><label>المهنة</label>
-        <select name="pid">{% for g in real %}<option value="{{ g.pid }}">{{ g.name }}</option>{% endfor %}</select></div>
-      {% elif real %}<input type="hidden" name="pid" value="{{ real[0].pid }}">{% endif %}
-      <div class="field"><label>اسم الخدمة (عربي)</label><input type="text" name="ar" required maxlength="60" placeholder="مثال: تركيب سخانات"></div>
-      <div class="field"><label>English</label><input type="text" name="en" required maxlength="60" dir="ltr" placeholder="Water heater installation"></div>
-      <div class="field"><label>اردو</label><input type="text" name="ur" required maxlength="60" placeholder="واٹر ہیٹر کی تنصیب"></div>
-      <div class="field"><button type="submit" class="success">إضافة</button></div>
-    </form>
-    <p class="muted">تُضاف لقائمة المهنة (تظهر لكل الفنيين الجدد عند التسجيل)، وتُعلَّم لهذا الفني تلقائيًا.</p>
-  </details>
-  {% endif %}
+  {% if is_super %}<p class="muted">لإضافة خدمة جديدة أو حذف خدمة من المهنة نفسها:
+    {% for g in svc_groups if g.pid %}<a href="{{ url_for('profession_edit_page', profession_id=g.pid) }}#services">تعديل خدمات «{{ g.name }}»</a>{% if not loop.last %} • {% endif %}{% endfor %}</p>{% endif %}
 </div>
 
 <div class="card" id="notes">
