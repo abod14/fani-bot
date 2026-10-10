@@ -1281,6 +1281,16 @@ def sync_professions_from_json(json_path):
                         p_order,
                     ),
                 )
+    # اسم المهنة محفوظ أيضًا بصف كل فني — نحدّثه لو تغيّر اسم المهنة (مثل «ميكب آرتست» ← «خبيرة مكياج»)
+    with get_conn() as conn:
+        conn.execute(
+            "UPDATE professionals SET profession_name = (SELECT name FROM professions WHERE id = professionals.profession_id) "
+            "WHERE profession_id IN (SELECT id FROM professions) "
+            "AND profession_name != (SELECT name FROM professions WHERE id = professionals.profession_id)")
+        conn.execute(
+            "UPDATE professionals SET profession2_name = (SELECT name FROM professions WHERE id = professionals.profession2_id) "
+            "WHERE profession2_id IN (SELECT id FROM professions) "
+            "AND profession2_name != (SELECT name FROM professions WHERE id = professionals.profession2_id)")
 
 
 def apply_name_translations(domain_translations: dict, profession_translations: dict):
