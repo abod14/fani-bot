@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}المدراء والموظفون — لوحة تحكم «فني»{% endblock %}
 {% block content %}
-<h1>المدراء والموظفون</h1>
+<h1>{{ 'المدراء والموظفون' if is_super else 'موظفو خدمة العملاء' }}</h1>
 <p class="muted">
   <strong>مدير دولة:</strong> يرى فنيي دولته فقط ويديرهم.
   <strong>خدمة العملاء:</strong> يرى فنيي كل الدول، ويعدّل بياناتهم (الاسم، الرقم، الأحياء، تفعيل الإشعارات)،
@@ -17,7 +17,7 @@
       <label>النوع</label>
       <select name="role" id="role" onchange="document.getElementById('cbox').style.display=this.value==='country'?'':'none'">
         <option value="support">🎧 خدمة العملاء</option>
-        <option value="country">🌍 مدير دولة</option>
+        {% if is_super %}<option value="country">🌍 مدير دولة</option>{% endif %}
       </select>
     </div>
     <div class="field">
@@ -46,12 +46,13 @@
   <h2>الحسابات الحالية</h2>
   {% if admins %}
   <table>
-    <thead><tr><th>اسم المستخدم</th><th>النوع</th><th>الحالة</th><th>تاريخ الإضافة</th><th>سجل النشاط</th><th>تغيير كلمة المرور</th><th>إيقاف / حذف</th></tr></thead>
+    <thead><tr><th>اسم المستخدم</th><th>النوع</th>{% if is_super %}<th>أنشأه</th>{% endif %}<th>الحالة</th><th>تاريخ الإضافة</th><th>سجل النشاط</th><th>تغيير كلمة المرور</th><th>إيقاف / حذف</th></tr></thead>
     <tbody>
       {% for a in admins %}
       <tr>
         <td><strong>{{ a.username }}</strong></td>
         <td>{% if a.role == 'support' %}🎧 خدمة العملاء{% else %}🌍 مدير {{ country_label(a.country) }}{% endif %}</td>
+        {% if is_super %}<td>{{ a.created_by or 'المدير العام' }}</td>{% endif %}
         <td>{% if a.disabled %}<span class="badge rejected">موقوف</span>{% else %}<span class="badge active">نشط</span>{% endif %}</td>
         <td>{{ a.created_at[:10] }}</td>
         <td><a href="{{ url_for('admin_activity_page', user_id=a.id) }}">عرض</a></td>

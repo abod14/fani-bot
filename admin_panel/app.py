@@ -764,21 +764,46 @@ def settings_page():
 
 # ─────────────────────────── مدراء الدول ───────────────────────────
 
+def _managed_accounts() -> list[dict]:
+    """الحسابات التي يديرها المستخدم الحالي: المدير العام = الكل، مدير الدولة = موظفو خدمة العملاء الذين أنشأهم."""
+    accounts = db.list_admin_users()
+    if is_super():
+        return accounts
+    return [a for a in accounts if a.get("role") == "support" and a.get("created_by") == session.get("username")]
+
+
+def _staff_required():
+    """صفحة الموظفين: المدير العام، ومدير الدولة (لموظفي خدمة العملاء فقط)."""
+    return is_super() or session.get("role") == "country"
+
+
 @app.route("/admins", methods=["GET", "POST"])
-@super_required
+@login_required
 def admins_page():
+    if not _staff_required():
+        return redirect(url_for("professionals_list"))
     if request.method == "POST":
         action = request.form.get("action")
+        mine = {a["id"] for a in _managed_accounts()}
+        if action != "add":
+            try:
+                uid = int(request.form.get("user_id") or 0)
+            except ValueError:
+                uid = 0
+            if uid not in mine:
+                flash("لا تملك صلاحية على هذا الحساب.", "error")
+                return redirect(url_for("admins_page"))
         if action == "add":
             username = request.form.get("username", "").strip()
             password = request.form.get("password", "")
-            role = "support" if request.form.get("role") == "support" else "country"
+            role = "support" if (request.form.get("role") == "support" or not is_super()) else "country"
             country = (request.form.get("country") or "").upper() if role == "country" else "ALL"
             if not username or len(password) < 6 or (role == "country" and not countries.get(country)):
                 flash("اكتب اسم مستخدم، وكلمة مرور 6 أحرف على الأقل، واختر الدولة.", "error")
             elif username == config.ADMIN_PANEL_USERNAME:
                 flash("هذا الاسم محجوز للمدير العام — اختر اسم ثاني.", "error")
-            elif db.create_admin_user(username, generate_password_hash(password), country, role):
+            elif db.create_admin_user(username, generate_password_hash(password), country, role, actor()):
+                log(f"أضاف حساب {'خدمة عملاء' if role == 'support' else 'مدير دولة'}", None, username)
                 flash(f"تمت إضافة موظف خدمة العملاء «{username}»." if role == "support"
                       else f"تمت إضافة المدير «{username}» لـ {countries.label(country)}.", "success")
             else:
@@ -788,23 +813,25 @@ def admins_page():
             if len(password) < 6:
                 flash("كلمة المرور لازم تكون 6 أحرف على الأقل.", "error")
             else:
-                db.update_admin_user_password(int(request.form["user_id"]), generate_password_hash(password))
+                db.update_admin_user_password(uid, generate_password_hash(password))
                 flash("تم تغيير كلمة المرور.", "success")
         elif action == "delete":
-            db.delete_admin_user(int(request.form["user_id"]))
+            db.delete_admin_user(uid)
             flash("تم حذف الحساب.", "success")
         elif action in ("disable", "enable"):
-            db.set_admin_user_disabled(int(request.form["user_id"]), action == "disable")
+            db.set_admin_user_disabled(uid, action == "disable")
             flash("تم إيقاف الحساب — لن يستطيع الدخول." if action == "disable" else "تم تفعيل الحساب.", "success")
         return redirect(url_for("admins_page"))
 
-    return render_template("admins.html", admins=db.list_admin_users(), active_page="admins")
+    return render_template("admins.html", admins=_managed_accounts(), active_page="admins")
 
 
 @app.route("/admins/<int:user_id>/activity")
-@super_required
+@login_required
 def admin_activity_page(user_id):
-    u = next((a for a in db.list_admin_users() if a["id"] == user_id), None)
+    if not _staff_required():
+        return redirect(url_for("professionals_list"))
+    u = next((a for a in _managed_accounts() if a["id"] == user_id), None)
     if not u:
         return redirect(url_for("admins_page"))
     rows = db.list_admin_activity(u["username"])

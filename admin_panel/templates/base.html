@@ -18,6 +18,7 @@
       <a href="{{ url_for('dashboard') }}" class="{{ 'active' if active_page == 'dashboard' else '' }}">الرئيسية</a>
       <a href="{{ url_for('professionals_list') }}" class="{{ 'active' if active_page == 'professionals' else '' }}">الفنيون</a>
       <a href="{{ url_for('coverage_page') }}" class="{{ 'active' if active_page == 'coverage' else '' }}">مؤشرات التغطية</a>
+      {% if not is_super %}<a href="{{ url_for('admins_page') }}" class="{{ 'active' if active_page == 'admins' else '' }}">خدمة العملاء</a>{% endif %}
       {% endif %}
       {% if is_super %}
       <a href="{{ url_for('payments_list') }}" class="{{ 'active' if active_page == 'payments' else '' }}">الاشتراكات والمدفوعات</a>

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}سجل نشاط {{ u.username }} — لوحة تحكم «فني»{% endblock %}
 {% block content %}
-<p><a href="{{ url_for('admins_page') }}">« رجوع للمدراء والموظفين</a></p>
+<p><a href="{{ url_for('admins_page') }}">« رجوع</a></p>
 <h1>سجل نشاط «{{ u.username }}»</h1>
 <p class="muted">كل ما فعله في اللوحة، الأحدث أولًا (بتوقيت الرياض). يُسجَّل تلقائيًا ولا يستطيع حذفه.</p>
 <div class="card">

@@ -571,6 +571,8 @@ def init_db():
             conn.execute("ALTER TABLE admin_users ADD COLUMN role TEXT NOT NULL DEFAULT 'country'")
         if "disabled" not in cols:
             conn.execute("ALTER TABLE admin_users ADD COLUMN disabled INTEGER NOT NULL DEFAULT 0")
+        if "created_by" not in cols:   # من أنشأ الحساب (مدير الدولة يدير موظفي خدمة العملاء الذين أنشأهم)
+            conn.execute("ALTER TABLE admin_users ADD COLUMN created_by TEXT")
         # سجل التواصل مع الفني (ملاحظات يكتبها الموظف — لا يراها الفني)
         conn.execute("""CREATE TABLE IF NOT EXISTS professional_notes (
             id INTEGER PRIMARY KEY AUTOINCREMENT, professional_id INTEGER NOT NULL,
@@ -2492,7 +2494,7 @@ def nearest_sa_cities(city_id: int, exclude_ids: list[int], limit: int = 3):
 
 def list_admin_users():
     with get_conn() as conn:
-        rows = conn.execute("SELECT id, username, country, created_at, role, disabled FROM admin_users "
+        rows = conn.execute("SELECT id, username, country, created_at, role, disabled, created_by FROM admin_users "
                             "ORDER BY role, country, username").fetchall()
         return [dict(r) for r in rows]
 
@@ -2551,15 +2553,16 @@ def get_admin_user_by_username(username: str):
         return dict(row) if row else None
 
 
-def create_admin_user(username: str, password_hash: str, country: str, role: str = "country") -> bool:
+def create_admin_user(username: str, password_hash: str, country: str, role: str = "country",
+                      created_by: str | None = None) -> bool:
     """يرجّع False لو اسم المستخدم مستخدم مسبقًا."""
     with get_conn() as conn:
         exists = conn.execute("SELECT 1 FROM admin_users WHERE username = ?", (username,)).fetchone()
         if exists:
             return False
         conn.execute(
-            "INSERT INTO admin_users (username, password_hash, country, created_at, role) VALUES (?, ?, ?, ?, ?)",
-            (username, password_hash, country, _now_iso(), role if role in ("country", "support") else "country"),
+            "INSERT INTO admin_users (username, password_hash, country, created_at, role, created_by) VALUES (?, ?, ?, ?, ?, ?)",
+            (username, password_hash, country, _now_iso(), role if role in ("country", "support") else "country", created_by),
         )
         return True
 
