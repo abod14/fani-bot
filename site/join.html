@@ -60,6 +60,9 @@ input:focus,select:focus{border-color:var(--brand);outline:none}
 .btn-primary{background:var(--brand);color:#fff}
 .btn-primary:hover{background:var(--brand-deep)}
 .btn-primary:disabled{opacity:.6;cursor:wait}
+.btn-ghost{background:var(--raised);color:var(--ink);border:1.5px solid var(--line);font-size:16px}
+.btn-ghost:hover{border-color:var(--brand);color:var(--brand)}
+.homeLink{font-size:14px;font-weight:600;text-decoration:none}
 .btn-wa{background:#1f9d55;color:#fff;font-size:19px}
 .btn-wa:hover{background:#17803f}
 .btn svg{width:24px;height:24px;flex:none}
@@ -88,6 +91,7 @@ footer{color:var(--muted);font-size:13px;text-align:center;padding:20px 0 36px}
 <main class="wrap">
   <h1 data-t="title"></h1>
   <p class="lead" data-t="lead"></p>
+  <p style="margin:-10px 0 18px"><a href="/" class="homeLink" data-t="home_link"></a></p>
 
   <form id="form" novalidate>
     <div class="err" id="err" role="alert" hidden></div>
@@ -151,6 +155,7 @@ footer{color:var(--muted);font-size:13px;text-align:center;padding:20px 0 36px}
       <p class="note" data-t="wa_note"></p>
       <p class="hint" style="text-align:center;margin-top:10px"><span data-t="code_lbl"></span> <b id="code" dir="ltr"></b></p>
     </div>
+    <a class="btn btn-ghost" id="home" href="/" style="margin-bottom:10px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg><span data-t="home"></span></a>
     <button type="button" class="linkbtn" id="back" data-t="back"></button>
   </section>
 </main>
@@ -168,7 +173,7 @@ dsearch:"🔍 ابحث عن حي…",chosen:"المختار:",whole:"أخدم ا
 choose:"— اختر —",next:"متابعة",sending:"لحظة…",review:"راجع بياناتك",s_confirm:"أكّد تسجيلك عبر واتساب",
 st1:"اضغط الزر الأخضر، فيفتح واتساب برسالة جاهزة.",st2:"اضغط «إرسال» دون تعديل الرسالة.",st3:"يصلك الرد فورًا: «🎉 تم تسجيلك».",
 wa_btn:"أكّد عبر واتساب",wa_note:"⚠️ أرسل الرسالة من الرقم الذي تريد أن يتواصل معك العملاء عليه — فهو الرقم الذي سيظهر لهم. الرمز صالح 48 ساعة.",
-code_lbl:"رمز التسجيل:",back:"✏️ تعديل البيانات",privacy:"سياسة الخصوصية",support:"الدعم على واتساب",
+code_lbl:"رمز التسجيل:",back:"✏️ تعديل البيانات",home:"العودة إلى الصفحة الرئيسية",home_link:"→ الصفحة الرئيسية",privacy:"سياسة الخصوصية",support:"الدعم على واتساب",
 l_name:"الاسم",l_prof:"المهنة",l_svc:"الخدمات",l_place:"المكان",whole_city:"المدينة كاملة",net:"تعذّر الاتصال، حاول مرة أخرى.",
 e_prof:"اختر مهنتك.",e_city:"اختر مدينتك.",e_dist:"اختر حيًا واحدًا على الأقل.",e_name:"اكتب اسمك."},
 en:{title:"Register as a technician on «Fanni»",lead:"Fill in your details once, then confirm with a WhatsApp message — and start appearing to nearby customers. Registration is free.",
@@ -180,7 +185,7 @@ dsearch:"🔍 Search a district…",chosen:"Selected:",whole:"I serve the whole 
 choose:"— Choose —",next:"Continue",sending:"One moment…",review:"Review your details",s_confirm:"Confirm via WhatsApp",
 st1:"Tap the green button; WhatsApp opens with a ready message.",st2:"Tap «Send» without changing the message.",st3:"You'll get an instant reply: «🎉 You're registered».",
 wa_btn:"Confirm via WhatsApp",wa_note:"⚠️ Send the message from the number you want customers to contact — it's the number they will see. The code is valid for 48 hours.",
-code_lbl:"Registration code:",back:"✏️ Edit details",privacy:"Privacy policy",support:"Support on WhatsApp",
+code_lbl:"Registration code:",back:"✏️ Edit details",home:"Back to the home page",home_link:"← Home page",privacy:"Privacy policy",support:"Support on WhatsApp",
 l_name:"Name",l_prof:"Profession",l_svc:"Services",l_place:"Location",whole_city:"Whole city",net:"Connection failed, try again.",
 e_prof:"Choose your profession.",e_city:"Choose your city.",e_dist:"Choose at least one district.",e_name:"Enter your name."},
 ur:{title:"«فنی» میں بطور کاریگر رجسٹر ہوں",lead:"اپنی معلومات ایک بار بھریں، پھر واٹس ایپ پیغام سے تصدیق کریں — اور قریبی گاہکوں کو نظر آنا شروع کریں۔ رجسٹریشن مفت ہے۔",
@@ -192,7 +197,7 @@ dsearch:"🔍 محلہ تلاش کریں…",chosen:"منتخب:",whole:"میں 
 choose:"— منتخب کریں —",next:"آگے بڑھیں",sending:"ایک لمحہ…",review:"اپنی معلومات دیکھیں",s_confirm:"واٹس ایپ سے تصدیق کریں",
 st1:"سبز بٹن دبائیں؛ واٹس ایپ تیار پیغام کے ساتھ کھلے گا۔",st2:"پیغام بدلے بغیر «بھیجیں» دبائیں۔",st3:"فوراً جواب آئے گا: «🎉 آپ رجسٹر ہو گئے»۔",
 wa_btn:"واٹس ایپ سے تصدیق کریں",wa_note:"⚠️ پیغام اسی نمبر سے بھیجیں جس پر گاہک آپ سے رابطہ کریں — یہی نمبر انہیں نظر آئے گا۔ کوڈ 48 گھنٹے تک درست ہے۔",
-code_lbl:"رجسٹریشن کوڈ:",back:"✏️ معلومات میں ترمیم",privacy:"رازداری کی پالیسی",support:"واٹس ایپ پر سپورٹ",
+code_lbl:"رجسٹریشن کوڈ:",back:"✏️ معلومات میں ترمیم",home:"ہوم پیج پر واپس جائیں",home_link:"→ ہوم پیج",privacy:"رازداری کی پالیسی",support:"واٹس ایپ پر سپورٹ",
 l_name:"نام",l_prof:"پیشہ",l_svc:"خدمات",l_place:"جگہ",whole_city:"پورا شہر",net:"رابطہ نہیں ہو سکا، دوبارہ کوشش کریں۔",
 e_prof:"اپنا پیشہ منتخب کریں۔",e_city:"اپنا شہر منتخب کریں۔",e_dist:"کم از کم ایک محلہ منتخب کریں۔",e_name:"اپنا نام لکھیں۔"}};
 
@@ -213,6 +218,7 @@ function texts(){
   [].forEach.call(document.querySelectorAll("[data-t]"),function(el){el.textContent=t(el.dataset.t)});
   $("dsearch").placeholder=t("dsearch");$("q1").placeholder=$("q2").placeholder=t("pq");
   [].forEach.call(document.querySelectorAll(".langs button"),function(b){b.setAttribute("aria-pressed",b.dataset.l===L)});
+  [].forEach.call(document.querySelectorAll('a[href="/"],a[href^="/?lang"]'),function(a){a.href=L==="ar"?"/":"/?lang="+L});
 }
 function prof(id){var f=null;(M?M.domains:[]).forEach(function(d){d.professions.forEach(function(p){if(p.id===id)f=p})});return f}
 function profsOf(domId){var d=(M?M.domains:[]).filter(function(x){return x.id===domId})[0];return d?d.professions:[]}
