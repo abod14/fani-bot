@@ -134,7 +134,7 @@ END_WORDS = {norm(w) for w in ["x", "ء", "إنهاء", "انهاء", "انهي"
 
 DELETE_WORDS = {norm(w) for w in ["d", "ي", "حذف بياناتي", "احذف بياناتي", "delete my data"]}
 MENU_FOOTER = "s للبداية • d لحذف بياناتك"
-CHANNEL_URL = "https://whatsapp.com/channel/0029VbDnWZT11ulJLdQN7D3L"
+CHANNEL_URL = "https://whatsapp.com/channel/0029Vb8goHR6BIEYsJmZTY3x"
 
 # كتابة اسم اللغة بأي وقت تبدّل لغة البوت
 LANG_WORDS = {
