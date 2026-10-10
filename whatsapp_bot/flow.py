@@ -201,17 +201,18 @@ def _ask_delete(api, wa_id):
               tr("• محادثتك الحالية مع «فنّي»")]
     if pro:
         # طلب المالك: نحتفظ ببيانات تواصل الفني المحذوف (لا تظهر لأحد) — ونخبره بذلك بوضوح
-        items.append("\n" + tr("ℹ️ نحتفظ لدى الإدارة فقط باسمك ورقمك وتقييمك، للتواصل معك ولتعود إليك تقييماتك إن سجّلت من جديد."))
+        items.append("\n" + tr("ℹ️ نحتفظ باسمك ورقمك وتقييمك تسعين يومًا، لتعود إليك تقييماتك إن سجّلت من جديد، ثم تُحذف نهائيًا. ويمكنك حذفها كلها الآن بزر «احذف كل شيء»."))
     api.buttons(
         wa_id,
         tr("🗑️ هل تريد حذف بياناتك من «فنّي» نهائيًا؟\n\nسيُحذف ما يلي:\n{items}\n\n⚠️ لا يمكن التراجع عن هذا الإجراء.",
            items="\n".join(items)),
-        [("del:yes", tr("🗑️ نعم، احذف")), ("del:no", tr("لا، رجوع"))],
+        [("del:yes", tr("🗑️ نعم، احذف"))] + ([("del:all", tr("🧹 احذف كل شيء"))] if pro else [])
+        + [("del:no", tr("لا، رجوع"))],
     )
     return "menu", {}
 
 
-def _delete_my_data(api, wa_id):
+def _delete_my_data(api, wa_id, everything: bool = False):
     """حذف نهائي (وعد سياسة الخصوصية): الجلسة + سجلات بحثه وتواصله + تسجيله كفني لو مسجّل من واتساب."""
     cid = customer_id(wa_id)
     archived = db.delete_wa_professional(wa_id)
@@ -225,6 +226,9 @@ def _delete_my_data(api, wa_id):
         conn.execute("DELETE FROM search_log WHERE customer_telegram_id = ?", (cid,))
         conn.execute("DELETE FROM contact_clicks WHERE customer_telegram_id = ?", (cid,))
         conn.execute("DELETE FROM user_countries WHERE telegram_user_id = ?", (cid,))
+    if archived and everything:
+        db.purge_archive(archived)   # «احذف كل شيء»: لا أرشيف ولا تقييمات
+        archived = []
     if archived:
         api.text(wa_id, tr("✅ تم حذف حسابك من «فنّي»، ولن تظهر للعملاء بعد الآن. يمكنك التسجيل من جديد في أي وقت."))
         _ask_delete_reason(api, wa_id, archived[0])
@@ -398,8 +402,8 @@ def _on_choice(api, wa_id, name, rid, state, data):
     if head == "delr":
         return _on_delete_reason(api, wa_id, p)
     if head == "del":
-        if p[1] == "yes":
-            return _delete_my_data(api, wa_id)
+        if p[1] in ("yes", "all"):
+            return _delete_my_data(api, wa_id, everything=p[1] == "all")
         return _welcome(api, wa_id, name)
     if head == "lang":
         code = p[1] if len(p) > 1 and p[1] in lang.LANGS else "ar"

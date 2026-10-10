@@ -388,6 +388,20 @@ def wa_on_choice(api, wa_id: str, cust: int, parts: list[str]):
     api.text(wa_id, tr("شكرًا لك 🌟 تقييمك يساعد غيرك على اختيار الفني المناسب."))
 
 
+def purge_daily():
+    """مرة يوميًا: حذف أرشيف المحذوفين (وتقييماتهم) بعد 90 يومًا."""
+    try:
+        today = datetime.now(timezone.utc).date().isoformat()
+        if db.get_setting("archive_purged_on", "") == today:
+            return
+        n = db.purge_expired_archive()
+        db.set_setting("archive_purged_on", today)
+        if n:
+            log.info("purged %s expired deleted-professional archive rows", n)
+    except Exception:
+        log.exception("archive purge failed")
+
+
 def start_wa_loop(api, interval: int = 300):
     def run():
         while True:
@@ -395,5 +409,6 @@ def start_wa_loop(api, interval: int = 300):
                 wa_send_due(api)
             except Exception:
                 log.exception("rating loop error")
+            purge_daily()
             time.sleep(interval)
     threading.Thread(target=run, daemon=True).start()

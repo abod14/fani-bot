@@ -1739,10 +1739,34 @@ def list_deleted_professionals(limit: int = 300) -> list[dict]:
             "SELECT * FROM deleted_professionals ORDER BY id DESC LIMIT ?", (limit,)).fetchall()]
 
 
-def remove_deleted_archive(archive_id: int):
-    """حذف السجل من الأرشيف نفسه (لو طلب الفني حذف بياناته كليًا)."""
+ARCHIVE_DAYS = 90   # طلب المالك + نظام حماية البيانات (م18): أرشيف المحذوفين وتقييماتهم يُحذف بعد 90 يومًا
+
+
+def purge_archive(archive_ids: list[int]):
+    """حذف كلي فوري (زر «احذف كل شيء» أو انتهاء الـ90 يومًا): سجل الأرشيف + تقييماته المربوطة برقمه
+    (إلا لو رجع وسجّل بنفس الرقم — تقييماته صارت تخص تسجيله الحالي)."""
     with get_conn() as conn:
-        conn.execute("DELETE FROM deleted_professionals WHERE id=?", (archive_id,))
+        active = {_phone_digits(r[0] or "") for r in conn.execute("SELECT whatsapp_number FROM professionals").fetchall()}
+        for aid in archive_ids:
+            row = conn.execute("SELECT phone FROM deleted_professionals WHERE id=?", (aid,)).fetchone()
+            if row and row[0] and row[0] not in active:
+                conn.execute("DELETE FROM ratings WHERE phone=?", (row[0],))
+            conn.execute("DELETE FROM deleted_professionals WHERE id=?", (aid,))
+
+
+def purge_expired_archive(days: int = ARCHIVE_DAYS) -> int:
+    from datetime import datetime as _dt, timedelta as _td, timezone as _tz
+    cutoff = (_dt.now(_tz.utc) - _td(days=days)).isoformat()
+    with get_conn() as conn:
+        ids = [r[0] for r in conn.execute("SELECT id FROM deleted_professionals WHERE deleted_at < ?", (cutoff,)).fetchall()]
+    if ids:
+        purge_archive(ids)
+    return len(ids)
+
+
+def remove_deleted_archive(archive_id: int):
+    """حذف السجل من الأرشيف نفسه (لو طلب الفني حذف بياناته كليًا) — مع تقييماته."""
+    purge_archive([archive_id])
 
 
 def admin_delete_professional(professional_id: int):

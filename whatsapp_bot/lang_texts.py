@@ -631,9 +631,10 @@ TEXTS: dict[str, dict[str, str]] = {
     "عدم تصريف، تسريب، لا تسخّن": {"en": "Not draining, leaking, not heating", "ur": "پانی نہیں نکلتا، لیکیج، گرم نہیں کرتا"},
     "أفران غاز وكهرباء وبلت إن": {"en": "Gas, electric & built-in ovens", "ur": "گیس، بجلی اور بلٹ اِن اوون"},
     # ─────────── أرشيف الفنيين المحذوفين + سبب الحذف ───────────
-    "ℹ️ نحتفظ لدى الإدارة فقط باسمك ورقمك وتقييمك، للتواصل معك ولتعود إليك تقييماتك إن سجّلت من جديد.": {
-        "en": "ℹ️ Only the admin keeps your name, number and rating, to contact you and to restore your ratings if you register again.",
-        "ur": "ℹ️ صرف انتظامیہ آپ کا نام، نمبر اور ریٹنگ محفوظ رکھے گی، تاکہ آپ سے رابطہ ہو سکے اور دوبارہ رجسٹر ہونے پر آپ کی ریٹنگ واپس مل جائے۔"},
+    "ℹ️ نحتفظ باسمك ورقمك وتقييمك تسعين يومًا، لتعود إليك تقييماتك إن سجّلت من جديد، ثم تُحذف نهائيًا. ويمكنك حذفها كلها الآن بزر «احذف كل شيء».": {
+        "en": "ℹ️ We keep your name, number and rating for 90 days, so your ratings return if you register again, then they are permanently deleted. You can delete everything now with the «Delete everything» button.",
+        "ur": "ℹ️ ہم آپ کا نام، نمبر اور ریٹنگ نوے دن تک رکھتے ہیں، تاکہ دوبارہ رجسٹر ہونے پر آپ کی ریٹنگ واپس مل جائے، پھر یہ ہمیشہ کے لیے حذف ہو جاتے ہیں۔ آپ «سب کچھ حذف کریں» کے بٹن سے ابھی سب کچھ حذف کر سکتے ہیں۔"},
+    "🧹 احذف كل شيء": {"en": "🧹 Delete everything", "ur": "🧹 سب کچھ حذف کریں"},
     "✅ تم حذف حسابك من «فنّي»، ولن تظهر للعملاء بعد الآن. يمكنك التسجيل من جديد في أي وقت.": {
         "en": "✅ Your «Fanni» account has been deleted and you will no longer appear to customers. You can register again anytime.",
         "ur": "✅ «فنی» سے آپ کا اکاؤنٹ ڈیلیٹ ہو گیا، اب آپ گاہکوں کو نظر نہیں آئیں گے۔ آپ کسی بھی وقت دوبارہ رجسٹر کر سکتے ہیں۔"},

@@ -926,14 +926,19 @@ TEXTS: dict[str, dict[str, str]] = {
         "ur": "فی الحال آپ کے نام کوئی ڈیٹا محفوظ نہیں ہے۔",
     },
     "privacy_confirm_prompt": {
-        "ar": "⚠️ سيتم حذف كل بياناتك من بوت «فني» نهائيًا وبلا رجعة:\nتسجيلك كفني (إن وجد) وأرقام تواصلك، وسجلات بحثك وتواصلك السابقة.\n\nℹ️ إن كنت فنيًا: نحتفظ لدى الإدارة فقط باسمك ورقمك وتقييمك، للتواصل معك ولتعود إليك تقييماتك إن سجّلت من جديد.\n\nهل أنت متأكد؟",
-        "en": "⚠️ All your data on «Fani» bot will be permanently deleted:\nYour professional registration (if any) and contact numbers, plus your search and contact history.\n\nℹ️ If you are a technician: only the admin keeps your name, number and rating, to contact you and to restore your ratings if you register again.\n\nAre you sure?",
-        "ur": "⚠️ «فنی» بوٹ پر آپ کا سارا ڈیٹا مستقل طور پر حذف کر دیا جائے گا:\nآپ کی کاریگر رجسٹریشن (اگر ہو) اور رابطہ نمبرز، نیز آپ کی تلاش اور رابطے کی سابقہ تاریخ۔\n\nℹ️ اگر آپ کاریگر ہیں: صرف انتظامیہ آپ کا نام، نمبر اور ریٹنگ محفوظ رکھے گی، تاکہ آپ سے رابطہ ہو سکے اور دوبارہ رجسٹر ہونے پر آپ کی ریٹنگ واپس مل جائے۔\n\nکیا آپ کو یقین ہے؟",
+        "ar": "⚠️ سيتم حذف كل بياناتك من بوت «فني» نهائيًا وبلا رجعة:\nتسجيلك كفني (إن وجد) وأرقام تواصلك، وسجلات بحثك وتواصلك السابقة.\n\nℹ️ إن كنت فنيًا: نحتفظ باسمك ورقمك وتقييمك تسعين يومًا، لتعود إليك تقييماتك إن سجّلت من جديد، ثم تُحذف نهائيًا. ويمكنك حذفها كلها الآن بزر «احذف كل شيء».\n\nهل أنت متأكد؟",
+        "en": "⚠️ All your data on «Fani» bot will be permanently deleted:\nYour professional registration (if any) and contact numbers, plus your search and contact history.\n\nℹ️ If you are a technician: we keep your name, number and rating for 90 days, so your ratings return if you register again, then they are permanently deleted. You can delete everything now with the «Delete everything» button.\n\nAre you sure?",
+        "ur": "⚠️ «فنی» بوٹ پر آپ کا سارا ڈیٹا مستقل طور پر حذف کر دیا جائے گا:\nآپ کی کاریگر رجسٹریشن (اگر ہو) اور رابطہ نمبرز، نیز آپ کی تلاش اور رابطے کی سابقہ تاریخ۔\n\nℹ️ اگر آپ کاریگر ہیں: ہم آپ کا نام، نمبر اور ریٹنگ نوے دن تک رکھتے ہیں، تاکہ دوبارہ رجسٹر ہونے پر آپ کی ریٹنگ واپس مل جائے، پھر یہ ہمیشہ کے لیے حذف ہو جاتے ہیں۔ آپ «سب کچھ حذف کریں» کے بٹن سے ابھی سب کچھ حذف کر سکتے ہیں۔\n\nکیا آپ کو یقین ہے؟",
     },
     "privacy_confirm_btn": {
         "ar": "✅ نعم، احذف بياناتي نهائيًا",
         "en": "✅ Yes, delete my data permanently",
         "ur": "✅ جی ہاں، میرا ڈیٹا مستقل طور پر حذف کریں",
+    },
+    "privacy_confirm_all_btn": {
+        "ar": "🧹 احذف كل شيء",
+        "en": "🧹 Delete everything",
+        "ur": "🧹 سب کچھ حذف کریں",
     },
     "privacy_cancel_btn": {
         "ar": "❌ إلغاء",

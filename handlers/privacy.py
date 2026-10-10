@@ -13,6 +13,7 @@ import i18n
 
 CONFIRM_CB = "privacy_confirm_delete"
 CANCEL_CB = "privacy_cancel_delete"
+CONFIRM_ALL_CB = "privacy_confirm_delete_all"   # فني: حذف كلي فوري (بلا أرشيف 90 يومًا)
 
 
 async def delete_account_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -23,12 +24,12 @@ async def delete_account_command(update: Update, context: ContextTypes.DEFAULT_T
         await update.message.reply_text(i18n.t("privacy_no_data", lang))
         return
 
-    keyboard = InlineKeyboardMarkup(
-        [
-            [InlineKeyboardButton(i18n.t("privacy_confirm_btn", lang), callback_data=CONFIRM_CB)],
-            [InlineKeyboardButton(i18n.t("privacy_cancel_btn", lang), callback_data=CANCEL_CB)],
-        ]
-    )
+    is_pro = await asyncio.to_thread(db.get_professional_by_telegram_id, user_id)
+    rows = [[InlineKeyboardButton(i18n.t("privacy_confirm_btn", lang), callback_data=CONFIRM_CB)]]
+    if is_pro:
+        rows.append([InlineKeyboardButton(i18n.t("privacy_confirm_all_btn", lang), callback_data=CONFIRM_ALL_CB)])
+    rows.append([InlineKeyboardButton(i18n.t("privacy_cancel_btn", lang), callback_data=CANCEL_CB)])
+    keyboard = InlineKeyboardMarkup(rows)
     await update.message.reply_text(i18n.t("privacy_confirm_prompt", lang), reply_markup=keyboard)
 
 
@@ -38,6 +39,9 @@ async def confirm_delete_account(update: Update, context: ContextTypes.DEFAULT_T
     user_id = update.effective_user.id
     lang = await asyncio.to_thread(db.get_user_language, user_id)
     archived = await asyncio.to_thread(db.delete_all_user_data, user_id)
+    if archived and query.data == CONFIRM_ALL_CB:
+        await asyncio.to_thread(db.purge_archive, archived)
+        archived = []
     if not archived:
         await query.edit_message_text(i18n.t("privacy_deleted", lang))
         return
@@ -96,6 +100,7 @@ def build_privacy_handlers() -> list:
     return [
         CommandHandler("delete_account", delete_account_command),
         CallbackQueryHandler(confirm_delete_account, pattern=f"^{CONFIRM_CB}$"),
+        CallbackQueryHandler(confirm_delete_account, pattern=f"^{CONFIRM_ALL_CB}$"),
         CallbackQueryHandler(cancel_delete_account, pattern=f"^{CANCEL_CB}$"),
         CallbackQueryHandler(on_delete_reason, pattern=r"^delr:\d+:\w+$"),
     ]

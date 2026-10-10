@@ -60,14 +60,14 @@ h1{font-size:24px}h2{font-size:18px;margin-top:28px}.en{direction:ltr;text-align
 <h2>كيف نستخدمها</h2>
 <p>لعرض الفنيين المناسبين للعميل، وحساب فرص التواصل المجانية للفني، وتنبيه الفني بطلبات العملاء، وتحسين الخدمة بإحصاءات عامة. لا نبيع البيانات ولا نشاركها مع أي جهة لأغراض تسويقية. رقم الفني يظهر للعميل فقط عند طلب التواصل.</p>
 <h2>الحذف</h2>
-<p>يمكنك طلب حذف بياناتك نهائيًا في أي وقت: في تلغرام بالأمر /delete_account، أو بمراسلتنا على واتساب بكلمة «حذف بياناتي» (أو الحرف d). بعد الحذف لا تظهر بياناتك لأي أحد في الخدمة. وإن كنت فنيًا نحتفظ لدى الإدارة فقط باسمك ورقمك وتقييمك وسبب الحذف إن ذكرته، للتواصل معك ولتعود إليك تقييماتك إن سجّلت من جديد؛ ويمكنك طلب حذفها أيضًا عبر الدعم.</p>
+<p>يمكنك طلب حذف بياناتك نهائيًا في أي وقت: في تلغرام بالأمر /delete_account، أو بمراسلتنا على واتساب بكلمة «حذف بياناتي» (أو الحرف d). بعد الحذف لا تظهر بياناتك لأي أحد في الخدمة. وإن كنت فنيًا نحتفظ باسمك ورقمك وتقييمك وسبب الحذف إن ذكرته مدة 90 يومًا، لتعود إليك تقييماتك إن سجّلت من جديد، ثم تُحذف نهائيًا تلقائيًا؛ ويمكنك حذفها كلها فورًا بزر «احذف كل شيء» عند الحذف، أو بطلب عبر الدعم.</p>
 <h2>التواصل</h2>
 <p>الدعم عبر واتساب: <a href="https://wa.me/966530990046">wa.me/966530990046</a><br>البريد: <a href="mailto:info@fanniapp.com">info@fanniapp.com</a> — أو عبر بوت تلغرام: <a href="https://t.me/FanniServiceBot">t.me/FanniServiceBot</a></p>
 <div class="en"><h1>Privacy Policy — Fanni</h1>
 <p>Fanni connects customers with technicians and tradespeople in Saudi Arabia, Egypt and the Gulf via the Telegram bot @FanniServiceBot and WhatsApp.</p>
 <p><b>Data we collect:</b> customers' WhatsApp number or Telegram ID, the profession and city/district searched, location only if the customer shares it (to find the nearest city/district), and contact history; technicians' name, profession, services, city/districts and the contact number they choose to show.</p>
 <p><b>Use:</b> to show matching technicians, count technicians' free contacts, notify technicians of customer requests and improve the service with aggregate statistics. We never sell data or share it for marketing. A technician's number is shown to a customer only when the customer asks to contact them.</p>
-<p><b>Deletion:</b> request permanent deletion anytime via /delete_account on Telegram or by messaging "delete my data" on WhatsApp. After deletion your data is no longer shown to anyone. For technicians, only the admin keeps your name, number, rating and deletion reason (if given), to contact you and restore your ratings if you register again; you can ask support to erase these too.</p>
+<p><b>Deletion:</b> request permanent deletion anytime via /delete_account on Telegram or by messaging "delete my data" on WhatsApp. After deletion your data is no longer shown to anyone. For technicians, we keep your name, number, rating and deletion reason (if given) for 90 days, so your ratings return if you register again, then they are deleted automatically; you can erase everything immediately with the "Delete everything" button, or via support.</p>
 <p><b>Contact:</b> WhatsApp support <a href="https://wa.me/966530990046">wa.me/966530990046</a> · <a href="mailto:info@fanniapp.com">info@fanniapp.com</a> · <a href="https://t.me/FanniServiceBot">t.me/FanniServiceBot</a></p></div>
 </body></html>"""
 
