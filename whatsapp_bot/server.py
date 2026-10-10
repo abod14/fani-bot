@@ -143,10 +143,19 @@ def receive():
 
 
 def _process(wa_id: str, name: str, message: dict):
+    import time
+    t0 = time.monotonic()
+    try:
+        sent_ts = int(message.get("timestamp") or 0)
+    except ValueError:
+        sent_ts = 0
+    lag = (time.time() - sent_ts) if sent_ts else -1   # من إرسال العميل حتى وصوله لنا (تأخير ميتا/الشبكة)
     try:
         flow.handle(api, wa_id, name, message)
     except Exception:
         log.exception("failed to handle WhatsApp message")
+    # سطر قياس لكل رسالة (بدون رقم العميل): وصول من ميتا + وقت معالجتنا وإرسال الرد
+    log.info("msg %s: arrived after %.1fs, handled in %.1fs", message.get("type"), lag, time.monotonic() - t0)
 
 
 def main():
