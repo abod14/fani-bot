@@ -1703,10 +1703,15 @@ def archive_professional(professional_id: int, deleted_by: str = "self") -> int 
     p = get_professional_by_id(professional_id)
     if not p:
         return None
-    if archive_days() == 0:   # المالك اختار عدم الاحتفاظ إطلاقًا
+    if archive_days() == 0:   # المالك اختار عدم الاحتفاظ إطلاقًا — ولا حتى التقييم
         try:
             import ratings
             ratings.forget_professional(professional_id)
+            phone = _phone_digits(p.get("whatsapp_number") or "")
+            with get_conn() as conn:
+                others = conn.execute("SELECT whatsapp_number FROM professionals WHERE id != ?", (professional_id,)).fetchall()
+                if not any(_phone_digits(r[0] or "") == phone for r in others):
+                    conn.execute("DELETE FROM ratings WHERE phone=?", (ratings.phone_key(phone),))
         except Exception:
             pass
         return None
@@ -1771,11 +1776,23 @@ def days_text(n: int, lang: str = "ar") -> str:
     return f"{n} أيام" if 3 <= n <= 10 else f"{n} يومًا"
 
 
+def _delete_ratings_for_phone(conn, phone: str):
+    """طلب المالك: لا نحتفظ حتى ببصمة الرقم — تقييمات الفني تُحذف مع سجله (إلا لو له تسجيل نشط بنفس الرقم)."""
+    if not phone:
+        return
+    if any(_phone_digits(r[0] or "") == phone for r in conn.execute("SELECT whatsapp_number FROM professionals").fetchall()):
+        return
+    import ratings
+    conn.execute("DELETE FROM ratings WHERE phone=?", (ratings.phone_key(phone),))
+
+
 def purge_archive(archive_ids: list[int]):
-    """حذف كلي (زر «احذف كل شيء» أو انتهاء الـ90 يومًا): يُحذف سجل الأرشيف (الاسم والرقم المقروء والسبب).
-    التقييمات لا تُحذف — محفوظة ببصمة مشفّرة للرقم، حتى لا يهرب الفني من تقييم سيئ بإعادة التسجيل."""
+    """حذف كلي (يدويًا من اللوحة أو بانتهاء المدة): سجل الأرشيف + تقييماته — لا يبقى شيء."""
     with get_conn() as conn:
         for aid in archive_ids:
+            row = conn.execute("SELECT phone FROM deleted_professionals WHERE id=?", (aid,)).fetchone()
+            if row:
+                _delete_ratings_for_phone(conn, row[0])
             conn.execute("DELETE FROM deleted_professionals WHERE id=?", (aid,))
 
 

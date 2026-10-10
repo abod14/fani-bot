@@ -60,14 +60,14 @@ h1{font-size:24px}h2{font-size:18px;margin-top:28px}.en{direction:ltr;text-align
 <h2>كيف نستخدمها</h2>
 <p>لعرض الفنيين المناسبين للعميل، وحساب فرص التواصل المجانية للفني، وتنبيه الفني بطلبات العملاء، وتحسين الخدمة بإحصاءات عامة. لا نبيع البيانات ولا نشاركها مع أي جهة لأغراض تسويقية. رقم الفني يظهر للعميل فقط عند طلب التواصل.</p>
 <h2>الحذف</h2>
-<p>يمكنك طلب حذف بياناتك نهائيًا في أي وقت: في تلغرام بالأمر /delete_account، أو بمراسلتنا على واتساب بكلمة «حذف بياناتي» (أو الحرف d). بعد الحذف لا تظهر بياناتك لأي أحد في الخدمة. __ARCH_AR__ أما تقييمات العملاء لك فتبقى مرتبطة ببصمة مشفّرة لرقمك لا تكشفه، حتى لا يُتحايل على التقييم بالحذف وإعادة التسجيل، وتعود إليك إن سجّلت من جديد.</p>
+<p>يمكنك طلب حذف بياناتك نهائيًا في أي وقت: في تلغرام بالأمر /delete_account، أو بمراسلتنا على واتساب بكلمة «حذف بياناتي» (أو الحرف d). بعد الحذف لا تظهر بياناتك لأي أحد في الخدمة. __ARCH_AR__</p>
 <h2>التواصل</h2>
 <p>الدعم عبر واتساب: <a href="https://wa.me/966530990046">wa.me/966530990046</a><br>البريد: <a href="mailto:info@fanniapp.com">info@fanniapp.com</a> — أو عبر بوت تلغرام: <a href="https://t.me/FanniServiceBot">t.me/FanniServiceBot</a></p>
 <div class="en"><h1>Privacy Policy — Fanni</h1>
 <p>Fanni connects customers with technicians and tradespeople in Saudi Arabia, Egypt and the Gulf via the Telegram bot @FanniServiceBot and WhatsApp.</p>
 <p><b>Data we collect:</b> customers' WhatsApp number or Telegram ID, the profession and city/district searched, location only if the customer shares it (to find the nearest city/district), and contact history; technicians' name, profession, services, city/districts and the contact number they choose to show.</p>
 <p><b>Use:</b> to show matching technicians, count technicians' free contacts, notify technicians of customer requests and improve the service with aggregate statistics. We never sell data or share it for marketing. A technician's number is shown to a customer only when the customer asks to contact them.</p>
-<p><b>Deletion:</b> request permanent deletion anytime via /delete_account on Telegram or by messaging "delete my data" on WhatsApp. After deletion your data is no longer shown to anyone. __ARCH_EN__ Customer ratings of you remain linked to an encrypted fingerprint of your number (which does not reveal it), to prevent bypassing ratings by deleting and re-registering, and return to you if you register again.</p>
+<p><b>Deletion:</b> request permanent deletion anytime via /delete_account on Telegram or by messaging "delete my data" on WhatsApp. After deletion your data is no longer shown to anyone. __ARCH_EN__</p>
 <p><b>Contact:</b> WhatsApp support <a href="https://wa.me/966530990046">wa.me/966530990046</a> · <a href="mailto:info@fanniapp.com">info@fanniapp.com</a> · <a href="https://t.me/FanniServiceBot">t.me/FanniServiceBot</a></p></div>
 </body></html>"""
 
@@ -102,12 +102,9 @@ a{display:inline-block;margin-top:18px;background:#0f766e;color:#fff;padding:12p
 @app.get("/privacy")
 def privacy():
     import db
-    n = db.archive_days()   # المدة التي يختارها المالك بصفحة «المحذوفون» — النص يطابقها دائمًا
-    ar = (f"وإن كنت فنيًا نحتفظ باسمك ورقمك وسبب الحذف إن ذكرته {db.days_text(n)} فقط، ثم تُحذف نهائيًا حتى من الأرشيف." if n
-          else "وإن كنت فنيًا يُحذف اسمك ورقمك فورًا.")
-    en = (f"For technicians, we keep your name, number and deletion reason (if given) for {db.days_text(n, 'en')} only, "
-          "then they are permanently deleted, including from our archive." if n
-          else "For technicians, your name and number are deleted immediately.")
+    n = db.archive_days()   # المدة التي يختارها المالك بصفحة «المحذوفون» (المالك يحذف يدويًا عادةً قبلها)
+    ar = f"وتُحذف بياناتك نهائيًا من سجلاتنا خلال {db.days_text(n)} على الأكثر." if n else ""
+    en = f"Your data is permanently erased from our records within {db.days_text(n, 'en')} at most." if n else ""
     return PRIVACY_HTML.replace("__ARCH_AR__", ar).replace("__ARCH_EN__", en)
 
 
