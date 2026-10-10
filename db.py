@@ -2949,6 +2949,27 @@ def registrar_summary_text(phone: str) -> str:
     return "\n".join(lines)
 
 
+def registrar_list_messages(phone: str, per_msg: int = 30) -> list[str]:
+    """قائمة الفنيين الذين سجّلهم المسوّق (الأحدث أولًا) — مقسّمة لعدة رسائل (حد واتساب 4096 حرفًا)."""
+    phone = _phone_digits(phone)
+    with get_conn() as conn:
+        pros = [dict(r) for r in conn.execute(
+            "SELECT * FROM professionals WHERE registered_by = ? ORDER BY created_at DESC", (phone,)).fetchall()]
+    if not pros:
+        return []
+    rows = []
+    for i, p in enumerate(pros, 1):
+        state = "✅ نشط" if p["status"] == STATUS_ACTIVE else "⏸️ " + STATUS_LABELS_AR.get(p["status"], p["status"])
+        rows.append(f"{i}. {p['full_name']} — {profession_display(p)} — {p['city']}\n"
+                    f"    📱 {p['whatsapp_number']} • {state}" + (" • 💳 مشترك" if p.get("is_subscribed") else ""))
+    chunks = [rows[k:k + per_msg] for k in range(0, len(rows), per_msg)]
+    out = []
+    for n, ch in enumerate(chunks, 1):
+        head = "👷 الفنيون الذين سجّلتهم" + (f" ({n}/{len(chunks)})" if len(chunks) > 1 else "") + ":"
+        out.append(head + "\n\n" + "\n".join(ch))
+    return out
+
+
 def count_otp_since(sender: str, hours: int = 24) -> int:
     since = (datetime.now(timezone.utc) - timedelta(hours=hours)).isoformat()
     with get_conn() as conn:

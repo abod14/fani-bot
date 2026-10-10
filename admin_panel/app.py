@@ -879,7 +879,10 @@ def registrar_send(phone):
         flash("⏳ لا يمكن الإرسال الآن: واتساب يسمح بالرسالة المجانية فقط خلال 24 ساعة من آخر رسالة أرسلها المسوّق للبوت. "
               "اطلب منه أن يكتب للبوت كلمة «ملخصي» — فيصله الملخص فورًا ومجانًا.", "error")
         return redirect(url_for("registrars_page"))
-    r = WhatsAppAPI().text(phone, db.registrar_summary_text(phone))
+    wa = WhatsAppAPI()
+    r = wa.text(phone, db.registrar_summary_text(phone))
+    for m in db.registrar_list_messages(phone):
+        wa.text(phone, m)
     if r is not None and getattr(r, "status_code", 500) < 400:
         flash(f"✅ أُرسل الملخص إلى +{phone} (رسالة مجانية).", "success")
     else:

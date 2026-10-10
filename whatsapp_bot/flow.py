@@ -354,6 +354,8 @@ def _dispatch(api, wa_id, name, msg, state, data):
         if norm(body) in SUMMARY_WORDS and db.is_wa_registrar(wa_id):
             # المسوّق يطلب ملخص تسجيلاته (أرقام فقط، بلا بيانات الفنيين) — مجاني لأنه هو من راسل
             api.text(wa_id, db.registrar_summary_text(wa_id))
+            for m in db.registrar_list_messages(wa_id):
+                api.text(wa_id, m)
             return state, data
         if norm(body) in DELETE_WORDS:
             return _ask_delete(api, wa_id)
