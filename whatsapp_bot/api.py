@@ -18,8 +18,9 @@ log = logging.getLogger("fani.wa")
 # وحدة لو لقينا الاتصال مقفول (كان يسبب إن البوت ما يرد بعد ما يسكت دقيقتين).
 # local_address="0.0.0.0" = IPv4 فقط: على السيرفر كانت أول رسالة بعد فترة سكون تتأخر ~12 ثانية
 # (محاولة اتصال IPv6 تفشل بصمت قبل الرجوع لـ IPv4)، والرسائل اللي بعدها سريعة.
-_client = httpx.Client(timeout=20, http2=False, transport=httpx.HTTPTransport(local_address="0.0.0.0", retries=1),
-                       limits=httpx.Limits(max_keepalive_connections=10, keepalive_expiry=20))
+_client = httpx.Client(timeout=20, transport=httpx.HTTPTransport(
+    local_address="0.0.0.0", retries=1, http2=False,
+    limits=httpx.Limits(max_keepalive_connections=10, keepalive_expiry=20)))
 _RETRYABLE = (httpx.RemoteProtocolError, httpx.ConnectError, httpx.ReadError, httpx.WriteError, httpx.PoolTimeout)
 
 
