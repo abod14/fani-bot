@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}الفنيون المحذوفون — لوحة تحكم «فني»{% endblock %}
+{% block content %}
+<h1>الفنيون المحذوفون</h1>
+<p class="muted">هؤلاء حُذفوا من البوت نهائيًا ولا يظهرون لأي أحد. نحتفظ هنا فقط باسمهم ورقمهم وتقييمهم وسبب الحذف،
+للتواصل معهم. السبب يكتبه الفني عند الحذف، أو تكتبه أنت هنا. لو طلب الفني حذف بياناته كليًا اضغط «حذف من الأرشيف».</p>
+
+<div class="card">
+  {% if rows %}
+  <table>
+    <thead><tr><th>تاريخ الحذف</th><th>الاسم</th><th>الرقم</th><th>المهنة / المدينة</th><th>التقييم</th><th>سبب الحذف وملاحظاتك</th><th></th></tr></thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td>{{ (r.deleted_at or '')[:10] }}<br><span class="muted">{{ 'حذفه المشرف' if r.deleted_by == 'admin' else 'حذف نفسه' }} • {{ 'واتساب' if r.channel == 'wa' else 'تلغرام' }}</span></td>
+        <td><strong>{{ r.full_name }}</strong>{% if r.returned %}<br><span class="badge active">عاد وسجّل</span>{% endif %}</td>
+        <td style="direction:ltr; text-align:right;">{% if r.phone %}<a href="https://wa.me/{{ r.phone }}" target="_blank">+{{ r.phone }}</a>{% else %}—{% endif %}</td>
+        <td>{{ r.profession_name }}<br><span class="muted">{{ r.city }}</span></td>
+        <td>{% if r.rating_count %}⭐ {{ r.rating_avg }} ({{ r.rating_count }}){% else %}—{% endif %}</td>
+        <td>
+          <form method="post" style="display:flex; flex-direction:column; gap:6px; min-width:220px;">
+            <input type="hidden" name="action" value="save"><input type="hidden" name="id" value="{{ r.id }}">
+            <input name="reason" value="{{ r.reason or '' }}" placeholder="سبب الحذف">
+            {% if r.reason %}<span class="muted">كتبه: {{ 'الفني' if r.reason_by == 'pro' else 'المشرف' }}</span>{% endif %}
+            <input name="note" value="{{ r.admin_note or '' }}" placeholder="ملاحظاتك (مثل: تواصلت معه…)">
+            <button type="submit">حفظ</button>
+          </form>
+        </td>
+        <td><form method="post" class="inline-form" onsubmit="return confirm('حذف هذا السجل من الأرشيف نهائيًا؟');">
+          <input type="hidden" name="action" value="erase"><input type="hidden" name="id" value="{{ r.id }}">
+          <button type="submit" class="secondary">حذف من الأرشيف</button></form></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}<p class="muted">لا يوجد فنيون محذوفون.</p>{% endif %}
+</div>
+{% endblock %}

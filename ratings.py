@@ -50,6 +50,27 @@ def ensure_tables():
             UNIQUE (professional_id, customer_id))""")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_rr_due ON rating_requests (status, due_at)")
         conn.execute("CREATE TABLE IF NOT EXISTS wa_last_seen (wa_id TEXT PRIMARY KEY, at TEXT NOT NULL)")
+        # طلب المالك: التقييم مربوط برقم جوال الفني — لو حذف حسابه ورجع تعود له تقييماته،
+        # والمالك يقدر يصفّره من اللوحة (voided=1 = تقييم ملغى لا يُحسب).
+        cols = {r[1] for r in conn.execute("PRAGMA table_info(ratings)").fetchall()}
+        if "phone" not in cols:
+            conn.execute("ALTER TABLE ratings ADD COLUMN phone TEXT")
+        if "voided" not in cols:
+            conn.execute("ALTER TABLE ratings ADD COLUMN voided INTEGER NOT NULL DEFAULT 0")
+        for rid, num in conn.execute("SELECT r.id, p.whatsapp_number FROM ratings r JOIN professionals p "
+                                     "ON p.id = r.professional_id WHERE r.phone IS NULL").fetchall():
+            conn.execute("UPDATE ratings SET phone=? WHERE id=?", (db._phone_digits(num or ""), rid))
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_ratings_phone ON ratings (phone, voided)")
+
+
+def pro_phone(professional_id: int) -> str:
+    p = db.get_professional_by_id(professional_id) or {}
+    return db._phone_digits(p.get("whatsapp_number") or "")
+
+
+def _rated_by_phone(conn, phone: str, customer_id: int) -> bool:
+    return bool(phone) and bool(conn.execute(
+        "SELECT 1 FROM ratings WHERE phone=? AND customer_id=? AND voided=0", (phone, customer_id)).fetchone())
 
 
 def touch_wa(wa_id: str):
@@ -108,7 +129,8 @@ def enqueue(professional_id: int, customer_id: int):
             return
         with db.get_conn() as conn:
             if conn.execute("SELECT 1 FROM ratings WHERE professional_id=? AND customer_id=?",
-                            (professional_id, customer_id)).fetchone():
+                            (professional_id, customer_id)).fetchone() \
+                    or _rated_by_phone(conn, pro_phone(professional_id), customer_id):
                 return
         now = datetime.now(timezone.utc)
         due = compute_due(now, customer_country(customer_id))
@@ -121,9 +143,15 @@ def enqueue(professional_id: int, customer_id: int):
 
 def save_rating(professional_id: int, customer_id: int, stars: int) -> bool:
     stars = max(1, min(5, int(stars)))
+    phone = pro_phone(professional_id)
     with db.get_conn() as conn:
-        cur = conn.execute("INSERT OR IGNORE INTO ratings (professional_id, customer_id, stars, created_at) VALUES (?,?,?,?)",
-                           (professional_id, customer_id, stars, datetime.now(timezone.utc).isoformat()))
+        if _rated_by_phone(conn, phone, customer_id):
+            conn.execute("UPDATE rating_requests SET status='rated' WHERE professional_id=? AND customer_id=?",
+                         (professional_id, customer_id))
+            return False
+        cur = conn.execute("INSERT OR IGNORE INTO ratings (professional_id, customer_id, stars, created_at, phone) "
+                           "VALUES (?,?,?,?,?)",
+                           (professional_id, customer_id, stars, datetime.now(timezone.utc).isoformat(), phone))
         conn.execute("UPDATE rating_requests SET status='rated' WHERE professional_id=? AND customer_id=?",
                      (professional_id, customer_id))
         new = cur.rowcount > 0
@@ -133,13 +161,52 @@ def save_rating(professional_id: int, customer_id: int, stars: int) -> bool:
 
 
 def summary(professional_ids: list[int]) -> dict[int, tuple[float, int]]:
+    """متوسط وعدد التقييمات غير الملغاة — مجمّعة برقم جوال الفني (تشمل تقييماته من تسجيل سابق محذوف)."""
     if not professional_ids:
         return {}
-    q = ",".join("?" * len(professional_ids))
+    phones = {pid: pro_phone(pid) for pid in professional_ids}
+    by_phone = summary_by_phones([ph for ph in phones.values() if ph])
+    return {pid: by_phone[ph] for pid, ph in phones.items() if ph in by_phone}
+
+
+def summary_by_phones(phones: list[str]) -> dict[str, tuple[float, int]]:
+    phones = list({p for p in phones if p})
+    if not phones:
+        return {}
+    q = ",".join("?" * len(phones))
     with db.get_conn() as conn:
-        rows = conn.execute(f"SELECT professional_id, AVG(stars), COUNT(*) FROM ratings WHERE professional_id IN ({q}) "
-                            "GROUP BY professional_id", list(professional_ids)).fetchall()
+        rows = conn.execute(f"SELECT phone, AVG(stars), COUNT(*) FROM ratings WHERE voided=0 AND phone IN ({q}) "
+                            "GROUP BY phone", phones).fetchall()
     return {r[0]: (round(r[1], 1), r[2]) for r in rows}
+
+
+def reset_for_professional(professional_id: int) -> int:
+    """تصفير تقييم الفني من اللوحة (طلب المالك): نلغي تقييماته الحالية ويبدأ من جديد."""
+    phone = pro_phone(professional_id)
+    with db.get_conn() as conn:
+        n = conn.execute("UPDATE ratings SET voided=1, professional_id = -id WHERE voided=0 AND (phone=? OR professional_id=?)",
+                         (phone or "-", professional_id)).rowcount
+    try:
+        db.set_setting(f"rating_alert_{professional_id}", "")
+    except Exception:
+        pass
+    return n
+
+
+def forget_customer(customer_id: int, wa_id: str | None = None):
+    """حذف بيانات العميل: نحذف طلبات التقييم المعلّقة، ونُبقي تقييماته للفنيين مجهولة الهوية
+    (لا تُربط به بعد الحذف) حتى لا يختفي تقييم الفني بحذف عميل."""
+    with db.get_conn() as conn:
+        conn.execute("DELETE FROM rating_requests WHERE customer_id=?", (customer_id,))
+        conn.execute("UPDATE ratings SET customer_id = -(9000000000000 + id) WHERE customer_id=?", (customer_id,))
+        if wa_id:
+            conn.execute("DELETE FROM wa_last_seen WHERE wa_id=?", (wa_id,))
+
+
+def forget_professional(professional_id: int):
+    """عند حذف الفني: طلبات التقييم المعلّقة عنه تُحذف (تقييماته تبقى مربوطة برقمه)."""
+    with db.get_conn() as conn:
+        conn.execute("DELETE FROM rating_requests WHERE professional_id=?", (professional_id,))
 
 
 def badge(professional_id: int, min_count: int = MIN_TO_SHOW) -> str:
@@ -227,8 +294,9 @@ def get_request(req_id: int, customer_id: int) -> dict | None:
 
 def already_rated(professional_id: int, customer_id: int) -> bool:
     with db.get_conn() as conn:
-        return bool(conn.execute("SELECT 1 FROM ratings WHERE professional_id=? AND customer_id=?",
-                                 (professional_id, customer_id)).fetchone())
+        return bool(conn.execute("SELECT 1 FROM ratings WHERE professional_id=? AND customer_id=? AND voided=0",
+                                 (professional_id, customer_id)).fetchone()) \
+            or _rated_by_phone(conn, pro_phone(professional_id), customer_id)
 
 
 def when_word(contacted_at: str, customer_id: int) -> str:

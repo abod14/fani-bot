@@ -129,6 +129,8 @@ def main():
         app.add_handler(handler)
     for handler in build_privacy_handlers():
         app.add_handler(handler)
+    from handlers.privacy import build_delete_reason_text_handler
+    app.add_handler(build_delete_reason_text_handler(), group=-2)   # نص «سبب آخر» لحذف الفني
     for handler in build_language_handlers():
         app.add_handler(handler)
     for handler in build_referral_handlers():

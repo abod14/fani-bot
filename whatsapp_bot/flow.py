@@ -199,6 +199,9 @@ def _ask_delete(api, wa_id):
             items.append(tr("• اشتراكك المدفوع الحالي، دون استرجاع المبلغ"))
     items += [tr("• سجل عمليات البحث (ما بحثت عنه وأين)"), tr("• سجل الفنيين الذين تواصلت معهم"),
               tr("• محادثتك الحالية مع «فنّي»")]
+    if pro:
+        # طلب المالك: نحتفظ ببيانات تواصل الفني المحذوف (لا تظهر لأحد) — ونخبره بذلك بوضوح
+        items.append("\n" + tr("ℹ️ نحتفظ لدى الإدارة فقط باسمك ورقمك وتقييمك، للتواصل معك ولتعود إليك تقييماتك إن سجّلت من جديد."))
     api.buttons(
         wa_id,
         tr("🗑️ هل تريد حذف بياناتك من «فنّي» نهائيًا؟\n\nسيُحذف ما يلي:\n{items}\n\n⚠️ لا يمكن التراجع عن هذا الإجراء.",
@@ -211,13 +214,48 @@ def _ask_delete(api, wa_id):
 def _delete_my_data(api, wa_id):
     """حذف نهائي (وعد سياسة الخصوصية): الجلسة + سجلات بحثه وتواصله + تسجيله كفني لو مسجّل من واتساب."""
     cid = customer_id(wa_id)
-    db.delete_wa_professional(wa_id)
+    archived = db.delete_wa_professional(wa_id)
+    try:
+        import ratings
+        ratings.forget_customer(cid, wa_id)
+    except Exception:
+        pass
     with db.get_conn() as conn:
         conn.execute("DELETE FROM wa_sessions WHERE wa_id = ?", (wa_id,))
         conn.execute("DELETE FROM search_log WHERE customer_telegram_id = ?", (cid,))
         conn.execute("DELETE FROM contact_clicks WHERE customer_telegram_id = ?", (cid,))
         conn.execute("DELETE FROM user_countries WHERE telegram_user_id = ?", (cid,))
+    if archived:
+        api.text(wa_id, tr("✅ تم حذف حسابك من «فنّي»، ولن تظهر للعملاء بعد الآن. يمكنك التسجيل من جديد في أي وقت."))
+        _ask_delete_reason(api, wa_id, archived[0])
+        return "del_reason", {"arch": archived[0]}
     api.text(wa_id, tr("✅ تم حذف جميع بياناتك من «فنّي» نهائيًا. يمكنك العودة إلى استخدام الخدمة في أي وقت."))
+    lang.forget(wa_id)
+    return None, {}
+
+
+# أسباب حذف الفني لحسابه (تُحفظ بأرشيف المحذوفين بلوحة التحكم)
+DELETE_REASONS = [("few", "لم تصلني طلبات كافية"), ("fee", "رسوم الاشتراك"), ("job", "تركت هذه المهنة"),
+                  ("move", "انتقلت إلى مدينة أخرى"), ("bot", "صعوبة في استخدام البوت"),
+                  ("other", "سبب آخر (سأكتبه)"), ("skip", "أفضّل عدم الذكر")]
+
+
+def _ask_delete_reason(api, wa_id, arch: int):
+    api.list(wa_id, tr("يهمّنا رأيك 🙏 ما سبب حذف حسابك؟ (اختياري)"), tr("اختر السبب"),
+             [(f"delr:{arch}:{code}", tr(label), None) for code, label in DELETE_REASONS])
+
+
+def _on_delete_reason(api, wa_id, p):
+    try:
+        arch, code = int(p[1]), p[2]
+    except (IndexError, ValueError):
+        return None, {}
+    if code == "other":
+        api.text(wa_id, tr("✍️ اكتب السبب في رسالة واحدة:"))
+        return "del_reason", {"arch": arch}
+    if code != "skip":
+        db.set_deletion_reason(arch, dict(DELETE_REASONS).get(code, code), "pro")
+    api.text(wa_id, tr("شكرًا لك 🌷 نتمنى لك التوفيق."))
     lang.forget(wa_id)
     return None, {}
 
@@ -303,6 +341,11 @@ def _dispatch(api, wa_id, name, msg, state, data):
         body = (msg.get("text") or {}).get("body", "")
         if norm(body) in DELETE_WORDS:
             return _ask_delete(api, wa_id)
+        if state == "del_reason" and data.get("arch") and norm(body) not in RESET_WORDS:
+            db.set_deletion_reason(int(data["arch"]), body, "pro")
+            api.text(wa_id, tr("شكرًا لك 🌷 وصلنا السبب، وسنستفيد منه في تحسين الخدمة."))
+            lang.forget(wa_id)
+            return None, {}
         if norm(body) in END_WORDS:
             # «إنهاء» ألغيناه كزر (رسالة بلا فائدة = تكلفة) — لو أحد كتبه نصفّر الجلسة بصمت بدون رد
             return None, {}
@@ -335,7 +378,7 @@ def _dispatch(api, wa_id, name, msg, state, data):
 
 
 # أزرار تبقى صالحة حتى بعد انتهاء الجلسة: الاشتراك/الإشعارات/حساب الفني/حذف البيانات/اللغة/التواصل
-IDLE_OK = ("R:sub", "R:mute", "R:details", "R:mine", "R:tg", "R:edit", "R:ed:", "del:", "lang:", "m:lang",
+IDLE_OK = ("R:sub", "R:mute", "R:details", "R:mine", "R:tg", "R:edit", "R:ed:", "del:", "delr:", "lang:", "m:lang",
            "c:", "n:",   # c:/n: = التواصل مع فني من نتائج قديمة (يبقى يشتغل)
            "rt:", "rs:")   # التقييم — صالح أسبوعًا
 
@@ -352,6 +395,8 @@ def _on_choice(api, wa_id, name, rid, state, data):
         import ratings
         ratings.wa_on_choice(api, wa_id, customer_id(wa_id), p)
         return state, data
+    if head == "delr":
+        return _on_delete_reason(api, wa_id, p)
     if head == "del":
         if p[1] == "yes":
             return _delete_my_data(api, wa_id)

@@ -9,6 +9,9 @@
   <p class="muted">المهنة: {{ p.profession_name }} ({{ p.domain_name }}){% if p.profession2_name %} • المهنة الثانية: {{ p.profession2_name }}{% endif %}</p>
   <p class="muted">الدولة: {{ country_label(p.country or 'SA') }}{% if p.covers_whole_city %} — يغطي المدينة كاملة 🌍{% endif %} — مصدر التسجيل: {{ p.source or 'unknown' }}{% if p.registered_by %} — سجّله الرقم: +{{ p.registered_by }}{% endif %}</p>
   <p class="muted">التقييم: {% if rating %}⭐ {{ rating[0] }} من 5 ({{ rating[1] }} تقييم){% if rating[1] < 3 %} — لا يظهر للعملاء قبل 3 تقييمات{% endif %}{% else %}لا توجد تقييمات بعد{% endif %}</p>
+  {% if rating %}<form method="post" action="{{ url_for('professional_reset_rating', professional_id=p.id) }}" class="inline-form"
+        onsubmit="return confirm('تصفير تقييم هذا الفني؟ تُلغى تقييماته الحالية ويبدأ من جديد.');">
+    <button type="submit" class="secondary">🔄 تصفير التقييم</button></form>{% endif %}
   <form method="post" action="{{ url_for('professional_set_status', professional_id=p.id) }}">
     <input type="hidden" name="next" value="{{ url_for('professional_detail', professional_id=p.id) }}">
     <button type="submit" name="status" value="active" class="success">تفعيل / قبول</button>

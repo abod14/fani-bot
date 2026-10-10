@@ -630,6 +630,29 @@ TEXTS: dict[str, dict[str, str]] = {
     "أبواب خشب، خزائن، ديكور": {"en": "Wooden doors, cabinets, decor", "ur": "لکڑی کے دروازے، الماریاں، ڈیکور"},
     "عدم تصريف، تسريب، لا تسخّن": {"en": "Not draining, leaking, not heating", "ur": "پانی نہیں نکلتا، لیکیج، گرم نہیں کرتا"},
     "أفران غاز وكهرباء وبلت إن": {"en": "Gas, electric & built-in ovens", "ur": "گیس، بجلی اور بلٹ اِن اوون"},
+    # ─────────── أرشيف الفنيين المحذوفين + سبب الحذف ───────────
+    "ℹ️ نحتفظ لدى الإدارة فقط باسمك ورقمك وتقييمك، للتواصل معك ولتعود إليك تقييماتك إن سجّلت من جديد.": {
+        "en": "ℹ️ Only the admin keeps your name, number and rating, to contact you and to restore your ratings if you register again.",
+        "ur": "ℹ️ صرف انتظامیہ آپ کا نام، نمبر اور ریٹنگ محفوظ رکھے گی، تاکہ آپ سے رابطہ ہو سکے اور دوبارہ رجسٹر ہونے پر آپ کی ریٹنگ واپس مل جائے۔"},
+    "✅ تم حذف حسابك من «فنّي»، ولن تظهر للعملاء بعد الآن. يمكنك التسجيل من جديد في أي وقت.": {
+        "en": "✅ Your «Fanni» account has been deleted and you will no longer appear to customers. You can register again anytime.",
+        "ur": "✅ «فنی» سے آپ کا اکاؤنٹ ڈیلیٹ ہو گیا، اب آپ گاہکوں کو نظر نہیں آئیں گے۔ آپ کسی بھی وقت دوبارہ رجسٹر کر سکتے ہیں۔"},
+    "يهمّنا رأيك 🙏 ما سبب حذف حسابك؟ (اختياري)": {
+        "en": "Your opinion matters to us 🙏 Why did you delete your account? (optional)",
+        "ur": "آپ کی رائے ہمارے لیے اہم ہے 🙏 آپ نے اکاؤنٹ کیوں ڈیلیٹ کیا؟ (اختیاری)"},
+    "اختر السبب": {"en": "Choose a reason", "ur": "وجہ منتخب کریں"},
+    "لم تصلني طلبات كافية": {"en": "Not enough requests", "ur": "کافی درخواستیں نہیں آئیں"},
+    "رسوم الاشتراك": {"en": "Subscription fee", "ur": "سبسکرپشن فیس"},
+    "تركت هذه المهنة": {"en": "I left this profession", "ur": "یہ پیشہ چھوڑ دیا"},
+    "انتقلت إلى مدينة أخرى": {"en": "Moved to another city", "ur": "دوسرے شہر منتقل ہو گیا"},
+    "صعوبة في استخدام البوت": {"en": "Hard to use the bot", "ur": "بوٹ استعمال کرنا مشکل"},
+    "سبب آخر (سأكتبه)": {"en": "Other (I'll type it)", "ur": "دوسری وجہ (لکھوں گا)"},
+    "أفضّل عدم الذكر": {"en": "Prefer not to say", "ur": "نہیں بتانا چاہتا"},
+    "✍️ اكتب السبب في رسالة واحدة:": {"en": "✍️ Type the reason in one message:", "ur": "✍️ وجہ ایک پیغام میں لکھیں:"},
+    "شكرًا لك 🌷 نتمنى لك التوفيق.": {"en": "Thank you 🌷 We wish you all the best.", "ur": "شکریہ 🌷 ہم آپ کی کامیابی کے لیے دعاگو ہیں۔"},
+    "شكرًا لك 🌷 وصلنا السبب، وسنستفيد منه في تحسين الخدمة.": {
+        "en": "Thank you 🌷 We received your reason and will use it to improve the service.",
+        "ur": "شکریہ 🌷 آپ کی بتائی ہوئی وجہ ہمیں مل گئی، اس سے ہم سروس بہتر بنائیں گے۔"},
 }
 
 

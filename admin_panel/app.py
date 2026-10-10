@@ -723,6 +723,38 @@ def registrars_page():
                            otp_on=db.get_setting("wa_otp_enabled", "0") == "1")
 
 
+# ─────────────────────────── الفنيون المحذوفون (أرشيف للتواصل) ───────────────────────────
+
+@app.route("/deleted", methods=["GET", "POST"])
+@super_required
+def deleted_page():
+    if request.method == "POST":
+        aid = int(request.form.get("id") or 0)
+        action = request.form.get("action")
+        if action == "save":
+            db.set_deletion_reason(aid, request.form.get("reason", ""), "admin")
+            db.set_deletion_note(aid, request.form.get("note", ""))
+            flash("تم الحفظ.", "success")
+        elif action == "erase":
+            db.remove_deleted_archive(aid)
+            flash("تم حذف السجل من الأرشيف نهائيًا.", "success")
+        return redirect(url_for("deleted_page"))
+    rows = db.list_deleted_professionals()
+    with db.get_conn() as conn:
+        back = {db._phone_digits(r[0] or "") for r in conn.execute("SELECT whatsapp_number FROM professionals").fetchall()}
+    for r in rows:
+        r["returned"] = r.get("phone") in back
+    return render_template("deleted.html", rows=rows, active_page="deleted")
+
+
+@app.route("/professionals/<int:professional_id>/reset-rating", methods=["POST"])
+@super_required
+def professional_reset_rating(professional_id):
+    n = __import__("ratings").reset_for_professional(professional_id)
+    flash(f"تم تصفير التقييم ({n} تقييم أُلغي). يبدأ الفني بتقييم جديد.", "success")
+    return redirect(url_for("professional_detail", professional_id=professional_id))
+
+
 # ─────────────────────────── المهن الأكثر طلبًا + قائمة الـ9 بواتساب ───────────────────────────
 
 @app.route("/demand", methods=["GET", "POST"])

@@ -564,6 +564,14 @@ def init_db():
         )
     import ratings   # جداول التقييم (ratings / rating_requests / wa_last_seen)
     ratings.ensure_tables()
+    with get_conn() as conn:
+        # طلب المالك: أرشيف الفنيين المحذوفين — يُحذفون من البوت نهائيًا (لا يظهرون لأحد)،
+        # ونحتفظ هنا باسمهم ورقمهم وتقييمهم وسبب الحذف للتواصل معهم (يظهر في لوحة التحكم فقط).
+        conn.execute("""CREATE TABLE IF NOT EXISTS deleted_professionals (
+            id INTEGER PRIMARY KEY AUTOINCREMENT, original_id INTEGER, full_name TEXT, phone TEXT,
+            profession_name TEXT, city TEXT, channel TEXT, deleted_by TEXT NOT NULL DEFAULT 'self',
+            rating_avg REAL, rating_count INTEGER NOT NULL DEFAULT 0,
+            registered_at TEXT, deleted_at TEXT NOT NULL, reason TEXT, reason_by TEXT, admin_note TEXT)""")
 
 
 def _now_iso():
@@ -1690,8 +1698,56 @@ def admin_reset_free_contacts(professional_id: int):
         )
 
 
+def archive_professional(professional_id: int, deleted_by: str = "self") -> int | None:
+    """ينسخ بيانات التواصل الأساسية للفني إلى أرشيف المحذوفين قبل حذفه (طلب المالك). يرجّع رقم سجل الأرشيف."""
+    p = get_professional_by_id(professional_id)
+    if not p:
+        return None
+    try:
+        import ratings
+        phone = _phone_digits(p.get("whatsapp_number") or "")
+        avg, cnt = ratings.summary_by_phones([phone]).get(phone, (None, 0))
+        ratings.forget_professional(professional_id)
+    except Exception:
+        phone, avg, cnt = _phone_digits(p.get("whatsapp_number") or ""), None, 0
+    prof = p.get("profession_name") or ""
+    if p.get("profession2_name"):
+        prof += f" + {p['profession2_name']}"
+    with get_conn() as conn:
+        cur = conn.execute(
+            "INSERT INTO deleted_professionals (original_id, full_name, phone, profession_name, city, channel, "
+            "deleted_by, rating_avg, rating_count, registered_at, deleted_at) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+            (professional_id, p.get("full_name"), phone, prof, p.get("city"),
+             "wa" if p.get("wa_id") else "tg", deleted_by, avg, cnt, p.get("created_at"), _now_iso()))
+        return cur.lastrowid
+
+
+def set_deletion_reason(archive_id: int, reason: str, by: str = "pro"):
+    with get_conn() as conn:
+        conn.execute("UPDATE deleted_professionals SET reason=?, reason_by=? WHERE id=?",
+                     ((reason or "").strip()[:500], by, archive_id))
+
+
+def set_deletion_note(archive_id: int, note: str):
+    with get_conn() as conn:
+        conn.execute("UPDATE deleted_professionals SET admin_note=? WHERE id=?", ((note or "").strip()[:1000], archive_id))
+
+
+def list_deleted_professionals(limit: int = 300) -> list[dict]:
+    with get_conn() as conn:
+        return [dict(r) for r in conn.execute(
+            "SELECT * FROM deleted_professionals ORDER BY id DESC LIMIT ?", (limit,)).fetchall()]
+
+
+def remove_deleted_archive(archive_id: int):
+    """حذف السجل من الأرشيف نفسه (لو طلب الفني حذف بياناته كليًا)."""
+    with get_conn() as conn:
+        conn.execute("DELETE FROM deleted_professionals WHERE id=?", (archive_id,))
+
+
 def admin_delete_professional(professional_id: int):
     """حذف نهائي لسجل فني (مع سجلات التواصل والدفعات المرتبطة به) — إجراء لا رجعة فيه."""
+    archive_professional(professional_id, deleted_by="admin")
     with get_conn() as conn:
         conn.execute("DELETE FROM contact_clicks WHERE professional_id = ?", (professional_id,))
         conn.execute("DELETE FROM subscription_payments WHERE professional_id = ?", (professional_id,))
@@ -1699,15 +1755,18 @@ def admin_delete_professional(professional_id: int):
         conn.execute("DELETE FROM professionals WHERE id = ?", (professional_id,))
 
 
-def delete_wa_professional(wa_id: str) -> int:
-    """حذف نهائي لتسجيل الفني المسجّل من واتساب (بطلبه هو عبر «d») مع كل ما يرتبط به."""
+def delete_wa_professional(wa_id: str) -> list[int]:
+    """حذف نهائي لتسجيل الفني المسجّل من واتساب (بطلبه هو عبر «d») مع كل ما يرتبط به.
+    يرجّع أرقام سجلاته في أرشيف المحذوفين (لحفظ سبب الحذف)."""
     with get_conn() as conn:
         ids = [r["id"] for r in conn.execute("SELECT id FROM professionals WHERE wa_id = ?", (wa_id,)).fetchall()]
+    archived = [a for a in (archive_professional(pid) for pid in ids) if a]
+    with get_conn() as conn:
         for pid in ids:
             for t in ("contact_clicks", "subscription_payments", "professional_districts", "notify_log", "missed_searches"):
                 conn.execute(f"DELETE FROM {t} WHERE professional_id = ?", (pid,))
         conn.execute("DELETE FROM professionals WHERE wa_id = ?", (wa_id,))
-    return len(ids)
+    return archived
 
 
 def has_any_user_data(telegram_user_id: int) -> bool:
@@ -1730,7 +1789,7 @@ def has_any_user_data(telegram_user_id: int) -> bool:
         return bool(contact)
 
 
-def delete_all_user_data(telegram_user_id: int):
+def delete_all_user_data(telegram_user_id: int) -> list[int]:
     """حذف نهائي وشامل لكل بيانات هذا المستخدم من قاعدة البيانات (حق الحذف/الخصوصية):
     - كل سجلات تسجيله كفني (لو سجّل أكثر من مرة) + سجلات التواصل والدفعات المرتبطة بها.
     - كل سجلات بحثه وضغطاته على واتساب بصفته عميل (customer_telegram_id).
@@ -1741,6 +1800,13 @@ def delete_all_user_data(telegram_user_id: int):
                 "SELECT id FROM professionals WHERE telegram_user_id = ?", (telegram_user_id,)
             ).fetchall()
         ]
+    archived = [a for a in (archive_professional(pid) for pid in prof_ids) if a]
+    try:
+        import ratings
+        ratings.forget_customer(telegram_user_id)
+    except Exception:
+        pass
+    with get_conn() as conn:
         for pid in prof_ids:
             conn.execute("DELETE FROM contact_clicks WHERE professional_id = ?", (pid,))
             conn.execute("DELETE FROM subscription_payments WHERE professional_id = ?", (pid,))
@@ -1752,6 +1818,7 @@ def delete_all_user_data(telegram_user_id: int):
         conn.execute("DELETE FROM contact_clicks WHERE customer_telegram_id = ?", (telegram_user_id,))
         conn.execute("DELETE FROM user_languages WHERE telegram_user_id = ?", (telegram_user_id,))
         conn.execute("DELETE FROM user_countries WHERE telegram_user_id = ?", (telegram_user_id,))
+    return archived
 
 
 def admin_list_payments(
