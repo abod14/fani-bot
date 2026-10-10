@@ -9,6 +9,7 @@
   <p class="muted">المهنة: {{ p.profession_name }} ({{ p.domain_name }}){% if p.profession2_name %} • المهنة الثانية: {{ p.profession2_name }}{% endif %}</p>
   <p class="muted">الدولة: {{ country_label(p.country or 'SA') }}{% if p.covers_whole_city %} — يغطي المدينة كاملة 🌍{% endif %} — مصدر التسجيل: {{ p.source or 'unknown' }}{% if p.registered_by %} — سجّله الرقم: +{{ p.registered_by }}{% endif %}</p>
   <p class="muted">التقييم: {% if rating %}⭐ {{ rating[0] }} من 5 ({{ rating[1] }} تقييم){% if rating[1] < 3 %} — لا يظهر للعملاء قبل 3 تقييمات{% endif %}{% else %}لا توجد تقييمات بعد{% endif %}</p>
+  {% if not is_support %}
   {% if rating %}<form method="post" action="{{ url_for('professional_reset_rating', professional_id=p.id) }}" class="inline-form"
         onsubmit="return confirm('تصفير تقييم هذا الفني؟ تُلغى تقييماته الحالية ويبدأ من جديد.');">
     <button type="submit" class="secondary">🔄 تصفير التقييم</button></form>{% endif %}
@@ -18,6 +19,7 @@
     <button type="submit" name="status" value="rejected" class="danger">رفض</button>
     <button type="submit" name="status" value="pending" class="secondary">إرجاع لقيد المراجعة</button>
   </form>
+  {% endif %}
 </div>
 
 <div class="card">
@@ -99,6 +101,26 @@
   {% endif %}
 </div>
 
+<div class="card" id="notes">
+  <h2>📝 سجل التواصل مع الفني</h2>
+  <p class="muted">ملاحظات داخلية يكتبها فريق «فنّي» بعد كل تواصل — الفني لا يراها.</p>
+  <form method="post" action="{{ url_for('professional_add_note', professional_id=p.id) }}" style="margin-bottom:12px">
+    <textarea name="body" rows="2" required maxlength="2000" style="width:100%; font:inherit; padding:8px; border-radius:8px; border:1px solid #d1d5db;"
+              placeholder="مثال: اتصل يطلب إضافة حي السامر — تمت الإضافة."></textarea>
+    <button type="submit" style="margin-top:6px">حفظ الملاحظة</button>
+  </form>
+  {% if notes %}
+  <ul style="list-style:none; padding:0; margin:0;">
+    {% for n in notes %}
+    <li style="border-top:1px dashed #e5e7eb; padding:8px 0;">
+      <span class="muted">{{ n.when }} — <strong>{{ n.author }}</strong></span><br>
+      {{ n.body }}
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}<p class="muted">لا توجد ملاحظات بعد.</p>{% endif %}
+</div>
+
 <div class="card">
   <h2>الاشتراك</h2>
   <p>
@@ -111,6 +133,7 @@
   </p>
   <p class="muted">استخدم {{ p.free_contacts_used }} من الفرص المجانية.{% if p.bonus_contacts %} (عنده {{ p.bonus_contacts }} فرصة إضافية من دعوة زملائه 🎁){% endif %}</p>
 
+  {% if not is_support %}
   <form method="post" action="{{ url_for('professional_subscription', professional_id=p.id) }}">
     <div class="field">
       <label>تاريخ انتهاء الاشتراك (يدويًا، اختياري)</label>
@@ -124,6 +147,7 @@
   <form method="post" action="{{ url_for('professional_reset_free', professional_id=p.id) }}" style="margin-top:10px">
     <button type="submit" class="secondary">تصفير عداد الفرص المجانية</button>
   </form>
+  {% else %}<p class="muted">🔒 تفعيل الاشتراك وإلغاؤه للمدير العام فقط.</p>{% endif %}
 </div>
 
 <div class="card">
@@ -154,6 +178,7 @@
       {% if p.nudge_first_at %}<span class="muted">— الشهر {{ notif_stopped.month + 1 }} من 12 ({{ 'إشعارات لحظية، 3 بالكثير' if notif_stopped.month == 0 else 'ملخص شهري واحد' }})</span>{% endif %}
     {% endif %}
   </p>
+  {% if not is_support %}
   {% if p.nudge_first_at %}
   <form method="post" action="{{ url_for('professional_nudges_restart', professional_id=p.id) }}"
         onsubmit="return confirm('نعيد إشعارات واتساب من البداية؟ (3 إشعارات بالشهر الأول ثم ملخص شهري لسنة)');" style="margin-bottom:8px">
@@ -167,8 +192,10 @@
     <span class="muted">يوصله على تلغرام (مجاني) وواتساب (مدفوع، إلا لو راسل البوت آخر 24 ساعة) — حتى لو موقف الإشعارات</span>
   </form>
   {% endif %}
+  {% endif %}
 </div>
 
+{% if not is_support %}
 <div class="card">
   <h2>منطقة خطرة</h2>
   <form method="post" action="{{ url_for('professional_delete', professional_id=p.id) }}"
@@ -176,4 +203,5 @@
     <button type="submit" class="danger">حذف الفني نهائيًا</button>
   </form>
 </div>
+{% endif %}
 {% endblock %}

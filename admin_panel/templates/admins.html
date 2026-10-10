@@ -1,27 +1,36 @@
 {% extends "base.html" %}
-{% block title %}المدراء — لوحة تحكم «فني»{% endblock %}
+{% block title %}المدراء والموظفون — لوحة تحكم «فني»{% endblock %}
 {% block content %}
-<h1>مدراء الدول</h1>
+<h1>المدراء والموظفون</h1>
 <p class="muted">
-  مدير الدولة يدخل بنفس رابط اللوحة باسم المستخدم وكلمة المرور اللي تحددها هنا، ويشوف فنيي دولته فقط
-  (القائمة، التفاصيل، التغطية، الإحصائيات). ما يقدر: ينزّل إكسل، يغيّر الإعدادات، يعدّل المهن، يشوف المدفوعات، أو يضيف مدراء.
+  <strong>مدير دولة:</strong> يرى فنيي دولته فقط ويديرهم.
+  <strong>خدمة العملاء:</strong> يرى فنيي كل الدول، ويعدّل بياناتهم (الاسم، الرقم، الأحياء، تفعيل الإشعارات)،
+  ويكتب في «سجل التواصل» وقائمة «المحذوفون» — ولا يستطيع: الحذف، الإيقاف أو الرفض، تفعيل الاشتراك أو إلغاءه، المدفوعات،
+  تنزيل الإكسل، الإعدادات، المهن، المسوّقين. كل ما يعدّله يُسجَّل في «سجل نشاطه».
 </p>
 
 <div class="card">
-  <h2>إضافة مدير دولة</h2>
+  <h2>إضافة حساب</h2>
   <form method="post" class="filters">
     <input type="hidden" name="action" value="add">
     <div class="field">
+      <label>النوع</label>
+      <select name="role" id="role" onchange="document.getElementById('cbox').style.display=this.value==='country'?'':'none'">
+        <option value="support">🎧 خدمة العملاء</option>
+        <option value="country">🌍 مدير دولة</option>
+      </select>
+    </div>
+    <div class="field">
       <label>اسم المستخدم</label>
-      <input type="text" name="username" required placeholder="مثال: egypt">
+      <input type="text" name="username" required placeholder="مثال: ahmed">
     </div>
     <div class="field">
       <label>كلمة المرور (6 أحرف على الأقل)</label>
       <input type="text" name="password" required minlength="6">
     </div>
-    <div class="field">
+    <div class="field" id="cbox" style="display:none">
       <label>الدولة</label>
-      <select name="country" required>
+      <select name="country">
         {% for c in all_countries %}
         <option value="{{ c.code }}" {{ 'selected' if c.code == 'EG' }}>{{ c.flag }} {{ c.name.ar }}</option>
         {% endfor %}
@@ -34,16 +43,18 @@
 </div>
 
 <div class="card">
-  <h2>المدراء الحاليون</h2>
+  <h2>الحسابات الحالية</h2>
   {% if admins %}
   <table>
-    <thead><tr><th>اسم المستخدم</th><th>الدولة</th><th>تاريخ الإضافة</th><th>تغيير كلمة المرور</th><th>حذف</th></tr></thead>
+    <thead><tr><th>اسم المستخدم</th><th>النوع</th><th>الحالة</th><th>تاريخ الإضافة</th><th>سجل النشاط</th><th>تغيير كلمة المرور</th><th>إيقاف / حذف</th></tr></thead>
     <tbody>
       {% for a in admins %}
       <tr>
         <td><strong>{{ a.username }}</strong></td>
-        <td>{{ country_label(a.country) }}</td>
+        <td>{% if a.role == 'support' %}🎧 خدمة العملاء{% else %}🌍 مدير {{ country_label(a.country) }}{% endif %}</td>
+        <td>{% if a.disabled %}<span class="badge rejected">موقوف</span>{% else %}<span class="badge active">نشط</span>{% endif %}</td>
         <td>{{ a.created_at[:10] }}</td>
+        <td><a href="{{ url_for('admin_activity_page', user_id=a.id) }}">عرض</a></td>
         <td>
           <form method="post" class="inline-form">
             <input type="hidden" name="action" value="password">
@@ -52,8 +63,13 @@
             <button type="submit" class="secondary">تغيير</button>
           </form>
         </td>
-        <td>
-          <form method="post" class="inline-form" onsubmit="return confirm('حذف المدير «{{ a.username }}»؟');">
+        <td style="white-space:nowrap">
+          <form method="post" class="inline-form">
+            <input type="hidden" name="action" value="{{ 'enable' if a.disabled else 'disable' }}">
+            <input type="hidden" name="user_id" value="{{ a.id }}">
+            <button type="submit" class="secondary">{{ 'تفعيل' if a.disabled else 'إيقاف' }}</button>
+          </form>
+          <form method="post" class="inline-form" onsubmit="return confirm('حذف الحساب «{{ a.username }}» نهائيًا؟ (سجل نشاطه يبقى)');">
             <input type="hidden" name="action" value="delete">
             <input type="hidden" name="user_id" value="{{ a.id }}">
             <button type="submit" class="danger">حذف</button>
@@ -64,7 +80,7 @@
     </tbody>
   </table>
   {% else %}
-  <p class="muted">ما فيه مدراء دول بعد.</p>
+  <p class="muted">لا توجد حسابات بعد.</p>
   {% endif %}
 </div>
 {% endblock %}

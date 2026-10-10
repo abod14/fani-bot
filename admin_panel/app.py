@@ -65,6 +65,33 @@ def is_super() -> bool:
     return session.get("role", "super") == "super"
 
 
+def is_support() -> bool:
+    return session.get("role") == "support"
+
+
+def actor() -> str:
+    """اسم من يعمل الآن في اللوحة (لسجل التواصل والنشاط)."""
+    return session.get("username") or "المدير العام"
+
+
+def log(action: str, professional_id: int | None = None, target: str = ""):
+    db.log_admin_activity(actor(), action, professional_id, target)
+
+
+# خدمة العملاء: كل الدول، يرى ويعدّل بيانات الفنيين فقط — بلا مال ولا حذف ولا إيقاف ولا إعدادات ولا إكسل
+SUPPORT_ENDPOINTS = {"login", "logout", "static", "professionals_list", "professional_detail", "professional_edit",
+                     "professional_districts", "professional_notify_on", "professional_add_note", "deleted_page"}
+
+
+@app.before_request
+def _support_guard():
+    if session.get("logged_in") and is_support() and request.endpoint not in SUPPORT_ENDPOINTS:
+        if request.endpoint == "dashboard":
+            return redirect(url_for("professionals_list"))
+        flash("هذه الصفحة أو العملية ليست ضمن صلاحيات خدمة العملاء.", "error")
+        return redirect(url_for("professionals_list"))
+
+
 def super_required(view):
     """صفحات للمدير العام فقط — مدير الدولة يرجع للرئيسية مع تنبيه."""
     @functools.wraps(view)
@@ -80,7 +107,7 @@ def super_required(view):
 def scope_country() -> str | None:
     """الدولة اللي تنحصر فيها البيانات: مدير الدولة دائمًا دولته (ما يقدر يغيّرها)،
     والمدير العام حسب فلتر ?country= (فاضي = كل الدول)."""
-    if not is_super():
+    if not is_super() and not is_support():
         return session.get("country")
     code = (request.args.get("country") or "").upper()
     return code if countries.get(code) else None
@@ -91,7 +118,7 @@ def _professional_or_404(professional_id: int):
     p = db.get_professional_by_id(professional_id)
     if not p:
         return None
-    if not is_super() and (p.get("country") or "SA") != session.get("country"):
+    if not is_super() and not is_support() and (p.get("country") or "SA") != session.get("country"):
         abort(403)
     return p
 
@@ -100,6 +127,8 @@ def _professional_or_404(professional_id: int):
 def inject_role():
     return {
         "is_super": is_super() if session.get("logged_in") else False,
+        "is_support": is_support() if session.get("logged_in") else False,
+        "sees_all": (is_super() or is_support()) if session.get("logged_in") else False,
         "manager_country": session.get("country"),
         "country_label": countries.label,
         "all_countries": countries.COUNTRIES,
@@ -120,11 +149,18 @@ def login():
             return redirect(next_url or url_for("dashboard"))
         manager = db.get_admin_user_by_username(username)
         if manager and check_password_hash(manager["password_hash"], password):
+            if manager.get("disabled"):
+                flash("هذا الحساب موقوف. تواصل مع المدير العام.", "error")
+                return render_template("login.html")
             session.clear()
             session["logged_in"] = True
+            session["username"] = manager["username"]
+            if manager.get("role") == "support":
+                session["role"] = "support"
+                flash(f"أهلًا {manager['username']} — خدمة العملاء.", "success")
+                return redirect(url_for("professionals_list"))
             session["role"] = "country"
             session["country"] = manager["country"]
-            session["username"] = manager["username"]
             flash(f"أهلًا {manager['username']} — مدير {countries.label(manager['country'])}.", "success")
             return redirect(url_for("dashboard"))
         flash("اسم المستخدم أو كلمة المرور غير صحيحة.", "error")
@@ -289,6 +325,7 @@ def professionals_list():
         status_labels=db.STATUS_LABELS_AR,
         active_page="professionals",
         ratings=__import__("ratings").summary([p["id"] for p in professionals]),
+        notes_count=db.notes_counts([p["id"] for p in professionals]),
     )
 
 
@@ -398,8 +435,21 @@ def professional_detail(professional_id):
         rating=__import__("ratings").summary([p["id"]]).get(p["id"]),
         city_districts=db.list_sa_districts_by_city(p["city_id"]) if p.get("city_id") else [],
         selected_districts={d["id"] for d in db.get_districts_for_professional(p["id"])},
+        notes=[dict(n, when=_riyadh(n["created_at"])) for n in db.list_professional_notes(p["id"])],
         max_districts=MAX_ADMIN_DISTRICTS,
     )
+
+
+@app.route("/professionals/<int:professional_id>/notes", methods=["POST"])
+@login_required
+def professional_add_note(professional_id):
+    p = _professional_or_404(professional_id)
+    if not p:
+        return redirect(url_for("professionals_list"))
+    if db.add_professional_note(p["id"], actor(), request.form.get("body", "")):
+        log("كتب ملاحظة تواصل", p["id"], p["full_name"])
+        flash("تم حفظ الملاحظة.", "success")
+    return redirect(url_for("professional_detail", professional_id=p["id"]) + "#notes")
 
 
 MAX_ADMIN_DISTRICTS = 5   # نفس حد التسجيل (قرار نهائي: 5 أحياء) — عدالة الظهور بين الفنيين
@@ -428,6 +478,7 @@ def professional_districts(professional_id):
         return back
     db.update_professional_area(professional_id, p.get("country") or countries.DEFAULT_COUNTRY, p["city"],
                                 p["city_id"], ids, whole)
+    log("عدّل الأحياء", professional_id, p["full_name"])
     flash("تم حفظ الأحياء: المدينة كاملة 🌍" if whole else f"تم حفظ الأحياء ({len(ids)}).", "success")
     return back
 
@@ -449,6 +500,7 @@ def professional_notify_on(professional_id):
     ch = request.form.get("channel")
     if ch in ("telegram", "whatsapp"):
         db.set_notify_off(p["id"], ch, False)
+        log("فعّل الإشعارات", p["id"], p["full_name"])
         flash(f"تم تفعيل إشعارات {'تلغرام' if ch == 'telegram' else 'واتساب'} للفني ✅", "success")
     return redirect(request.referrer or url_for("professional_detail", professional_id=p["id"]))
 
@@ -490,6 +542,7 @@ def professional_set_status(professional_id):
         flash("حالة غير معروفة.", "error")
     else:
         db.set_status(professional_id, new_status)
+        log(f"غيّر الحالة إلى {db.STATUS_LABELS_AR.get(new_status, new_status)}", professional_id)
         flash("تم تحديث حالة الفني.", "success")
     next_url = request.form.get("next")
     return redirect(next_url or url_for("professional_detail", professional_id=professional_id))
@@ -524,6 +577,7 @@ def professional_edit(professional_id):
         telegram_contact_number=tg,
         has_whatsapp=request.form.get("has_whatsapp") == "1",
     )
+    log("عدّل بيانات التواصل", professional_id, p["full_name"])
     flash("تم حفظ بيانات الفني.", "success")
     return redirect(url_for("professional_detail", professional_id=professional_id))
 
@@ -538,9 +592,11 @@ def professional_subscription(professional_id):
     expires_at = request.form.get("expires_at") or None
     if action == "activate":
         db.admin_set_subscription(professional_id, True, expires_at)
+        log("فعّل الاشتراك يدويًا", professional_id)
         flash("تم تفعيل الاشتراك يدويًا.", "success")
     elif action == "deactivate":
         db.admin_set_subscription(professional_id, False, None)
+        log("ألغى الاشتراك", professional_id)
         flash("تم إلغاء الاشتراك.", "success")
     return redirect(url_for("professional_detail", professional_id=professional_id))
 
@@ -562,6 +618,7 @@ def professional_delete(professional_id):
     if not _professional_or_404(professional_id):
         flash("الفني غير موجود.", "error")
         return redirect(url_for("professionals_list"))
+    log("حذف الفني", professional_id)
     db.admin_delete_professional(professional_id)
     flash("تم حذف الفني نهائيًا.", "success")
     return redirect(url_for("professionals_list"))
@@ -715,13 +772,15 @@ def admins_page():
         if action == "add":
             username = request.form.get("username", "").strip()
             password = request.form.get("password", "")
-            country = (request.form.get("country") or "").upper()
-            if not username or len(password) < 6 or not countries.get(country):
+            role = "support" if request.form.get("role") == "support" else "country"
+            country = (request.form.get("country") or "").upper() if role == "country" else "ALL"
+            if not username or len(password) < 6 or (role == "country" and not countries.get(country)):
                 flash("اكتب اسم مستخدم، وكلمة مرور 6 أحرف على الأقل، واختر الدولة.", "error")
             elif username == config.ADMIN_PANEL_USERNAME:
                 flash("هذا الاسم محجوز للمدير العام — اختر اسم ثاني.", "error")
-            elif db.create_admin_user(username, generate_password_hash(password), country):
-                flash(f"تمت إضافة المدير «{username}» لـ {countries.label(country)}.", "success")
+            elif db.create_admin_user(username, generate_password_hash(password), country, role):
+                flash(f"تمت إضافة موظف خدمة العملاء «{username}»." if role == "support"
+                      else f"تمت إضافة المدير «{username}» لـ {countries.label(country)}.", "success")
             else:
                 flash("اسم المستخدم مستخدم مسبقًا.", "error")
         elif action == "password":
@@ -733,10 +792,25 @@ def admins_page():
                 flash("تم تغيير كلمة المرور.", "success")
         elif action == "delete":
             db.delete_admin_user(int(request.form["user_id"]))
-            flash("تم حذف المدير.", "success")
+            flash("تم حذف الحساب.", "success")
+        elif action in ("disable", "enable"):
+            db.set_admin_user_disabled(int(request.form["user_id"]), action == "disable")
+            flash("تم إيقاف الحساب — لن يستطيع الدخول." if action == "disable" else "تم تفعيل الحساب.", "success")
         return redirect(url_for("admins_page"))
 
     return render_template("admins.html", admins=db.list_admin_users(), active_page="admins")
+
+
+@app.route("/admins/<int:user_id>/activity")
+@super_required
+def admin_activity_page(user_id):
+    u = next((a for a in db.list_admin_users() if a["id"] == user_id), None)
+    if not u:
+        return redirect(url_for("admins_page"))
+    rows = db.list_admin_activity(u["username"])
+    for r in rows:
+        r["when"] = _riyadh(r["created_at"])
+    return render_template("activity.html", u=u, rows=rows, active_page="admins")
 
 
 # ─────────────────────────── المسوّقون (تسجيل فنيين على أرقام أخرى) ───────────────────────────
@@ -763,11 +837,19 @@ def registrars_page():
 # ─────────────────────────── الفنيون المحذوفون (أرشيف للتواصل) ───────────────────────────
 
 @app.route("/deleted", methods=["GET", "POST"])
-@super_required
+@login_required
 def deleted_page():
+    if not (is_super() or is_support()):
+        flash("هذي الصفحة متاحة للمدير العام فقط.", "error")
+        return redirect(url_for("dashboard"))
     if request.method == "POST":
         aid = int(request.form.get("id") or 0)
         action = request.form.get("action")
+        if is_support() and action != "save":
+            flash("هذه العملية للمدير العام فقط.", "error")
+            return redirect(url_for("deleted_page"))
+        if action == "save":
+            log("كتب سبب حذف/ملاحظة على محذوف", None, str(aid))
         if action == "days":
             try:
                 n = max(0, min(db.ARCHIVE_DAYS_MAX, int(request.form.get("days") or 0)))
@@ -860,6 +942,7 @@ def deleted_export():
 @super_required
 def professional_reset_rating(professional_id):
     n = __import__("ratings").reset_for_professional(professional_id)
+    log("صفّر التقييم", professional_id)
     flash(f"تم تصفير التقييم ({n} تقييم أُلغي). يبدأ الفني بتقييم جديد.", "success")
     return redirect(url_for("professional_detail", professional_id=professional_id))
 

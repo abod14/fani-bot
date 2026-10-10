@@ -9,18 +9,23 @@
 <body>
   {% if session.get('logged_in') %}
   <div class="topbar">
-    <div class="brand">🛠️ لوحة تحكم «فني»{% if not is_super and manager_country %} — {{ country_label(manager_country) }}{% endif %}</div>
+    <div class="brand">🛠️ لوحة تحكم «فني»{% if is_support %} — خدمة العملاء{% elif not is_super and manager_country %} — {{ country_label(manager_country) }}{% endif %}</div>
     <nav>
+      {% if is_support %}
+      <a href="{{ url_for('professionals_list') }}" class="{{ 'active' if active_page == 'professionals' else '' }}">الفنيون</a>
+      <a href="{{ url_for('deleted_page') }}" class="{{ 'active' if active_page == 'deleted' else '' }}">المحذوفون</a>
+      {% else %}
       <a href="{{ url_for('dashboard') }}" class="{{ 'active' if active_page == 'dashboard' else '' }}">الرئيسية</a>
       <a href="{{ url_for('professionals_list') }}" class="{{ 'active' if active_page == 'professionals' else '' }}">الفنيون</a>
       <a href="{{ url_for('coverage_page') }}" class="{{ 'active' if active_page == 'coverage' else '' }}">مؤشرات التغطية</a>
+      {% endif %}
       {% if is_super %}
       <a href="{{ url_for('payments_list') }}" class="{{ 'active' if active_page == 'payments' else '' }}">الاشتراكات والمدفوعات</a>
       <a href="{{ url_for('demand_page') }}" class="{{ 'active' if active_page == 'demand' else '' }}">الأكثر طلبًا</a>
       <a href="{{ url_for('professions_page') }}" class="{{ 'active' if active_page == 'professions' else '' }}">المهن</a>
       <a href="{{ url_for('deleted_page') }}" class="{{ 'active' if active_page == 'deleted' else '' }}">المحذوفون</a>
       <a href="{{ url_for('registrars_page') }}" class="{{ 'active' if active_page == 'registrars' else '' }}">المسوّقون</a>
-      <a href="{{ url_for('admins_page') }}" class="{{ 'active' if active_page == 'admins' else '' }}">المدراء</a>
+      <a href="{{ url_for('admins_page') }}" class="{{ 'active' if active_page == 'admins' else '' }}">المدراء والموظفون</a>
       <a href="{{ url_for('settings_page') }}" class="{{ 'active' if active_page == 'settings' else '' }}">الإعدادات</a>
       {% endif %}
       <a href="{{ url_for('logout') }}" class="logout">تسجيل خروج</a>

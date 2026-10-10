@@ -4,7 +4,7 @@
 <h1>الفنيون ({{ total_count }})</h1>
 
 <form method="get" class="filters card">
-  {% if is_super %}
+  {% if sees_all %}
   <div class="field">
     <label>الدولة</label>
     <select name="country">
@@ -83,7 +83,7 @@
   <thead>
     <tr>
       <th>الاسم</th>
-      {% if is_super %}<th>الدولة</th>{% endif %}
+      {% if sees_all %}<th>الدولة</th>{% endif %}
       <th>المدينة / الحي</th>
       <th>المهنة</th>
       <th>الحالة</th>
@@ -97,10 +97,10 @@
   <tbody>
     {% for p in professionals %}
     <tr>
-      <td><a href="{{ url_for('professional_detail', professional_id=p.id) }}">{{ p.full_name }}</a>
+      <td><a href="{{ url_for('professional_detail', professional_id=p.id) }}">{{ p.full_name }}</a>{% if notes_count.get(p.id) %} <a href="{{ url_for('professional_detail', professional_id=p.id) }}#notes" title="{{ notes_count[p.id] }} ملاحظة تواصل" style="text-decoration:none">📝</a>{% endif %}
         {% if p.wa_id %}<span class="src-badge wa" title="سجّل من واتساب{% if p.telegram_user_id > 0 %} ومربوط بتلغرام{% endif %}">واتساب{% if p.telegram_user_id > 0 %} + تلغرام{% endif %}</span>
         {% else %}<span class="src-badge tg" title="سجّل من تلغرام">تلغرام</span>{% endif %}</td>
-      {% if is_super %}<td>{{ country_label(p.country or 'SA') }}</td>{% endif %}
+      {% if sees_all %}<td>{{ country_label(p.country or 'SA') }}</td>{% endif %}
       <td>{{ p.city }}{% if p.covers_whole_city %} / المدينة كاملة 🌍{% elif p.neighborhood %} / {{ p.neighborhood }}{% endif %}</td>
       <td>{{ p.profession_name }}{% if p.profession2_name %} • {{ p.profession2_name }}{% endif %}</td>
       <td><span class="badge {{ p.status }}">{{ status_labels.get(p.status, p.status) }}</span></td>

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}سجل نشاط {{ u.username }} — لوحة تحكم «فني»{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('admins_page') }}">« رجوع للمدراء والموظفين</a></p>
+<h1>سجل نشاط «{{ u.username }}»</h1>
+<p class="muted">كل ما فعله في اللوحة، الأحدث أولًا (بتوقيت الرياض). يُسجَّل تلقائيًا ولا يستطيع حذفه.</p>
+<div class="card">
+  {% if rows %}
+  <table>
+    <thead><tr><th>الوقت</th><th>العملية</th><th>الفني</th></tr></thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td style="white-space:nowrap">{{ r.when }}</td>
+        <td>{{ r.action }}</td>
+        <td>{% if r.professional_id %}<a href="{{ url_for('professional_detail', professional_id=r.professional_id) }}">{{ r.target or ('#' ~ r.professional_id) }}</a>{% else %}{{ r.target or '—' }}{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}<p class="muted">لا يوجد نشاط بعد.</p>{% endif %}
+</div>
+{% endblock %}

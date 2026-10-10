@@ -5,6 +5,7 @@
 <p class="muted">هؤلاء حُذفوا من البوت نهائيًا ولا يظهرون لأي أحد. نحتفظ هنا فقط باسمهم ورقمهم وتقييمهم وسبب الحذف،
 للتواصل معهم. السبب يكتبه الفني عند الحذف، أو تكتبه أنت هنا. تقييمه يبقى معه ما دام في هذه القائمة (ويعود له لو سجّل من جديد خلالها)، وعند حذف السجل يُحذف تقييمه أيضًا فلا يبقى شيء. لو طلب الفني حذف بياناته كليًا اضغط «حذف من الأرشيف».</p>
 
+{% if not is_support %}
 <div class="card">
   <h2>⏳ مدة الاحتفاظ بالمحذوفين</h2>
   <p class="muted">بعدها يُحذف السجل نهائيًا تلقائيًا. هذه المدة تُكتب للفني في رسالة الحذف وفي صفحة الخصوصية تلقائيًا.
@@ -15,10 +16,11 @@
     <button type="submit">حفظ</button>
   </form>
 </div>
+{% endif %}
 
 <div class="card">
-  <p><a class="btn success" href="{{ url_for('deleted_export') }}">⬇️ تصدير إكسل</a>
-  <span class="muted">— لإرساله لخدمة العملاء. ⚠️ فيه أرقام جوالات: أرسله لهم مباشرة، ولا تنشره في مجموعات، واحذفه بعد الانتهاء.</span></p>
+{% if not is_support %}  <p><a class="btn success" href="{{ url_for('deleted_export') }}">⬇️ تصدير إكسل</a>
+  <span class="muted">— لإرساله لخدمة العملاء. ⚠️ فيه أرقام جوالات: أرسله لهم مباشرة، ولا تنشره في مجموعات، واحذفه بعد الانتهاء.</span></p>{% endif %}
   {% if rows %}
   <table>
     <thead><tr><th>تاريخ الحذف</th><th>الاسم</th><th>الرقم</th><th>المهنة / المدينة</th><th>التقييم</th><th>سبب الحذف وملاحظاتك</th><th></th></tr></thead>
@@ -39,9 +41,9 @@
             <button type="submit">حفظ</button>
           </form>
         </td>
-        <td><form method="post" class="inline-form" onsubmit="return confirm('حذف هذا السجل من الأرشيف نهائيًا؟');">
+        <td>{% if not is_support %}<form method="post" class="inline-form" onsubmit="return confirm('حذف هذا السجل من الأرشيف نهائيًا؟');">
           <input type="hidden" name="action" value="erase"><input type="hidden" name="id" value="{{ r.id }}">
-          <button type="submit" class="secondary">حذف من الأرشيف</button></form></td>
+          <button type="submit" class="secondary">حذف من الأرشيف</button></form>{% endif %}</td>
       </tr>
       {% endfor %}
     </tbody>

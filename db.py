@@ -565,6 +565,23 @@ def init_db():
     import ratings   # جداول التقييم (ratings / rating_requests / wa_last_seen)
     ratings.ensure_tables()
     with get_conn() as conn:
+        # دور الموظف: country = مدير دولة، support = خدمة عملاء (كل الدول، بلا مال ولا حذف) + إيقاف الحساب
+        cols = {r[1] for r in conn.execute("PRAGMA table_info(admin_users)").fetchall()}
+        if "role" not in cols:
+            conn.execute("ALTER TABLE admin_users ADD COLUMN role TEXT NOT NULL DEFAULT 'country'")
+        if "disabled" not in cols:
+            conn.execute("ALTER TABLE admin_users ADD COLUMN disabled INTEGER NOT NULL DEFAULT 0")
+        # سجل التواصل مع الفني (ملاحظات يكتبها الموظف — لا يراها الفني)
+        conn.execute("""CREATE TABLE IF NOT EXISTS professional_notes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT, professional_id INTEGER NOT NULL,
+            author TEXT NOT NULL, body TEXT NOT NULL, created_at TEXT NOT NULL)""")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_notes_pro ON professional_notes (professional_id)")
+        # سجل نشاط موظفي اللوحة (رقابة: من عدّل ماذا ومتى)
+        conn.execute("""CREATE TABLE IF NOT EXISTS admin_activity (
+            id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL, action TEXT NOT NULL,
+            professional_id INTEGER, target TEXT, created_at TEXT NOT NULL)""")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_activity_user ON admin_activity (username, id)")
+    with get_conn() as conn:
         # طلب المالك: أرشيف الفنيين المحذوفين — يُحذفون من البوت نهائيًا (لا يظهرون لأحد)،
         # ونحتفظ هنا باسمهم ورقمهم وتقييمهم وسبب الحذف للتواصل معهم (يظهر في لوحة التحكم فقط).
         conn.execute("""CREATE TABLE IF NOT EXISTS deleted_professionals (
@@ -1819,6 +1836,7 @@ def admin_delete_professional(professional_id: int):
         conn.execute("DELETE FROM contact_clicks WHERE professional_id = ?", (professional_id,))
         conn.execute("DELETE FROM subscription_payments WHERE professional_id = ?", (professional_id,))
         conn.execute("DELETE FROM professional_districts WHERE professional_id = ?", (professional_id,))
+        conn.execute("DELETE FROM professional_notes WHERE professional_id = ?", (professional_id,))
         conn.execute("DELETE FROM professionals WHERE id = ?", (professional_id,))
 
 
@@ -1830,7 +1848,8 @@ def delete_wa_professional(wa_id: str) -> list[int]:
     archived = [a for a in (archive_professional(pid) for pid in ids) if a]
     with get_conn() as conn:
         for pid in ids:
-            for t in ("contact_clicks", "subscription_payments", "professional_districts", "notify_log", "missed_searches"):
+            for t in ("contact_clicks", "subscription_payments", "professional_districts", "notify_log", "missed_searches",
+                      "professional_notes"):
                 conn.execute(f"DELETE FROM {t} WHERE professional_id = ?", (pid,))
         conn.execute("DELETE FROM professionals WHERE wa_id = ?", (wa_id,))
     return archived
@@ -1879,6 +1898,7 @@ def delete_all_user_data(telegram_user_id: int) -> list[int]:
             conn.execute("DELETE FROM subscription_payments WHERE professional_id = ?", (pid,))
             conn.execute("DELETE FROM professional_districts WHERE professional_id = ?", (pid,))
             conn.execute("DELETE FROM referral_credits WHERE referrer_id = ?", (pid,))
+            conn.execute("DELETE FROM professional_notes WHERE professional_id = ?", (pid,))
         conn.execute("DELETE FROM referral_credits WHERE referred_telegram_id = ?", (telegram_user_id,))
         conn.execute("DELETE FROM professionals WHERE telegram_user_id = ?", (telegram_user_id,))
         conn.execute("DELETE FROM search_log WHERE customer_telegram_id = ?", (telegram_user_id,))
@@ -2472,8 +2492,57 @@ def nearest_sa_cities(city_id: int, exclude_ids: list[int], limit: int = 3):
 
 def list_admin_users():
     with get_conn() as conn:
-        rows = conn.execute("SELECT id, username, country, created_at FROM admin_users ORDER BY country, username").fetchall()
+        rows = conn.execute("SELECT id, username, country, created_at, role, disabled FROM admin_users "
+                            "ORDER BY role, country, username").fetchall()
         return [dict(r) for r in rows]
+
+
+def set_admin_user_disabled(user_id: int, disabled: bool):
+    with get_conn() as conn:
+        conn.execute("UPDATE admin_users SET disabled = ? WHERE id = ?", (1 if disabled else 0, user_id))
+
+
+# ─────────────────────────── سجل التواصل مع الفني + نشاط الموظفين ───────────────────────────
+
+def add_professional_note(professional_id: int, author: str, body: str):
+    body = (body or "").strip()[:2000]
+    if not body:
+        return False
+    with get_conn() as conn:
+        conn.execute("INSERT INTO professional_notes (professional_id, author, body, created_at) VALUES (?,?,?,?)",
+                     (professional_id, author, body, _now_iso()))
+    return True
+
+
+def list_professional_notes(professional_id: int) -> list[dict]:
+    with get_conn() as conn:
+        return [dict(r) for r in conn.execute(
+            "SELECT * FROM professional_notes WHERE professional_id = ? ORDER BY id DESC", (professional_id,)).fetchall()]
+
+
+def notes_counts(professional_ids: list[int]) -> dict[int, int]:
+    if not professional_ids:
+        return {}
+    q = ",".join("?" * len(professional_ids))
+    with get_conn() as conn:
+        return {r[0]: r[1] for r in conn.execute(
+            f"SELECT professional_id, COUNT(*) FROM professional_notes WHERE professional_id IN ({q}) "
+            "GROUP BY professional_id", list(professional_ids)).fetchall()}
+
+
+def log_admin_activity(username: str, action: str, professional_id: int | None = None, target: str = ""):
+    try:
+        with get_conn() as conn:
+            conn.execute("INSERT INTO admin_activity (username, action, professional_id, target, created_at) "
+                         "VALUES (?,?,?,?,?)", (username, action, professional_id, (target or "")[:200], _now_iso()))
+    except Exception:
+        pass
+
+
+def list_admin_activity(username: str, limit: int = 300) -> list[dict]:
+    with get_conn() as conn:
+        return [dict(r) for r in conn.execute(
+            "SELECT * FROM admin_activity WHERE username = ? ORDER BY id DESC LIMIT ?", (username, limit)).fetchall()]
 
 
 def get_admin_user_by_username(username: str):
@@ -2482,15 +2551,15 @@ def get_admin_user_by_username(username: str):
         return dict(row) if row else None
 
 
-def create_admin_user(username: str, password_hash: str, country: str) -> bool:
+def create_admin_user(username: str, password_hash: str, country: str, role: str = "country") -> bool:
     """يرجّع False لو اسم المستخدم مستخدم مسبقًا."""
     with get_conn() as conn:
         exists = conn.execute("SELECT 1 FROM admin_users WHERE username = ?", (username,)).fetchone()
         if exists:
             return False
         conn.execute(
-            "INSERT INTO admin_users (username, password_hash, country, created_at) VALUES (?, ?, ?, ?)",
-            (username, password_hash, country, _now_iso()),
+            "INSERT INTO admin_users (username, password_hash, country, created_at, role) VALUES (?, ?, ?, ?, ?)",
+            (username, password_hash, country, _now_iso(), role if role in ("country", "support") else "country"),
         )
         return True
 
